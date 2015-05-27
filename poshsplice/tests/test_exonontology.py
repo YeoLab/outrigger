@@ -2,15 +2,15 @@
 # -*- coding: utf-8 -*-
 
 """
-test_exonontology
+test_poshsplice
 ----------------------------------
 
-Tests for `exonontology` module.
+Tests for `poshsplice` module.
 """
 
 import unittest
 
-from exonontology import exonontology
+from poshsplice import poshsplice
 
 
 class TestExonontology(unittest.TestCase):

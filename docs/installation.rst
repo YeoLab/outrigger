@@ -4,9 +4,9 @@ Installation
 
 At the command line::
 
-    $ easy_install exonontology
+    $ easy_install poshsplice
 
 Or, if you have virtualenvwrapper installed::
 
-    $ mkvirtualenv exonontology
-    $ pip install exonontology
+    $ mkvirtualenv poshsplice
+    $ pip install poshsplice

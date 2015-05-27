@@ -48,7 +48,7 @@ help:
 
 clean:
 	rm -rf $(BUILDDIR)
-	rm -rf exonontology*.rst
+	rm -rf poshsplice*.rst
 	rm -rf modules.rst
 	rm -rf tutorial/*.rst
 	rm -rf tutorial/*_files
@@ -60,7 +60,7 @@ clean:
 html:
 	cp ../examples/*.ipynb tutorial/;
 	cd tutorial ; make notebooks ; cd ..
-	sphinx-apidoc -l -d 4 -e --force -o . ../exonontology
+	sphinx-apidoc -l -d 4 -e --force -o . ../poshsplice
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."

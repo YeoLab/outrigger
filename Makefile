@@ -35,21 +35,21 @@ clean-test:
 	rm -fr htmlcov/
 
 lint:
-	pyflakes exonontology
+	pyflakes poshsplice
 
 test:
-	py.test exonontology
+	py.test poshsplice
 
 pep8:
-	pep8 exonontology
+	pep8 poshsplice
 
 coverage:
-	py.test --durations=20 --cov exonontology --cov-report term-missing exonontology/tests/
+	py.test --durations=20 --cov poshsplice --cov-report term-missing poshsplice/tests/
 
 docs:
-	rm -f docs/exonontology.rst
+	rm -f docs/poshsplice.rst
 	rm -f docs/modules.rst
-	sphinx-apidoc -o docs/ exonontology
+	sphinx-apidoc -o docs/ poshsplice
 	$(MAKE) -C docs clean
 	$(MAKE) -C docs html
 	open docs/_build/html/index.html

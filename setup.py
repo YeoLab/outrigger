@@ -23,23 +23,23 @@ test_requirements = [
 ]
 
 setup(
-    name='exonontology',
+    name='poshsplice',
     version='0.1.0',
     description="Exon ontology is an attempt to catalogue scripts used to annotate exons and their functions",
     long_description=readme + '\n\n' + history,
     author="Olga Botvinnik",
     author_email='olga.botvinnik@gmail.com',
-    url='https://github.com/olgabot/exonontology',
+    url='https://github.com/olgabot/poshsplice',
     packages=[
-        'exonontology',
+        'poshsplice',
     ],
-    package_dir={'exonontology':
-                 'exonontology'},
+    package_dir={'poshsplice':
+                 'poshsplice'},
     include_package_data=True,
     install_requires=requirements,
     license="BSD",
     zip_safe=False,
-    keywords='exonontology',
+    keywords='poshsplice',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',
