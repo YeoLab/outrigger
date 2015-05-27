@@ -1,0 +1,19 @@
+v0.1.0 (...)
+------------------------
+
+New features
+~~~~~~~~~~~~
+
+Plotting functions
+~~~~~~~~~~~~~~~~~~
+
+API changes
+~~~~~~~~~~~~~~~~~~
+
+
+Bug fixes
+~~~~~~~~~
+
+Miscellaneous
+~~~~~~~~~~~~~
+
