@@ -1,0 +1,3 @@
+[submodule "poshsplice/external/maxentscan"]
+	path = poshsplice/external/maxentscan
+	url = https://github.com/razZ0r/maxentscan
