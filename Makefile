@@ -35,16 +35,13 @@ clean-test:
 	rm -fr htmlcov/
 
 lint:
-	pyflakes poshsplice
+	flake8 --exclude poshsplice/external,doc poshsplice
 
 test:
 	py.test poshsplice
 
-pep8:
-	pep8 poshsplice
-
 coverage:
-	py.test --durations=20 --cov poshsplice --cov-report term-missing poshsplice/tests/
+	coverage run --source poshsplice --omit=tests,external --module py.test
 
 docs:
 	rm -f docs/poshsplice.rst

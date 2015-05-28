@@ -1,16 +1,33 @@
-# Config file for automatic testing at travis-ci.org
-
 language: python
-
 python:
-  - "3.4"
-  - "3.3"
-  - "2.7"
-  - "2.6"
-  - "pypy"
-
-# command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
-install: pip install -r requirements.txt
-
-# command to run tests, e.g. python setup.py test
-script: python setup.py test
+- '2.6'
+- '2.7'
+- '3.3'
+- '3.4'
+before_install:
+- if [ ${TRAVIS_PYTHON_VERSION:0:1} == "2" ]; then wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh
+  -O miniconda.sh; else wget http://repo.continuum.io/miniconda/Miniconda3-3.4.2-Linux-x86_64.sh
+  -O miniconda.sh; fi
+- chmod +x miniconda.sh
+- "./miniconda.sh -b"
+- if [ ${TRAVIS_PYTHON_VERSION:0:1} == "2" ]; then export PATH=~/miniconda/bin:$PATH;
+  else export PATH=~/miniconda3/bin/:$PATH; fi
+- conda update --yes conda
+- export COVERALLS_SERVICE_NAME=travis-ci
+- export COVERALLS_REPO_TOKEN=by7GvOYZU7lGCyDMSr6Aedt4TOIpvEuL9
+install:
+- conda create -n testenv --yes python=$TRAVIS_PYTHON_VERSION pip
+- source activate testenv
+- conda install --yes --file requirements.txt
+- pip install coverage
+- pip install .
+before_script:
+- git config --global user.email "olga.botvinnik@gmail.com"
+- git config --global user.name "olgabot"
+- git config --global push.default simple
+- export REPO_URL_GITHUB="https://$GH_TOKEN@github.com/$GH_REPO.git"
+script:
+- make coverage
+- make lint
+after_script:
+- coveralls

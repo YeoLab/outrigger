@@ -1,8 +1,11 @@
 __author__ = 'olgabotvinnik'
 
-%%time
+from collections import defaultdict
+
 from Bio import SeqIO
 from Bio.SeqRecord import SeqRecord
+
+import pandas as pd
 
 isoform1_seqs = []
 isoform2_seqs = []
@@ -15,6 +18,11 @@ exon2_filename = '/projects/ps-yeolab/obotvinnik/miso_helpers/hg19/se_exon2.fast
 exon3_filename = '/projects/ps-yeolab/obotvinnik/miso_helpers/hg19/se_exon3.fasta'
 
 def seq_name_to_exon_id(seq_name):
+    """
+
+    >>> seq_name_to_exon_id('chr1:100-200(+)')
+    'exon:chr1:101-200:+
+    """
     chr_start_stop, strand = seq_name.split('(')
     chrom, startstop = chr_start_stop.split(':')
     start, stop = startstop.split('-')
@@ -23,6 +31,56 @@ def seq_name_to_exon_id(seq_name):
     strand = strand.rstrip(')')
     exon = 'exon:{}:{}'.format(chr_start_stop, strand)
     return exon
+
+def splice_type_exons(splice_type, exons):
+    """Get exons corresponding to a particular isoform of a splice type
+
+    For SE:
+        isoform1: exon1, exon2
+        isoform2: exon1, exon2, exon3
+    for MXE:
+        isoform1: exon1, exon3, exon4
+        isoform2: exon1, exon2, exon4
+
+    Parameters
+    ----------
+    splice_type : 'SE' | 'MXE'
+        String specifying the splice type. Currently only SE (skipped exon) and
+        MXE (mutually exclusive exon) are supported
+    exons : list
+        List of exons or CDS's (ids, strings, you name it) in the exact order
+        of the splice type, e.g. (exon1_id, exon2_id, exon3_id) for SE
+
+    Returns
+    -------
+    isoform1_exons : tuple
+        Tuple of exons corresponding to isoform 1
+    isoform2_exons : tuple
+        Tuple of exons corresponding to isoform 2
+    """
+    isoform1, isoform2 = None, None
+    if splice_type == 'SE':
+        isoform1 = exons[0], exons[2]
+        isoform2 = exons[0], exons[1], exons[2]
+    elif splice_type == 'MXE':
+        isoform1 = exons[0], exons[1], exons[3]
+        isoform2 = exons[0], exons[2], exons[3]
+    return isoform1, isoform2
+
+
+def exon_seqs_to_isoform_seqs(exon_fastas, event_ids, splice_type):
+    parsed = [SeqIO.parse(exon_fasta, 'fasta') for exon_fasta in exon_fastas]
+
+    isoform_seqs = defaultdict(list)
+    for event_id, seqs in zip(event_ids, parsed):
+        isoforms = splice_type_exons(splice_type, seqs)
+        for i, isoform in enumerate(isoforms):
+            i = i+1
+            seq = ''.join(x.seq for x in isoform)
+            seqrecord = SeqRecord(seq, id=event_id, description='isoform{0}'.format(i))
+            isoform_seqs[i].append(seqrecord)
+    return isoform_seqs
+
 
 with open(exon1_filename) as infile1, open(exon2_filename) as infile2, open(exon3_filename) as infile3:
     parsed1 = SeqIO.parse(infile1, 'fasta')
@@ -210,10 +268,10 @@ def event_to_domain_disruption(event_name, row):
                 if len(isoform2_domains.index.difference(isoform1_domains.index)) > 0:
                     return 'overlapping domains, gain of unique domains'
 
-translations = study.splicing.feature_data.ix[:, ['isoform1_translation', 'isoform2_translation']].dropna(how='all')
-translations.head()
-
-for event_name, row in translations.iterrows():
-    events_to_domain_disruptions[event_name] = event_to_domain_disruption(event_name, row)
-
-events_to_domain_disruptions
+# translations = study.splicing.feature_data.ix[:, ['isoform1_translation', 'isoform2_translation']].dropna(how='all')
+# translations.head()
+#
+# for event_name, row in translations.iterrows():
+#     events_to_domain_disruptions[event_name] = event_to_domain_disruption(event_name, row)
+#
+# events_to_domain_disruptions

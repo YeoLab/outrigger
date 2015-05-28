@@ -93,7 +93,7 @@ def score_splice_fasta(ss_fasta, splice_site, filename=None):
         raise ValueError('{0} is not a valid splice site. Only 5 and 3 are acceptable'.format(splice_site))
 
     ss_fasta = os.path.abspath(os.path.expanduser(ss_fasta))
-    maxentscan_dir = os.path.join(os.path.abspath(__file__), os.path.join(*['external', 'maxentscan']))
+    maxentscan_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), os.path.join(*['external', 'maxentscan']))
     currdir = os.getcwd()
     os.chdir(maxentscan_dir)
 
@@ -104,9 +104,12 @@ def score_splice_fasta(ss_fasta, splice_site, filename=None):
         raise ValueError("Not all the sequences in the fasta file are {0}nt long. For {1}' splice sites, the required"
                          "input is fasta files with sequence length {0}nt.".format(length, splice_site))
 
-    stdout = subprocess.PIPE if filename is None else filename
     program = 'score{0}.pl'.format(splice_site)
-    pipe = subprocess.Popen(["perl", program, ss_fasta], stdout=stdout)
+    pipe = subprocess.Popen(["perl", program, ss_fasta], stdout=subprocess.PIPE)
+    output = pipe.stdout.read()
+
+    if filename is not None:
+        with open(filename, 'w') as f:
+            f.write(output)
     os.chdir(currdir)
-    assert 0
-    return pipe.stdout
+    return output
