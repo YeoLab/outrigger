@@ -84,5 +84,5 @@ def test_read_splice_scores(splice_scores):
     else:
         filename = splice_scores
     true = pd.read_table(filename, squeeze=True, header=None,
-                         index_col=0)
+                         index_col=0, sep='\s+')
     pdt.assert_series_equal(test, true)

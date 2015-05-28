@@ -147,4 +147,5 @@ def read_splice_scores(scores):
         filename = six.StringIO(scores)
     else:
         filename = scores
-    return pd.read_table(filename, squeeze=True, header=None, index_col=0)
+    return pd.read_table(filename, squeeze=True, header=None, index_col=0,
+                         sep='\s+')
