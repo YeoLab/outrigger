@@ -2,6 +2,7 @@ import os
 import subprocess
 
 from Bio import SeqIO
+import six
 
 __author__ = 'olgabotvinnik'
 
@@ -121,4 +122,6 @@ def score_splice_fasta(ss_fasta, splice_site, filename=None):
         with open(filename, 'w') as f:
             f.write(output)
     os.chdir(currdir)
+    if six.PY3:
+        output = output.decode('utf-8')
     return output

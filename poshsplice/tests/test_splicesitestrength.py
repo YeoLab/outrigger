@@ -38,14 +38,14 @@ def splice_site_combo(request, example_five_prime_fasta,
                       example_three_prime_fasta):
     if request.param == 5:
         # From actually running the perl program
-        true = six.b('''cagGTAAGT	10.86
+        true = six.u('''cagGTAAGT	10.86
 gagGTAAGT	11.08
 taaATAAGT	-0.12
 ''')
         return example_five_prime_fasta, request.param, true
     if request.param == 3:
         # From actually running the perl program
-        true = six.b('''ttccaaacgaacttttgtAGgga	2.89
+        true = six.u('''ttccaaacgaacttttgtAGgga	2.89
 tgtctttttctgtgtggcAGtgg	8.19
 ttctctcttcagacttatAGcaa	-0.08
 ''')
