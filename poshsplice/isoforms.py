@@ -18,7 +18,17 @@ exon2_filename = '/projects/ps-yeolab/obotvinnik/miso_helpers/hg19/se_exon2.fast
 exon3_filename = '/projects/ps-yeolab/obotvinnik/miso_helpers/hg19/se_exon3.fasta'
 
 def seq_name_to_exon_id(seq_name):
-    """
+    """Convert a region location created from a BedTool.seq() call
+
+    Parameters
+    ----------
+    seq_name : str
+        A sequence name, as generated from a pybedtools.BedTool.seq() function
+
+    Returns
+    -------
+    exon_id : str
+        The base-1-ify'd version of this region into an exon id
 
     >>> seq_name_to_exon_id('chr1:100-200(+)')
     'exon:chr1:101-200:+
@@ -26,6 +36,8 @@ def seq_name_to_exon_id(seq_name):
     chr_start_stop, strand = seq_name.split('(')
     chrom, startstop = chr_start_stop.split(':')
     start, stop = startstop.split('-')
+
+    # TODO: Double check this plus-oneing if it's necessary for base-0-ifying
     start = int(start)+1
     chr_start_stop = '{}:{}-{}'.format(chrom, start, stop)
     strand = strand.rstrip(')')
