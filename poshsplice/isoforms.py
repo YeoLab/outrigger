@@ -1,5 +1,3 @@
-__author__ = 'olgabotvinnik'
-
 from collections import defaultdict
 
 from Bio import SeqIO
@@ -7,15 +5,21 @@ from Bio.SeqRecord import SeqRecord
 
 import pandas as pd
 
+__author__ = 'olgabotvinnik'
+
 isoform1_seqs = []
 isoform2_seqs = []
 
 isoform1_translations = defaultdict(list)
 isoform2_translations = defaultdict(list)
 
-exon1_filename = '/projects/ps-yeolab/obotvinnik/miso_helpers/hg19/se_exon1.fasta'
-exon2_filename = '/projects/ps-yeolab/obotvinnik/miso_helpers/hg19/se_exon2.fasta'
-exon3_filename = '/projects/ps-yeolab/obotvinnik/miso_helpers/hg19/se_exon3.fasta'
+exon1_filename = '/projects/ps-yeolab/obotvinnik/miso_helpers/' \
+                 'hg19/se_exon1.fasta'
+exon2_filename = '/projects/ps-yeolab/obotvinnik/miso_helpers/' \
+                 'hg19/se_exon2.fasta'
+exon3_filename = '/projects/ps-yeolab/obotvinnik/miso_helpers/' \
+                 'hg19/se_exon3.fasta'
+
 
 def seq_name_to_exon_id(seq_name):
     """Convert a region location created from a BedTool.seq() call
@@ -43,6 +47,7 @@ def seq_name_to_exon_id(seq_name):
     strand = strand.rstrip(')')
     exon = 'exon:{0}:{1}'.format(chr_start_stop, strand)
     return exon
+
 
 def splice_type_exons(splice_type, exons):
     """Get exons corresponding to a particular isoform of a splice type
@@ -89,12 +94,14 @@ def exon_seqs_to_isoform_seqs(exon_fastas, event_ids, splice_type):
         for i, isoform in enumerate(isoforms):
             i = i+1
             seq = ''.join(x.seq for x in isoform)
-            seqrecord = SeqRecord(seq, id=event_id, description='isoform{0}'.format(i))
+            seqrecord = SeqRecord(seq, id=event_id,
+                                  description='isoform{0}'.format(i))
             isoform_seqs[i].append(seqrecord)
     return isoform_seqs
 
 
-with open(exon1_filename) as infile1, open(exon2_filename) as infile2, open(exon3_filename) as infile3:
+with open(exon1_filename) as infile1, open(exon2_filename) as infile2, \
+        open(exon3_filename) as infile3:
     parsed1 = SeqIO.parse(infile1, 'fasta')
     parsed2 = SeqIO.parse(infile2, 'fasta')
     parsed3 = SeqIO.parse(infile3, 'fasta')
@@ -134,9 +141,11 @@ with open(exon1_filename) as infile1, open(exon2_filename) as infile2, open(exon
             event_isoform = '{0}_isoform1'.format(event_name)
             name = '{}_{}'.format(event_isoform, isoform.id)
             reverse = exon_id1[-1] == '-'
-            cds = v19db.children(isoform, featuretype='CDS', reverse=reverse, order_by='start')
+            cds = v19db.children(isoform, featuretype='CDS', reverse=reverse,
+                                 order_by='start')
 
-            cds_in_splice_form = [c for c in cds if c.id.startswith(cds_id1) or c.id.startswith(cds_id3)]
+            cds_in_splice_form = [c for c in cds if c.id.startswith(cds_id1)
+                                  or c.id.startswith(cds_id3)]
 #             print 'cds_in_splice_form', cds_in_splice_form
 
             if len(cds_in_splice_form) == 2:
@@ -160,9 +169,12 @@ with open(exon1_filename) as infile1, open(exon2_filename) as infile2, open(exon
             event_isoform = '{}_isoform2'.format(event_name)
             name = '{}_{}'.format(event_isoform, isoform.id)
             reverse = exon_id1[-1] == '-'
-            cds = v19db.children(isoform, featuretype='CDS', reverse=reverse, order_by='start')
+            cds = v19db.children(isoform, featuretype='CDS', reverse=reverse,
+                                 order_by='start')
 
-            cds_in_splice_form = [c for c in cds if c.id.startswith(cds_id1) or c.id.startswith(cds_id2) or c.id.startswith(cds_id3)]
+            cds_in_splice_form = [c for c in cds if c.id.startswith(cds_id1)
+                                  or c.id.startswith(cds_id2)
+                                  or c.id.startswith(cds_id3)]
 #             print 'cds_in_splice_form', cds_in_splice_form
 
             if len(cds_in_splice_form) == 3:
@@ -193,11 +205,13 @@ with open(exon1_filename) as infile1, open(exon2_filename) as infile2, open(exon
 #             translated.ix[ind, f] = str(result_seq.seq)
 #             result_seqs.append(result_seq)
 
-filename = '/projects/ps-yeolab/obotvinnik/miso_helpers/hg19/se_isoform1_translated.fa'
+filename = '/projects/ps-yeolab/obotvinnik/miso_helpers/hg19/' \
+           'se_isoform1_translated.fa'
 with open(filename, 'w') as outfile:
     SeqIO.write(isoform1_seqs, outfile, 'fasta')
 
-filename = '/projects/ps-yeolab/obotvinnik/miso_helpers/hg19/se_isoform2_translated.fa'
+filename = '/projects/ps-yeolab/obotvinnik/miso_helpers/hg19/' \
+           'se_isoform2_translated.fa'
 with open(filename, 'w') as outfile:
     SeqIO.write(isoform2_seqs, outfile, 'fasta')
 
@@ -214,6 +228,9 @@ translation_no_domain_match = 'translation but no domain match'
 
 no_domains = (no_translation, translation_no_domain_match)
 
+isoform1_pfam_domain_name = None
+isoform2_pfam_domain_name = None
+
 def event_to_domain_disruption(event_name, row):
     isoform1, isoform2 = None, None
 #     print row
@@ -226,7 +243,8 @@ def event_to_domain_disruption(event_name, row):
 
     isoform1_domains = isoform1_pfam_domain_name.ix[event_name].dropna()
     isoform2_domains = isoform2_pfam_domain_name.ix[event_name].dropna()
-    intersection = len(isoform1_domains.index.intersection(isoform2_domains.index))
+    intersection = len(isoform1_domains.index.intersection(
+        isoform2_domains.index))
     union = len(isoform1_domains.index.union(isoform2_domains.index))
 
 #     if isoform1_domains.count() == 0 and isoform2_domains.count() == 0:

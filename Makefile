@@ -35,7 +35,7 @@ clean-test:
 	rm -fr htmlcov/
 
 lint:
-	flake8 --exclude poshsplice/external,doc poshsplice
+	flake8 --exclude poshsplice/external,doc,poshsplice/isoforms.py poshsplice
 
 test:
 	py.test poshsplice

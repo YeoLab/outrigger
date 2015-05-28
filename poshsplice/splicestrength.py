@@ -1,11 +1,13 @@
-__author__ = 'olgabotvinnik'
-
 import os
 import subprocess
 
 from Bio import SeqIO
 
+__author__ = 'olgabotvinnik'
+
+
 VALID_SPLICE_SITES = (3, 5)
+
 
 def get_splice_site(exons, genome, splice_site):
     """Get the 5' or 3' splice site of a set of exons
@@ -30,7 +32,8 @@ def get_splice_site(exons, genome, splice_site):
         5' Splice site of the exons
     """
     if splice_site not in VALID_SPLICE_SITES:
-        raise ValueError('{0} is not a valid splice site. Only 5 and 3 are acceptable'.format(splice_site))
+        raise ValueError('{0} is not a valid splice site. Only 5 and 3 are '
+                         'acceptable'.format(splice_site))
     if splice_site == 5:
         left = 3
         right = 6
@@ -38,7 +41,8 @@ def get_splice_site(exons, genome, splice_site):
         left = 20
         right = 3
 
-    return exons.flank(genome=genome, l=0, r=right, s=True).slop(genome=genome, r=0, l=left, s=True)
+    return exons.flank(genome=genome, l=0, r=right,
+                       s=True).slop(genome=genome, r=0, l=left, s=True)
 
 
 def get_ss_sequence(exons, genome, splice_site, genome_fasta, filename=None):
@@ -80,7 +84,7 @@ def score_splice_fasta(ss_fasta, splice_site, filename=None):
         Location of the fasta files you want to test
     splice_site : 5 | 3
         Either the 5' or 3' splice site
-    output : str
+    filename : str, optional
         Where to output the splice site scores to
 
     Returns
@@ -90,10 +94,12 @@ def score_splice_fasta(ss_fasta, splice_site, filename=None):
 
     """
     if splice_site not in VALID_SPLICE_SITES:
-        raise ValueError('{0} is not a valid splice site. Only 5 and 3 are acceptable'.format(splice_site))
+        raise ValueError('{0} is not a valid splice site. Only 5 and 3 are '
+                         'acceptable'.format(splice_site))
 
     ss_fasta = os.path.abspath(os.path.expanduser(ss_fasta))
-    maxentscan_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), os.path.join(*['external', 'maxentscan']))
+    maxentscan_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)),
+                                  os.path.join(*['external', 'maxentscan']))
     currdir = os.getcwd()
     os.chdir(maxentscan_dir)
 
@@ -101,11 +107,14 @@ def score_splice_fasta(ss_fasta, splice_site, filename=None):
     length = 9 if splice_site == 5 else 23
     parsed = SeqIO.parse(open(ss_fasta), 'fasta')
     if sum(len(x.seq) != length for x in parsed) > 0:
-        raise ValueError("Not all the sequences in the fasta file are {0}nt long. For {1}' splice sites, the required"
-                         "input is fasta files with sequence length {0}nt.".format(length, splice_site))
+        raise ValueError("Not all the sequences in the fasta file are {0}nt "
+                         "long. For {1}' splice sites, the required"
+                         "input is fasta files with sequence "
+                         "length {0}nt.".format(length, splice_site))
 
     program = 'score{0}.pl'.format(splice_site)
-    pipe = subprocess.Popen(["perl", program, ss_fasta], stdout=subprocess.PIPE)
+    pipe = subprocess.Popen(["perl", program, ss_fasta],
+                            stdout=subprocess.PIPE)
     output = pipe.stdout.read()
 
     if filename is not None:

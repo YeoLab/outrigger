@@ -1,7 +1,8 @@
-__author__ = 'olgabotvinnik'
-
 import pandas.util.testing as pdt
 import pytest
+
+__author__ = 'olgabotvinnik'
+
 
 @pytest.fixture
 def example_three_prime_fasta(tmpdir):
@@ -30,8 +31,10 @@ taaATAAGT'''
         f.write(s)
     return filename
 
+
 @pytest.fixture(params=[5, 3])
-def splice_site_combo(request, example_five_prime_fasta, example_three_prime_fasta):
+def splice_site_combo(request, example_five_prime_fasta,
+                      example_three_prime_fasta):
     if request.param == 5:
         # From actually running the perl program
         true = '''cagGTAAGT	10.86
