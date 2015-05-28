@@ -11,7 +11,7 @@ ttccaaacgaacttttgtAGgga
 tgtctttttctgtgtggcAGtgg
 > dummy3
 ttctctcttcagacttatAGcaa'''
-    filename = '{}/three_prime.fasta'.format(tmpdir)
+    filename = '{0}/three_prime.fasta'.format(tmpdir)
     with open(filename, 'w') as f:
         f.write(s)
     return filename
@@ -25,7 +25,7 @@ cagGTAAGT
 gagGTAAGT
 > dummy3
 taaATAAGT'''
-    filename = '{}/five_prime.fasta'.format(tmpdir)
+    filename = '{0}/five_prime.fasta'.format(tmpdir)
     with open(filename, 'w') as f:
         f.write(s)
     return filename

@@ -39,9 +39,9 @@ def seq_name_to_exon_id(seq_name):
 
     # TODO: Double check this plus-oneing if it's necessary for base-0-ifying
     start = int(start)+1
-    chr_start_stop = '{}:{}-{}'.format(chrom, start, stop)
+    chr_start_stop = '{0}:{1}-{2}'.format(chrom, start, stop)
     strand = strand.rstrip(')')
-    exon = 'exon:{}:{}'.format(chr_start_stop, strand)
+    exon = 'exon:{0}:{1}'.format(chr_start_stop, strand)
     return exon
 
 def splice_type_exons(splice_type, exons):
@@ -131,7 +131,7 @@ with open(exon1_filename) as infile1, open(exon2_filename) as infile2, open(exon
 #         print 'isoform2', isoform2s
 
         for isoform in isoform1s:
-            event_isoform = '{}_isoform1'.format(event_name)
+            event_isoform = '{0}_isoform1'.format(event_name)
             name = '{}_{}'.format(event_isoform, isoform.id)
             reverse = exon_id1[-1] == '-'
             cds = v19db.children(isoform, featuretype='CDS', reverse=reverse, order_by='start')
