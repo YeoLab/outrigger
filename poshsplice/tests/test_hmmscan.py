@@ -15,7 +15,7 @@ except ImportError:
 @pytest.fixture
 def example_hmmscan_out():
     directory = os.path.dirname(__file__)
-    filename = '{}/hmmscan_out.txt'.format(directory)
+    filename = '{0}/hmmscan_out.txt'.format(directory)
     return filename
 
 
