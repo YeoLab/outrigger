@@ -1,3 +1,6 @@
+import os
+
+import pandas as pd
 import pandas.util.testing as pdt
 import pytest
 import six
@@ -58,3 +61,28 @@ def test_score_splice_fasta(splice_site_combo):
     fasta, splice_site, true = splice_site_combo
     test = score_splice_fasta(fasta, splice_site)
     pdt.assert_equal(test, true)
+
+@pytest.fixture(params=['string', 'filename'])
+def splice_scores(request, splice_site_combo, tmpdir):
+    from poshsplice.splicestrength import score_splice_fasta
+    fasta, splice_site, true = splice_site_combo
+    scores = score_splice_fasta(fasta, splice_site)
+    if request.param == 'string':
+        return scores
+    elif request.param == 'filename':
+        filename = '{0}/splice_scores.txt'.format(tmpdir)
+        with open(filename, 'w') as f:
+            f.write(scores)
+        return filename
+
+def test_read_splice_scores(splice_scores):
+    from poshsplice.splicestrength import read_splice_scores
+
+    test = read_splice_scores(splice_scores)
+    if not os.path.exists(splice_scores):
+        filename = six.StringIO(splice_scores)
+    else:
+        filename = splice_scores
+    true = pd.read_table(filename, squeeze=True, header=None,
+                         index_col=0)
+    pdt.assert_series_equal(test, true)

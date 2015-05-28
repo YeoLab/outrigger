@@ -2,6 +2,7 @@ import os
 import subprocess
 
 from Bio import SeqIO
+import pandas as pd
 import six
 
 __author__ = 'olgabotvinnik'
@@ -125,3 +126,25 @@ def score_splice_fasta(ss_fasta, splice_site, filename=None):
     if six.PY3:
         output = output.decode('utf-8')
     return output
+
+
+def read_splice_scores(scores):
+    """Read splice site scores and return a pandas series
+
+    Parameters
+    ----------
+    scores : str
+        Either the output from :py:func:`score_splice_fasta` or a filename of
+        scores from the original MaxEntScan ``score{5,3}.pl`` functions
+
+    Returns
+    -------
+    scores_series : pandas.Series
+        A pandas series of the splicing scores, in exactly the order they
+        appeared
+    """
+    if not os.path.exists(scores):
+        filename = six.StringIO(scores)
+    else:
+        filename = scores
+    return pd.read_table(filename, squeeze=True, header=None, index_col=0)
