@@ -62,6 +62,7 @@ def test_score_splice_fasta(splice_site_combo):
     test = score_splice_fasta(fasta, splice_site)
     pdt.assert_equal(test, true)
 
+
 @pytest.fixture(params=['string', 'filename'])
 def splice_scores(request, splice_site_combo, tmpdir):
     from poshsplice.splicestrength import score_splice_fasta
@@ -74,6 +75,7 @@ def splice_scores(request, splice_site_combo, tmpdir):
         with open(filename, 'w') as f:
             f.write(scores)
         return filename
+
 
 def test_read_splice_scores(splice_scores):
     from poshsplice.splicestrength import read_splice_scores
