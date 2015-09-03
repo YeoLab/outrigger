@@ -15,7 +15,10 @@ _db_doc = """db : gffutils.FeatureDB
     the transcript (AFE, ALE) cannot be annotated."""
 
 def stringify_location(chrom, start, stop, strand, region=None):
-    return '{}:{}:{}-{}:{}'.format(region, chrom, start, stop, strand)
+    if region is not None:
+        return '{}:{}:{}-{}:{}'.format(region, chrom, start, stop, strand)
+    else:
+        return '{}:{}-{}:{}'.format(region, chrom, start, stop, strand)
 
 class AggregateJunctions(object):
 

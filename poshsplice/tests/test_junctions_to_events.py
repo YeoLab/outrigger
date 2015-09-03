@@ -8,7 +8,7 @@ import pytest
 def strand(request):
     return request.param
 
-@pytest.fixture
+@pytest.fixture()
 def chrom():
     return 'chr1'
 
@@ -48,51 +48,51 @@ def transcripts():
         ('Transcript 8', ('exon1', 'exon2', 'exon3', 'exon4alt'))
     )
 
+@pytest.fixture(params=[None, 'exon'])
+def region(request):
+    return request.param
+
+def test_stringify_location(chrom, strand, region):
+    from poshsplice.junctions_to_events import stringify_location
+
+    test = stringify_location(chrom)
 
 @pytest.fixture
 def junction_to_exons(exon_start_stop, transcripts, strand):
-    data = {'junction_location': ['chr1:76-299:+',  # Exon1alt-Exon2 junction
-                                  'chr1:201-299:+',  # Exon1-Exon2 junction
-                                  'chr1:201-249:+',  # Exon1-Exon2a3ss junction
-                                  'chr1:201-499:+',  # Exon1-Exon3 junction
-                                  'chr1:201-799:+',  # Exon1-Exon4 junction
-                                  'chr1:401-499:+',  # Exon2-Exon3 junction
-                                  'chr1:451-499:+',  # Exon2a5ss-Exon3 junction
-                                  'chr1:401-699:+',  # Exon2-Exon4 junction
-                                  'chr1:401-699:+',  # Exon3-Exon4 junction
-                                  'chr1:401-849:+'],  # Exon3-Exon4alt junction
-            # Upstream exon
-            'exon_5p': ['exon:chr1:50-75:+',  # Exon1alt-Exon2 junction
-                        'exon:chr1:100-200:+',  # Exon1-Exon2 junction
-                        'exon:chr1:100-200:+',  # Exon1-Exon2a3ss junction
-                        'exon:chr1:100-200:+',  # Exon1-Exon3 junction
-                        'exon:chr1:100-200:+',  # Exon1-Exon4 junction
-                        'exon:chr1:300-400:+,exon:chr1:250-400:+',
-                        # Exon2-Exon3 junction
-                        'exon:chr1:300-450:+',  # Exon2a5ss-Exon3 junction
-                        'exon:chr1:300-400:+,exon:chr1:250-400:+',
-                        # Exon2-Exon4 junction
-                        'exon:chr1:500-600:+',  # Exon3-Exon4 junction
-                        'exon:chr1:500-600:+'  # Exon3-Exon4alt junction
-                        ],
-            # Downstream exon
-            'exon_3p': ['exon:chr1:300-400:+,exon:chr1:300-450:+',
+    from collections import defaultdict
+    from poshsplice.junctions_to_events import stringify_location
 
-                        'exon:chr1:300-400:+,exon:chr1:300-450:+',  #
-                        'exon:chr1:250-400:+',  # Exon1-Exon2a3ss junction
-                        'exon:chr1:500-600:+',  # Exon1-Exon3 junction
-                        'exon:chr1:700-800:+',  # Exon1-Exon4 junction
-                        'exon:chr1:500-600:+',  # Exon2-Exon3 junction
-                        'exon:chr1:500-600:+',  # Exon2a5ss-Exon3 junction
-                        'exon:chr1:500-600:+',  # Exon2-Exon4 junction
-                        'exon:chr1:500-600:+',  # Exon3-Exon4 junction
-                        'exon:chr1:850-900:+',  # Exon3-Exon4alt junction
-                        ]
-            }
+    data = defaultdict(lambda: {'upstream': set([]), 'downstream': set([])})
 
+    for transcript, exons in transcripts:
+        for exon1, exon2 in zip(exons, exons[1:]):
 
-    df = pd.DataFrame(data)
-    return df
+            start1, stop1 = exon_start_stop[exon1]
+            start2, stop2 = exon_start_stop[exon2]
+            exon1_location = stringify_location('exon', chrom, start1, stop1,
+                                                strand)
+            exon2_location = stringify_location('exon', chrom, start2, stop2,
+                                                strand)
+
+            if strand == '-':
+                start = stop2 + 1
+                stop = start1 - 1
+            else:
+                start = stop1 + 1
+                stop = start2 - 1
+
+            junction_location = stringify_location('junction', chrom, start,
+                                                   stop, strand)
+
+            if strand == '-':
+                data[junction_location]['downstream'].add(exon1_location)
+                data[junction_location]['upstream'].add(exon2_location)
+            else:
+                data[junction_location]['upstream'].add(exon1_location)
+                data[junction_location]['downstream'].add(exon2_location)
+    data = pd.DataFrame(junction_to_exons).T
+    data = data.applymap(lambda x: ','.join(x))
+    return data
 
 class TestAggregateJunctions(object):
 
