@@ -18,7 +18,7 @@ def stringify_location(chrom, start, stop, strand, region=None):
     if region is not None:
         return '{}:{}:{}-{}:{}'.format(region, chrom, start, stop, strand)
     else:
-        return '{}:{}-{}:{}'.format(region, chrom, start, stop, strand)
+        return '{}:{}-{}:{}'.format(chrom, start, stop, strand)
 
 class AggregateJunctions(object):
 

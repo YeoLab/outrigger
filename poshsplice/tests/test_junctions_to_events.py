@@ -64,7 +64,8 @@ def test_stringify_location(chrom, strand, region):
         true = '{}:{}-{}:{}'.format(chrom, 100, 200, strand)
     else:
         true = '{}:{}:{}-{}:{}'.format(region, chrom, 100, 200, strand)
-    pdt.assert_equal(test, true)
+    assert test == true
+    
 
 @pytest.fixture
 def junction_to_exons(exon_start_stop, transcripts, strand):
