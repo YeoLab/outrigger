@@ -20,9 +20,10 @@ def stringify_location(chrom, start, stop, strand, region=None):
     else:
         return '{}:{}-{}:{}'.format(chrom, start, stop, strand)
 
-class AggregateJunctions(object):
+class JunctionAggregator(object):
 
-    def __init__(self, junction_exons, db=None):
+    def __init__(self, junction_exon_triples, db=None,
+                 junction_col='junction', exon_col='exon'):
         """Combine splice junctions into splicing events
 
         A one-line summary that does not use variable names or the
@@ -106,13 +107,13 @@ class AggregateJunctions(object):
         a
         b
         """
-        self.junction_exons = junction_exons
+        self.junction_exon_triples = junction_exon_triples
         self.db = db
 
         self.graph = graphlite.connect(":memory:",
                                        graphs=['upstream', 'downstream'])
-        self.all_exons = junction_exons.exon.unique()
-        self.all_junctions = junction_exons.junction_location.unique()
+        self.all_exons = junction_exon_triples[exon_col].unique()
+        self.all_junctions = junction_exon_triples[junction_col].unique()
 
         self.items = np.concatenate([self.all_exons, self.all_junctions])
         self.int_to_item = pd.Series(self.items)
@@ -120,10 +121,10 @@ class AggregateJunctions(object):
             dict((v, k) for k, v in self.int_to_item.iteritems()))
 
         with graph.transaction() as tr:
-            for i, row in self.junction_exons.iterrows():
+            for i, row in self.junction_exon_triples.iterrows():
                 #         print row
-                junction = self.item_to_int[row.junction_location]
-                exon = self.item_to_int[row.exon]
+                junction = self.item_to_int[row[junction_col]]
+                exon = self.item_to_int[row[exon_col]]
                 opposite_direction = 'upstream' \
                     if row.direction == 'downstream' else 'downstream'
 
@@ -163,8 +164,8 @@ class AggregateJunctions(object):
             Explanation of `out`.
         """
 
-        sj_metadata['exon_5p'] = ''
-        sj_metadata['exon_3p'] = ''
+        sj_metadata['upstream'] = ''
+        sj_metadata['downstream'] = ''
 
         print 'Starting annotation of all junctions with known exons...'
         for i, exon in enumerate(db.features_of_type('exon')):
@@ -180,39 +181,41 @@ class AggregateJunctions(object):
             exon_id = exon.id
             if upstream_ind.any():
                 if exon.strand == '+':
-                    sj_metadata.loc[upstream_ind, 'exon_5p'] = \
-                        sj_metadata.loc[upstream_ind, 'exon_5p'] + ',' \
+                    sj_metadata.loc[upstream_ind, 'upstream'] = \
+                        sj_metadata.loc[upstream_ind, 'upstream'] + ',' \
                         + exon_id
                 else:
-                    sj_metadata.loc[upstream_ind, 'exon_3p'] = \
-                        sj_metadata.loc[upstream_ind, 'exon_3p'] + ',' \
+                    sj_metadata.loc[upstream_ind, 'downstream'] = \
+                        sj_metadata.loc[upstream_ind, 'downstream'] + ',' \
                         + exon_id
 
             if downstream_ind.any():
                 if exon.strand == '+':
-                    sj_metadata.loc[downstream_ind, 'exon_3p'] = \
-                    sj_metadata.loc[downstream_ind, 'exon_3p'] + ',' + exon_id
+                    sj_metadata.loc[downstream_ind, 'downstream'] = \
+                    sj_metadata.loc[downstream_ind, 'downstream'] + ',' + exon_id
                 else:
-                    sj_metadata.loc[downstream_ind, 'exon_5p'] = \
-                    sj_metadata.loc[downstream_ind, 'exon_5p'] + ',' + exon_id
+                    sj_metadata.loc[downstream_ind, 'upstream'] = \
+                    sj_metadata.loc[downstream_ind, 'upstream'] + ',' + exon_id
         print 'Done.'
 
-        sj_metadata['exon_5p'] = sj_metadata['exon_5p'].map(
+        sj_metadata['upstream'] = sj_metadata['upstream'].map(
             lambda x: x.lstrip(',') if isinstance(x, str) else x)
-        sj_metadata['exon_3p'] = sj_metadata['exon_3p'].map(
+        sj_metadata['downstream'] = sj_metadata['downstream'].map(
             lambda x: x.lstrip(',') if isinstance(x, str) else x)
-        sj_metadata[['exon_5p', 'exon_3p']] = sj_metadata[
-            ['exon_5p', 'exon_3p']].replace('', np.nan)
-        sj_metadata[['exon_5p', 'exon_3p']].head()
+        sj_metadata[['upstream', 'downstream']] = sj_metadata[
+            ['upstream', 'downstream']].replace('', np.nan)
+        sj_metadata[['upstream', 'downstream']].head()
 
         sj_metadata.loc[sj_metadata.index.map(
-            lambda x: x.endswith('5p')), 'exon_3p'] = np.nan
+            lambda x: x.endswith('5p')), 'downstream'] = np.nan
         sj_metadata.loc[sj_metadata.index.map(
-            lambda x: x.endswith('3p')), 'exon_5p'] = np.nan
+            lambda x: x.endswith('3p')), 'upstream'] = np.nan
 
     @classmethod
-    def from_sj_exons(cls, sj_exons, db=None, junction_col='junction_location',
-                      exon_5p_col='exon_5p', exon_3p_col='exon_3p'):
+    def from_junction_to_exons(cls, junction_to_exons, db=None,
+                               junction_col='junction',
+                               upstream_col='upstream',
+                               downstream_col='downstream'):
         """Initialize Annotator from table with junctions and nearby exons
 
         Parameters
@@ -227,26 +230,27 @@ class AggregateJunctions(object):
         junction_col : str
             Column name of the raw junction location (without |5p or |3p
             annotated)
-        exon_5p_col : str
+        upstream_col : str
             Column name where exons upstream of the junction are stored
-        exon_3p_col : str
+        downstream_col : str
             Column name where exons downstream of the junction are stored
 
         Returns
         -------
-        junction_exons
+        junction_exon_triples
             A three-column table of junction_location, exon, and direction
 
         """
-        junction_exons = cls.make_junction_exon_table(
-            sj_exons, junction_col=junction_col, exon_5p_col=exon_5p_col,
-            exon_3p_col=exon_3p_col)
+        junction_exons = cls.make_junction_exon_triples(
+            junction_to_exons, junction_col=junction_col,
+            upstream_col=upstream_col, downstream_col=downstream_col)
         return cls(junction_exons, db=db)
 
     @staticmethod
-    def make_junction_exon_table(sj_exons, junction_col='junction_location',
-                                  exon_5p_col='exon_5p',
-                                  exon_3p_col='exon_3p'):
+    def make_junction_exon_triples(junction_to_exons,
+                                   junction_col='junction',
+                                   upstream_col='upstream',
+                                   downstream_col='downstream'):
         """Create tidy table of exons upstream and downstream of a junction
 
         Parameters
@@ -256,31 +260,31 @@ class AggregateJunctions(object):
         junction_col : str
             Column name of the raw junction location (without |5p or |3p
             annotated)
-        exon_5p_col : str
+        upstream_col : str
             Column name where exons upstream of the junction are stored
-        exon_3p_col : str
+        downstream_col : str
             Column name where exons downstream of the junction are stored
 
         Returns
         -------
-        junction_exons
+        junction_exon_triples
             A three-column table of junction_location, exon, and direction
 
         Examples
         --------
         >>> import pandas as pd
         >>> sj_metadata = pd.DataFrame(
-        {'junction_location':['chr1:201-299:+', 'chr1:401:499:+'],
-         'exon_5p': ['exon:chr1:100-200:+,exon:chr1:50-200:+',
+        {'junction':['chr1:201-299:+', 'chr1:401:499:+'],
+         'upstream': ['exon:chr1:100-200:+,exon:chr1:50-200:+',
                      'exon:chr1:300-400:+'],
-         'exon_3p':['exon:chr1:300-400:+',
+         'downstream':['exon:chr1:300-400:+',
          'exon:chr1:500-600:+,exon:chr1:500-650:+']})
-        >>> Annotator.make_junction_exon_table(sj_metadata)
+        >>> Annotator.make_junction_exon_triples(sj_metadata)
 
         """
-        grouped = sj_exons.groupby(junction_col)
-        direction_to_exon = {'upstream': exon_5p_col,
-                             'downstream': exon_3p_col}
+        grouped = junction_to_exons.groupby(junction_col)
+        direction_to_exon = {'upstream': upstream_col,
+                             'downstream': downstream_col}
         dfs = []
         for direction, exon in direction_to_exon.items():
             df = grouped.apply(

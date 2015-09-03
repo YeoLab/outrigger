@@ -55,6 +55,7 @@ def transcripts():
 def region(request):
     return request.param
 
+
 def test_stringify_location(chrom, strand, region):
     from poshsplice.junctions_to_events import stringify_location
 
@@ -65,7 +66,7 @@ def test_stringify_location(chrom, strand, region):
     else:
         true = '{}:{}:{}-{}:{}'.format(region, chrom, 100, 200, strand)
     assert test == true
-    
+
 
 @pytest.fixture
 def junction_to_exons(exon_start_stop, transcripts, strand):
@@ -100,66 +101,68 @@ def junction_to_exons(exon_start_stop, transcripts, strand):
             else:
                 data[junction_location]['upstream'].add(exon1_location)
                 data[junction_location]['downstream'].add(exon2_location)
-    data = pd.DataFrame(junction_to_exons).T
+    data = pd.DataFrame(data).T
     data = data.applymap(lambda x: ','.join(x))
+    data = data.reset_index()
+    data = data.rename(columns={'index': 'junction'})
+    return data
+
+
+@pytest.fixture
+def junction_exon_triples(chrom, exon_start_stop, transcripts, strand):
+    from poshsplice.junctions_to_events import stringify_location
+    data = []
+
+    for transcript, exons in transcripts:
+        for exon1, exon2 in zip(exons, exons[1:]):
+
+            start1, stop1 = exon_start_stop[exon1]
+            start2, stop2 = exon_start_stop[exon2]
+            exon1_location = stringify_location(chrom, start1, stop1,
+                                                strand, 'exon')
+            exon2_location = stringify_location(chrom, start2, stop2,
+                                                strand, 'exon')
+
+            if strand == '-':
+                start = stop2 + 1
+                stop = start1 - 1
+            else:
+                start = stop1 + 1
+                stop = start2 - 1
+
+            junction_location = stringify_location(chrom, start, stop,
+                                                   strand, 'junction')
+
+            if strand == '-':
+                data.append(
+                    [exon1_location, 'downstream', junction_location])
+                data.append(
+                    [exon2_location, 'upstream', junction_location])
+            else:
+                data.append(
+                    [exon1_location, 'upstream', junction_location])
+                data.append(
+                    [exon2_location, 'downstream', junction_location])
+    data = pd.DataFrame(data, columns=['exon', 'direction', 'junction'])
+    data = data.drop_duplicates()
     return data
 
 class TestAggregateJunctions(object):
 
     @pytest.fixture
-    def junction_exon_triples(self, chrom, exon_start_stop, transcripts,
-                              strand):
-        from poshsplice.junctions_to_events import stringify_location
-        data = []
+    def junction_aggregator(self, junction_exon_triples):
+        from poshsplice.junctions_to_events import JunctionAggregator
+        return JunctionAggregator(junction_exon_triples)
 
-        for transcript, exons in transcripts:
-            for exon1, exon2 in zip(exons, exons[1:]):
+    def test_init(self, junction_exon_triples, graph):
+        from poshsplice.junctions_to_events import JunctionAggregator
 
-                start1, stop1 = exon_start_stop[exon1]
-                start2, stop2 = exon_start_stop[exon2]
-                exon1_location = stringify_location(chrom, start1, stop1,
-                                                    strand, 'exon')
-                exon2_location = stringify_location(chrom, start2, stop2,
-                                                    strand, 'exon')
-
-                if strand == '-':
-                    start = stop2 + 1
-                    stop = start1 - 1
-                else:
-                    start = stop1 + 1
-                    stop = start2 - 1
-
-                junction_location = stringify_location(chrom, start, stop,
-                                                       strand, 'junction')
-
-                if strand == '-':
-                    data.append(
-                        [exon1_location, 'downstream', junction_location])
-                    data.append(
-                        [exon2_location, 'upstream', junction_location])
-                else:
-                    data.append(
-                        [exon1_location, 'upstream', junction_location])
-                    data.append(
-                        [exon2_location, 'downstream', junction_location])
-        data = pd.DataFrame(data, columns=['exon', 'direction', 'junction'])
-        data = data.drop_duplicates()
-        return data
-
-
-    @pytest.fixture
-    def aggregate_junctions(self, junction_exons):
-        from poshsplice.junctions_to_events import AggregateJunctions
-        return AggregateJunctions(junction_exons)
-
-    def test_init(self, junction_exons, graph):
-        from poshsplice.junctions_to_events import AggregateJunctions
-
-        test = AggregateJunctions(junction_exons)
-        pdt.assert_frame_equal(test.junction_exons, junction_exons)
+        test = JunctionAggregator(junction_exon_triples)
+        pdt.assert_frame_equal(test.junction_exon_triples,
+                               junction_exon_triples)
         assert test.db is None
-        all_exons = junction_exons.exon.unique()
-        all_junctions = junction_exons.junction_location.unique()
+        all_exons = junction_exon_triples.exon.unique()
+        all_junctions = junction_exon_triples.junction.unique()
         items = np.concatenate([all_exons, all_junctions])
         int_to_item = pd.Series(items)
         item_to_int = pd.Series(dict((v, k) for k, v in
@@ -168,14 +171,17 @@ class TestAggregateJunctions(object):
         pdt.assert_array_equal(test.all_exons, all_exons)
         pdt.assert_array_equal(test.all_junctions, all_junctions)
         pdt.assert_array_equal(test.items, items)
-        pdt.assert_dict_equal(test.int_to_item, item_to_int)
+        pdt.assert_dict_equal(test.int_to_item, int_to_item)
         pdt.assert_dict_equal(test.item_to_int, item_to_int)
         pdt.assert_equal(test.graph, graph)
 
-    def test_from_sj_exons(self, sj_exons, aggregate_junctions):
-        from poshsplice.junctions_to_events import AggregateJunctions
+    def test_from_junction_to_exons(self, junction_to_exons,
+                                    junction_aggregator):
+        from poshsplice.junctions_to_events import JunctionAggregator
 
-        test = AggregateJunctions.from_sj_exons(sj_exons)
+        test = JunctionAggregator.from_junction_to_exons(junction_to_exons)
+
+        assert test.graph == junction_aggregator.graph
 
 
 
