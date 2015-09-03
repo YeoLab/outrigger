@@ -4,9 +4,12 @@ import pandas as pd
 import pandas.util.testing as pdt
 import pytest
 
-@pytest.fixture(params=['+', '-'])
+@pytest.fixture(params=['positive', 'negative'])
 def strand(request):
-    return request.param
+    if request.param == 'positive':
+        return '+'
+    else:
+        return '-'
 
 @pytest.fixture()
 def chrom():
@@ -55,7 +58,13 @@ def region(request):
 def test_stringify_location(chrom, strand, region):
     from poshsplice.junctions_to_events import stringify_location
 
-    test = stringify_location(chrom)
+    test = stringify_location(chrom, 100, 200, strand, region)
+
+    if region is None:
+        true = '{}:{}-{}:{}'.format(chrom, 100, 200, strand)
+    else:
+        true = '{}:{}:{}-{}:{}'.format(region, chrom, 100, 200, strand)
+    pdt.assert_equal(test, true)
 
 @pytest.fixture
 def junction_to_exons(exon_start_stop, transcripts, strand):
