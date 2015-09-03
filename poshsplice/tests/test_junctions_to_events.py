@@ -4,8 +4,53 @@ import pandas as pd
 import pandas.util.testing as pdt
 import pytest
 
+@pytest.fixture(params=['+', '-'])
+def strand(request):
+    return request.param
+
 @pytest.fixture
-def sj_exons():
+def chrom():
+    return 'chr1'
+
+@pytest.fixture
+def exon_start_stop():
+    return {'exon1alt': (100, 125), 'exon1': (150, 175),
+            'exon2a3ss': (200, 250), 'exon2': (225, 250),
+            'exon2a5ss': (225, 275),
+            'exon3': (300, 350),
+            'exon4': (400, 425), 'exon4alt': (475, 500)}
+
+
+@pytest.fixture
+def transcripts():
+    return (
+        ('Transcript 1', ('exon1', 'exon2', 'exon3', 'exon4')),
+
+        # Alt 1st exon, relative to transcript1
+        ('Transcript 2', ('exon1alt', 'exon2', 'exon3', 'exon4')),
+
+        # skipped exon, relative to transcript1
+        ('Transcript 3', ('exon1', 'exon3', 'exon4')),
+
+        # Alt 3' splice site, relative to transcript1
+        ('Transcript 4', ('exon1', 'exon2a3ss', 'exon3', 'exon4')),
+
+        # Alt 5' splice site, relative to transcript1
+        ('Transcript 5', ('exon1', 'exon2a5ss', 'exon3', 'exon4')),
+
+        # MXE, relative to transcript1
+        ('Transcript 6', ('exon1', 'exon2', 'exon4')),
+
+        # Twin Cassette, relative to transcript1
+        ('Transcript 7', ('exon1', 'exon4')),
+
+        # Alt last exon, relative to transcript1
+        ('Transcript 8', ('exon1', 'exon2', 'exon3', 'exon4alt'))
+    )
+
+
+@pytest.fixture
+def junction_to_exons(exon_start_stop, transcripts, strand):
     data = {'junction_location': ['chr1:76-299:+',  # Exon1alt-Exon2 junction
                                   'chr1:201-299:+',  # Exon1-Exon2 junction
                                   'chr1:201-249:+',  # Exon1-Exon2a3ss junction
@@ -52,9 +97,45 @@ def sj_exons():
 class TestAggregateJunctions(object):
 
     @pytest.fixture
-    def junction_exons(self, sj_exons):
-        from poshsplice.junctions_to_events import AggregateJunctions
-        return AggregateJunctions.make_junction_exon_table(sj_exons)
+    def junction_exon_triples(self, chrom, exon_start_stop, transcripts,
+                              strand):
+        from poshsplice.junctions_to_events import stringify_location
+        data = []
+
+        for transcript, exons in transcripts:
+            for exon1, exon2 in zip(exons, exons[1:]):
+
+                start1, stop1 = exon_start_stop[exon1]
+                start2, stop2 = exon_start_stop[exon2]
+                exon1_location = stringify_location(chrom, start1, stop1,
+                                                    strand, 'exon')
+                exon2_location = stringify_location(chrom, start2, stop2,
+                                                    strand, 'exon')
+
+                if strand == '-':
+                    start = stop2 + 1
+                    stop = start1 - 1
+                else:
+                    start = stop1 + 1
+                    stop = start2 - 1
+
+                junction_location = stringify_location(chrom, start, stop,
+                                                       strand, 'junction')
+
+                if strand == '-':
+                    data.append(
+                        [exon1_location, 'downstream', junction_location])
+                    data.append(
+                        [exon2_location, 'upstream', junction_location])
+                else:
+                    data.append(
+                        [exon1_location, 'upstream', junction_location])
+                    data.append(
+                        [exon2_location, 'downstream', junction_location])
+        data = pd.DataFrame(data, columns=['exon', 'direction', 'junction'])
+        data = data.drop_duplicates()
+        return data
+
 
     @pytest.fixture
     def aggregate_junctions(self, junction_exons):
@@ -89,88 +170,57 @@ class TestAggregateJunctions(object):
 
 
 @pytest.fixture
-def graph(strand):
+def graph(exon_start_stop, transcripts, chrom, strand):
     graph = connect(":memory:", graphs=['upstream', 'downstream'])
 
-    items = ['exon:chr1:100-125:+',    # Exon 1 alt
-             'exon:chr1:150-175:+',  # Exon 1
-             'exon:chr1:200-250:+',  # Exon 2, Alt 3' splice site
-             'exon:chr1:225-250:+',  # Exon 2
-             'exon:chr1:225-275:+',  # Exon 2, Alt 5' splice site
-             'exon:chr1:300-350:+',  # Exon 3
-             'exon:chr1:400-450:+',  # Exon 4
-             'exon:chr1:475-500:+',  # Exon 4 alt
+    items = []
 
-             'chr1:126-199:+',   # Exon1alt-Exon2 junction
-             'chr1:176-224:+',  # Exon1-Exon2 junction
-             'chr1:176-199:+',  # Exon1-Exon2a3ss junction
-             'chr1:176-299:+',  # Exon1-Exon3 junction
-             'chr1:176-399:+',  # Exon1-Exon4 junction
-             'chr1:250-299:+',  # Exon2-Exon3 junction
-             'chr1:451-499:+',  # Exon2a5ss-Exon3 junction
-             'chr1:401-699:+',  # Exon2-Exon4 junction
-             'chr1:401-699:+',  # Exon3-Exon4 junction
-             'chr1:401-849:+',  # Exon3-Exon4alt junction
-        ]
-    int_to_item = pd.Series(items)
-    item_to_int = pd.Series(dict((v, k) for k, v in int_to_item.iteritems()))
+    for transcript, exons in transcripts:
+        for exon1, exon2 in zip(exons, exons[1:]):
 
-    with graph.transaction() as tr:
-        # Exon1-exon2 junction is downstream of exon1
-        tr.store(V(item_to_int['chr1:76-299:+']).dowstream(
-            item_to_int['exon:chr1:50-75:+']))
+            start1, stop1 = exon_start_stop[exon1]
+            start2, stop2 = exon_start_stop[exon2]
+            exon1_location = 'exon:{}:{}-{}:{}'.format(chrom, start1, stop1,
+                                                       strand)
+            exon2_location = 'exon:{}:{}-{}:{}'.format(chrom, start2, stop2,
+                                                       strand)
 
-        # exon1alt-exon2 junction is upstream of exon 2
-        tr.store(V(item_to_int['chr1:76-299:+']).upstream(
-            item_to_int['exon:chr1:300-400:+']))
+            if strand == '-':
+                start = stop2 + 1
+                stop = start1 - 1
+            else:
+                start = stop1 + 1
+                stop = start2 - 1
 
-        # exon1alt-exon2 junction is upstream of exon 2, alt 5' splice site
-        tr.store(V(item_to_int['chr1:76-299:+']).upstream(
-            item_to_int['exon:chr1:300-450:+']))
+            junction_location = 'junction:{}:{}-{}:{}'.format(chrom, start,
+                                                              stop, strand)
 
-        # exon1-exon2 junction is downstream of exon 1
-        tr.store(V(item_to_int['chr1:201-299:+']).downstream(
-            item_to_int['exon:chr1:100-200:+']))
+            if exon1_location not in items:
+                items.append(exon1_location)
+            if exon2_location not in items:
+                items.append(exon2_location)
+            if junction_location not in items:
+                items.append(junction_location)
 
-        # exon1-exon2 junction is upstream of exon 2
-        tr.store(V(item_to_int['chr1:201-299:+']).upstream(
-            item_to_int['exon:chr1:300-400:+']))
+            # Get unique integer for each item
+            exon1_i = items.index(exon1_location)
+            exon2_i = items.index(exon2_location)
+            junction_i = items.index(junction_location)
 
-        # exon1-exon2 junction is upstream of exon 2, alt 5' splice site
-        tr.store(V(item_to_int['chr1:201-299:+']).upstream(
-            item_to_int['exon:chr1:300-450:+']))
+            with graph.transaction() as tr:
+                if strand == '-':
+                    tr.store(V(exon1_i).downstream(junction_i))
+                    tr.store(V(exon2_i).upstream(junction_i))
 
-        # exon1-exon2a3ss junction is downstream of exon1
-        tr.store(V(item_to_int['chr1:201-249:+']).downstream(
-            item_to_int['exon:chr1:100-200:+']))
+                    tr.store(V(junction_i).upstream(exon1_i))
+                    tr.store(V(junction_i).downstream(exon2_i))
+                else:
+                    tr.store(V(exon1_i).upstream(junction_i))
+                    tr.store(V(exon2_i).downstream(junction_i))
 
-        # exon1-exon2a3ss junction is upstream of exon2a3ss
-        tr.store(V(item_to_int['chr1:201-249:+']).downstream(
-            item_to_int['exon:chr1:250-400:+']))
-
-        # exon1-exon3 junction is downstream of exon1
-        tr.store(V(item_to_int['chr1:201-499:+']).downstream(
-            item_to_int['exon:chr1:100-200:+']))
-
-        tr.store(V(item_to_int['intron:exon1-exon2']).downstream(item_to_int['exon1']))
-        tr.store(V(item_to_int['intron:exon1-exon2']).upstream(item_to_int['exon2']))
-        tr.store(V(item_to_int['intron:exon1-exon2']).upstream(item_to_int['exon2a5ss']))
-        tr.store(V(item_to_int['intron:exon2-exon3']).downstream(item_to_int['exon2']))
-        tr.store(V(item_to_int['intron:exon2-exon3']).upstream(item_to_int['exon3']))
-        tr.store(V(item_to_int['intron:exon2a5ss-exon3']).downstream(item_to_int['exon2a5ss']))
-        tr.store(V(item_to_int['intron:exon2a5ss-exon3']).upstream(item_to_int['exon3']))
-
-        tr.store(V(item_to_int['exon1']).upstream(item_to_int['intron:exon1-exon3']))
-        tr.store(V(item_to_int['exon3']).downstream(item_to_int['intron:exon1-exon3']))
-        tr.store(V(item_to_int['exon1']).upstream(item_to_int['intron:exon1-exon2']))
-        tr.store(V(item_to_int['exon2']).downstream(item_to_int['intron:exon1-exon2']))
-        tr.store(V(item_to_int['exon2a5ss']).downstream(item_to_int['intron:exon1-exon2']))
-        tr.store(V(item_to_int['exon2']).upstream(item_to_int['intron:exon2-exon3']))
-        tr.store(V(item_to_int['exon3']).downstream(item_to_int['intron:exon2-exon3']))
-        tr.store(V(item_to_int['exon2a5ss']).upstream(item_to_int['intron:exon2a5ss-exon3']))
-        tr.store(V(item_to_int['exon3']).downstream(item_to_int['intron:exon2a5ss-exon3']))
-
-
+                    tr.store(V(junction_i).downstream(exon1_i))
+                    tr.store(V(junction_i).upstream(exon2_i))
+    return graph
 
 
 def test_se(graph):

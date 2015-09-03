@@ -14,6 +14,9 @@ _db_doc = """db : gffutils.FeatureDB
     not provided, certain splice types which require information about
     the transcript (AFE, ALE) cannot be annotated."""
 
+def stringify_location(chrom, start, stop, strand, region=None):
+    return '{}:{}:{}-{}:{}'.format(region, chrom, start, stop, strand)
+
 class AggregateJunctions(object):
 
     def __init__(self, junction_exons, db=None):
