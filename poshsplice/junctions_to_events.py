@@ -14,10 +14,10 @@ _db_doc = """db : gffutils.FeatureDB
     not provided, certain splice types which require information about
     the transcript (AFE, ALE) cannot be annotated."""
 
-class Annotator(object):
+class AggregateJunctions(object):
 
     def __init__(self, junction_exons, db=None):
-        """Annotate splicing events based on junctions and nearby exons
+        """Combine splice junctions into splicing events
 
         A one-line summary that does not use variable names or the
         function name.
