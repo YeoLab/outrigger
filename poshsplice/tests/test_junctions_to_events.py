@@ -56,18 +56,6 @@ def region(request):
     return request.param
 
 
-def test_stringify_location(chrom, strand, region):
-    from poshsplice.junctions_to_events import stringify_location
-
-    test = stringify_location(chrom, 100, 200, strand, region)
-
-    if region is None:
-        true = '{}:{}-{}:{}'.format(chrom, 100, 200, strand)
-    else:
-        true = '{}:{}:{}-{}:{}'.format(region, chrom, 100, 200, strand)
-    assert test == true
-
-
 @pytest.fixture
 def junction_to_exons(exon_start_stop, transcripts, strand):
     from collections import defaultdict
@@ -146,6 +134,19 @@ def junction_exon_triples(chrom, exon_start_stop, transcripts, strand):
     data = pd.DataFrame(data, columns=['exon', 'direction', 'junction'])
     data = data.drop_duplicates()
     return data
+
+
+def test_stringify_location(chrom, strand, region):
+    from poshsplice.junctions_to_events import stringify_location
+
+    test = stringify_location(chrom, 100, 200, strand, region)
+
+    if region is None:
+        true = '{}:{}-{}:{}'.format(chrom, 100, 200, strand)
+    else:
+        true = '{}:{}:{}-{}:{}'.format(region, chrom, 100, 200, strand)
+    assert test == true
+
 
 class TestAggregateJunctions(object):
 
