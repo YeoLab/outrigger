@@ -22,27 +22,19 @@ def stringify_location(chrom, start, stop, strand, region=None):
 
 class JunctionAggregator(object):
 
-    def __init__(self, junction_exon_triples, db=None,
-                 junction_col='junction', exon_col='exon'):
+    def __init__(self, junction_exon_triples, db=None, junction_col='junction',
+                 exon_col='exon', debug=False):
         """Combine splice junctions into splicing events
-
-        A one-line summary that does not use variable names or the
-        function name.
-
-        Several sentences providing an extended description. Refer to
-        variables using back-ticks, e.g. `var`.
 
         Parameters
         ----------
-        var1 : array_like
-            Array_like means all those objects -- lists, nested lists, etc. --
-            that can be converted to an array.  We can also refer to
-            variables like `var1`.
+        junction_exon_triples : pandas.DataFrame
+
         db : gffutils.FeatureDB
-            Database of gene, transcript, and exon features. The exons must be
-            accessible by the id provided on the exon_{5,3}p_col columns. If
-            not provided, certain splice types which require information about
-            the transcript (AFE, ALE) cannot be annotated.
+            Gffutils Database of gene, transcript, and exon features. The exons
+            must be accessible by the id provided on the `exon_col`
+            columns. If not provided, certain splice types which require
+            information about the transcript (AFE, ALE) cannot be annotated.
 
         Returns
         -------
@@ -109,6 +101,7 @@ class JunctionAggregator(object):
         """
         self.junction_exon_triples = junction_exon_triples
         self.db = db
+        self.debug = debug
 
         self.graph = graphlite.connect(":memory:",
                                        graphs=['upstream', 'downstream'])
@@ -123,18 +116,25 @@ class JunctionAggregator(object):
         with graph.transaction() as tr:
             for i, row in self.junction_exon_triples.iterrows():
                 #         print row
-                junction = self.item_to_int[row[junction_col]]
-                exon = self.item_to_int[row[exon_col]]
+                junction = row[junction_col]
+                exon = row[exon_col]
+
+                junction_i = self.item_to_int[junction]
+                exon_i = self.item_to_int[exon]
                 opposite_direction = 'upstream' \
                     if row.direction == 'downstream' else 'downstream'
 
-                eval1 = "tr.store(V({}).{}({}))".format(exon, row.direction,
-                                                        junction)
-                eval2 = "tr.store(V({}).{}({}))".format(junction,
+                eval1 = "tr.store(V({}).{}({}))".format(exon_i, row.direction,
+                                                        junction_i)
+                eval2 = "tr.store(V({}).{}({}))".format(junction_i,
                                                         opposite_direction,
-                                                        exon)
-                #         print '\n', eval1
-                #         print eval2
+                                                        exon_i)
+                if self.debug:
+                    sys.stdout.write('{} is {} of {}\n'.format(
+                        exon, row.direction, junction))
+                    sys.stdout.write('{} is {} of {}\n'.format(
+                        junction, opposite_direction, exon))
+
                 eval(eval1)
                 eval(eval2)
 
