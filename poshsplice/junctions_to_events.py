@@ -130,7 +130,7 @@ class JunctionAggregator(object):
                                                         opposite_direction,
                                                         exon_i)
                 if self.debug:
-                    sys.stdout.write('{} is {} of {}\n'.format(
+                    sys.stdout.write('\n{} is {} of {}\n'.format(
                         exon, row.direction, junction))
                     sys.stdout.write('{} is {} of {}\n'.format(
                         junction, opposite_direction, exon))
