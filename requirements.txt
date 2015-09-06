@@ -1,4 +1,2 @@
-pytest
-pandas
-biopython
-flake8
+graphlite
+coverage

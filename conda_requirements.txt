@@ -1,0 +1,4 @@
+pytest
+pandas
+biopython
+flake8
