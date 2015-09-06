@@ -30,4 +30,5 @@ script:
 - make coverage
 - make lint
 after_script:
+- pip install coveralls
 - coveralls
