@@ -115,24 +115,16 @@ class JunctionAggregator(object):
 
                 junction_i = self.item_to_int[junction]
                 exon_i = self.item_to_int[exon]
-                opposite_direction = 'upstream' \
-                    if row.direction == 'downstream' else 'downstream'
 
-                eval1 = "tr.store(V({}).{}({}))".format(exon_i, row.direction,
-                                                        junction_i)
-                eval2 = "tr.store(V({}).{}({}))".format(junction_i,
-                                                        opposite_direction,
-                                                        exon_i)
                 if self.debug:
                     sys.stdout.write('\n{} is {} of {}\n'.format(
                         exon, row.direction, junction))
-                    sys.stdout.write('\t{}\n'.format(eval1))
                     sys.stdout.write('{} is {} of {}\n'.format(
-                        junction, opposite_direction, exon))
-                    sys.stdout.write('\t{}\n'.format(eval2))
+                        junction, opposite(row.direction), exon))
 
                 tr.store(getattr(V(exon_i), row.direction)(junction_i))
-                tr.store(getattr(V(junction_i), opposite_direction)(exon_i))
+                tr.store(getattr(V(junction_i),
+                                 opposite(row.direction))(exon_i))
 
     @classmethod
     def from_sj(cls, sj_metadata, db=None):

@@ -158,11 +158,11 @@ def assert_graph_items_equal(graph1, int_to_item1, item_to_int1, graph2,
 
     for item1, number1 in item_to_int1.iteritems():
         for direction in DIRECTIONS:
-            test = int_to_item1[list(
+            test = int_to_item1.loc[list(
                 graph1.find(getattr(V(number1), direction)))].values
 
-            number2 = item_to_int2[item1]
-            true = int_to_item2[
+            number2 = item_to_int2.loc[item1]
+            true = int_to_item2.loc[
                 list(graph2.find(getattr(V(number2), direction)))].values
 
             test.sort()
@@ -172,11 +172,11 @@ def assert_graph_items_equal(graph1, int_to_item1, item_to_int1, graph2,
 
     for item2, number2 in item_to_int2.iteritems():
         for direction in DIRECTIONS:
-            test = int_to_item2[list(
+            test = int_to_item2.loc[list(
                 graph2.find(getattr(V(number2), direction)))].values
 
-            number1 = item_to_int1[item2]
-            true = int_to_item1[
+            number1 = item_to_int1.loc[item2]
+            true = int_to_item1.loc[
                 list(graph1.find(getattr(V(number1), direction)))].values
 
             test.sort()
