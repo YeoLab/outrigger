@@ -93,18 +93,6 @@ class JunctionAggregator(object):
            modelling of the Highland Haggis using object-oriented, fuzzy-logic
            and neural-network techniques," Computers & Geosciences, vol. 22,
            pp. 585-588, 1996.
-
-        Examples
-        --------
-        These are written in doctest format, and should illustrate how to
-        use the function.
-
-        >>> a=[1,2,3]
-        >>> print [x + 3 for x in a]
-        [4, 5, 6]
-        >>> print "a\n\nb"
-        a
-        b
         """
         self.junction_exon_triples = junction_exon_triples
         self.db = db
@@ -122,7 +110,6 @@ class JunctionAggregator(object):
 
         with self.graph.transaction() as tr:
             for i, row in self.junction_exon_triples.iterrows():
-                #         print row
                 junction = row[junction_col]
                 exon = row[exon_col]
 
@@ -146,8 +133,6 @@ class JunctionAggregator(object):
 
                 tr.store(getattr(V(exon_i), row.direction)(junction_i))
                 tr.store(getattr(V(junction_i), opposite_direction)(exon_i))
-                # eval(eval1)
-                # eval(eval2)
 
     @classmethod
     def from_sj(cls, sj_metadata, db=None):
@@ -180,10 +165,11 @@ class JunctionAggregator(object):
 
         n_exons = sum(1 for _ in db.features_of_type('exon'))
 
-        print 'Starting annotation of all junctions with known exons...'
+        sys.stdout.write('Starting annotation of all junctions with known '
+                         'exons...\n')
         for i, exon in enumerate(db.features_of_type('exon')):
             if (i + 1) % 10000 == 0:
-                print '\t{}/{}'.format(i + 1, n_exons)
+                sys.stdout.write('\t{}/{}\n'.format(i + 1, n_exons))
             chrom_ind = sj_metadata.chrom == exon.chrom
             strand_ind = sj_metadata.strand == exon.strand
             upstream_ind = chrom_ind & strand_ind & (
@@ -211,7 +197,7 @@ class JunctionAggregator(object):
                     sj_metadata.loc[downstream_ind, 'upstream'] = \
                         sj_metadata.loc[downstream_ind, 'upstream'] + ',' \
                         + exon_id
-        print 'Done.'
+        sys.stdout.write('Done.\n')
 
         sj_metadata['upstream'] = sj_metadata['upstream'].map(
             lambda x: x.lstrip(',') if isinstance(x, str) else x)
@@ -399,8 +385,6 @@ class JunctionAggregator(object):
                                   exon1exon3_junctions]))]
                             exons = self.int_to_item[[exon1, exon2, exon3]]
 
-                            #                     print 'junctions', junctions
-                            #                     print 'exons', exons
                             exons_to_junctions[tuple(exons)] = tuple(junctions)
                     else:
                         exon2 = exon2_confirmed.pop()
