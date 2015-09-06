@@ -6,19 +6,24 @@ import pandas as pd
 import graphlite
 from graphlite import V
 
-graph = graphlite.connect(":memory:", graphs=['upstream', 'downstream'])
-
 _db_doc = """db : gffutils.FeatureDB
     Database of gene, transcript, and exon features. The exons must be
     accessible by the id provided on the exon_{5,3}p_col columns. If
     not provided, certain splice types which require information about
     the transcript (AFE, ALE) cannot be annotated."""
 
+
+DIRECTIONS = ('upstream', 'downstream')
+
 def stringify_location(chrom, start, stop, strand, region=None):
     if region is not None:
         return '{}:{}:{}-{}:{}'.format(region, chrom, start, stop, strand)
     else:
         return '{}:{}-{}:{}'.format(chrom, start, stop, strand)
+
+
+def opposite(direction):
+    return 'upstream' if direction == 'downstream' else 'downstream'
 
 class JunctionAggregator(object):
 
@@ -113,7 +118,7 @@ class JunctionAggregator(object):
         self.item_to_int = pd.Series(
             dict((v, k) for k, v in self.int_to_item.iteritems()))
 
-        with graph.transaction() as tr:
+        with self.graph.transaction() as tr:
             for i, row in self.junction_exon_triples.iterrows():
                 #         print row
                 junction = row[junction_col]
@@ -132,11 +137,15 @@ class JunctionAggregator(object):
                 if self.debug:
                     sys.stdout.write('\n{} is {} of {}\n'.format(
                         exon, row.direction, junction))
+                    sys.stdout.write('\t{}\n'.format(eval1))
                     sys.stdout.write('{} is {} of {}\n'.format(
                         junction, opposite_direction, exon))
+                    sys.stdout.write('\t{}\n'.format(eval2))
 
-                eval(eval1)
-                eval(eval2)
+                tr.store(getattr(V(exon_i), row.direction)(junction_i))
+                tr.store(getattr(V(junction_i), opposite_direction)(exon_i))
+                # eval(eval1)
+                # eval(eval2)
 
     @classmethod
     def from_sj(cls, sj_metadata, db=None):

@@ -55,9 +55,8 @@ def transcripts():
 def region(request):
     return request.param
 
-
 @pytest.fixture
-def junction_to_exons(exon_start_stop, transcripts, strand):
+def junction_to_exons(chrom, exon_start_stop, transcripts, strand):
     from collections import defaultdict
     from poshsplice.junctions_to_events import stringify_location
 
@@ -68,10 +67,10 @@ def junction_to_exons(exon_start_stop, transcripts, strand):
 
             start1, stop1 = exon_start_stop[exon1]
             start2, stop2 = exon_start_stop[exon2]
-            exon1_location = stringify_location('exon', chrom, start1, stop1,
-                                                strand)
-            exon2_location = stringify_location('exon', chrom, start2, stop2,
-                                                strand)
+            exon1_location = stringify_location(chrom, start1, stop1,
+                                                strand, 'exon')
+            exon2_location = stringify_location(chrom, start2, stop2,
+                                                strand, 'exon')
 
             if strand == '-':
                 start = stop2 + 1
@@ -80,8 +79,8 @@ def junction_to_exons(exon_start_stop, transcripts, strand):
                 start = stop1 + 1
                 stop = start2 - 1
 
-            junction_location = stringify_location('junction', chrom, start,
-                                                   stop, strand)
+            junction_location = stringify_location(chrom, start,
+                                                   stop, strand, 'junction')
 
             if strand == '-':
                 data[junction_location]['downstream'].add(exon1_location)
@@ -148,6 +147,38 @@ def test_stringify_location(chrom, strand, region):
     assert test == true
 
 
+def assert_graph_items_equal(graph1, int_to_item1, item_to_int1, graph2,
+                             int_to_item2, item_to_int2):
+    from poshsplice.junctions_to_events import DIRECTIONS
+
+    for item1, number1 in item_to_int1.iteritems():
+        for direction in DIRECTIONS:
+            test = int_to_item1[list(
+                graph1.find(getattr(V(number1), direction)))].values
+
+            number2 = item_to_int2[item1]
+            true = int_to_item2[
+                list(graph2.find(getattr(V(number2), direction)))].values
+
+            test.sort()
+            true.sort()
+
+            pdt.assert_array_equal(test, true)
+
+    for item2, number2 in item_to_int2.iteritems():
+        for direction in DIRECTIONS:
+            test = int_to_item2[list(
+                graph2.find(getattr(V(number2), direction)))].values
+
+            number1 = item_to_int1[item2]
+            true = int_to_item1[
+                list(graph1.find(getattr(V(number1), direction)))].values
+
+            test.sort()
+            true.sort()
+
+            pdt.assert_array_equal(test, true)
+
 class TestAggregateJunctions(object):
 
     @pytest.fixture
@@ -156,7 +187,10 @@ class TestAggregateJunctions(object):
         return JunctionAggregator(junction_exon_triples)
 
     def test_init(self, junction_exon_triples, graph):
-        from poshsplice.junctions_to_events import JunctionAggregator
+        from poshsplice.junctions_to_events import JunctionAggregator, \
+            DIRECTIONS
+
+        true_graph, true_int_to_item, true_item_to_int = graph
 
         test = JunctionAggregator(junction_exon_triples)
         pdt.assert_frame_equal(test.junction_exon_triples,
@@ -174,7 +208,12 @@ class TestAggregateJunctions(object):
         pdt.assert_array_equal(test.items, items)
         pdt.assert_dict_equal(test.int_to_item, int_to_item)
         pdt.assert_dict_equal(test.item_to_int, item_to_int)
-        pdt.assert_equal(test.graph, graph)
+
+        assert_graph_items_equal(test.graph, test.int_to_item,
+                                 test.item_to_int, true_graph,
+                                 true_int_to_item,
+                                 true_item_to_int)
+
 
     def test_from_junction_to_exons(self, junction_to_exons,
                                     junction_aggregator):
@@ -182,25 +221,31 @@ class TestAggregateJunctions(object):
 
         test = JunctionAggregator.from_junction_to_exons(junction_to_exons)
 
-        assert test.graph == junction_aggregator.graph
+        assert_graph_items_equal(test.graph, test.int_to_item,
+                                 test.item_to_int, junction_aggregator.graph,
+                                 junction_aggregator.int_to_item,
+                                 junction_aggregator.item_to_int)
 
 
 
 @pytest.fixture
 def graph(exon_start_stop, transcripts, chrom, strand):
+    from poshsplice.junctions_to_events import stringify_location, opposite
+
     graph = connect(":memory:", graphs=['upstream', 'downstream'])
 
     items = []
+    triples = set()
 
     for transcript, exons in transcripts:
         for exon1, exon2 in zip(exons, exons[1:]):
 
             start1, stop1 = exon_start_stop[exon1]
             start2, stop2 = exon_start_stop[exon2]
-            exon1_location = 'exon:{}:{}-{}:{}'.format(chrom, start1, stop1,
-                                                       strand)
-            exon2_location = 'exon:{}:{}-{}:{}'.format(chrom, start2, stop2,
-                                                       strand)
+            exon1_location = stringify_location(chrom, start1, stop1, strand,
+                                                'exon')
+            exon2_location = stringify_location(chrom, start2, stop2, strand,
+                                                'exon')
 
             if strand == '-':
                 start = stop2 + 1
@@ -209,8 +254,8 @@ def graph(exon_start_stop, transcripts, chrom, strand):
                 start = stop1 + 1
                 stop = start2 - 1
 
-            junction_location = 'junction:{}:{}-{}:{}'.format(chrom, start,
-                                                              stop, strand)
+            junction_location = stringify_location(chrom, start, stop, strand,
+                                                   'junction')
 
             if exon1_location not in items:
                 items.append(exon1_location)
@@ -219,25 +264,35 @@ def graph(exon_start_stop, transcripts, chrom, strand):
             if junction_location not in items:
                 items.append(junction_location)
 
-            # Get unique integer for each item
-            exon1_i = items.index(exon1_location)
-            exon2_i = items.index(exon2_location)
+            # Get unique integer for junction
             junction_i = items.index(junction_location)
 
+            if strand == '-':
+                exon1_triple = exon1_location, 'downstream', junction_location
+                exon2_triple = exon2_location, 'upstream', junction_location
+            else:
+                exon1_triple = exon1_location, 'upstream', junction_location
+                exon2_triple = exon2_location, 'downstream', junction_location
+
+            exon_triples = exon1_triple, exon2_triple
+
             with graph.transaction() as tr:
-                if strand == '-':
-                    tr.store(V(exon1_i).downstream(junction_i))
-                    tr.store(V(exon2_i).upstream(junction_i))
+                for exon_triple in exon_triples:
+                    if exon_triple not in triples:
+                        triples.add(exon_triple)
 
-                    tr.store(V(junction_i).upstream(exon1_i))
-                    tr.store(V(junction_i).downstream(exon2_i))
-                else:
-                    tr.store(V(exon1_i).upstream(junction_i))
-                    tr.store(V(exon2_i).downstream(junction_i))
+                        exon, direction, junction = exon_triple
 
-                    tr.store(V(junction_i).downstream(exon1_i))
-                    tr.store(V(junction_i).upstream(exon2_i))
-    return graph
+                        # Get unique integer for exon
+                        exon_i = items.index(exon)
+                        tr.store(getattr(V(exon_i), direction)(junction_i))
+                        tr.store(getattr(V(junction_i), opposite(direction))(
+                            exon_i))
+                    else:
+                        continue
+    int_to_item = pd.Series(items)
+    item_to_int = pd.Series(dict((v, k) for k, v in int_to_item.iteritems()))
+    return graph, int_to_item, item_to_int
 
 
 def test_se(graph):
