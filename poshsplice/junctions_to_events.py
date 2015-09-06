@@ -15,6 +15,7 @@ _db_doc = """db : gffutils.FeatureDB
 
 DIRECTIONS = ('upstream', 'downstream')
 
+
 def stringify_location(chrom, start, stop, strand, region=None):
     if region is not None:
         return '{}:{}:{}-{}:{}'.format(region, chrom, start, stop, strand)
@@ -24,6 +25,7 @@ def stringify_location(chrom, start, stop, strand, region=None):
 
 def opposite(direction):
     return 'upstream' if direction == 'downstream' else 'downstream'
+
 
 class JunctionAggregator(object):
 
@@ -176,6 +178,8 @@ class JunctionAggregator(object):
         sj_metadata['upstream'] = ''
         sj_metadata['downstream'] = ''
 
+        n_exons = sum(1 for _ in db.features_of_type('exon'))
+
         print 'Starting annotation of all junctions with known exons...'
         for i, exon in enumerate(db.features_of_type('exon')):
             if (i + 1) % 10000 == 0:
@@ -183,9 +187,9 @@ class JunctionAggregator(object):
             chrom_ind = sj_metadata.chrom == exon.chrom
             strand_ind = sj_metadata.strand == exon.strand
             upstream_ind = chrom_ind & strand_ind & (
-            sj_metadata.exon_stop == exon.stop)
+                sj_metadata.exon_stop == exon.stop)
             downstream_ind = chrom_ind & strand_ind & (
-            sj_metadata.exon_start == exon.start)
+                sj_metadata.exon_start == exon.start)
 
             exon_id = exon.id
             if upstream_ind.any():
@@ -201,10 +205,12 @@ class JunctionAggregator(object):
             if downstream_ind.any():
                 if exon.strand == '+':
                     sj_metadata.loc[downstream_ind, 'downstream'] = \
-                    sj_metadata.loc[downstream_ind, 'downstream'] + ',' + exon_id
+                        sj_metadata.loc[downstream_ind, 'downstream'] + ',' \
+                        + exon_id
                 else:
                     sj_metadata.loc[downstream_ind, 'upstream'] = \
-                    sj_metadata.loc[downstream_ind, 'upstream'] + ',' + exon_id
+                        sj_metadata.loc[downstream_ind, 'upstream'] + ',' \
+                        + exon_id
         print 'Done.'
 
         sj_metadata['upstream'] = sj_metadata['upstream'].map(
@@ -307,7 +313,7 @@ class JunctionAggregator(object):
         junction_exons = pd.concat(dfs, ignore_index=True)
         return junction_exons
 
-    def _skipped_exon(self):
+    def skipped_exon(self):
         exons_to_junctions = {}
         n_exons = self.all_exons.shape[0]
 
@@ -320,7 +326,7 @@ class JunctionAggregator(object):
 
             exon3 = self.item_to_int[exon3_str]
             # Get upstream junctions
-            upstream_junctions = graph.find(V().upstream(exon3))
+            upstream_junctions = set(self.graph.find(V().upstream(exon3)))
 
             # Get upstream exons of this exon (which exons have these upstream
             # junctions, downstream of the exon)
@@ -335,25 +341,24 @@ class JunctionAggregator(object):
 
             # Of those junctions, which overlap --> SE event
             exon1exon2_junctions = upstream_exons_downstream_junctions \
-                                   & upstream_exons_upstream_junctions
-
+                & upstream_exons_upstream_junctions
 
             for j in exon1exon2_junctions:
-                exon1s = graph.find(V(j).downstream)
-                exon2s = graph.find(V(j).upstream)
+                exon1s = self.graph.find(V(j).downstream)
+                exon2s = self.graph.find(V(j).upstream)
 
                 exon1exon3_junctions = set(itertools.chain(
-                    *[graph.find(V().downstream(x)) for x in exon1s])) & set(
-                    upstream_junctions)
+                    *[self.graph.find(V().downstream(x)) for x in exon1s])) \
+                    & upstream_junctions
                 exon2exon3_junctions = set(itertools.chain(
-                    *[graph.find(V().downstream(x)) for x in exon2s])) & set(
-                    upstream_junctions)
+                    *[self.graph.find(V().downstream(x)) for x in exon2s])) \
+                    & upstream_junctions
 
                 exon1_confirmed = set(itertools.chain(
-                    *[graph.find(V().upstream(x)) for x in
+                    *[self.graph.find(V().upstream(x)) for x in
                       exon1exon3_junctions])) & set(exon1s)
                 exon2_confirmed = set(itertools.chain(
-                    *[graph.find(V().upstream(x)) for x in
+                    *[self.graph.find(V().upstream(x)) for x in
                       exon2exon3_junctions])) & set(exon2s)
 
                 if len(exon1_confirmed) == 1 and len(exon2_confirmed) == 1:
@@ -368,8 +373,8 @@ class JunctionAggregator(object):
 
                     for exon2 in exon2_confirmed:
                         exon2exon3_junction = set(
-                            graph.find(V().downstream(exon2))) & set(
-                            upstream_junctions)
+                            self.graph.find(V().downstream(exon2))) \
+                            & upstream_junctions
                         junctions = self.int_to_item[list(itertools.chain(
                             *[[j], exon2exon3_junction,
                               exon1exon3_junctions]))]
@@ -381,13 +386,14 @@ class JunctionAggregator(object):
                     # Since the 3' side of the exon is fixed, then the smallest
                     # size one will have the smallest upstream side
                     exon1 = min(exon1_confirmed,
-                                key=lambda x: len(self.db[self.int_to_item[x]]))
+                                key=lambda x:
+                                len(self.db[self.int_to_item[x]]))
 
                     if len(exon2_confirmed) > 1:
                         for exon2 in exon2_confirmed:
                             exon2exon3_junction = set(
-                                graph.find(V().downstream(exon2))) & set(
-                                upstream_junctions)
+                                self.graph.find(V().downstream(exon2))) \
+                                & upstream_junctions
                             junctions = self.int_to_item[list(itertools.chain(
                                 *[[j], exon2exon3_junction,
                                   exon1exon3_junctions]))]
@@ -399,8 +405,8 @@ class JunctionAggregator(object):
                     else:
                         exon2 = exon2_confirmed.pop()
                         exon2exon3_junction = set(
-                            graph.find(V().downstream(exon2))) & set(
-                            upstream_junctions)
+                            self.graph.find(V().downstream(exon2))) \
+                            & upstream_junctions
                         junctions = self.int_to_item[list(itertools.chain(
                             *[[j], exon2exon3_junction,
                               exon1exon3_junctions]))]
@@ -408,20 +414,20 @@ class JunctionAggregator(object):
                         exons_to_junctions[tuple(exons)] = tuple(junctions)
         return exons_to_junctions
 
-    def _mutually_exclusive_exon(self):
+    def mutually_exclusive_exon(self):
         pass
 
-    def _twin_cassette(self):
+    def twin_cassette(self):
         pass
 
-    def _alt_5p_splice_site(self):
+    def alt_5p_splice_site(self):
         pass
 
-    def _alt_3p_splice_site(self):
+    def alt_3p_splice_site(self):
         pass
 
-    def _alt_first_exon(self):
+    def alt_first_exon(self):
         pass
 
-    def _alt_last_exon(self):
+    def alt_last_exon(self):
         pass
