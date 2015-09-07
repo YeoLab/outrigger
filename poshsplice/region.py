@@ -2,6 +2,9 @@
 
 class Region(object):
 
+    __slots__ = ('name', 'region', 'chrom', 'start', 'stop', '_start',
+                 '_stop', 'strand')
+
     def __init__(self, name):
         """A location in the genome
 
@@ -41,6 +44,10 @@ class Region(object):
 
     def __str__(self):
         return self.name
+
+    def __eq__(self, other):
+        return all(getattr(self, attr) == getattr(other, attr)
+                   for attr in self.__slots__)
 
     def overlaps(self, other):
         """Returns true if any part of the other region is contained in this one"""
