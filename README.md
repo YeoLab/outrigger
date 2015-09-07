@@ -19,8 +19,8 @@ events:
 - Alternative 5' splice site (A5SS)
 - Alternative 3' splice site (A3SS)
 - Mutually exclusive exon (MXE)
-- Twin cassette
-- Alternative last exon
+- Twin cassette (TWIN)
+- Alternative last exon (ALE)
 
 For a demonstration, see the transcripts below.
 
