@@ -409,8 +409,7 @@ class JunctionAggregator(object):
 
             exon23s = self.int_to_item[set(exon23s_from4) & set(exon23s_from1)]
 
-            exon23s = exon23s.map(Region)
-
+            exon23s = self.item_to_region[exon23s]
 
             for exon_a, exon_b in itertools.combinations(exon23s, 2):
                 print exon_a.name, exon_b.name
@@ -443,15 +442,14 @@ class JunctionAggregator(object):
 
                         exon_tuple = exon1_name, exon2.name, exon3.name, \
                                      exon4_name
-                        events_to_junctions[exon_tuple] = \
-                            {(exon1_name, exon3.name):
-                                 list(exon13_junction).pop(),
-                             (exon3.name, exon4_name):
-                                 list(exon34_junction).pop(),
-                             (exon1_name, exon2.name):
-                                 list(exon12_junction).pop(),
-                             (exon2.name, exon4_name):
-                                 list(exon24_junction).pop()}
+                        #             print exon12_junction.next()
+                        junctions = list(
+                            itertools.chain(*[exon13_junction, exon34_junction,
+                                              exon12_junction,
+                                              exon24_junction]))
+                        junctions = self.int_to_item[junctions].tolist()
+
+                        events_to_junctions[exon_tuple] = junctions
         return events_to_junctions
 
     def twin_cassette(self):

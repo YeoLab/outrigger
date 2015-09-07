@@ -77,12 +77,12 @@ def junction_to_exons(chrom, exon_start_stop, transcripts, strand):
             exon2_location = stringify_location(chrom, start2, stop2,
                                                 strand, 'exon')
 
-            if strand == '-':
-                start = stop2 + 1
-                stop = start1 - 1
-            else:
-                start = stop1 + 1
-                stop = start2 - 1
+            # if strand == '-':
+            #     start = stop2 + 1
+            #     stop = start1 - 1
+            # else:
+            start = stop1 + 1
+            stop = start2 - 1
 
             junction_location = stringify_location(chrom, start,
                                                    stop, strand, 'junction')
@@ -115,12 +115,12 @@ def junction_exon_triples(chrom, exon_start_stop, transcripts, strand):
             exon2_location = stringify_location(chrom, start2, stop2,
                                                 strand, 'exon')
 
-            if strand == '-':
-                start = stop2 + 1
-                stop = start1 - 1
-            else:
-                start = stop1 + 1
-                stop = start2 - 1
+            # if strand == '-':
+            #     start = stop2 + 1
+            #     stop = start1 - 1
+            # else:
+            start = stop1 + 1
+            stop = start2 - 1
 
             junction_location = stringify_location(chrom, start, stop,
                                                    strand, 'junction')
@@ -257,7 +257,8 @@ class TestAggregateJunctions(object):
                      'chr1:401-699:+')}  # Exon3-Exon4 junction
         return true
 
-    def test_mxe(self):
+    def test_mxe(self, junction_aggregator):
+        test = junction_aggregator.mutually_exclusive_exon()
         true = {('exon:chr1:150-175:+',   # Exon 1
                  'exon:chr1:225-250:+',   # Exon 2
                  'exon:chr1:300-350:+',   # Exon 3
@@ -267,7 +268,7 @@ class TestAggregateJunctions(object):
                      'junction:chr1:176-224:+',   # Exon2-Exon3 junction
                      'junction:chr1:251-399:+'),  # Exon3-Exon4 junction
                 }
-        return true
+        pdt.assert_dict_equal(test, true)
 
     def test_twin_cassette(self):
         true = {('exon:chr1:100-200:+',  # Exon 1
@@ -331,12 +332,12 @@ def graph(exon_start_stop, transcripts, chrom, strand):
             exon2_location = stringify_location(chrom, start2, stop2, strand,
                                                 'exon')
 
-            if strand == '-':
-                start = stop2 + 1
-                stop = start1 - 1
-            else:
-                start = stop1 + 1
-                stop = start2 - 1
+            # if strand == '-':
+            #     start = stop2 + 1
+            #     stop = start1 - 1
+            # else:
+            start = stop1 + 1
+            stop = start2 - 1
 
             junction_location = stringify_location(chrom, start, stop, strand,
                                                    'junction')
