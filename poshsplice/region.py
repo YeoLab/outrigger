@@ -40,7 +40,7 @@ class Region(object):
             self.stop = stop
 
     def __repr__(self):
-        return self.name
+        return 'poshsplice.Region <{0}>'.format(self.name)
 
     def __str__(self):
         return self.name
@@ -50,7 +50,7 @@ class Region(object):
                    for attr in self.__slots__)
 
     def overlaps(self, other):
-        """Returns true if any part of the other region is contained in this one"""
+        """Returns true if any part of other region is contained in this one"""
         if other._start > self._stop or other._stop < self._start:
             return False
         else:

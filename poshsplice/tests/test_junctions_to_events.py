@@ -230,97 +230,168 @@ class TestAggregateJunctions(object):
                                  junction_aggregator.int_to_item,
                                  junction_aggregator.item_to_int)
 
-    def test_se(self):
-        true = {('exon:chr1:100-200:+',  # Exon 1
-                 'exon:chr1:300-400:+',  # Exon 2
-                 'exon:chr1:500-600:+'):  # Exon 3
-                    ('chr1:201-299:+',  # Exon1-Exon2 junction
-                     'chr1:201-499:+',  # Exon1-Exon3 junction
-                     'chr1:401-499:+'),  # Exon2-Exon3 junction
-                ('exon:chr1:100-200:+',  # Exon 1
-                 'exon:chr1:250-400:+',  # Exon 2, Alt 3' splice site
-                 'exon:chr1:500-600:+'):  # Exon 3
-                    ('chr1:201-249:+',  # Exon1-Exon2a3ss junction
-                     'chr1:201-499:+',  # Exon1-Exon3 junction
-                     'chr1:401-499:+'),  # Exon2-Exon3 junction
-                ('exon:chr1:100-200:+',  # Exon 1
-                 'exon:chr1:300-450:+',  # Exon 2, Alt 5' splice site
-                 'exon:chr1:500-600:+'):  # Exon 3
-                    ('chr1:201-299:+',  # Exon1-Exon2 junction
-                     'chr1:201-499:+',  # Exon1-Exon3 junction
-                     'chr1:451-499:+'),  # Exon2a5ss-Exon3 junction
-                ('exon:chr1:300-400:+',  # Exon 2
-                 'exon:chr1:500-600:+',  # Exon 3
-                 'exon:chr1:700-800:+'):  # Exon 4
-                    ('chr1:401-499:+',  # Exon2-Exon3 junction
-                     'chr1:401-699:+',  # Exon2-Exon4 junction
-                     'chr1:401-699:+')}  # Exon3-Exon4 junction
-        return true
+    def test_se(self, junction_aggregator, strand):
+        test = junction_aggregator.skipped_exon()
+
+        if strand == '+':
+            true = {
+                ('exon:chr1:150-175:+',   # Exon 1
+                 'exon:chr1:225-250:+',   # Exon 2
+                 'exon:chr1:300-350:+'):  # Exon 3
+                    ('junction:chr1:176-224:+',
+                     'junction:chr1:251-299:+',
+                     'junction:chr1:176-299:+'),
+                ('exon:chr1:150-175:+',   # Exon 1
+                 'exon:chr1:225-275:+',   # Exon 2, alt 5' splice site
+                 'exon:chr1:300-350:+'):  # Exon 3
+                    ('junction:chr1:176-224:+',
+                     'junction:chr1:276-299:+',
+                     'junction:chr1:176-299:+'),
+                ('exon:chr1:150-175:+',   # Exon 1
+                 'exon:chr1:300-350:+',   # Exon 3
+                 'exon:chr1:400-425:+'):  # Exon 4
+                    ('junction:chr1:176-299:+',
+                     'junction:chr1:351-399:+',
+                     'junction:chr1:176-399:+'),
+                ('exon:chr1:150-175:+',   # Exon 1
+                 'exon:chr1:225-250:+',   # Exon 2
+                 'exon:chr1:400-425:+'):  # Exon 4
+                    ('junction:chr1:176-224:+',
+                     'junction:chr1:251-399:+',
+                     'junction:chr1:176-399:+'),
+                ('exon:chr1:225-250:+',   # Exon 2
+                 'exon:chr1:300-350:+',   # Exon 3
+                 'exon:chr1:400-425:+'):  # Exon 4
+                    ('junction:chr1:251-299:+',
+                     'junction:chr1:351-399:+',
+                     'junction:chr1:251-399:+'),
+                ('exon:chr1:150-175:+',   # Exon 1
+                 'exon:chr1:200-250:+',   # Exon 2, alt 3' splice site
+                 'exon:chr1:300-350:+'):  # Exon 4
+                    ('junction:chr1:176-199:+',
+                     'junction:chr1:251-299:+',
+                     'junction:chr1:176-299:+')}
+        else:
+            true = {
+                ('exon:chr1:300-350:-',
+                 'exon:chr1:225-250:-',
+                 'exon:chr1:150-175:-'):
+                    ('junction:chr1:251-299:-',
+                     'junction:chr1:176-224:-',
+                     'junction:chr1:176-299:-'),
+                ('exon:chr1:300-350:-',
+                 'exon:chr1:225-275:-',
+                 'exon:chr1:150-175:-'):
+                    ('junction:chr1:276-299:-',
+                     'junction:chr1:176-224:-',
+                     'junction:chr1:176-299:-'),
+                ('exon:chr1:400-425:-',
+                 'exon:chr1:300-350:-',
+                 'exon:chr1:150-175:-'):
+                    ('junction:chr1:351-399:-',
+                     'junction:chr1:176-299:-',
+                     'junction:chr1:176-399:-'),
+                ('exon:chr1:400-425:-',
+                 'exon:chr1:300-350:-',
+                 'exon:chr1:225-250:-'):
+                    ('junction:chr1:351-399:-',
+                     'junction:chr1:251-299:-',
+                     'junction:chr1:251-399:-'),
+                ('exon:chr1:300-350:-',
+                 'exon:chr1:200-250:-',
+                 'exon:chr1:150-175:-'):
+                    ('junction:chr1:251-299:-',
+                     'junction:chr1:176-199:-',
+                     'junction:chr1:176-299:-'),
+                ('exon:chr1:400-425:-',
+                 'exon:chr1:225-250:-',
+                 'exon:chr1:150-175:-'):
+                    ('junction:chr1:251-399:-',
+                     'junction:chr1:176-224:-',
+                     'junction:chr1:176-399:-')}
+        pdt.assert_dict_equal(test, true)
 
     def test_mxe(self, junction_aggregator, strand):
         test = junction_aggregator.mutually_exclusive_exon()
 
         if strand == '+':
-            true = {('exon:chr1:150-175:+',   # Exon 1
-                     'exon:chr1:225-250:+',   # Exon 2
-                     'exon:chr1:300-350:+',   # Exon 3
-                     'exon:chr1:400-425:+'):  # Exon 4
-                        ('junction:chr1:176-299:+',   # Exon1-Exon2 junction
-                         'junction:chr1:351-399:+',   # Exon1-Exon3 junction
-                         'junction:chr1:176-224:+',   # Exon2-Exon3 junction
-                         'junction:chr1:251-399:+'),  # Exon3-Exon4 junction
-                    }
+            true = {
+                ('exon:chr1:150-175:+',   # Exon 1
+                 'exon:chr1:225-250:+',   # Exon 2
+                 'exon:chr1:300-350:+',   # Exon 3
+                 'exon:chr1:400-425:+'):  # Exon 4
+                    ('junction:chr1:176-299:+',   # Exon1-Exon2 junction
+                     'junction:chr1:351-399:+',   # Exon1-Exon3 junction
+                     'junction:chr1:176-224:+',   # Exon2-Exon3 junction
+                     'junction:chr1:251-399:+')}  # Exon3-Exon4 junction
         else:
-            true = {('exon:chr1:400-425:-',
-                     'exon:chr1:300-350:-',
-                     'exon:chr1:225-250:-',
-                     'exon:chr1:150-175:-'):
-                        ('junction:chr1:251-399:-',
-                         'junction:chr1:176-224:-',
-                         'junction:chr1:351-399:-',
-                         'junction:chr1:176-299:-')}
+            true = {
+                ('exon:chr1:400-425:-',
+                 'exon:chr1:300-350:-',
+                 'exon:chr1:225-250:-',
+                 'exon:chr1:150-175:-'):
+                    ('junction:chr1:251-399:-',
+                     'junction:chr1:176-224:-',
+                     'junction:chr1:351-399:-',
+                     'junction:chr1:176-299:-')}
         pdt.assert_dict_equal(test, true)
 
-    def test_twin_cassette(self):
-        true = {('exon:chr1:100-200:+',  # Exon 1
-                 'exon:chr1:300-400:+',  # Exon 2
-                 'exon:chr1:500-600:+',  # Exon 3
-                 'exon:chr1:700-800:+'):  # Exon 4
-                    ('chr1:201-299:+',  # Exon1-Exon2 junction
-                     'chr1:201-499:+',  # Exon1-Exon3 junction
-                     'chr1:401-499:+',  # Exon2-Exon3 junction
-                     'chr1:401-699:+')}  # Exon3-Exon4 junction
+    def test_twin_cassette(self, junction_aggregator, strand):
+        # test = junction_aggregator.twin_cassette()
 
-    def test_a5ss(self):
-        true = {('exon:chr1:300-400:+',  # Exon 2
-                 'exon:chr1:300-450:+',  # Exon 2, Alt 5' splice site
-                 'exon:chr1:500-600:+'):  # Exon 3
-                    ('chr1:401-499:+',  # Exon2-Exon3 junction
-                     'chr1:451-499:+')}  # Exon2a5ss-Exon3 junction
+        if strand == '+':
+            true = {('exon:chr1:150-175:+',  # Exon 1
+                     'exon:chr1:225-250:+',  # Exon 2
+                     'exon:chr1:300-350:+',  # Exon 3
+                     'exon:chr1:400-425:+'):  # Exon 4
+                        ('junction:chr1:176-299:+',  # Exon1-Exon2 junction
+                         'junction:chr1:251-299:+',  # Exon2-Exon3 junction
+                         'junction:chr1:351-399:+',  # Exon3-Exon4 junction
+                         'junction:chr1:176-399:+')  # Exon1-Exon4 junction
+                    }
+        else:
+            true = {('exon:chr1:400-425:-',  # Exon 1
+                     'exon:chr1:300-350:-',  # Exon 2
+                     'exon:chr1:225-250:-',  # Exon 3
+                     'exon:chr1:150-175:-'):  # Exon 4
+                        ('junction:chr1:351-399:-',  # Exon1-Exon2 junction
+                         'junction:chr1:251-299:-',  # Exon2-Exon3 junction
+                         'junction:chr1:176-225:-',  # Exon3-Exon4 junction
+                         'junction:chr1:176-399:-')  # Exon1-Exon4 junction
+                    }
+        return true
+        # pdt.assert_dict_equal(test, true)
+
+    def test_a5ss(self, junction_aggregator, strand):
+        true = {('exon:chr1:225-250:+',   # Exon 2
+                 'exon:chr1:225-275:+',   # Exon 2, Alt 5' splice site
+                 'exon:chr1:300-350:+'):  # Exon 3
+                    ('junction:chr1:251-299:+',    # Exon2-Exon3 junction
+                     'junction:chr1:276-299:+')}   # Exon2a5ss-Exon3 junction
         return true
 
-    def test_a3ss(self):
-        true = {('exon:chr1:100-200:+',  # Exon 1
-                 'exon:chr1:250-400:+',  # Exon 2, Alt 3' splice site
-                 'exon:chr1:300-400:+'):  # Exon 2
-                    ('chr1:201-299:+',  # Exon1-Exon2 junction
-                     'chr1:201-249:+')}  # Exon1-Exon2a3ss junction
+    def test_a3ss(self, junction_aggregator, strand):
+        true = {('exon:chr1:150-175:+',   # Exon 1
+                 'exon:chr1:200-250:+',   # Exon 2, Alt 3' splice site
+                 'exon:chr1:225-250:+'):  # Exon 2
+                    ('junction:chr1:176-199:+',   # Exon1-Exon2a3ss junction
+                     'junction:chr1:176-224:+')}  # Exon1-Exon2 junction
         return true
 
-    def test_afe(self):
-        true = {('exon:chr1:50-75:+',  # Exon 1 alt
-                 'exon:chr1:100-200:+',  # Exon 1
-                 'exon:chr1:250-400:+'):
-                    ('chr1:76-299:+',  # Exon1alt-Exon2 junction
-                     'chr1:201-299:+')}  # Exon1-Exon2 junction
+    def test_afe(self, junction_aggregator, strand):
+        true = {('exon:chr1:100-125:+',   # Exon 1 alt
+                 'exon:chr1:150-175:+',   # Exon 1
+                 'exon:chr1:225-250:+'):  # Exon 2
+                    ('junction:chr1:126-224:+',   # Exon1alt-Exon2 junction
+                     'junction:chr1:176-224:+')}  # Exon1-Exon2 junction
         return true
 
-    def test_ale(self):
-        true = {('exon:chr1:500-600:+',  # Exon 3
-                 'exon:chr1:700-800:+',  # Exon 4
-                 'exon:chr1:850-900:+'):  # Exon 4 alt
-                    ('chr1:401-699:+',  # Exon3-Exon4 junction
-                     'chr1:401-849:+')}  # Exon3-Exon4alt junction
+    def test_ale(self, junction_aggregator, strand):
+        true = {('exon:chr1:300-350:+',   # Exon 3
+                 'exon:chr1:400-425:+',   # Exon 4
+                 'exon:chr1:475-500:+'):  # Exon 4 alt
+                    ('junction:chr1:351-399:+',   # Exon3-Exon4 junction
+                     'junction:chr1:351-474:+')}  # Exon3-Exon4alt junction
         return true
 
 

@@ -305,7 +305,7 @@ class JunctionAggregator(object):
 
             exon3 = self.item_to_int[exon3_str]
             # Get upstream junctions
-            upstream_junctions = set(self.graph.find(V().upstream(exon3)))
+            upstream_junctions = self.graph.find(V().upstream(exon3))
 
             # Get upstream exons of this exon (which exons have these upstream
             # junctions, downstream of the exon)
@@ -321,6 +321,8 @@ class JunctionAggregator(object):
             # Of those junctions, which overlap --> SE event
             exon1exon2_junctions = upstream_exons_downstream_junctions \
                 & upstream_exons_upstream_junctions
+
+            upstream_junctions = set(upstream_junctions)
 
             for j in exon1exon2_junctions:
                 exon1s = self.graph.find(V(j).downstream)
@@ -363,10 +365,10 @@ class JunctionAggregator(object):
                 elif len(exon1_confirmed) > 1:
                     # If There's more than one exon1, use the shortest one.
                     # Since the 3' side of the exon is fixed, then the smallest
-                    # size one will have the smallest upstream side
-                    exon1 = min(exon1_confirmed,
+                    # size one will have the largest start number
+                    exon1 = max(exon1_confirmed,
                                 key=lambda x:
-                                len(self.db[self.int_to_item[x]]))
+                                self.item_to_region[self.int_to_item[x]].start)
 
                     if len(exon2_confirmed) > 1:
                         for exon2 in exon2_confirmed:
@@ -393,7 +395,6 @@ class JunctionAggregator(object):
 
     def mutually_exclusive_exon(self):
         events_to_junctions = {}
-
 
         for exon1_name in self.exons:
             exon1 = self.item_to_int[exon1_name]
