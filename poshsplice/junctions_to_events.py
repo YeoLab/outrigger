@@ -6,6 +6,8 @@ import pandas as pd
 import graphlite
 from graphlite import V
 
+from .region import Region
+
 _db_doc = """db : gffutils.FeatureDB
     Database of gene, transcript, and exon features. The exons must be
     accessible by the id provided on the exon_{5,3}p_col columns. If
@@ -100,13 +102,15 @@ class JunctionAggregator(object):
         self.debug = debug
 
         self.graph = graphlite.connect(":memory:", graphs=DIRECTIONS)
-        self.all_exons = junction_exon_triples[exon_col].unique()
-        self.all_junctions = junction_exon_triples[junction_col].unique()
+        self.exons = junction_exon_triples[exon_col].unique()
+        self.junctions = junction_exon_triples[junction_col].unique()
 
-        self.items = np.concatenate([self.all_exons, self.all_junctions])
+        self.items = np.concatenate([self.exons, self.junctions])
         self.int_to_item = pd.Series(self.items)
         self.item_to_int = pd.Series(
             dict((v, k) for k, v in self.int_to_item.iteritems()))
+        self.item_to_region = pd.Series(map(Region, self.items),
+                                        index=self.items)
 
         with self.graph.transaction() as tr:
             for i, row in self.junction_exon_triples.iterrows():
@@ -290,11 +294,11 @@ class JunctionAggregator(object):
 
     def skipped_exon(self):
         exons_to_junctions = {}
-        n_exons = self.all_exons.shape[0]
+        n_exons = self.exons.shape[0]
 
         sys.stdout.write('Trying out {} exons'
                          '...\n'.format(n_exons))
-        for i, exon3_str in enumerate(self.all_exons):
+        for i, exon3_str in enumerate(self.exons):
             if (i + 1) % 10000 == 0:
                 sys.stdout.write('\t{}/{} '
                                  'exons tested'.format(i + 1, n_exons))
@@ -388,7 +392,67 @@ class JunctionAggregator(object):
         return exons_to_junctions
 
     def mutually_exclusive_exon(self):
-        pass
+        events_to_junctions = {}
+
+
+        for exon1_name in self.exons:
+            exon1 = self.item_to_int[exon1_name]
+
+            downstream_junctions = set(self.graph.find(V().downstream(exon1)))
+            downstream_junctions
+            exon23s_from1 = list(
+                self.graph.find(V().downstream(exon1)).traverse(V().upstream))
+            exon4s = self.graph.find(V().downstream(exon1)).traverse(
+                V().upstream).traverse(V().upstream).traverse(V().upstream)
+            exon23s_from4 = exon4s.traverse(V().downstream).traverse(
+                V().downstream)
+
+            exon23s = self.int_to_item[set(exon23s_from4) & set(exon23s_from1)]
+
+            exon23s = exon23s.map(Region)
+
+
+            for exon_a, exon_b in itertools.combinations(exon23s, 2):
+                print exon_a.name, exon_b.name
+                if not exon_a.overlaps(exon_b):
+                    exon2 = min((exon_a, exon_b), key=lambda x: x.start)
+                    exon3 = max((exon_a, exon_b), key=lambda x: x.start)
+                    exon4_from2 = set(
+                        self.graph.find(V(self.item_to_int[exon2.name]).upstream).traverse(
+                            V().upstream))
+                    exon4_from3 = set(
+                        self.graph.find(V(self.item_to_int[exon3.name]).upstream).traverse(
+                            V().upstream))
+                    exon4 = exon4_from2 & exon4_from3
+                    exon4_name = self.int_to_item[exon4]
+                    if not exon4_name.empty:
+                        exon4_name = exon4_name.values[0]
+                        # Isoform 1 - corresponds to Psi=0. Inclusion of exon3
+                        exon13_junction = self.graph.find(V(exon1).upstream) \
+                            .intersection(V(self.item_to_int[exon3.name]).downstream)
+                        exon34_junction = self.graph.find(
+                            V(self.item_to_int[exon3.name]).upstream) \
+                            .intersection(V(self.item_to_int[exon4_name]).downstream)
+
+                        # Isoform 2 - corresponds to Psi=1. Inclusion of exon2
+                        exon12_junction = self.graph.find(V(exon1).upstream) \
+                            .intersection(V(self.item_to_int[exon2.name]).downstream)
+                        exon24_junction = self.graph.find(
+                            V(self.item_to_int[exon2.name]).upstream) \
+                            .intersection(V(self.item_to_int[exon4_name]).downstream)
+
+                        exon_tuple = exon1_name, exon2.name, exon3.name, \
+                                     exon4_name
+                        events_to_junctions[exon_tuple] = \
+                            {(exon1_name, exon3.name):
+                                 list(exon13_junction).pop(),
+                             (exon3.name, exon4_name):
+                                 list(exon34_junction).pop(),
+                             (exon1_name, exon2.name):
+                                 list(exon12_junction).pop(),
+                             (exon2.name, exon4_name):
+                                 list(exon24_junction).pop()}
+        return events_to_junctions
 
     def twin_cassette(self):
         pass

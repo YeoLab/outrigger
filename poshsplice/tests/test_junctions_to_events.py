@@ -208,8 +208,8 @@ class TestAggregateJunctions(object):
         item_to_int = pd.Series(dict((v, k) for k, v in
                                      int_to_item.iteritems()))
 
-        pdt.assert_array_equal(test.all_exons, all_exons)
-        pdt.assert_array_equal(test.all_junctions, all_junctions)
+        pdt.assert_array_equal(test.exons, all_exons)
+        pdt.assert_array_equal(test.junctions, all_junctions)
         pdt.assert_array_equal(test.items, items)
         pdt.assert_dict_equal(test.int_to_item, int_to_item)
         pdt.assert_dict_equal(test.item_to_int, item_to_int)
