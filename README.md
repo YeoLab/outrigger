@@ -9,6 +9,23 @@ Exon ontology is an attempt to catalogue scripts used to annotate exons and thei
 
 ## Features
 
+### Aggregate splice junctions into splicing events
+
+Using just junction information, we can annotate these kinds of splicing 
+events:
+
+- Alternative first exon (AFE)
+- Skipped exon (SE)
+- Alternative 5' splice site (A5SS)
+- Alternative 3' splice site (A3SS)
+- Mutually exclusive exon (MXE)
+- Twin cassette
+- Alternative last exon
+
+For a demonstration, see the transcripts below.
+
+![](docs/test_transcripts.png)
+
 ### Read HMMScan output
 
 After running HMMScan, the output is extensive and helpful, but non-trivial to parse into a dataframe-style format
