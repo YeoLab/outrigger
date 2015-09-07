@@ -257,17 +257,28 @@ class TestAggregateJunctions(object):
                      'chr1:401-699:+')}  # Exon3-Exon4 junction
         return true
 
-    def test_mxe(self, junction_aggregator):
+    def test_mxe(self, junction_aggregator, strand):
         test = junction_aggregator.mutually_exclusive_exon()
-        true = {('exon:chr1:150-175:+',   # Exon 1
-                 'exon:chr1:225-250:+',   # Exon 2
-                 'exon:chr1:300-350:+',   # Exon 3
-                 'exon:chr1:400-425:+'):  # Exon 4
-                    ('junction:chr1:176-299:+',   # Exon1-Exon2 junction
-                     'junction:chr1:351-399:+',   # Exon1-Exon3 junction
-                     'junction:chr1:176-224:+',   # Exon2-Exon3 junction
-                     'junction:chr1:251-399:+'),  # Exon3-Exon4 junction
-                }
+
+        if strand == '+':
+            true = {('exon:chr1:150-175:+',   # Exon 1
+                     'exon:chr1:225-250:+',   # Exon 2
+                     'exon:chr1:300-350:+',   # Exon 3
+                     'exon:chr1:400-425:+'):  # Exon 4
+                        ('junction:chr1:176-299:+',   # Exon1-Exon2 junction
+                         'junction:chr1:351-399:+',   # Exon1-Exon3 junction
+                         'junction:chr1:176-224:+',   # Exon2-Exon3 junction
+                         'junction:chr1:251-399:+'),  # Exon3-Exon4 junction
+                    }
+        else:
+            true = {('exon:chr1:400-425:-',
+                     'exon:chr1:300-350:-',
+                     'exon:chr1:225-250:-',
+                     'exon:chr1:150-175:-'):
+                        ('junction:chr1:251-399:-',
+                         'junction:chr1:176-224:-',
+                         'junction:chr1:351-399:-',
+                         'junction:chr1:176-299:-')}
         pdt.assert_dict_equal(test, true)
 
     def test_twin_cassette(self):
