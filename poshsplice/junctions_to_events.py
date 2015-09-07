@@ -12,8 +12,9 @@ _db_doc = """db : gffutils.FeatureDB
     not provided, certain splice types which require information about
     the transcript (AFE, ALE) cannot be annotated."""
 
-
-DIRECTIONS = ('upstream', 'downstream')
+UPSTREAM = 'upstream'
+DOWNSTREAM = 'downstream'
+DIRECTIONS = [UPSTREAM, DOWNSTREAM]
 
 
 def stringify_location(chrom, start, stop, strand, region=None):
@@ -24,7 +25,7 @@ def stringify_location(chrom, start, stop, strand, region=None):
 
 
 def opposite(direction):
-    return 'upstream' if direction == 'downstream' else 'downstream'
+    return UPSTREAM if direction == DOWNSTREAM else DOWNSTREAM
 
 
 class JunctionAggregator(object):
@@ -98,8 +99,7 @@ class JunctionAggregator(object):
         self.db = db
         self.debug = debug
 
-        self.graph = graphlite.connect(":memory:",
-                                       graphs=['upstream', 'downstream'])
+        self.graph = graphlite.connect(":memory:", graphs=DIRECTIONS)
         self.all_exons = junction_exon_triples[exon_col].unique()
         self.all_junctions = junction_exon_triples[junction_col].unique()
 
@@ -152,8 +152,8 @@ class JunctionAggregator(object):
             Explanation of `out`.
         """
 
-        sj_metadata['upstream'] = ''
-        sj_metadata['downstream'] = ''
+        sj_metadata[UPSTREAM] = ''
+        sj_metadata[DOWNSTREAM] = ''
 
         n_exons = sum(1 for _ in db.features_of_type('exon'))
 
@@ -172,43 +172,40 @@ class JunctionAggregator(object):
             exon_id = exon.id
             if upstream_ind.any():
                 if exon.strand == '+':
-                    sj_metadata.loc[upstream_ind, 'upstream'] = \
-                        sj_metadata.loc[upstream_ind, 'upstream'] + ',' \
+                    sj_metadata.loc[upstream_ind, UPSTREAM] = \
+                        sj_metadata.loc[upstream_ind, UPSTREAM] + ',' \
                         + exon_id
                 else:
-                    sj_metadata.loc[upstream_ind, 'downstream'] = \
-                        sj_metadata.loc[upstream_ind, 'downstream'] + ',' \
+                    sj_metadata.loc[upstream_ind, DOWNSTREAM] = \
+                        sj_metadata.loc[upstream_ind, DOWNSTREAM] + ',' \
                         + exon_id
 
             if downstream_ind.any():
                 if exon.strand == '+':
-                    sj_metadata.loc[downstream_ind, 'downstream'] = \
-                        sj_metadata.loc[downstream_ind, 'downstream'] + ',' \
+                    sj_metadata.loc[downstream_ind, DOWNSTREAM] = \
+                        sj_metadata.loc[downstream_ind, DOWNSTREAM] + ',' \
                         + exon_id
                 else:
-                    sj_metadata.loc[downstream_ind, 'upstream'] = \
-                        sj_metadata.loc[downstream_ind, 'upstream'] + ',' \
+                    sj_metadata.loc[downstream_ind, UPSTREAM] = \
+                        sj_metadata.loc[downstream_ind, UPSTREAM] + ',' \
                         + exon_id
         sys.stdout.write('Done.\n')
 
-        sj_metadata['upstream'] = sj_metadata['upstream'].map(
+        sj_metadata[UPSTREAM] = sj_metadata[UPSTREAM].map(
             lambda x: x.lstrip(',') if isinstance(x, str) else x)
-        sj_metadata['downstream'] = sj_metadata['downstream'].map(
+        sj_metadata[DOWNSTREAM] = sj_metadata[DOWNSTREAM].map(
             lambda x: x.lstrip(',') if isinstance(x, str) else x)
-        sj_metadata[['upstream', 'downstream']] = sj_metadata[
-            ['upstream', 'downstream']].replace('', np.nan)
-        sj_metadata[['upstream', 'downstream']].head()
+        sj_metadata[DIRECTIONS] = sj_metadata[DIRECTIONS].replace('', np.nan)
 
         sj_metadata.loc[sj_metadata.index.map(
-            lambda x: x.endswith('5p')), 'downstream'] = np.nan
+            lambda x: x.endswith('5p')), DOWNSTREAM] = np.nan
         sj_metadata.loc[sj_metadata.index.map(
-            lambda x: x.endswith('3p')), 'upstream'] = np.nan
+            lambda x: x.endswith('3p')), UPSTREAM] = np.nan
 
     @classmethod
     def from_junction_to_exons(cls, junction_to_exons, db=None,
-                               junction_col='junction',
-                               upstream_col='upstream',
-                               downstream_col='downstream'):
+                               junction_col='junction', upstream_col=UPSTREAM,
+                               downstream_col=DOWNSTREAM):
         """Initialize Annotator from table with junctions and nearby exons
 
         Parameters
@@ -242,8 +239,8 @@ class JunctionAggregator(object):
     @staticmethod
     def make_junction_exon_triples(junction_to_exons,
                                    junction_col='junction',
-                                   upstream_col='upstream',
-                                   downstream_col='downstream'):
+                                   upstream_col=UPSTREAM,
+                                   downstream_col=DOWNSTREAM):
         """Create tidy table of exons upstream and downstream of a junction
 
         Parameters
@@ -276,8 +273,8 @@ class JunctionAggregator(object):
 
         """
         grouped = junction_to_exons.groupby(junction_col)
-        direction_to_exon = {'upstream': upstream_col,
-                             'downstream': downstream_col}
+        direction_to_exon = {UPSTREAM: upstream_col,
+                             DOWNSTREAM: downstream_col}
         dfs = []
         for direction, exon in direction_to_exon.items():
             df = grouped.apply(
