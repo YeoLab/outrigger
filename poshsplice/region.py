@@ -13,8 +13,10 @@ class Region(object):
         Parameters
         ----------
         name : str
-            A string in the form, region:chrom:start-stop:strand, e.g.
-            "exon:chr1:100-200:+" Start must always be smaller than stop.
+            A string of either of the two forms:
+                - chrom:start-stop:strand, e.g. "chr1:100-200:-"
+                - region:chrom:start-stop:strand, e.g. "exon:chr1:100-200:+"
+            Start must always be smaller than stop.
         """
         try:
             region, chrom, startstop, strand = name.split(':')
