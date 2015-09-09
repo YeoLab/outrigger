@@ -16,7 +16,12 @@ class Region(object):
         """
         self.name = name
 
-        region, chrom, startstop, strand = name.split(':')
+        try:
+            region, chrom, startstop, strand = name.split(':')
+        except ValueError:
+            # There is no "region"
+            chrom, startstop, strand = name.split(':')
+            region = None
         start, stop = map(int, startstop.split('-'))
         if start > stop:
             raise ValueError('Start ({0}) cannot be smaller than stop ({1})'.format(start, stop))
