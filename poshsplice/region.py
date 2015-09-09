@@ -18,12 +18,12 @@ class Region(object):
                 - region:chrom:start-stop:strand, e.g. "exon:chr1:100-200:+"
             Start must always be smaller than stop.
         """
+        region = None
         try:
             region, chrom, startstop, strand = name.split(':')
         except ValueError:
             # There is no "region"
             chrom, startstop, strand = name.split(':')
-            region = None
         start, stop = map(int, startstop.split('-'))
         if start > stop:
             raise ValueError('Start ({0}) cannot be smaller than stop'
