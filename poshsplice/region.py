@@ -16,8 +16,6 @@ class Region(object):
             A string in the form, region:chrom:start-stop:strand, e.g.
             "exon:chr1:100-200:+" Start must always be smaller than stop.
         """
-        self.name = name
-
         try:
             region, chrom, startstop, strand = name.split(':')
         except ValueError:
