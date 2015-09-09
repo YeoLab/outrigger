@@ -24,7 +24,8 @@ class Region(object):
             region = None
         start, stop = map(int, startstop.split('-'))
         if start > stop:
-            raise ValueError('Start ({0}) cannot be smaller than stop ({1})'.format(start, stop))
+            raise ValueError('Start ({0}) cannot be smaller than stop'
+                             ' ({1})'.format(start, stop))
 
         self.region = region
         self.chrom = chrom
