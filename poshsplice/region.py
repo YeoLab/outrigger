@@ -4,8 +4,7 @@ import six
 
 class Region(object):
 
-    __slots__ = ('name', 'region', 'chrom', 'start', 'stop', '_start',
-                 '_stop', 'strand')
+    __slots__ = ('region', 'chrom', '_start', '_stop', 'strand')
 
     def __init__(self, name):
         """A location in the genome
