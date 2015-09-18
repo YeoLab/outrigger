@@ -2,6 +2,7 @@
 
 import six
 
+
 class Region(object):
 
     __slots__ = ('region', 'chrom', '_start', '_stop', 'strand')
