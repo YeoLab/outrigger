@@ -146,9 +146,9 @@ def test_stringify_location(chrom, strand, region):
     test = stringify_location(chrom, 100, 200, strand, region)
 
     if region is None:
-        true = '{}:{}-{}:{}'.format(chrom, 100, 200, strand)
+        true = '{0}:{1}-{2}:{3}'.format(chrom, 100, 200, strand)
     else:
-        true = '{}:{}:{}-{}:{}'.format(region, chrom, 100, 200, strand)
+        true = '{0}:{1}:{2}-{3}:{4}'.format(region, chrom, 100, 200, strand)
     assert test == true
 
 
