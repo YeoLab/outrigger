@@ -296,11 +296,11 @@ class JunctionAggregator(object):
         exons_to_junctions = {}
         n_exons = self.exons.shape[0]
 
-        sys.stdout.write('Trying out {} exons'
+        sys.stdout.write('Trying out {0} exons'
                          '...\n'.format(n_exons))
         for i, exon3_str in enumerate(self.exons):
             if (i + 1) % 10000 == 0:
-                sys.stdout.write('\t{}/{} '
+                sys.stdout.write('\t{0}/{1} '
                                  'exons tested'.format(i + 1, n_exons))
 
             exon3 = self.item_to_int[exon3_str]
