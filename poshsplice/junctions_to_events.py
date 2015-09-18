@@ -429,10 +429,9 @@ class JunctionAggregator(object):
                     exon4_from3 = set(
                         self.graph.find(V(exon3_i).upstream).traverse(
                             V().upstream))
-                    exon4_i = (exon4_from2 & exon4_from3).pop()
-                    exon4_name = self.int_to_item[exon4_i]
-                    if not exon4_name.empty:
-                        exon4_name = exon4_name.values[0]
+                    try:
+                        exon4_i = (exon4_from2 & exon4_from3).pop()
+                        exon4_name = self.int_to_item[exon4_i]
                         # Isoform 1 - corresponds to Psi=0. Inclusion of exon3
                         exon13_junction = self.graph.find(V(exon1_i).upstream) \
                             .intersection(V(exon3_i).downstream)
@@ -448,7 +447,7 @@ class JunctionAggregator(object):
                             .intersection(V(exon4_i).downstream)
 
                         exon_tuple = exon1_name, exon2.name, exon3.name, \
-                            exon4_name
+                                     exon4_name
                         #             print exon12_junction.next()
                         junctions = list(
                             itertools.chain(*[exon13_junction, exon34_junction,
@@ -457,6 +456,8 @@ class JunctionAggregator(object):
                         junctions = self.int_to_item[junctions].tolist()
 
                         events_to_junctions[exon_tuple] = junctions
+                    except:
+                        pass
         return events_to_junctions
 
     def twin_cassette(self):
