@@ -429,7 +429,7 @@ class JunctionAggregator(object):
                     exon4_from3 = set(
                         self.graph.find(V(exon3_i).upstream).traverse(
                             V().upstream))
-                    exon4_i = exon4_from2 & exon4_from3
+                    exon4_i = (exon4_from2 & exon4_from3).pop()
                     exon4_name = self.int_to_item[exon4_i]
                     if not exon4_name.empty:
                         exon4_name = exon4_name.values[0]
@@ -437,13 +437,12 @@ class JunctionAggregator(object):
                         exon13_junction = self.graph.find(V(exon1_i).upstream) \
                             .intersection(V(exon3_i).downstream)
                         exon34_junction = self.graph.find(
-                            V(self.item_to_int[exon3.name]).upstream) \
+                            V(exon3_i).upstream) \
                             .intersection(V(exon4_i).downstream)
 
                         # Isoform 2 - corresponds to Psi=1. Inclusion of exon2
                         exon12_junction = self.graph.find(V(exon1_i).upstream) \
-                            .intersection(V(
-                                self.item_to_int[exon2.name]).downstream)
+                            .intersection(V(exon2_i).downstream)
                         exon24_junction = self.graph.find(
                             V(exon2_i).upstream) \
                             .intersection(V(exon4_i).downstream)
