@@ -1,10 +1,10 @@
 import itertools
 import sys
 
-import numpy as np
-import pandas as pd
 import graphlite
 from graphlite import V
+import numpy as np
+import pandas as pd
 
 from .region import Region
 
@@ -21,9 +21,9 @@ DIRECTIONS = [UPSTREAM, DOWNSTREAM]
 
 def stringify_location(chrom, start, stop, strand, region=None):
     if region is not None:
-        return '{}:{}:{}-{}:{}'.format(region, chrom, start, stop, strand)
+        return '{0}:{1}:{2}-{3}:{4}'.format(region, chrom, start, stop, strand)
     else:
-        return '{}:{}-{}:{}'.format(chrom, start, stop, strand)
+        return '{0}:{1}-{2}:{3}'.format(chrom, start, stop, strand)
 
 
 def opposite(direction):
@@ -415,7 +415,6 @@ class JunctionAggregator(object):
             exon23s = self.item_to_region[exon23s]
 
             for exon_a, exon_b in itertools.combinations(exon23s, 2):
-                print exon_a.name, exon_b.name
                 if not exon_a.overlaps(exon_b):
                     exon2 = min((exon_a, exon_b), key=lambda x: x.start)
                     exon3 = max((exon_a, exon_b), key=lambda x: x.start)
