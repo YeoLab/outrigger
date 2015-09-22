@@ -303,10 +303,10 @@ class JunctionAggregator(object):
                 sys.stdout.write('\t{0}/{1} '
                                  'exons tested'.format(i + 1, n_exons))
 
-
             exon1_i = self.item_to_int[exon1.name]
             exon23s = list(
-                self.graph.find(V().downstream(exon1_i)).traverse(V().upstream))
+                self.graph.find(
+                    V().downstream(exon1_i)).traverse(V().upstream))
             exon23s = self.item_to_region[self.int_to_item[exon23s]]
 
             for exon_a, exon_b in itertools.combinations(exon23s, 2):
@@ -317,13 +317,10 @@ class JunctionAggregator(object):
                     exon2_i = self.item_to_int[exon2.name]
                     exon3_i = self.item_to_int[exon3.name]
 
-                    sys.stdout.write('exon2: {}\texon3: {}\n'.format(exon2.name, exon3.name))
-
                     exon23_junction = self.graph.find(
                         V(exon2_i).upstream).intersection(
                         V().upstream(exon3_i))
                     exon23_junction = self.int_to_item[set(exon23_junction)]
-                    sys.stdout.write('\texon23_junction: {}\n'.format(exon23_junction))
                     if not exon23_junction.empty:
                         # Isoform 1 - corresponds to Psi=0. Exclusion of exon2
                         exon13_junction = self.graph.find(V(exon1_i).upstream) \
