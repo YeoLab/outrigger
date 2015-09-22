@@ -9,6 +9,11 @@ Exon ontology is an attempt to catalogue scripts used to annotate exons and thei
 
 ## Features
 
+### Python 3 (in)compatibility
+
+Currently, `poshsplice` only works on Python 2.6 and 2.7 because of a [bug](https://travis-ci.org/olgabot/poshsplice/jobs/81071683)
+in string formatting/unicode/byte strings in Python 3. Help is welcomed.
+
 ### Aggregate splice junctions into splicing events
 
 Using just junction information, we can annotate these kinds of splicing 
