@@ -293,105 +293,61 @@ class JunctionAggregator(object):
         return junction_exons
 
     def skipped_exon(self):
-        exons_to_junctions = {}
+        events = {}
         n_exons = self.exons.shape[0]
 
         sys.stdout.write('Trying out {0} exons'
                          '...\n'.format(n_exons))
-        for i, exon3_str in enumerate(self.exons):
+        for i, exon1_name in enumerate(self.exons):
             if (i + 1) % 10000 == 0:
                 sys.stdout.write('\t{0}/{1} '
                                  'exons tested'.format(i + 1, n_exons))
 
-            exon3 = self.item_to_int[exon3_str]
-            # Get upstream junctions
-            upstream_junctions = self.graph.find(V().upstream(exon3))
+            exon1 = self.item_to_int[exon1_name]
 
-            # Get upstream exons of this exon (which exons have these upstream
-            # junctions, downstream of the exon)
-            upstream_exons = upstream_junctions.traverse(V().downstream)
+            downstream_junctions = set(self.graph.find(V().downstream(exon1)))
+            downstream_junctions
+            exon23_from1 = list(
+                self.graph.find(V().downstream(exon1)).traverse(V().upstream))
 
-            # From those upstream exons, get both upstream and downstream
-            # junctions
-            upstream_exons_upstream_junctions = set(
-                upstream_exons.traverse(V().upstream))
-            upstream_exons_downstream_junctions = set(
-                upstream_exons.traverse(V().downstream))
+            exon23s = self.int_to_item[exon23_from1]
 
-            # Of those junctions, which overlap --> SE event
-            exon1exon2_junctions = upstream_exons_downstream_junctions \
-                & upstream_exons_upstream_junctions
+            exon23s = exon23s.map(Region)
 
-            upstream_junctions = set(upstream_junctions)
+            events = {}
 
-            for j in exon1exon2_junctions:
-                exon1s = self.graph.find(V(j).downstream)
-                exon2s = self.graph.find(V(j).upstream)
+            for exon_a, exon_b in itertools.combinations(exon23s, 2):
+                if not exon_a.overlaps(exon_b):
+                    exon2 = min((exon_a, exon_b), key=lambda x: x.start)
+                    exon3 = max((exon_a, exon_b), key=lambda x: x.start)
 
-                exon1exon3_junctions = set(itertools.chain(
-                    *[self.graph.find(V().downstream(x)) for x in exon1s])) \
-                    & upstream_junctions
-                exon2exon3_junctions = set(itertools.chain(
-                    *[self.graph.find(V().downstream(x)) for x in exon2s])) \
-                    & upstream_junctions
+                    exon23_junction = self.graph.find(
+                        V(self.item_to_int[exon2.name]).upstream).intersection(
+                        V().upstream(self.item_to_int[exon3.name]))
+                    exon23_junction = self.int_to_item[set(exon23_junction)]
+                    if not exon23_junction.empty:
+                        # Isoform 1 - corresponds to Psi=0. Exclusion of exon2
+                        exon13_junction = self.graph.find(V(exon1).upstream) \
+                            .intersection(
+                            V(self.item_to_int[exon3.name]).downstream)
 
-                exon1_confirmed = set(itertools.chain(
-                    *[self.graph.find(V().upstream(x)) for x in
-                      exon1exon3_junctions])) & set(exon1s)
-                exon2_confirmed = set(itertools.chain(
-                    *[self.graph.find(V().upstream(x)) for x in
-                      exon2exon3_junctions])) & set(exon2s)
+                        # Isoform 2 - corresponds to Psi=1. Inclusion of exon2
+                        exon12_junction = self.graph.find(V(exon1).upstream) \
+                            .intersection(
+                            V(self.item_to_int[exon2.name]).downstream)
+                        exon23_junction = self.graph.find(
+                            V(self.item_to_int[exon2.name]).upstream) \
+                            .intersection(
+                            V(self.item_to_int[exon3.name]).downstream)
+                        #             print exon12_junction.next()
+                        junctions = list(itertools.chain(
+                            *[exon13_junction, exon12_junction,
+                              exon23_junction]))
+                        junctions = self.int_to_item[junctions].tolist()
 
-                if len(exon1_confirmed) == 1 and len(exon2_confirmed) == 1:
-                    junctions = self.int_to_item[list(itertools.chain(
-                        *[[j], exon2exon3_junctions, exon1exon3_junctions]))]
-                    exons = self.int_to_item[
-                        [exon1_confirmed.pop(), exon2_confirmed.pop(), exon3]]
-                    exons_to_junctions[tuple(exons)] = tuple(junctions)
-
-                if len(exon1_confirmed) == 1 and len(exon2_confirmed) > 1:
-                    exon1 = exon1_confirmed.pop()
-
-                    for exon2 in exon2_confirmed:
-                        exon2exon3_junction = set(
-                            self.graph.find(V().downstream(exon2))) \
-                            & upstream_junctions
-                        junctions = self.int_to_item[list(itertools.chain(
-                            *[[j], exon2exon3_junction,
-                              exon1exon3_junctions]))]
-                        exons = self.int_to_item[[exon1, exon2, exon3]]
-
-                        exons_to_junctions[tuple(exons)] = tuple(junctions)
-                elif len(exon1_confirmed) > 1:
-                    # If There's more than one exon1, use the shortest one.
-                    # Since the 3' side of the exon is fixed, then the smallest
-                    # size one will have the largest start number
-                    exon1 = max(exon1_confirmed,
-                                key=lambda x:
-                                self.item_to_region[self.int_to_item[x]].start)
-
-                    if len(exon2_confirmed) > 1:
-                        for exon2 in exon2_confirmed:
-                            exon2exon3_junction = set(
-                                self.graph.find(V().downstream(exon2))) \
-                                & upstream_junctions
-                            junctions = self.int_to_item[list(itertools.chain(
-                                *[[j], exon2exon3_junction,
-                                  exon1exon3_junctions]))]
-                            exons = self.int_to_item[[exon1, exon2, exon3]]
-
-                            exons_to_junctions[tuple(exons)] = tuple(junctions)
-                    else:
-                        exon2 = exon2_confirmed.pop()
-                        exon2exon3_junction = set(
-                            self.graph.find(V().downstream(exon2))) \
-                            & upstream_junctions
-                        junctions = self.int_to_item[list(itertools.chain(
-                            *[[j], exon2exon3_junction,
-                              exon1exon3_junctions]))]
-                        exons = self.int_to_item[[exon1, exon2, exon3]]
-                        exons_to_junctions[tuple(exons)] = tuple(junctions)
-        return exons_to_junctions
+                        events[(
+                        exon1_name, exon2.name, exon3.name)] = junctions
+        return events
 
     def mutually_exclusive_exon(self):
         events_to_junctions = {}
