@@ -62,6 +62,10 @@ class Region(object):
             base = self.region + ':' + base
         return six.u(base)
 
+    def __len__(self):
+        """Length of region. Add 1 to include last base of stop"""
+        return self._stop - self._start + 1
+
     def __repr__(self):
         return 'poshsplice.Region <{0}>'.format(self.name)
 
