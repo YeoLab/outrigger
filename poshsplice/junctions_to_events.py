@@ -304,14 +304,9 @@ class JunctionAggregator(object):
                                  'exons tested'.format(i + 1, n_exons))
 
             exon1 = self.item_to_int[exon1_name]
-
-            downstream_junctions = set(self.graph.find(V().downstream(exon1)))
-            downstream_junctions
-            exon23_from1 = list(
+            exon23s = list(
                 self.graph.find(V().downstream(exon1)).traverse(V().upstream))
-
-            exon23s = self.int_to_item[exon23_from1]
-
+            exon23s = self.int_to_item[exon23s]
             exon23s = exon23s.map(Region)
 
             events = {}
@@ -344,9 +339,9 @@ class JunctionAggregator(object):
                             *[exon13_junction, exon12_junction,
                               exon23_junction]))
                         junctions = self.int_to_item[junctions].tolist()
+                        exons = exon1_name, exon2.name, exon3.name
 
-                        events[(
-                        exon1_name, exon2.name, exon3.name)] = junctions
+                        events[exons] = junctions
         return events
 
     def mutually_exclusive_exon(self):
