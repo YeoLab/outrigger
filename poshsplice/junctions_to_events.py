@@ -298,48 +298,50 @@ class JunctionAggregator(object):
 
         sys.stdout.write('Trying out {0} exons'
                          '...\n'.format(n_exons))
-        for i, exon1_name in enumerate(self.exons):
+        for i, exon1 in enumerate(self.item_to_region.values):
             if (i + 1) % 10000 == 0:
                 sys.stdout.write('\t{0}/{1} '
                                  'exons tested'.format(i + 1, n_exons))
 
-            exon1 = self.item_to_int[exon1_name]
-            exon23s = list(
-                self.graph.find(V().downstream(exon1)).traverse(V().upstream))
-            exon23s = self.int_to_item[exon23s]
-            exon23s = exon23s.map(Region)
 
-            events = {}
+            exon1_i = self.item_to_int[exon1.name]
+            exon23s = list(
+                self.graph.find(V().downstream(exon1_i)).traverse(V().upstream))
+            exon23s = self.item_to_region[self.int_to_item[exon23s]]
 
             for exon_a, exon_b in itertools.combinations(exon23s, 2):
                 if not exon_a.overlaps(exon_b):
                     exon2 = min((exon_a, exon_b), key=lambda x: x.start)
                     exon3 = max((exon_a, exon_b), key=lambda x: x.start)
 
+                    exon2_i = self.item_to_int[exon2.name]
+                    exon3_i = self.item_to_int[exon3.name]
+
+                    sys.stdout.write('exon2: {}\texon3: {}\n'.format(exon2.name, exon3.name))
+
                     exon23_junction = self.graph.find(
-                        V(self.item_to_int[exon2.name]).upstream).intersection(
-                        V().upstream(self.item_to_int[exon3.name]))
+                        V(exon2_i).upstream).intersection(
+                        V().upstream(exon3_i))
                     exon23_junction = self.int_to_item[set(exon23_junction)]
+                    sys.stdout.write('\texon23_junction: {}\n'.format(exon23_junction))
                     if not exon23_junction.empty:
                         # Isoform 1 - corresponds to Psi=0. Exclusion of exon2
-                        exon13_junction = self.graph.find(V(exon1).upstream) \
+                        exon13_junction = self.graph.find(V(exon1_i).upstream) \
                             .intersection(
-                            V(self.item_to_int[exon3.name]).downstream)
+                            V(exon3_i).downstream)
 
                         # Isoform 2 - corresponds to Psi=1. Inclusion of exon2
-                        exon12_junction = self.graph.find(V(exon1).upstream) \
-                            .intersection(
-                            V(self.item_to_int[exon2.name]).downstream)
+                        exon12_junction = self.graph.find(V(exon1_i).upstream) \
+                            .intersection(V(exon2_i).downstream)
                         exon23_junction = self.graph.find(
-                            V(self.item_to_int[exon2.name]).upstream) \
-                            .intersection(
-                            V(self.item_to_int[exon3.name]).downstream)
-                        #             print exon12_junction.next()
+                            V(exon2_i).upstream) \
+                            .intersection(V(exon3_i).downstream)
+
                         junctions = list(itertools.chain(
-                            *[exon13_junction, exon12_junction,
-                              exon23_junction]))
+                            *[exon12_junction, exon23_junction,
+                              exon13_junction]))
                         junctions = self.int_to_item[junctions].tolist()
-                        exons = exon1_name, exon2.name, exon3.name
+                        exons = exon1.name, exon2.name, exon3.name
 
                         events[exons] = junctions
         return events
