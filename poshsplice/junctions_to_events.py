@@ -323,12 +323,13 @@ class JunctionAggregator(object):
                     exon23_junction = self.int_to_item[set(exon23_junction)]
                     if not exon23_junction.empty:
                         # Isoform 1 - corresponds to Psi=0. Exclusion of exon2
-                        exon13_junction = self.graph.find(V(exon1_i).upstream) \
-                            .intersection(
-                            V(exon3_i).downstream)
+                        exon13_junction = self.graph.find(
+                            V(exon1_i).upstream) \
+                            .intersection(V(exon3_i).downstream)
 
                         # Isoform 2 - corresponds to Psi=1. Inclusion of exon2
-                        exon12_junction = self.graph.find(V(exon1_i).upstream) \
+                        exon12_junction = self.graph.find(
+                            V(exon1_i).upstream) \
                             .intersection(V(exon2_i).downstream)
                         exon23_junction = self.graph.find(
                             V(exon2_i).upstream) \
