@@ -71,8 +71,11 @@ class Region(object):
         return self.name
 
     def __eq__(self, other):
-        return all(getattr(self, attr) == getattr(other, attr)
-                   for attr in self.__slots__)
+        if isinstance(other, Region):
+            return all(getattr(self, attr) == getattr(other, attr)
+                       for attr in self.__slots__)
+        else:
+            return False
 
     def overlaps(self, other):
         """Returns true if any part of other region is contained in this one"""
