@@ -1,7 +1,5 @@
 """Define locations in the genome"""
 
-import six
-
 
 class Region(object):
 
@@ -30,12 +28,12 @@ class Region(object):
                              ' ({1})'.format(start, stop))
 
         self.region = region
-        self.chrom = six.u(chrom)
+        self.chrom = chrom
 
         # Use "private" variables to store the true genome location
         self._start = start
         self._stop = stop
-        self.strand = six.u(strand)
+        self.strand = strand
 
     # Use non-private start, stop to save negative strand coordinates with
     # negative numbers to make the calculation of "before" and "after" in
@@ -60,7 +58,7 @@ class Region(object):
                                         self._stop, self.strand)
         if self.region is not None:
             base = self.region + ':' + base
-        return six.u(base)
+        return base
 
     def __len__(self):
         """Length of region. Add 1 to include last base of stop"""
@@ -70,7 +68,7 @@ class Region(object):
         return 'poshsplice.Region <{0}>'.format(self.name)
 
     def __str__(self):
-        return six.u(self.name)
+        return self.name
 
     def __eq__(self, other):
         return all(getattr(self, attr) == getattr(other, attr)
