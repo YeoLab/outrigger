@@ -3,6 +3,7 @@ import subprocess
 
 from Bio import SeqIO
 import pandas as pd
+import pybedtools
 import six
 
 __author__ = 'olgabotvinnik'
@@ -149,3 +150,15 @@ def read_splice_scores(scores):
         filename = scores
     return pd.read_table(filename, squeeze=True, header=None, index_col=0,
                          sep='\s+')
+
+
+def score_exons(exons, genome, genome_fasta):
+    scores = []
+    bed = pybedtools.BedTool(exons)
+    df = pd.DataFrame(index=[x.name for x in bed])
+    for splice_site in VALID_SPLICE_SITES:
+        ss_seqs = get_ss_sequence(exons, genome, splice_site, genome_fasta)
+        score = score_splice_fasta(ss_seqs, splice_site)
+        score = read_splice_scores(scores)
+        df['splice_site_score_{}p'.format(splice_site)] = score.values
+    return df
