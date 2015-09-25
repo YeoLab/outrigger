@@ -2,6 +2,8 @@ import os
 import subprocess
 
 from Bio import SeqIO
+from Bio.Seq import Seq
+from Bio.SeqRecord import SeqRecord
 import pandas as pd
 import pybedtools
 import six
@@ -12,8 +14,8 @@ __author__ = 'olgabotvinnik'
 VALID_SPLICE_SITES = (3, 5)
 
 
-def get_splice_site(exons, genome, splice_site):
-    """Get the 5' or 3' splice site of a set of exons
+def get_ss_sequence(exons, genome, splice_site, genome_fasta, filename):
+    """Get the sequence of the 5' or 3' splice site
 
     The 5' splice site for MaxEntScan is defined as 9 bases:
         [3 bases in exon][6 bases in intron]
@@ -22,39 +24,9 @@ def get_splice_site(exons, genome, splice_site):
 
     Parameters
     ----------
-    exons : pybedtools.BedTool
-        Exons for which you want to find the splice site locations
-    genome : str
-        Name of the genome to use, e.g. "hg19"
-    splice_site : 5 | 3
-        Either the 5' or 3' splice site
-
-    Returns
-    -------
-    five_prime : pybedtools.BedTool
-        5' Splice site of the exons
-    """
-    if splice_site not in VALID_SPLICE_SITES:
-        raise ValueError('{0} is not a valid splice site. Only 5 and 3 are '
-                         'acceptable'.format(splice_site))
-    if splice_site == 5:
-        left = 3
-        right = 6
-    elif splice_site == 3:
-        left = 20
-        right = 3
-
-    return exons.flank(genome=genome, l=0, r=right,
-                       s=True).slop(genome=genome, r=0, l=left, s=True)
-
-
-def get_ss_sequence(exons, genome, splice_site, genome_fasta, filename=None):
-    """Get the sequence of the 5' or 3' splice site
-
-    Parameters
-    ----------
-    exons : pybedtools.BedTool
-        Exons for which you want to find the splice site sequences
+    exons : pybedtools.BedTool | str
+        Exons for which you want to find the splice site sequences, either a
+        string to the full path of the bed file, or a pre-created pybedtool
     genome : str
         Name of the genome to use, e.g. "hg19"
     splice_site : 5 | 3
@@ -69,12 +41,47 @@ def get_ss_sequence(exons, genome, splice_site, genome_fasta, filename=None):
     filename : str
         Location of the fasta file of the splice site sequences
     """
-    splice_sites = get_splice_site(exons, genome, splice_site)
-    splice_sites = splice_sites.sequence(fi=genome_fasta, s=True)
-    if filename is None:
-        return splice_sites.seqfn
+    if not isinstance(exons, pybedtools.BedTool):
+        exons = pybedtools.BedTool(exons)
+    names = [x.name for x in exons]
+
+    if splice_site == 5:
+        left = 3
+        right = 6
+    elif splice_site == 3:
+        left = 20
+        right = 3
+    else:
+        raise ValueError('{0} is not a valid splice site. Only 5 and 3 are '
+                         'acceptable'.format(splice_site))
+
+    negative = exons.filter(lambda x: x.strand == '-')
+    positive = exons.filter(lambda x: x.strand == '+')
+
+    seqs = []
+    beds = {'-': negative, '+': positive}
+    for strand, bed in beds.items():
+        if strand == '-':
+            right += 1
+            left -= 1
+
+        flanked = bed.flank(genome=genome, l=0, r=right, s=True)
+        slopped = flanked.slop(genome=genome, r=0, l=left, s=True)
+        seq = slopped.sequence(fi=genome_fasta, s=True)
+        with open(seq.seqfn) as f:
+            records = SeqIO.parse(f, 'fasta')
+            records = pd.Series([str(x.seq) for x in records],
+                                index=[x.name for x in slopped])
+        seqs.append(records)
+    seqs = pd.concat(seqs)
+
+    # Reorder the sequences into the original order
+    seqs = seqs[names]
+
+    records = [SeqRecord(Seq(seq), id=name) for name, seq in seqs.iteritems()]
+
     with open(filename, 'w') as f:
-        f.write(open(splice_sites.seqfn).read())
+        SeqIO.write(records, f, 'fasta')
     return filename
 
 
