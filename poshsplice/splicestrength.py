@@ -1,5 +1,6 @@
 import os
 import subprocess
+import tempfile
 
 from Bio import SeqIO
 from Bio.Seq import Seq
@@ -184,7 +185,9 @@ def score_exons(exons, genome, genome_fasta):
     bed = pybedtools.BedTool(exons)
     df = pd.DataFrame(index=[x.name for x in bed])
     for splice_site in VALID_SPLICE_SITES:
-        ss_seqs = get_ss_sequence(bed, genome, splice_site, genome_fasta)
+        filename = tempfile.NamedTemporaryFile()
+        ss_seqs = get_ss_sequence(bed, genome, splice_site, genome_fasta,
+                                  filename=filename)
         score = score_splice_fasta(ss_seqs, splice_site)
         score = read_splice_scores(score)
         df['splice_site_{}p_score'.format(splice_site)] = score.values
