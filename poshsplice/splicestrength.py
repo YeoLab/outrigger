@@ -176,8 +176,10 @@ def score_exons(exons, genome, genome_fasta):
     Returns
     -------
     scores : pandas.DataFrame
-        A (n_exons, 2) dataframe of the 3' and 5' splice site scores. The index
-        of the dataframe is taken from the "name" field of the exon bed file.
+        A (n_exons, 4) dataframe of the 3' and 5' splice site scores and the
+        sequences from which they are derived. The index (row names) of the
+        dataframe is taken from the "name" field of the exon bed file, and the
+        scores are in the exact same order.
     """
     bed = pybedtools.BedTool(exons)
     df = pd.DataFrame(index=[x.name for x in bed])
