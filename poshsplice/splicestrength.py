@@ -153,6 +153,25 @@ def read_splice_scores(scores):
 
 
 def score_exons(exons, genome, genome_fasta):
+    """One-stop shop to score 5' and 3' ends of exons
+
+    Get the splice site strength of the 5' and 3' end of the exons.
+
+    Parameters
+    ----------
+    exons : str
+        Full path to the exons bed file
+    genome : str
+        Genome build, e.g. 'hg19'
+    genome_fasta : str
+        Full path to the genome fasta file
+
+    Returns
+    -------
+    scores : pandas.DataFrame
+        A (n_exons, 2) dataframe of the 3' and 5' splice site scores. The index
+        of the dataframe is taken from the "name" field of the exon bed file.
+    """
     scores = []
     bed = pybedtools.BedTool(exons)
     df = pd.DataFrame(index=[x.name for x in bed])
