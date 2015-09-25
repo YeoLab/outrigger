@@ -172,12 +172,11 @@ def score_exons(exons, genome, genome_fasta):
         A (n_exons, 2) dataframe of the 3' and 5' splice site scores. The index
         of the dataframe is taken from the "name" field of the exon bed file.
     """
-    scores = []
     bed = pybedtools.BedTool(exons)
     df = pd.DataFrame(index=[x.name for x in bed])
     for splice_site in VALID_SPLICE_SITES:
-        ss_seqs = get_ss_sequence(exons, genome, splice_site, genome_fasta)
+        ss_seqs = get_ss_sequence(bed, genome, splice_site, genome_fasta)
         score = score_splice_fasta(ss_seqs, splice_site)
-        score = read_splice_scores(scores)
+        score = read_splice_scores(score)
         df['splice_site_score_{}p'.format(splice_site)] = score.values
     return df
