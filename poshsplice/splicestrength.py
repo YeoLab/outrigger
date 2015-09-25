@@ -78,7 +78,7 @@ def get_ss_sequence(exons, genome, splice_site, genome_fasta, filename):
     # Reorder the sequences into the original order
     seqs = seqs[names]
 
-    records = [SeqRecord(Seq(seq), id=name) for name, seq in seqs.iteritems()]
+    records = [SeqRecord(Seq(s), id=name) for name, s in seqs.iteritems()]
 
     with open(filename, 'w') as f:
         SeqIO.write(records, f, 'fasta')
