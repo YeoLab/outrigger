@@ -71,7 +71,7 @@ def get_ss_sequence(exons, genome, splice_site, genome_fasta, filename):
             slopped = flanked.slop(genome=genome, r=0, l=left, s=True)
         else:
             flanked = bed.flank(genome=genome, l=left, right=0, s=True)
-            slopped = flanked.slop(genome=genome, l=0, right=right, s=True)
+            slopped = flanked.slop(genome=genome, l=0, r=right, s=True)
         seq = slopped.sequence(fi=genome_fasta, s=True)
         with open(seq.seqfn) as f:
             records = SeqIO.parse(f, 'fasta')
