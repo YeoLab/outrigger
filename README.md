@@ -2,7 +2,8 @@
 
 [![](https://img.shields.io/travis/olgabot/poshsplice.svg)](https://travis-ci.org/olgabot/poshsplice)[![](https://img.shields.io/pypi/v/poshsplice.svg)](https://pypi.python.org/pypi/poshsplice)
 
-Exon ontology is an attempt to catalogue scripts used to annotate exons and their functions
+Poshsplice is an aggregation of scripts and tools to annotate exons and their 
+predicted functions.
 
 * Free software: BSD license
 * Documentation: https://olgabot.github.io/poshsplice
