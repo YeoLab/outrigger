@@ -50,8 +50,8 @@ def get_ss_sequence(exons, genome, splice_site, genome_fasta, filename):
         left = 3
         right = 6
     elif splice_site == 3:
-        left = 20
-        right = 3
+        left = 21
+        right = 2
     else:
         raise ValueError('{0} is not a valid splice site. Only 5 and 3 are '
                          'acceptable'.format(splice_site))
