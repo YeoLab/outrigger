@@ -30,6 +30,38 @@ def calculate_psi(exons_to_junctions, splice_junction_reads,
                   isoform1_junctions=['junction12', 'junction23'],
                   isoform2_junctions=['junction13'], event_col='event_id',
                   debug=False):
+    """Compute percent-spliced-in of events based on junction reads
+
+    Parameters
+    ----------
+    exons_to_junctions : pandas.DataFrame
+        A table where each row represents a single splicing event. The required
+        columns are the ones specified in `isoform1_junctions`,
+        `isoform2_junctions`, and `event_col`.
+    splice_junction_reads : pandas.DataFrame
+        A table of the number of junction reads observed in each sample.
+        *Important:* This must be multi-indexed by the junction and sample id
+    reads_col : str, optional (default "reads")
+        The name of the column in `splice_junction_reads` which represents the
+        number of reads observed at a splice junction of a particular sample.
+    min_reads : int, optional (default 10)
+        The minimum number of reads that need to be observed at each junction
+        for an event to be counted.
+    isoform1_junctions : list
+        Columns in `exons_to_junctions` which represent junctions that
+        correspond to isoform1, the Psi=0 isoform
+    isoform2_junctions : list
+        Columns in `exons_to_junctions` which represent junctions that
+        correspond to isoform2, the Psi=1 isoform
+    event_col : str
+        Column in `exons_to_junctions` which is a unique identifier for each
+        row, e.g.
+
+    Returns
+    -------
+    psi : pandas.DataFrame
+        An (samples, events) dataframe of the percent spliced-in values
+    """
     psis = []
 
     for i, row in exons_to_junctions.iterrows():
@@ -47,7 +79,7 @@ def calculate_psi(exons_to_junctions, splice_junction_reads,
         isoform2 = filter_and_sum(isoform2, min_reads, isoform1_junctions)
 
         if isoform1.empty and isoform2.empty:
-            # If both are empty after looking at this event
+            # If both are empty after looking at this event --> don't calculate
             continue
 
         if debug:
@@ -67,5 +99,8 @@ def calculate_psi(exons_to_junctions, splice_junction_reads,
             six.print_('--- Psi ---\n', psi)
         psi.name = row[event_col]
         psis.append(psi)
-    psi_df = pd.concat(psis, axis=1)
+    if len(psis) > 0:
+        psi_df = pd.concat(psis, axis=1)
+    else:
+        psi_df = pd.DataFrame(index=splice_junction_reads.index.levels[1])
     return psi_df
