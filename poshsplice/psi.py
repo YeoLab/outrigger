@@ -26,10 +26,8 @@ def maybe_get_isoform_reads(splice_junction_reads, row, junctions, reads_col):
 
 
 def calculate_psi(exons_to_junctions, splice_junction_reads,
-                  reads_col='reads', min_reads=10,
-                  isoform1_junctions=['junction12', 'junction23'],
-                  isoform2_junctions=['junction13'], event_col='event_id',
-                  debug=False):
+                  isoform1_junctions, isoform2_junctions, reads_col='reads',
+                  min_reads=10, event_col='event_id', debug=False):
     """Compute percent-spliced-in of events based on junction reads
 
     Parameters

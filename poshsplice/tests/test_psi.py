@@ -173,7 +173,9 @@ sample1,{4},{5}""".format(junction12, junction12_reads,
 
     other_isoform1_psi = 0. if isoform1_reads > 0 else np.nan
 
-    test = calculate_psi(exons_to_junctions, splice_junction_reads)
+    test = calculate_psi(exons_to_junctions, splice_junction_reads,
+                         isoform1_junctions=['junction12', 'junction23'],
+                         isoform2_junctions=['junction13'])
     true = pd.read_csv(six.StringIO("""
 sample_id,exon:chr1:150-175:+@exon:chr1:200-250:+@exon:chr1:300-350:+,exon:chr1:150-175:+@exon:chr1:225-250:+@exon:chr1:300-350:+,exon:chr1:150-175:+@exon:chr1:225-275:+@exon:chr1:300-350:+
 sample1,{1},{0},{1}""".format(true_psi, other_isoform1_psi)), index_col=0)
