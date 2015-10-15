@@ -426,3 +426,92 @@ class JunctionAggregator(object):
 
     def alt_last_exon(self):
         pass
+
+import itertools
+
+BEST_TAGS = 'appris_principal', 'appris_candidate', 'CCDS', 'basic'
+
+transcript_cols = ['isoform1_transcripts', 'isoform2_transcripts']
+
+def get_attribute(features, attribute):
+    try:
+        for feature in features:
+            try:
+                yield feature[attribute]
+            except KeyError:
+                pass
+    except TypeError:
+        # The features aren't iterable
+        pass
+
+def get_feature_attribute_with_value(features, attribute, value):
+    try:
+        for feature in features:
+            try:
+                if value in feature[attribute]:
+                    yield feature.id
+            except KeyError:
+                pass
+    except TypeError:
+        # The features aren't iterable
+        pass
+
+def get_feature_attribute_startswith_value(features, attribute, value):
+    try:
+        for feature in features:
+            try:
+                if any(map(lambda x: x.startswith(value),
+                           feature[attribute])):
+                    yield feature.id
+            except KeyError:
+                pass
+    except TypeError:
+        # The features aren't iterable
+        pass
+
+def consolidate_junction_events(df, db, event_col='event_id',
+                                transcript_cols=['isoform1_transcripts',
+                                                 'isoform2_transcripts']):
+    if len(df) == 1:
+        return 'only one', df[event_col].values[0]
+
+    df_isoforms = df[transcript_cols].applymap(
+        lambda x: np.nan if len(x) == 0 else map(lambda y: db[y], x))
+    df_isoforms = df_isoforms.dropna(how='all')
+
+    if df_isoforms.empty:
+        return 'random,no gencode transcripts', df.loc[
+            np.random.choice(df.index), event_col]
+
+    if len(df_isoforms) == 1:
+        return 'one event with gencode transcripts', df.loc[
+            df_isoforms.index[0], event_col]
+
+    df_tags = df_isoforms.applymap(
+        lambda x: tuple(
+            itertools.chain(*get_attribute(x, 'tag')))
+        if not isinstance(x, float) else x)
+
+    df_tags = df_tags.applymap(
+        lambda x: x if not isinstance(x, list) or len(x) > 0 else np.nan)
+    df_tags = df_tags.dropna(how='all')
+    if df_tags.empty:
+        return 'random df_isoforms', df_isoforms.loc[
+            np.random.choice(df_isoforms.index)]
+
+    for tag in BEST_TAGS:
+        df_this_tag = df_tags.applymap(
+            lambda x: map(lambda y: y.startswith(tag), x)
+            if isinstance(x, tuple) else False)
+
+        # Which isoform has at least one true
+        df_this_tag = df_this_tag.any(axis=1)
+        #         print df_this_tag
+        if df_this_tag.any():
+            best_index = np.random.choice(df_this_tag.index[df_this_tag])
+            #             print '- best isoform:', tag, best_index
+            #             print df.loc[best_index].event_id
+            return 'best,{}'.format(tag), df.loc[best_index].event_id
+    else:
+        return 'random,no good tags', df.loc[np.random.choice(df.index),
+                                             event_col]
