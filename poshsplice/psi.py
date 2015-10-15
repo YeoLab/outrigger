@@ -68,25 +68,14 @@ def calculate_psi(exons_to_junctions, splice_junction_reads,
                                            isoform2_junctions, reads_col)
         isoform2 = maybe_get_isoform_reads(splice_junction_reads, row,
                                            isoform1_junctions, reads_col)
-        illegal = maybe_get_isoform_reads(splice_junction_reads, row,
-                                         illegal_junctions, reads_col)
 
         if debug:
             six.print_('\n\n', row.junction12, row.junction23, row.junction13)
             six.print_('--- isoform1 ---\n', isoform1)
             six.print_('--- isoform2 ---\n', isoform2)
 
-        isoform1 = filter_and_sum(isoform1, min_reads, isoform2_junctions)
-        isoform2 = filter_and_sum(isoform2, min_reads, isoform1_junctions)
-        illegal = filter_and_sum(illegal, min_reads, illegal_junctions)
-
-        if not illegal.empty:
-            # If there are reads on the junctions that are not allowed with
-            # this splicing event, remove samples which have the illegal
-            # junctions
-            isoform1 = isoform1.drop(illegal.index)
-            isoform2 = isoform2.drop(illegal.index)
-
+        isoform1 = filter_and_sum(isoform1, min_reads, isoform1_junctions)
+        isoform2 = filter_and_sum(isoform2, min_reads, isoform2_junctions)
 
         if isoform1.empty and isoform2.empty:
             # If both are empty after filtering this event --> don't calculate
