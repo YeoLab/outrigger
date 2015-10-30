@@ -30,6 +30,46 @@ def opposite(direction):
     return UPSTREAM if direction == DOWNSTREAM else DOWNSTREAM
 
 
+def get_flanking_exons(sj_metadata, db):
+    n_exons = sum(1 for _ in db.features_of_type('exon'))
+
+    sj_metadata['upstream_exon'] = ''
+    sj_metadata['downstream_exon'] = ''
+
+    sys.stdout.write('Starting annotation of all junctions with known '
+                     'exons...\n')
+    for i, exon in enumerate(db.features_of_type('exon')):
+        if (i + 1) % 10000 == 0:
+            sys.stdout.write('\t{}/{} exons completed\n'.format(i + 1, n_exons))
+        chrom_ind = sj_metadata.chrom == exon.chrom
+        strand_ind = sj_metadata.strand == exon.strand
+        upstream_ind = chrom_ind & strand_ind & \
+                       (sj_metadata.exon_stop == exon.stop)
+        downstream_ind = chrom_ind & strand_ind & \
+                         (sj_metadata.exon_start == exon.start)
+
+        exon_id = exon.id
+        if upstream_ind.any():
+            if exon.strand == '+':
+                sj_metadata.loc[upstream_ind, 'upstream_exon'] = \
+                sj_metadata.loc[upstream_ind, 'upstream_exon'] + ',' + exon_id
+            else:
+                sj_metadata.loc[upstream_ind, 'downstream_exon'] = \
+                sj_metadata.loc[
+                    upstream_ind, 'downstream_exon'] + ',' + exon_id
+
+        if downstream_ind.any():
+            if exon.strand == '+':
+                sj_metadata.loc[downstream_ind, 'downstream_exon'] = \
+                sj_metadata.loc[
+                    downstream_ind, 'downstream_exon'] + ',' + exon_id
+            else:
+                sj_metadata.loc[downstream_ind, 'upstream_exon'] = \
+                sj_metadata.loc[
+                    downstream_ind, 'upstream_exon'] + ',' + exon_id
+    sys.stdout.write('Done.\n')
+    return junction_exon_triples
+
 class JunctionAggregator(object):
 
     def __init__(self, junction_exon_triples, db=None, junction_col='junction',
