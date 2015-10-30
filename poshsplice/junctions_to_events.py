@@ -30,11 +30,19 @@ def opposite(direction):
     return UPSTREAM if direction == DOWNSTREAM else DOWNSTREAM
 
 
+def make_junction_direction_df(direction_ind, direction, exon_id):
+    return pd.DataFrame(zip(itertools.cycle((exon_id,)),
+                     itertools.cycle((direction,)),
+                     direction_ind[direction_ind].index),
+                 columns=['exon', 'direction', 'junction'])
+
 def get_flanking_exons(sj_metadata, db):
     n_exons = sum(1 for _ in db.features_of_type('exon'))
 
-    sj_metadata['upstream_exon'] = ''
-    sj_metadata['downstream_exon'] = ''
+    # sj_metadata['upstream_exon'] = ''
+    # sj_metadata['downstream_exon'] = ''
+
+    dfs = []
 
     sys.stdout.write('Starting annotation of all junctions with known '
                      'exons...\n')
@@ -50,25 +58,33 @@ def get_flanking_exons(sj_metadata, db):
 
         exon_id = exon.id
         if upstream_ind.any():
-            if exon.strand == '+':
-                sj_metadata.loc[upstream_ind, 'upstream_exon'] = \
-                sj_metadata.loc[upstream_ind, 'upstream_exon'] + ',' + exon_id
-            else:
-                sj_metadata.loc[upstream_ind, 'downstream_exon'] = \
-                sj_metadata.loc[
-                    upstream_ind, 'downstream_exon'] + ',' + exon_id
+            upstream_df = make_junction_direction_df(upstream_ind, UPSTREAM,
+                                                     exon_id)
+            dfs.append(upstream_df)
+            # if exon.strand == '+':
+            #     sj_metadata.loc[upstream_ind, 'upstream_exon'] = \
+            #     sj_metadata.loc[upstream_ind, 'upstream_exon'] + ',' + exon_id
+            # else:
+            #     sj_metadata.loc[upstream_ind, 'downstream_exon'] = \
+            #     sj_metadata.loc[
+            #         upstream_ind, 'downstream_exon'] + ',' + exon_id
 
         if downstream_ind.any():
-            if exon.strand == '+':
-                sj_metadata.loc[downstream_ind, 'downstream_exon'] = \
-                sj_metadata.loc[
-                    downstream_ind, 'downstream_exon'] + ',' + exon_id
-            else:
-                sj_metadata.loc[downstream_ind, 'upstream_exon'] = \
-                sj_metadata.loc[
-                    downstream_ind, 'upstream_exon'] + ',' + exon_id
+            downstream_df = make_junction_direction_df(downstream_df,
+                                                       DOWNSTREAM, exon_id)
+            dfs.append(downstream_df)
+            # if exon.strand == '+':
+            #     sj_metadata.loc[downstream_ind, 'downstream_exon'] = \
+            #     sj_metadata.loc[
+            #         downstream_ind, 'downstream_exon'] + ',' + exon_id
+            # else:
+            #     sj_metadata.loc[downstream_ind, 'upstream_exon'] = \
+            #     sj_metadata.loc[
+            #         downstream_ind, 'upstream_exon'] + ',' + exon_id
+    junction_exon_triples = pd.concat(dfs, ignore_index=True)
     sys.stdout.write('Done.\n')
     return junction_exon_triples
+
 
 class JunctionAggregator(object):
 
