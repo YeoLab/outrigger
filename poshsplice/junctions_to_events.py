@@ -36,7 +36,21 @@ def make_junction_direction_df(direction_ind, direction, exon_id):
                      direction_ind[direction_ind].index),
                  columns=['exon', 'direction', 'junction'])
 
-def get_flanking_exons(sj_metadata, db):
+def make_junction_exon_triples(sj_metadata, db):
+    """Get upstream and downstream exons in db, of introns in sj_metadata
+
+    :param sj_metadata:
+    :type sj_metadata:
+    :param db:
+    :type db:
+    :return:
+    :rtype:
+    """
+    if 'exon_start' not in sj_metadata:
+        sj_metadata['exon_start'] = sj_metadata['intron_stop'] + 1
+    if 'exon_stop' not in sj_metadata:
+        sj_metadata['exon_stop'] = sj_metadata['intron_start'] - 1
+
     n_exons = sum(1 for _ in db.features_of_type('exon'))
 
     # sj_metadata['upstream_exon'] = ''
@@ -70,7 +84,7 @@ def get_flanking_exons(sj_metadata, db):
             #         upstream_ind, 'downstream_exon'] + ',' + exon_id
 
         if downstream_ind.any():
-            downstream_df = make_junction_direction_df(downstream_df,
+            downstream_df = make_junction_direction_df(downstream_ind,
                                                        DOWNSTREAM, exon_id)
             dfs.append(downstream_df)
             # if exon.strand == '+':
