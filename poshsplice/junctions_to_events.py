@@ -506,9 +506,6 @@ class JunctionAggregator(object):
                                                        'junction24'])
         return events
 
-    def twin_cassette(self):
-        pass
-
     def alt_5p_splice_site(self):
         pass
 
