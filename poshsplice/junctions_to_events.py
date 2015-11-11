@@ -109,6 +109,8 @@ class JunctionAggregator(object):
         Parameters
         ----------
         junction_exon_triples : pandas.DataFrame
+            of "exon, direction, junction", e.g.:
+            exon1, upstream, junction12
 
         db : gffutils.FeatureDB
             Gffutils Database of gene, transcript, and exon features. The exons
@@ -361,6 +363,16 @@ class JunctionAggregator(object):
             dfs.append(df)
         junction_exons = pd.concat(dfs, ignore_index=True)
         return junction_exons
+
+    def event_dict_to_df(self, events, exon_names, junction_names):
+        columns = list(exon_names) + list(junction_names) + ['event_id']
+        data = pd.DataFrame(index=np.arange(len(events)), columns=columns)
+        for i, (exons, junctions) in enumerate(events.items()):
+            event_id = '@'.join(exons)
+            data.loc[i, exon_names] = list(exons)
+            data.loc[i, junction_names] = list(junctions)
+            data.loc[i, 'event_id'] = event_id
+        return data
 
     def skipped_exon(self):
         events = {}
