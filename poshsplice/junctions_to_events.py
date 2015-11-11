@@ -424,10 +424,15 @@ class JunctionAggregator(object):
                         exons = exon1.name, exon2.name, exon3.name
 
                         events[exons] = junctions
+        events = self.event_dict_to_df(events,
+                                       exon_names=['exon1', 'exon2', 'exon3'],
+                                       junction_names=['junction12',
+                                                       'junction23',
+                                                       'junction13'])
         return events
 
     def mutually_exclusive_exon(self):
-        events_to_junctions = {}
+        events = {}
 
         for exon1_name in self.exons:
             exon1_i = self.item_to_int[exon1_name]
@@ -489,10 +494,17 @@ class JunctionAggregator(object):
                                               exon24_junction]))
                         junctions = self.int_to_item[junctions].tolist()
 
-                        events_to_junctions[exon_tuple] = junctions
+                        events[exon_tuple] = junctions
                     except:
                         pass
-        return events_to_junctions
+        events = self.event_dict_to_df(events,
+                                       exon_names=['exon1', 'exon2', 'exon3',
+                                                   'exon4'],
+                                       junction_names=['junction13',
+                                                       'junction34',
+                                                       'junction12',
+                                                       'junction24'])
+        return events
 
     def twin_cassette(self):
         pass
