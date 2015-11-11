@@ -64,7 +64,10 @@ def make_junction_exon_triples(sj_metadata, db):
         if (i + 1) % 10000 == 0:
             sys.stdout.write('\t{}/{} exons completed\n'.format(i + 1, n_exons))
         chrom_ind = sj_metadata.chrom == exon.chrom
-        strand_ind = sj_metadata.strand == exon.strand
+        try:
+            strand_ind = sj_metadata.strand == exon.strand
+        except AttributeError:
+            strand_ind = chrom_ind
         upstream_ind = chrom_ind & strand_ind & \
                        (sj_metadata.exon_stop == exon.stop)
         downstream_ind = chrom_ind & strand_ind & \
