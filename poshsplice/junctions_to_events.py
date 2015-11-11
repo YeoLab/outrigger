@@ -36,25 +36,37 @@ def make_junction_direction_df(direction_ind, direction, exon_id):
                      direction_ind[direction_ind].index),
                  columns=['exon', 'direction', 'junction'])
 
-def make_junction_exon_triples(sj_metadata, db):
-    """Get upstream and downstream exons in db, of introns in sj_metadata
+def get_adjacent_exons(sj_metadata, db, exon_start='exon_start',
+                       exon_stop='exon_stop'):
+    """Get upstream and downstream exons in database
 
-    :param sj_metadata:
-    :type sj_metadata:
-    :param db:
-    :type db:
-    :return:
-    :rtype:
+    Use junctions defined in ``sj_metadata`` and exons in ``db`` to create
+    triples of (exon, direction, junction), which are read like
+    (subject, object, verb) e.g. ('exon1', 'upstream', 'junction12'), for
+    creation of a graph database.
+
+    Parameters
+    ----------
+    sj_metadata : pandas.DataFrame
+        A splice junction metadata dataframe with the junction id as the
+        index, with  columns defined by variables ``exon_start`` and
+        ``exon_stop``.
+    db : gffutils.FeatureDB
+        A database of gene annotations created by gffutils. Must have features
+        of type "exon"
+    exon_start : str, optional
+        Name of the column in sj_metadata corresponding to the start of the
+        exon
+    exon_stop : str, optional
+        Name of the column in sj_metadata corresponding to the end of the exon
+
+    Returns
+    -------
+    junction_exon_triples : pandas.DataFrame
+        A three-column dataframe describing the relationship of where an exon
+        is relative to junctions
     """
-    if 'exon_start' not in sj_metadata:
-        sj_metadata['exon_start'] = sj_metadata['intron_stop'] + 1
-    if 'exon_stop' not in sj_metadata:
-        sj_metadata['exon_stop'] = sj_metadata['intron_start'] - 1
-
     n_exons = sum(1 for _ in db.features_of_type('exon'))
-
-    # sj_metadata['upstream_exon'] = ''
-    # sj_metadata['downstream_exon'] = ''
 
     dfs = []
 
@@ -69,35 +81,19 @@ def make_junction_exon_triples(sj_metadata, db):
         except AttributeError:
             strand_ind = chrom_ind
         upstream_ind = chrom_ind & strand_ind & \
-                       (sj_metadata.exon_stop == exon.stop)
+                       (sj_metadata[exon_stop] == exon.stop)
         downstream_ind = chrom_ind & strand_ind & \
-                         (sj_metadata.exon_start == exon.start)
+                         (sj_metadata[exon_start] == exon.start)
 
         exon_id = exon.id
         if upstream_ind.any():
             upstream_df = make_junction_direction_df(upstream_ind, UPSTREAM,
                                                      exon_id)
             dfs.append(upstream_df)
-            # if exon.strand == '+':
-            #     sj_metadata.loc[upstream_ind, 'upstream_exon'] = \
-            #     sj_metadata.loc[upstream_ind, 'upstream_exon'] + ',' + exon_id
-            # else:
-            #     sj_metadata.loc[upstream_ind, 'downstream_exon'] = \
-            #     sj_metadata.loc[
-            #         upstream_ind, 'downstream_exon'] + ',' + exon_id
-
         if downstream_ind.any():
             downstream_df = make_junction_direction_df(downstream_ind,
                                                        DOWNSTREAM, exon_id)
             dfs.append(downstream_df)
-            # if exon.strand == '+':
-            #     sj_metadata.loc[downstream_ind, 'downstream_exon'] = \
-            #     sj_metadata.loc[
-            #         downstream_ind, 'downstream_exon'] + ',' + exon_id
-            # else:
-            #     sj_metadata.loc[downstream_ind, 'upstream_exon'] = \
-            #     sj_metadata.loc[
-            #         downstream_ind, 'upstream_exon'] + ',' + exon_id
     junction_exon_triples = pd.concat(dfs, ignore_index=True)
     sys.stdout.write('Done.\n')
     return junction_exon_triples
@@ -348,7 +344,7 @@ class JunctionAggregator(object):
                      'exon:chr1:300-400:+'],
          'downstream':['exon:chr1:300-400:+',
          'exon:chr1:500-600:+,exon:chr1:500-650:+']})
-        >>> Annotator.make_junction_exon_triples(sj_metadata)
+        >>> Annotator.get_adjacent_exons(sj_metadata)
 
         """
         grouped = junction_to_exons.groupby(junction_col)
