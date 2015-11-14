@@ -37,7 +37,7 @@ def make_junction_direction_df(direction_ind, direction, exon_id):
                  columns=['exon', 'direction', 'junction'])
 
 def get_adjacent_exons(sj_metadata, db, exon_start='exon_start',
-                       exon_stop='exon_stop'):
+                       exon_stop='exon_stop', chrom='chrom'):
     """Get upstream and downstream exons in database
 
     Use junctions defined in ``sj_metadata`` and exons in ``db`` to create
@@ -75,7 +75,7 @@ def get_adjacent_exons(sj_metadata, db, exon_start='exon_start',
     for i, exon in enumerate(db.features_of_type('exon')):
         if (i + 1) % 10000 == 0:
             sys.stdout.write('\t{}/{} exons completed\n'.format(i + 1, n_exons))
-        chrom_ind = sj_metadata.chrom == exon.chrom
+        chrom_ind = sj_metadata[chrom] == exon.chrom
         try:
             strand_ind = sj_metadata.strand == exon.strand
         except AttributeError:
