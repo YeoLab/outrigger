@@ -438,7 +438,6 @@ class JunctionAggregator(object):
 
             downstream_junctions = set(self.graph.find(
                 V().downstream(exon1_i)))
-            downstream_junctions
             exon23s_from1 = list(
                 self.graph.find(V().downstream(
                     exon1_i)).traverse(V().upstream))
@@ -517,7 +516,6 @@ class JunctionAggregator(object):
     def alt_last_exon(self):
         pass
 
-import itertools
 
 BEST_TAGS = 'appris_principal', 'appris_candidate', 'CCDS', 'basic'
 
