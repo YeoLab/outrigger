@@ -1,19 +1,19 @@
 # PoshSplice
 
-[![](https://img.shields.io/travis/olgabot/poshsplice.svg)](https://travis-ci.org/olgabot/poshsplice)[![](https://img.shields.io/pypi/v/poshsplice.svg)](https://pypi.python.org/pypi/poshsplice)
+[![](https://img.shields.io/travis/olgabot/outrigger.svg)](https://travis-ci.org/olgabot/outrigger)[![](https://img.shields.io/pypi/v/outrigger.svg)](https://pypi.python.org/pypi/outrigger)
 
 Poshsplice is an aggregation of scripts and tools to annotate exons and their 
 predicted functions.
 
 * Free software: BSD license
-* Documentation: https://olgabot.github.io/poshsplice
+* Documentation: https://olgabot.github.io/outrigger
 
 ## Features
 
 ### Python 3 (in)compatibility
 
-Currently, `poshsplice` only works on Python 2.6 and 2.7 because like Python 2.x, she was developed in the 
-[90s](https://www.youtube.com/watch?v=gJLIiF15wjQ). There is some [bug](https://travis-ci.org/olgabot/poshsplice/jobs/81072380)
+Currently, `outrigger` only works on Python 2.6 and 2.7 because like Python 2.x, she was developed in the 
+[90s](https://www.youtube.com/watch?v=gJLIiF15wjQ). There is some [bug](https://travis-ci.org/olgabot/outrigger/jobs/81072380)
 in the code relating to string formatting/unicode/byte strings in Python 3. Help is welcomed.
 
 ### Aggregate splice junctions into splicing events
@@ -65,7 +65,7 @@ RRM_3                PF08777.6    105 sp|O43251|RFOX2_HUMAN -            390    
 You can read in this file using `read_hmmscan_out`, as such:
 
 ```python
-from poshsplice.hmmscan import read_hmmscan
+from outrigger.hmmscan import read_hmmscan
 hmmscan_df = read_hmmscan('rbfox2_hmmscan.txt')
 ```
 
@@ -96,7 +96,7 @@ taaATAAGT
 Then we can get the splice site strength using `score_splice_fasta`
 
 ```
-from poshsplice.splicestrength import score_splice_fasta
+from outrigger.splicestrength import score_splice_fasta
 scores = score_splice_fasta('dummy5.fasta', splice_site=5)
 ```
 

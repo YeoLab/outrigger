@@ -4,9 +4,9 @@ Installation
 
 At the command line::
 
-    $ easy_install poshsplice
+    $ easy_install outrigger
 
 Or, if you have virtualenvwrapper installed::
 
-    $ mkvirtualenv poshsplice
-    $ pip install poshsplice
+    $ mkvirtualenv outrigger
+    $ pip install outrigger

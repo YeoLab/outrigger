@@ -23,23 +23,23 @@ test_requirements = [
 ]
 
 setup(
-    name='poshsplice',
+    name='outrigger',
     version='0.1.0',
     description="Exon ontology is an attempt to catalogue scripts used to annotate exons and their functions",
     long_description=readme + '\n\n' + history,
     author="Olga Botvinnik",
     author_email='olga.botvinnik@gmail.com',
-    url='https://github.com/olgabot/poshsplice',
+    url='https://github.com/olgabot/outrigger',
     packages=[
-        'poshsplice',
+        'outrigger',
     ],
-    package_dir={'poshsplice':
-                 'poshsplice'},
+    package_dir={'outrigger':
+                 'outrigger'},
     include_package_data=True,
     install_requires=requirements,
     license="BSD",
     zip_safe=False,
-    keywords='poshsplice',
+    keywords='outrigger',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',

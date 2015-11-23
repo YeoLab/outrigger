@@ -35,18 +35,18 @@ clean-test:
 	rm -fr htmlcov/
 
 lint:
-	flake8 --exclude poshsplice/external,doc,poshsplice/isoforms.py poshsplice
+	flake8 --exclude outrigger/external,doc,outrigger/isoforms.py outrigger
 
 test:
-	py.test poshsplice
+	py.test outrigger
 
 coverage:
-	coverage run --source poshsplice --omit=tests,external --module py.test
+	coverage run --source outrigger --omit=tests,external --module py.test
 
 docs:
-	rm -f docs/poshsplice.rst
+	rm -f docs/outrigger.rst
 	rm -f docs/modules.rst
-	sphinx-apidoc -o docs/ poshsplice
+	sphinx-apidoc -o docs/ outrigger
 	$(MAKE) -C docs clean
 	$(MAKE) -C docs html
 	open docs/_build/html/index.html
