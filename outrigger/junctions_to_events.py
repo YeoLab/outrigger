@@ -116,57 +116,6 @@ class JunctionAggregator(object):
             must be accessible by the id provided on the `exon_col`
             columns. If not provided, certain splice types which require
             information about the transcript (AFE, ALE) cannot be annotated.
-
-        Returns
-        -------
-        type
-            Explanation of anonymous return value of type ``type``.
-        describe : type
-            Explanation of return value named `describe`.
-        out : type
-            Explanation of `out`.
-
-        Other Parameters
-        ----------------
-        only_seldom_used_keywords : type
-            Explanation
-        common_parameters_listed_above : type
-            Explanation
-
-        Raises
-        ------
-        BadException
-            Because you shouldn't have done that.
-
-        See Also
-        --------
-        otherfunc : relationship (optional)
-        newfunc : Relationship (optional), which could be fairly long, in which
-                  case the line wraps here.
-        thirdfunc, fourthfunc, fifthfunc
-
-        Notes
-        -----
-        Notes about the implementation algorithm (if needed).
-
-        This can have multiple paragraphs.
-
-        You may include some math:
-
-        .. math:: X(e^{j\omega } ) = x(n)e^{ - j\omega n}
-
-        And even use a greek symbol like :math:`omega` inline.
-
-        References
-        ----------
-        Cite the relevant literature, e.g. [1]_.  You may also cite these
-        references in the notes section above.
-
-        .. [1] O. McNoleg, "The integration of GIS, remote sensing,
-           expert systems and adaptive co-kriging for environmental habitat
-           modelling of the Highland Haggis using object-oriented, fuzzy-logic
-           and neural-network techniques," Computers & Geosciences, vol. 22,
-           pp. 585-588, 1996.
         """
         self.junction_exon_triples = junction_exon_triples
         self.db = db
@@ -423,11 +372,11 @@ class JunctionAggregator(object):
                         exons = exon1.name, exon2.name, exon3.name
 
                         events[exons] = junctions
-        events = self.event_dict_to_df(events,
-                                       exon_names=['exon1', 'exon2', 'exon3'],
-                                       junction_names=['junction12',
-                                                       'junction23',
-                                                       'junction13'])
+        # events = self.event_dict_to_df(events,
+        #                                exon_names=['exon1', 'exon2', 'exon3'],
+        #                                junction_names=['junction12',
+        #                                                'junction23',
+        #                                                'junction13'])
         return events
 
     def mutually_exclusive_exon(self):
@@ -495,13 +444,13 @@ class JunctionAggregator(object):
                         events[exon_tuple] = junctions
                     except:
                         pass
-        events = self.event_dict_to_df(events,
-                                       exon_names=['exon1', 'exon2', 'exon3',
-                                                   'exon4'],
-                                       junction_names=['junction13',
-                                                       'junction34',
-                                                       'junction12',
-                                                       'junction24'])
+        # events = self.event_dict_to_df(events,
+        #                                exon_names=['exon1', 'exon2', 'exon3',
+        #                                            'exon4'],
+        #                                junction_names=['junction13',
+        #                                                'junction34',
+        #                                                'junction12',
+        #                                                'junction24'])
         return events
 
     def alt_5p_splice_site(self):
