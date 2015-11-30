@@ -168,7 +168,7 @@ def assert_graph_items_equal(graph1, int_to_item1, item_to_int1, graph2,
             test.sort()
             true.sort()
 
-            pdt.assert_array_equal(test, true)
+            pdt.assert_numpy_array_equal(test, true)
 
     for item2, number2 in item_to_int2.iteritems():
         for direction in DIRECTIONS:
@@ -182,7 +182,7 @@ def assert_graph_items_equal(graph1, int_to_item1, item_to_int1, graph2,
             test.sort()
             true.sort()
 
-            pdt.assert_array_equal(test, true)
+            pdt.assert_numpy_array_equal(test, true)
 
 
 class TestAggregateJunctions(object):
@@ -208,9 +208,9 @@ class TestAggregateJunctions(object):
         item_to_int = pd.Series(dict((v, k) for k, v in
                                      int_to_item.iteritems()))
 
-        pdt.assert_array_equal(test.exons, exons)
-        pdt.assert_array_equal(test.junctions, junctions)
-        pdt.assert_array_equal(test.items, items)
+        pdt.assert_numpy_array_equal(test.exons, exons)
+        pdt.assert_numpy_array_equal(test.junctions, junctions)
+        pdt.assert_numpy_array_equal(test.items, items)
         pdt.assert_dict_equal(test.int_to_item, int_to_item)
         pdt.assert_dict_equal(test.item_to_int, item_to_int)
 
