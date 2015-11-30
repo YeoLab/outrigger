@@ -82,46 +82,6 @@ def event_name():
     return 'exon:chr1:150-175:+@exon:chr1:225-250:+@exon:chr1:300-350:+'
 
 
-def test_psi1(junction12, junction23, junction13, exons_to_junctions):
-    from outrigger.psi import calculate_psi
-
-    s = """sample_id,junction,reads
-sample1,{},100
-sample1,{},200
-""".format(junction12, junction23)
-    splice_junction_reads = pd.read_csv(six.StringIO(s), comment='#')
-    splice_junction_reads = splice_junction_reads.set_index(
-        ['junction', 'sample_id'])
-    splice_junction_reads = splice_junction_reads.sort_index()
-
-    test = calculate_psi(exons_to_junctions, splice_junction_reads)
-    true = pd.read_csv(six.StringIO("""
-sample_id,exon:chr1:150-175:+@exon:chr1:225-250:+@exon:chr1:300-350:+
-sample1,1.0"""), index_col=0)
-
-    pdt.assert_frame_equal(test, true)
-
-def test_psi1_junction13_not_enough_reads(junction12, junction23, junction13,
-                                          exons_to_junctions):
-    from outrigger.psi import calculate_psi
-
-    s = """sample_id,junction,reads
-sample1,{},100
-sample1,{},200
-sample1,{},2
-""".format(junction12, junction23, junction13)
-    splice_junction_reads = pd.read_csv(six.StringIO(s), comment='#')
-    splice_junction_reads = splice_junction_reads.set_index(
-        ['junction', 'sample_id'])
-    splice_junction_reads = splice_junction_reads.sort_index()
-
-    test = calculate_psi(exons_to_junctions, splice_junction_reads)
-    true = pd.read_csv(six.StringIO("""
-sample_id,exon:chr1:150-175:+@exon:chr1:225-250:+@exon:chr1:300-350:+
-sample1,1.0"""), index_col=0)
-
-    pdt.assert_frame_equal(test, true)
-
 @pytest.fixture(params=[100, 2, np.nan],
                 ids=['enough reads', 'not enough reads', 'not there'])
 def junction12_reads(request):
