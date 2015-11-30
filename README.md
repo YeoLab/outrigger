@@ -8,6 +8,19 @@ predicted functions.
 * Free software: BSD license
 * Documentation: https://yeolab.github.io/outrigger
 
+## Installation
+
+
+
+```
+git clone git@github.com:YeoLab/outrigger
+cd outrigger
+conda create --name outrigger --yes --file conda_requirements.txt --channel bioconda
+source activate outrigger
+pip install -r requirements.txt
+```
+
+
 ## Features
 
 ### Python 3 (in)compatibility
