@@ -4,6 +4,9 @@ import pandas as pd
 import pandas.util.testing as pdt
 import six
 
+idx = pd.IndexSlice
+
+
 @pytest.fixture
 def exons_to_junctions():
     exons_to_junctions = {
@@ -78,6 +81,27 @@ def junction13():
 
 
 @pytest.fixture
+def isoform1_junctions():
+    return ['junction13']
+
+
+@pytest.fixture
+def isoform2_junctions():
+    return ['junction12', 'junction23']
+
+
+@pytest.fixture(params=['isoform1', 'isoform2',
+                        pytest.mark.xfail('keyerror_isoform')])
+def isoform_junctions(request, isoform1_junctions, isoform2_junctions):
+    if request.param == 'isoform1':
+        return isoform1_junctions
+    elif request.param == 'isoform2':
+        return isoform2_junctions
+    else:
+        return 'keyerror_isoform'
+
+
+@pytest.fixture
 def event_name():
     return 'exon:chr1:150-175:+@exon:chr1:225-250:+@exon:chr1:300-350:+'
 
@@ -97,23 +121,70 @@ def junction23_reads(request):
 def junction13_reads(request):
     return request.param
 
+@pytest.fixture
+def reads_col():
+    return 'reads'
 
-def test_psi_se(junction12, junction12_reads,
-                junction23, junction23_reads,
-                junction13, junction13_reads, exons_to_junctions):
-    from outrigger.psi import calculate_psi, MIN_READS
 
-    s = """sample_id,junction,reads
+@pytest.fixture
+def splice_junction_reads(junction12, junction12_reads,
+                          junction23, junction23_reads,
+                          junction13, junction13_reads, reads_col):
+    s = """sample_id,junction,{6}
 sample1,{0},{1}
 sample1,{2},{3}
 sample1,{4},{5}""".format(junction12, junction12_reads,
-                          junction23, junction23_reads,
-                          junction13, junction13_reads)
-    splice_junction_reads = pd.read_csv(six.StringIO(s), comment='#')
-    splice_junction_reads = splice_junction_reads.dropna()
-    splice_junction_reads = splice_junction_reads.set_index(
+                        junction23, junction23_reads,
+                        junction13, junction13_reads, reads_col)
+    data = pd.read_csv(six.StringIO(s), comment='#')
+    data = data.dropna()
+    data = data.set_index(
         ['junction', 'sample_id'])
-    splice_junction_reads = splice_junction_reads.sort_index()
+    data = data.sort_index()
+    return data
+
+@pytest.fixture
+def junction_locations(junction12, junction23, junction13):
+    return pd.Series({'junction12': junction12, 'junction23': junction23,
+                      'junction13': junction13})
+
+@pytest.fixture
+def junction_to_reads(junction12, junction12_reads,
+                      junction23, junction23_reads,
+                      junction13, junction13_reads):
+    """Helper function for testing"""
+    return pd.Series({junction12: junction12_reads,
+                      junction23: junction23_reads,
+                      junction13: junction13_reads})
+
+def test_filter_and_sum():
+    pass
+
+
+
+def test_maybe_get_isoform_reads(splice_junction_reads, junction_locations,
+                                 isoform_junctions, junction_to_reads,
+                                 reads_col):
+    from outrigger.psi import maybe_get_isoform_reads
+    test = maybe_get_isoform_reads(splice_junction_reads, junction_locations,
+                                   isoform_junctions, reads_col=reads_col)
+    junctions = junction_locations[isoform_junctions]
+    reads = junction_to_reads[junctions.values]
+    reads = reads.dropna()
+    if reads.empty:
+        true = pd.Series()
+    else:
+        true = reads.copy()
+        true.name = reads_col
+        true.index = pd.MultiIndex.from_arrays(
+            [reads.index, ['sample1']*len(reads.index)],
+            names=['junction', 'sample_id'])
+    pdt.assert_series_equal(test, true)
+
+
+def test_psi_se(splice_junction_reads, junction12_reads, junction23_reads,
+                junction13_reads, exons_to_junctions):
+    from outrigger.psi import calculate_psi, MIN_READS
 
     reads12 = junction12_reads if junction12_reads >= MIN_READS else 0
     reads23 = junction23_reads if junction23_reads >= MIN_READS else 0
