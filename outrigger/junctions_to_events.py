@@ -328,12 +328,12 @@ class JunctionAggregator(object):
 
         sys.stdout.write('Trying out {0} exons'
                          '...\n'.format(n_exons))
-        for i, exon1 in enumerate(self.exons):
+        for i, exon1_name in enumerate(self.exons):
             if (i + 1) % 10000 == 0:
                 sys.stdout.write('\t{0}/{1} '
                                  'exons tested'.format(i + 1, n_exons))
 
-            exon1_i = self.item_to_int[exon1.name]
+            exon1_i = self.item_to_int[exon1_name]
             exon23s = list(
                 self.graph.find(
                     V().downstream(exon1_i)).traverse(V().upstream))
@@ -369,14 +369,14 @@ class JunctionAggregator(object):
                             *[exon12_junction, exon23_junction,
                               exon13_junction]))
                         junctions = self.int_to_item[junctions].tolist()
-                        exons = exon1.name, exon2.name, exon3.name
+                        exons = exon1_name, exon2.name, exon3.name
 
                         events[exons] = junctions
-        # events = self.event_dict_to_df(events,
-        #                                exon_names=['exon1', 'exon2', 'exon3'],
-        #                                junction_names=['junction12',
-        #                                                'junction23',
-        #                                                'junction13'])
+        events = self.event_dict_to_df(events,
+                                       exon_names=['exon1', 'exon2', 'exon3'],
+                                       junction_names=['junction12',
+                                                       'junction23',
+                                                       'junction13'])
         return events
 
     def mutually_exclusive_exon(self):
@@ -444,13 +444,13 @@ class JunctionAggregator(object):
                         events[exon_tuple] = junctions
                     except:
                         pass
-        # events = self.event_dict_to_df(events,
-        #                                exon_names=['exon1', 'exon2', 'exon3',
-        #                                            'exon4'],
-        #                                junction_names=['junction13',
-        #                                                'junction34',
-        #                                                'junction12',
-        #                                                'junction24'])
+        events = self.event_dict_to_df(events,
+                                       exon_names=['exon1', 'exon2', 'exon3',
+                                                   'exon4'],
+                                       junction_names=['junction13',
+                                                       'junction34',
+                                                       'junction12',
+                                                       'junction24'])
         return events
 
     def alt_5p_splice_site(self):

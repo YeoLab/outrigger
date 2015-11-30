@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import pandas.util.testing as pdt
 import pytest
-
+import six
 
 @pytest.fixture(params=['positive', 'negative'])
 def strand(request):
@@ -234,107 +234,39 @@ class TestAggregateJunctions(object):
         test = junction_aggregator.skipped_exon()
 
         if strand == '+':
-            true = {
-                ('exon:chr1:150-175:+',   # Exon 1
-                 'exon:chr1:225-250:+',   # Exon 2
-                 'exon:chr1:300-350:+'):  # Exon 3
-                ('junction:chr1:176-224:+',
-                 'junction:chr1:251-299:+',
-                 'junction:chr1:176-299:+'),
-                ('exon:chr1:150-175:+',   # Exon 1
-                 'exon:chr1:225-275:+',   # Exon 2, alt 5' splice site
-                 'exon:chr1:300-350:+'):  # Exon 3
-                ('junction:chr1:176-224:+',
-                 'junction:chr1:276-299:+',
-                 'junction:chr1:176-299:+'),
-                ('exon:chr1:150-175:+',   # Exon 1
-                 'exon:chr1:300-350:+',   # Exon 3
-                 'exon:chr1:400-425:+'):  # Exon 4
-                ('junction:chr1:176-299:+',
-                 'junction:chr1:351-399:+',
-                 'junction:chr1:176-399:+'),
-                ('exon:chr1:150-175:+',   # Exon 1
-                 'exon:chr1:225-250:+',   # Exon 2
-                 'exon:chr1:400-425:+'):  # Exon 4
-                ('junction:chr1:176-224:+',
-                 'junction:chr1:251-399:+',
-                 'junction:chr1:176-399:+'),
-                ('exon:chr1:225-250:+',   # Exon 2
-                 'exon:chr1:300-350:+',   # Exon 3
-                 'exon:chr1:400-425:+'):  # Exon 4
-                ('junction:chr1:251-299:+',
-                 'junction:chr1:351-399:+',
-                 'junction:chr1:251-399:+'),
-                ('exon:chr1:150-175:+',   # Exon 1
-                 'exon:chr1:200-250:+',   # Exon 2, alt 3' splice site
-                 'exon:chr1:300-350:+'):  # Exon 4
-                ('junction:chr1:176-199:+',
-                 'junction:chr1:251-299:+',
-                 'junction:chr1:176-299:+')}
+            s = """exon1,exon2,exon3,junction12,junction23,junction13,event_id
+exon:chr1:150-175:+,exon:chr1:225-250:+,exon:chr1:300-350:+,junction:chr1:176-224:+,junction:chr1:251-299:+,junction:chr1:176-299:+,exon:chr1:150-175:+@exon:chr1:225-250:+@exon:chr1:300-350:+# Exon 1, 2, 3
+exon:chr1:150-175:+,exon:chr1:225-275:+,exon:chr1:300-350:+,junction:chr1:176-224:+,junction:chr1:276-299:+,junction:chr1:176-299:+,exon:chr1:150-175:+@exon:chr1:225-275:+@exon:chr1:300-350:+# Exon 1, 2 alt 5' splice site, 3
+exon:chr1:150-175:+,exon:chr1:300-350:+,exon:chr1:400-425:+,junction:chr1:176-299:+,junction:chr1:351-399:+,junction:chr1:176-399:+,exon:chr1:150-175:+@exon:chr1:300-350:+@exon:chr1:400-425:+# Exon 1, 3, 4
+exon:chr1:150-175:+,exon:chr1:225-250:+,exon:chr1:400-425:+,junction:chr1:176-224:+,junction:chr1:251-399:+,junction:chr1:176-399:+,exon:chr1:150-175:+@exon:chr1:225-250:+@exon:chr1:400-425:+# Exon 1, 2, 4
+exon:chr1:225-250:+,exon:chr1:300-350:+,exon:chr1:400-425:+,junction:chr1:251-299:+,junction:chr1:351-399:+,junction:chr1:251-399:+,exon:chr1:225-250:+@exon:chr1:300-350:+@exon:chr1:400-425:+# Exon 2, 3, 4
+exon:chr1:150-175:+,exon:chr1:200-250:+,exon:chr1:300-350:+,junction:chr1:176-199:+,junction:chr1:251-299:+,junction:chr1:176-299:+,exon:chr1:150-175:+@exon:chr1:200-250:+@exon:chr1:300-350:+# Exon 1, 2 alt 3' splice site, 4
+"""
         else:
-            true = {
-                ('exon:chr1:300-350:-',
-                 'exon:chr1:225-250:-',
-                 'exon:chr1:150-175:-'):
-                ('junction:chr1:251-299:-',
-                 'junction:chr1:176-224:-',
-                 'junction:chr1:176-299:-'),
-                ('exon:chr1:300-350:-',
-                 'exon:chr1:225-275:-',
-                 'exon:chr1:150-175:-'):
-                ('junction:chr1:276-299:-',
-                 'junction:chr1:176-224:-',
-                 'junction:chr1:176-299:-'),
-                ('exon:chr1:400-425:-',
-                 'exon:chr1:300-350:-',
-                 'exon:chr1:150-175:-'):
-                ('junction:chr1:351-399:-',
-                 'junction:chr1:176-299:-',
-                 'junction:chr1:176-399:-'),
-                ('exon:chr1:400-425:-',
-                 'exon:chr1:300-350:-',
-                 'exon:chr1:225-250:-'):
-                ('junction:chr1:351-399:-',
-                 'junction:chr1:251-299:-',
-                 'junction:chr1:251-399:-'),
-                ('exon:chr1:300-350:-',
-                 'exon:chr1:200-250:-',
-                 'exon:chr1:150-175:-'):
-                ('junction:chr1:251-299:-',
-                 'junction:chr1:176-199:-',
-                 'junction:chr1:176-299:-'),
-                ('exon:chr1:400-425:-',
-                 'exon:chr1:225-250:-',
-                 'exon:chr1:150-175:-'):
-                ('junction:chr1:251-399:-',
-                 'junction:chr1:176-224:-',
-                 'junction:chr1:176-399:-')}
-        pdt.assert_dict_equal(test, true)
+            s = """exon1,exon2,exon3,junction12,junction23,junction13,event_id
+exon:chr1:300-350:-,exon:chr1:225-250:-,exon:chr1:150-175:-,junction:chr1:251-299:-,junction:chr1:176-224:-,junction:chr1:176-299:-,exon:chr1:300-350:-@exon:chr1:225-250:-@exon:chr1:150-175:-
+exon:chr1:300-350:-,exon:chr1:225-275:-,exon:chr1:150-175:-,junction:chr1:276-299:-,junction:chr1:176-224:-,junction:chr1:176-299:-,exon:chr1:300-350:-@exon:chr1:225-275:-@exon:chr1:150-175:-
+exon:chr1:400-425:-,exon:chr1:300-350:-,exon:chr1:150-175:-,junction:chr1:351-399:-,junction:chr1:176-299:-,junction:chr1:176-399:-,exon:chr1:400-425:-@exon:chr1:300-350:-@exon:chr1:150-175:-
+exon:chr1:400-425:-,exon:chr1:300-350:-,exon:chr1:225-250:-,junction:chr1:351-399:-,junction:chr1:251-299:-,junction:chr1:251-399:-,exon:chr1:400-425:-@exon:chr1:300-350:-@exon:chr1:225-250:-
+exon:chr1:300-350:-,exon:chr1:200-250:-,exon:chr1:150-175:-,junction:chr1:251-299:-,junction:chr1:176-199:-,junction:chr1:176-299:-,exon:chr1:300-350:-@exon:chr1:200-250:-@exon:chr1:150-175:-
+exon:chr1:400-425:-,exon:chr1:225-250:-,exon:chr1:150-175:-,junction:chr1:251-399:-,junction:chr1:176-224:-,junction:chr1:176-399:-,exon:chr1:400-425:-@exon:chr1:225-250:-@exon:chr1:150-175:-
+"""
+        true = pd.read_csv(six.StringIO(s), comment='#')
+        pdt.assert_frame_equal(test, true)
 
     def test_mutually_exclusive_exon(self, junction_aggregator, strand):
         test = junction_aggregator.mutually_exclusive_exon()
 
         if strand == '+':
-            true = {
-                ('exon:chr1:150-175:+',   # Exon 1
-                 'exon:chr1:225-250:+',   # Exon 2
-                 'exon:chr1:300-350:+',   # Exon 3
-                 'exon:chr1:400-425:+'):  # Exon 4
-                ('junction:chr1:176-299:+',   # Exon1-Exon2 junction
-                 'junction:chr1:351-399:+',   # Exon1-Exon3 junction
-                 'junction:chr1:176-224:+',   # Exon2-Exon3 junction
-                 'junction:chr1:251-399:+')}  # Exon3-Exon4 junction
+            s = """exon1,exon2,exon3,exon4,junction13,junction34,junction12,junction24,event_id
+exon:chr1:150-175:+,exon:chr1:225-250:+,exon:chr1:300-350:+,exon:chr1:400-425:+,junction:chr1:176-299:+,junction:chr1:351-399:+,junction:chr1:176-224:+,junction:chr1:251-399:+,exon:chr1:150-175:+@exon:chr1:225-250:+@exon:chr1:300-350:+@exon:chr1:400-425:+
+"""
         else:
-            true = {
-                ('exon:chr1:400-425:-',
-                 'exon:chr1:300-350:-',
-                 'exon:chr1:225-250:-',
-                 'exon:chr1:150-175:-'):
-                ('junction:chr1:251-399:-',
-                 'junction:chr1:176-224:-',
-                 'junction:chr1:351-399:-',
-                 'junction:chr1:176-299:-')}
-        pdt.assert_dict_equal(test, true)
+            s = """exon1,exon2,exon3,exon4,junction13,junction34,junction12,junction24,event_id
+exon:chr1:400-425:-,exon:chr1:300-350:-,exon:chr1:225-250:-,exon:chr1:150-175:-,junction:chr1:251-399:-,junction:chr1:176-224:-,junction:chr1:351-399:-,junction:chr1:176-299:-,exon:chr1:400-425:-@exon:chr1:300-350:-@exon:chr1:225-250:-@exon:chr1:150-175:-
+"""
+        true = pd.read_csv(six.StringIO(s), comment='#')
+        pdt.assert_frame_equal(test, true)
 
     def test_twin_cassette(self, junction_aggregator, strand):
         # test = junction_aggregator.twin_cassette()
