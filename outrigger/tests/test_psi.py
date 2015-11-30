@@ -212,5 +212,7 @@ sample_id,exon:chr1:150-175:+@exon:chr1:200-250:+@exon:chr1:300-350:+,exon:chr1:
 sample1,{1},{0},{1}""".format(true_psi, other_isoform1_psi)), index_col=0)
     true = true.dropna(axis=1)
 
-    pdt.assert_frame_equal(test, true)
+    if true.empty:
+        true = pd.DataFrame(index=splice_junction_reads.index.levels[1])
 
+    pdt.assert_frame_equal(test, true)
