@@ -1,7 +1,10 @@
-import six
+import logging
+
 import pandas as pd
 
 idx = pd.IndexSlice
+
+
 
 MIN_READS = 10
 
@@ -13,9 +16,15 @@ def filter_and_sum(reads, min_reads, junctions):
     """
     if reads.empty:
         return reads
-    reads = reads.groupby(level=1).filter(lambda x: all(x >= min_reads) and
-                                                    len(x) == len(junctions))
-    return reads.groupby(level=1).sum().dropna()
+
+    # Remove all samples that don't have enough reads in all required junctions
+    reads = reads.groupby(level=1).filter(
+        lambda x: all(x >= min_reads) and len(x) == len(junctions))
+
+    # Sum all reads from junctions in the same samples (level=1), remove NAs
+    reads = reads.groupby(level=1).sum().dropna()
+
+    return reads
 
 def maybe_get_isoform_reads(splice_junction_reads, junction_locations,
                             isoform_junctions, reads_col):
@@ -72,10 +81,11 @@ def calculate_psi(exons_to_junctions, splice_junction_reads,
         for an event to be counted.
     isoform1_junctions : list
         Columns in `exons_to_junctions` which represent junctions that
-        correspond to isoform1, the Psi=0 isoform
+        correspond to isoform1, the Psi=0 isoform, e.g. ['junction13']
     isoform2_junctions : list
         Columns in `exons_to_junctions` which represent junctions that
-        correspond to isoform2, the Psi=1 isoform
+        correspond to isoform2, the Psi=1 isoform, e.g.
+        ['junction12', 'junction23']
     event_col : str
         Column in `exons_to_junctions` which is a unique identifier for each
         row, e.g.
@@ -85,18 +95,20 @@ def calculate_psi(exons_to_junctions, splice_junction_reads,
     psi : pandas.DataFrame
         An (samples, events) dataframe of the percent spliced-in values
     """
+    log = logging.getLogger('calculate_psi')
+
     psis = []
 
     for i, row in exons_to_junctions.iterrows():
         isoform1 = maybe_get_isoform_reads(splice_junction_reads, row,
-                                           isoform2_junctions, reads_col)
-        isoform2 = maybe_get_isoform_reads(splice_junction_reads, row,
                                            isoform1_junctions, reads_col)
+        isoform2 = maybe_get_isoform_reads(splice_junction_reads, row,
+                                           isoform2_junctions, reads_col)
 
-        if debug:
-            six.print_('\n\n', row.junction12, row.junction23, row.junction13)
-            six.print_('--- isoform1 ---\n', isoform1)
-            six.print_('--- isoform2 ---\n', isoform2)
+        log.debug('\n\n%s\t%s\t%s', row.junction12, row.junction23,
+                  row.junction13)
+        log.debug('--- isoform1 ---\n%s', repr(isoform1))
+        log.debug('--- isoform2 ---\n%s', repr(isoform2))
 
         isoform1 = filter_and_sum(isoform1, min_reads, isoform1_junctions)
         isoform2 = filter_and_sum(isoform2, min_reads, isoform2_junctions)
@@ -105,23 +117,21 @@ def calculate_psi(exons_to_junctions, splice_junction_reads,
             # If both are empty after filtering this event --> don't calculate
             continue
 
-        if debug:
-            six.print_('\n- After filter and sum -')
-            six.print_('--- isoform1 ---\n', isoform1)
-            six.print_('--- isoform2 ---\n', isoform2)
-
+        log.debug('\n- After filter and sum -')
+        log.debug('--- isoform1 ---\n%s', repr(isoform1))
+        log.debug('--- isoform2 ---\n%s', repr(isoform2))
 
         isoform1, isoform2 = isoform1.align(isoform2, 'outer')
 
         isoform1 = isoform1.fillna(0)
         isoform2 = isoform2.fillna(0)
 
-        multiplier = float(len(isoform1_junctions))/len(isoform2_junctions)
+        multiplier = float(len(isoform2_junctions))/len(isoform1_junctions)
         psi = (isoform2)/(isoform2 + multiplier * isoform1)
-        if debug:
-            six.print_('--- Psi ---\n', psi)
+        log.debug('--- Psi ---\n%.2f', psi)
         psi.name = row[event_col]
         psis.append(psi)
+
     if len(psis) > 0:
         psi_df = pd.concat(psis, axis=1)
     else:
