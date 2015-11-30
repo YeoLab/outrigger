@@ -1,18 +1,18 @@
-# PoshSplice
+# :rowboat: Outrigger
 
-[![](https://img.shields.io/travis/olgabot/outrigger.svg)](https://travis-ci.org/olgabot/outrigger)[![](https://img.shields.io/pypi/v/outrigger.svg)](https://pypi.python.org/pypi/outrigger)
+[![](https://img.shields.io/travis/yeolab/outrigger.svg)](https://travis-ci.org/yeolab/outrigger)[![](https://img.shields.io/pypi/v/outrigger.svg)](https://pypi.python.org/pypi/outrigger)
 
-Poshsplice is an aggregation of scripts and tools to annotate exons and their 
+Outrigger is an aggregation of scripts and tools to annotate exons and their 
 predicted functions.
 
 * Free software: BSD license
-* Documentation: https://olgabot.github.io/outrigger
+* Documentation: https://yeolab.github.io/outrigger
 
 ## Features
 
 ### Python 3 (in)compatibility
 
-Currently, `outrigger` only works on Python 2.6 and 2.7 because like Python 2.x, she was developed in the 
+Currently, `outrigger` only works on Python 2.6 and 2.7 because like Python 2.x, it was developed in the 
 [90s](https://www.youtube.com/watch?v=gJLIiF15wjQ). There is some [bug](https://travis-ci.org/olgabot/outrigger/jobs/81072380)
 in the code relating to string formatting/unicode/byte strings in Python 3. Help is welcomed.
 
