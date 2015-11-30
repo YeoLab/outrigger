@@ -18,6 +18,27 @@ def filter_and_sum(reads, min_reads, junctions):
     return reads.groupby(level=1).sum().dropna()
 
 def maybe_get_isoform_reads(splice_junction_reads, row, junctions, reads_col):
+    """If there are junction reads at a row, return the reads
+
+    Parameters
+    ----------
+    splice_junction_reads : pandas.DataFrame
+        A table of the number of junction reads observed in each sample.
+        *Important:* This must be multi-indexed by the junction and sample id
+    row : pandas.Series
+        Mapping of junction names (from var:`junctions`) to their chromosomal
+        locations
+    junctions : list of str
+        Names of the junctions in question, e.g. ['junction12', 'junction13']
+    reads_col : str
+        Name of the column containing the number of reads in
+        `splice_junction_reads`
+
+    Returns
+    -------
+    reads : pandas.Series
+        Number of reads at each junction for this isoform
+    """
     if splice_junction_reads.index.levels[0].isin(row[junctions]).sum() > 0:
         return splice_junction_reads.loc[idx[row[junctions], :], reads_col]
     else:
