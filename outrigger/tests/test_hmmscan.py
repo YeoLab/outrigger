@@ -20,7 +20,7 @@ def example_hmmscan_out():
 
 
 def test_read_hmmscan_out(example_hmmscan_out):
-    from poshsplice.hmmscan import read_hmmscan
+    from outrigger.hmmscan import read_hmmscan
 
     test = read_hmmscan(example_hmmscan_out)
     true_s = ',target_name,target_accession,target_length,query_name,query_a' \

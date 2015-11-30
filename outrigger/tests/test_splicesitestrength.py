@@ -56,7 +56,7 @@ ttctctcttcagacttatAGcaa	-0.08
 
 
 def test_score_splice_fasta(splice_site_combo):
-    from poshsplice.splicestrength import score_splice_fasta
+    from outrigger.splicestrength import score_splice_fasta
 
     fasta, splice_site, true = splice_site_combo
     test = score_splice_fasta(fasta, splice_site)
@@ -65,7 +65,7 @@ def test_score_splice_fasta(splice_site_combo):
 
 @pytest.fixture(params=['string', 'filename'])
 def splice_scores(request, splice_site_combo, tmpdir):
-    from poshsplice.splicestrength import score_splice_fasta
+    from outrigger.splicestrength import score_splice_fasta
     fasta, splice_site, true = splice_site_combo
     scores = score_splice_fasta(fasta, splice_site)
     if request.param == 'string':
@@ -78,7 +78,7 @@ def splice_scores(request, splice_site_combo, tmpdir):
 
 
 def test_read_splice_scores(splice_scores):
-    from poshsplice.splicestrength import read_splice_scores
+    from outrigger.splicestrength import read_splice_scores
 
     test = read_splice_scores(splice_scores)
     if not os.path.exists(splice_scores):

@@ -83,7 +83,7 @@ def event_name():
 
 
 def test_psi1(junction12, junction23, junction13, exons_to_junctions):
-    from poshsplice.psi import calculate_psi
+    from outrigger.psi import calculate_psi
 
     s = """sample_id,junction,reads
 sample1,{},100
@@ -103,7 +103,7 @@ sample1,1.0"""), index_col=0)
 
 def test_psi1_junction13_not_enough_reads(junction12, junction23, junction13,
                                           exons_to_junctions):
-    from poshsplice.psi import calculate_psi
+    from outrigger.psi import calculate_psi
 
     s = """sample_id,junction,reads
 sample1,{},100
@@ -141,7 +141,7 @@ def junction13_reads(request):
 def test_psi_se(junction12, junction12_reads,
                 junction23, junction23_reads,
                 junction13, junction13_reads, exons_to_junctions):
-    from poshsplice.psi import calculate_psi, MIN_READS
+    from outrigger.psi import calculate_psi, MIN_READS
 
     s = """sample_id,junction,reads
 sample1,{0},{1}

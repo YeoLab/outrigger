@@ -63,7 +63,7 @@ def region(request):
 @pytest.fixture
 def junction_to_exons(chrom, exon_start_stop, transcripts, strand):
     from collections import defaultdict
-    from poshsplice.junctions_to_events import stringify_location
+    from outrigger.junctions_to_events import stringify_location
 
     data = defaultdict(lambda: {'upstream': set([]), 'downstream': set([])})
 
@@ -102,7 +102,7 @@ def junction_to_exons(chrom, exon_start_stop, transcripts, strand):
 
 @pytest.fixture
 def junction_exon_triples(chrom, exon_start_stop, transcripts, strand):
-    from poshsplice.junctions_to_events import stringify_location
+    from outrigger.junctions_to_events import stringify_location
     data = []
 
     for transcript, exons in transcripts:
@@ -141,7 +141,7 @@ def junction_exon_triples(chrom, exon_start_stop, transcripts, strand):
 
 
 def test_stringify_location(chrom, strand, region):
-    from poshsplice.junctions_to_events import stringify_location
+    from outrigger.junctions_to_events import stringify_location
 
     test = stringify_location(chrom, 100, 200, strand, region)
 
@@ -154,7 +154,7 @@ def test_stringify_location(chrom, strand, region):
 
 def assert_graph_items_equal(graph1, int_to_item1, item_to_int1, graph2,
                              int_to_item2, item_to_int2):
-    from poshsplice.junctions_to_events import DIRECTIONS
+    from outrigger.junctions_to_events import DIRECTIONS
 
     for item1, number1 in item_to_int1.iteritems():
         for direction in DIRECTIONS:
@@ -189,11 +189,11 @@ class TestAggregateJunctions(object):
 
     @pytest.fixture
     def junction_aggregator(self, junction_exon_triples):
-        from poshsplice.junctions_to_events import JunctionAggregator
+        from outrigger.junctions_to_events import JunctionAggregator
         return JunctionAggregator(junction_exon_triples)
 
     def test_init(self, junction_exon_triples, graph):
-        from poshsplice.junctions_to_events import JunctionAggregator
+        from outrigger.junctions_to_events import JunctionAggregator
 
         true_graph, true_int_to_item, true_item_to_int = graph
 
@@ -221,7 +221,7 @@ class TestAggregateJunctions(object):
 
     def test_from_junction_to_exons(self, junction_to_exons,
                                     junction_aggregator):
-        from poshsplice.junctions_to_events import JunctionAggregator
+        from outrigger.junctions_to_events import JunctionAggregator
 
         test = JunctionAggregator.from_junction_to_exons(junction_to_exons)
 
@@ -397,7 +397,7 @@ class TestAggregateJunctions(object):
 
 @pytest.fixture
 def graph(exon_start_stop, transcripts, chrom, strand):
-    from poshsplice.junctions_to_events import stringify_location, opposite
+    from outrigger.junctions_to_events import stringify_location, opposite
 
     graph = connect(":memory:", graphs=['upstream', 'downstream'])
 
