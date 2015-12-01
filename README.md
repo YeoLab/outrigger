@@ -1,6 +1,6 @@
 # :rowboat: Outrigger
 
-[![](https://img.shields.io/travis/yeolab/outrigger.svg)](https://travis-ci.org/yeolab/outrigger)[![](https://img.shields.io/pypi/v/outrigger.svg)](https://pypi.python.org/pypi/outrigger)
+[![Build Status](https://travis-ci.org/YeoLab/outrigger.svg?branch=master)](https://travis-ci.org/YeoLab/outrigger)[![](https://img.shields.io/pypi/v/outrigger.svg)](https://pypi.python.org/pypi/outrigger)
 
 Outrigger is an aggregation of scripts and tools to annotate exons and their 
 predicted functions.
