@@ -334,7 +334,7 @@ class JunctionAggregator(object):
             exon23s = list(
                 self.graph.find(
                     V().downstream(exon1_i)).traverse(V().upstream))
-            exon23s = self.item_to_region[self.items[exon23s]]
+            exon23s = self.item_to_region[[self.items[i] for i in exon23s]]
 
             for exon_a, exon_b in itertools.combinations(exon23s, 2):
                 if not exon_a.overlaps(exon_b):
@@ -347,8 +347,9 @@ class JunctionAggregator(object):
                     exon23_junction_i = self.graph.find(
                         V(exon2_i).upstream).intersection(
                         V().upstream(exon3_i))
-                    exon23_junction = self.items[set(exon23_junction_i)]
-                    if not exon23_junction.empty:
+                    exon23_junction = [self.items[i] for i in
+                                       set(exon23_junction_i)]
+                    if len(exon23_junction) > 0:
                         # Isoform 1 - corresponds to Psi=0. Exclusion of exon2
                         exon13_junction = self.graph.find(
                             V(exon1_i).upstream) \
@@ -365,7 +366,7 @@ class JunctionAggregator(object):
                         junctions_i = list(itertools.chain(
                             *[exon12_junction, exon23_junction,
                               exon13_junction]))
-                        junctions = self.items[junctions_i].tolist()
+                        junctions = [self.items[i] for i in junctions_i]
                         exons = exon1_name, exon2.name, exon3.name
 
                         events[exons] = junctions
@@ -380,7 +381,7 @@ class JunctionAggregator(object):
         events = {}
 
         for exon1_name in self.exons:
-            exon1_i = self.item_to_int[exon1_name]
+            exon1_i = self.items.index(exon1_name)
 
             downstream_junctions = set(self.graph.find(
                 V().downstream(exon1_i)))
@@ -392,7 +393,8 @@ class JunctionAggregator(object):
             exon23s_from4 = exon4s.traverse(V().downstream).traverse(
                 V().downstream)
 
-            exon23s = self.int_to_item[set(exon23s_from4) & set(exon23s_from1)]
+            exon23s = set(exon23s_from4) & set(exon23s_from1)
+            exon23s = [self.items[i] for i in exon23s]
 
             exon23s = self.item_to_region[exon23s]
 
@@ -401,8 +403,8 @@ class JunctionAggregator(object):
                     exon2 = min((exon_a, exon_b), key=lambda x: x.start)
                     exon3 = max((exon_a, exon_b), key=lambda x: x.start)
 
-                    exon2_i = self.item_to_int[exon2.name]
-                    exon3_i = self.item_to_int[exon3.name]
+                    exon2_i = self.items.index(exon2.name)
+                    exon3_i = self.items.index(exon3.name)
 
                     exon4_from2 = set(
                         self.graph.find(V(exon2_i).upstream).traverse(
@@ -412,7 +414,7 @@ class JunctionAggregator(object):
                             V().upstream))
                     try:
                         exon4_i = (exon4_from2 & exon4_from3).pop()
-                        exon4_name = self.int_to_item[exon4_i]
+                        exon4_name = self.items[exon4_i]
                         # Isoform 1 - corresponds to Psi=0. Inclusion of exon3
                         exon13_junction = self.graph.find(
                             V(exon1_i).upstream).intersection(
@@ -436,7 +438,7 @@ class JunctionAggregator(object):
                             itertools.chain(*[exon13_junction, exon34_junction,
                                               exon12_junction,
                                               exon24_junction]))
-                        junctions = self.int_to_item[junctions].tolist()
+                        junctions = [self.items[i] for i in junctions]
 
                         events[exon_tuple] = junctions
                     except:

@@ -245,6 +245,14 @@ exon:chr1:300-350:-,exon:chr1:200-250:-,exon:chr1:150-175:-,junction:chr1:251-29
 exon:chr1:400-425:-,exon:chr1:225-250:-,exon:chr1:150-175:-,junction:chr1:251-399:-,junction:chr1:176-224:-,junction:chr1:176-399:-,exon:chr1:400-425:-@exon:chr1:225-250:-@exon:chr1:150-175:-
 """
         true = pd.read_csv(six.StringIO(s), comment='#')
+
+        sort_by = ['exon1', 'exon2', 'exon3']
+        test = test.sort_values(by=sort_by)
+        true = true.sort_values(by=sort_by)
+
+        test.index = range(len(test))
+        true.index = range(len(true))
+
         pdt.assert_frame_equal(test, true)
 
     def test_mutually_exclusive_exon(self, junction_aggregator, strand):
@@ -259,6 +267,13 @@ exon:chr1:150-175:+,exon:chr1:225-250:+,exon:chr1:300-350:+,exon:chr1:400-425:+,
 exon:chr1:400-425:-,exon:chr1:300-350:-,exon:chr1:225-250:-,exon:chr1:150-175:-,junction:chr1:251-399:-,junction:chr1:176-224:-,junction:chr1:351-399:-,junction:chr1:176-299:-,exon:chr1:400-425:-@exon:chr1:300-350:-@exon:chr1:225-250:-@exon:chr1:150-175:-
 """
         true = pd.read_csv(six.StringIO(s), comment='#')
+        sort_by = ['exon1', 'exon2', 'exon3', 'exon4']
+        test = test.sort_values(by=sort_by)
+        true = true.sort_values(by=sort_by)
+
+        test.index = range(len(test))
+        true.index = range(len(true))
+
         pdt.assert_frame_equal(test, true)
 
     def test_twin_cassette(self, junction_aggregator, strand):
