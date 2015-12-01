@@ -1,4 +1,5 @@
 import itertools
+import logging
 import sys
 
 import graphlite
@@ -102,7 +103,7 @@ def get_adjacent_exons(sj_metadata, db, exon_start='exon_start',
 class JunctionAggregator(object):
 
     def __init__(self, junction_exon_triples, db=None, junction_col='junction',
-                 exon_col='exon', debug=False):
+                 exon_col='exon'):
         """Combine splice junctions into splicing events
 
         Parameters
@@ -117,18 +118,15 @@ class JunctionAggregator(object):
             columns. If not provided, certain splice types which require
             information about the transcript (AFE, ALE) cannot be annotated.
         """
+        self.log = logging.getLogger('JunctionAggregator')
         self.junction_exon_triples = junction_exon_triples
         self.db = db
-        self.debug = debug
 
         self.graph = graphlite.connect(":memory:", graphs=DIRECTIONS)
         self.exons = junction_exon_triples[exon_col].unique()
         self.junctions = junction_exon_triples[junction_col].unique()
 
-        self.items = np.concatenate([self.exons, self.junctions])
-        self.int_to_item = pd.Series(self.items)
-        self.item_to_int = pd.Series(
-            dict((v, k) for k, v in self.int_to_item.iteritems()))
+        self.items = tuple(np.concatenate([self.exons, self.junctions]))
         self.item_to_region = pd.Series(map(Region, self.items),
                                         index=self.items)
 
@@ -137,13 +135,12 @@ class JunctionAggregator(object):
                 junction = row[junction_col]
                 exon = row[exon_col]
 
-                junction_i = self.item_to_int[junction]
-                exon_i = self.item_to_int[exon]
+                junction_i = self.items.index(junction)
+                exon_i = self.items.index(exon)
 
-                if self.debug:
-                    sys.stdout.write('\n{} is {} of {}\n'.format(
+                self.log.debug('\n{} is {} of {}\n'.format(
                         exon, row.direction, junction))
-                    sys.stdout.write('{} is {} of {}\n'.format(
+                self.log.debug('{} is {} of {}\n'.format(
                         junction, opposite(row.direction), exon))
 
                 tr.store(getattr(V(exon_i), row.direction)(junction_i))
@@ -333,24 +330,24 @@ class JunctionAggregator(object):
                 sys.stdout.write('\t{0}/{1} '
                                  'exons tested'.format(i + 1, n_exons))
 
-            exon1_i = self.item_to_int[exon1_name]
+            exon1_i = self.items.index(exon1_name)
             exon23s = list(
                 self.graph.find(
                     V().downstream(exon1_i)).traverse(V().upstream))
-            exon23s = self.item_to_region[self.int_to_item[exon23s]]
+            exon23s = self.item_to_region[self.items[exon23s]]
 
             for exon_a, exon_b in itertools.combinations(exon23s, 2):
                 if not exon_a.overlaps(exon_b):
                     exon2 = min((exon_a, exon_b), key=lambda x: x.start)
                     exon3 = max((exon_a, exon_b), key=lambda x: x.start)
 
-                    exon2_i = self.item_to_int[exon2.name]
-                    exon3_i = self.item_to_int[exon3.name]
+                    exon2_i = self.items.index(exon2.name)
+                    exon3_i = self.items.index(exon3.name)
 
-                    exon23_junction = self.graph.find(
+                    exon23_junction_i = self.graph.find(
                         V(exon2_i).upstream).intersection(
                         V().upstream(exon3_i))
-                    exon23_junction = self.int_to_item[set(exon23_junction)]
+                    exon23_junction = self.items[set(exon23_junction_i)]
                     if not exon23_junction.empty:
                         # Isoform 1 - corresponds to Psi=0. Exclusion of exon2
                         exon13_junction = self.graph.find(
@@ -365,10 +362,10 @@ class JunctionAggregator(object):
                             V(exon2_i).upstream) \
                             .intersection(V(exon3_i).downstream)
 
-                        junctions = list(itertools.chain(
+                        junctions_i = list(itertools.chain(
                             *[exon12_junction, exon23_junction,
                               exon13_junction]))
-                        junctions = self.int_to_item[junctions].tolist()
+                        junctions = self.items[junctions_i].tolist()
                         exons = exon1_name, exon2.name, exon3.name
 
                         events[exons] = junctions

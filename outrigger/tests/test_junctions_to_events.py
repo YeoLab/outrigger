@@ -5,6 +5,9 @@ import pandas.util.testing as pdt
 import pytest
 import six
 
+import logging
+logging.basicConfig(level=logging.DEBUG)
+
 @pytest.fixture(params=['positive', 'negative'])
 def strand(request):
     if request.param == 'positive':
@@ -152,32 +155,32 @@ def test_stringify_location(chrom, strand, region):
     assert test == true
 
 
-def assert_graph_items_equal(graph1, int_to_item1, item_to_int1, graph2,
-                             int_to_item2, item_to_int2):
+def assert_graph_items_equal(graph1, items1, graph2, items2)
+    """Checks all relationships in graph1 exist in graph2, and vice versa"""
     from outrigger.junctions_to_events import DIRECTIONS
 
-    for item1, number1 in item_to_int1.iteritems():
+    for number1, item1 in enumerate(items1):
         for direction in DIRECTIONS:
-            test = int_to_item1.loc[list(
-                graph1.find(getattr(V(number1), direction)))].values
+            test = [items1[i] for i in
+                    graph1.find(getattr(V(number1), direction))]
 
-            number2 = item_to_int2.loc[item1]
-            true = int_to_item2.loc[
-                list(graph2.find(getattr(V(number2), direction)))].values
+            number2 = items2.index(item1)
+            true = [items2[i] for i in
+                    graph2.find(getattr(V(number2), direction))]
 
             test.sort()
             true.sort()
 
             pdt.assert_numpy_array_equal(test, true)
 
-    for item2, number2 in item_to_int2.iteritems():
+    for number2, item2 in enumerate(items2):
         for direction in DIRECTIONS:
-            test = int_to_item2.loc[list(
-                graph2.find(getattr(V(number2), direction)))].values
+            test = [items2[i] for i in
+                    graph2.find(getattr(V(number2), direction))]
 
-            number1 = item_to_int1.loc[item2]
-            true = int_to_item1.loc[
-                list(graph1.find(getattr(V(number1), direction)))].values
+            number1 = items1.index(item2)
+            true = [items1[i] for i in
+                    graph1.find(getattr(V(number1), direction))]
 
             test.sort()
             true.sort()
@@ -195,29 +198,19 @@ class TestAggregateJunctions(object):
     def test_init(self, junction_exon_triples, graph):
         from outrigger.junctions_to_events import JunctionAggregator
 
-        true_graph, true_int_to_item, true_item_to_int = graph
-
         test = JunctionAggregator(junction_exon_triples)
         pdt.assert_frame_equal(test.junction_exon_triples,
                                junction_exon_triples)
         assert test.db is None
         exons = junction_exon_triples.exon.unique()
         junctions = junction_exon_triples.junction.unique()
-        items = np.concatenate([exons, junctions])
-        int_to_item = pd.Series(items)
-        item_to_int = pd.Series(dict((v, k) for k, v in
-                                     int_to_item.iteritems()))
+        items = tuple(np.concatenate([exons, junctions]))
 
         pdt.assert_numpy_array_equal(test.exons, exons)
         pdt.assert_numpy_array_equal(test.junctions, junctions)
-        pdt.assert_numpy_array_equal(test.items, items)
-        pdt.assert_dict_equal(test.int_to_item, int_to_item)
-        pdt.assert_dict_equal(test.item_to_int, item_to_int)
+        pdt.assert_equal(test.items, items)
 
-        assert_graph_items_equal(test.graph, test.int_to_item,
-                                 test.item_to_int, true_graph,
-                                 true_int_to_item,
-                                 true_item_to_int)
+        assert_graph_items_equal(test.graph, test.items, graph, items)
 
     def test_from_junction_to_exons(self, junction_to_exons,
                                     junction_aggregator):
@@ -225,10 +218,9 @@ class TestAggregateJunctions(object):
 
         test = JunctionAggregator.from_junction_to_exons(junction_to_exons)
 
-        assert_graph_items_equal(test.graph, test.int_to_item,
-                                 test.item_to_int, junction_aggregator.graph,
-                                 junction_aggregator.int_to_item,
-                                 junction_aggregator.item_to_int)
+        assert_graph_items_equal(test.graph, test.items,
+                                 junction_aggregator.graph,
+                                 junction_aggregator.items)
 
     def test_skipped_exon(self, junction_aggregator, strand):
         test = junction_aggregator.skipped_exon()
@@ -346,10 +338,6 @@ def graph(exon_start_stop, transcripts, chrom, strand):
             exon2_location = stringify_location(chrom, start2, stop2, strand,
                                                 'exon')
 
-            # if strand == '-':
-            #     start = stop2 + 1
-            #     stop = start1 - 1
-            # else:
             start = stop1 + 1
             stop = start2 - 1
 
@@ -389,6 +377,4 @@ def graph(exon_start_stop, transcripts, chrom, strand):
                             exon_i))
                     else:
                         continue
-    int_to_item = pd.Series(items)
-    item_to_int = pd.Series(dict((v, k) for k, v in int_to_item.iteritems()))
-    return graph, int_to_item, item_to_int
+    return graph
