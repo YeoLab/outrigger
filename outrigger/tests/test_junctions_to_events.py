@@ -155,7 +155,7 @@ def test_stringify_location(chrom, strand, region):
     assert test == true
 
 
-def assert_graph_items_equal(graph1, items1, graph2, items2)
+def assert_graph_items_equal(graph1, items1, graph2, items2):
     """Checks all relationships in graph1 exist in graph2, and vice versa"""
     from outrigger.junctions_to_events import DIRECTIONS
 
@@ -195,8 +195,10 @@ class TestAggregateJunctions(object):
         from outrigger.junctions_to_events import JunctionAggregator
         return JunctionAggregator(junction_exon_triples)
 
-    def test_init(self, junction_exon_triples, graph):
+    def test_init(self, junction_exon_triples, graph_items):
         from outrigger.junctions_to_events import JunctionAggregator
+
+        graph, items = graph_items
 
         test = JunctionAggregator(junction_exon_triples)
         pdt.assert_frame_equal(test.junction_exon_triples,
@@ -204,11 +206,10 @@ class TestAggregateJunctions(object):
         assert test.db is None
         exons = junction_exon_triples.exon.unique()
         junctions = junction_exon_triples.junction.unique()
-        items = tuple(np.concatenate([exons, junctions]))
 
         pdt.assert_numpy_array_equal(test.exons, exons)
         pdt.assert_numpy_array_equal(test.junctions, junctions)
-        pdt.assert_equal(test.items, items)
+        pdt.assert_equal(sorted(test.items), sorted(items))
 
         assert_graph_items_equal(test.graph, test.items, graph, items)
 
@@ -320,7 +321,7 @@ exon:chr1:400-425:-,exon:chr1:300-350:-,exon:chr1:225-250:-,exon:chr1:150-175:-,
 
 
 @pytest.fixture
-def graph(exon_start_stop, transcripts, chrom, strand):
+def graph_items(exon_start_stop, transcripts, chrom, strand):
     from outrigger.junctions_to_events import stringify_location, opposite
 
     graph = connect(":memory:", graphs=['upstream', 'downstream'])
@@ -377,4 +378,5 @@ def graph(exon_start_stop, transcripts, chrom, strand):
                             exon_i))
                     else:
                         continue
-    return graph
+    items = tuple(items)
+    return graph, items
