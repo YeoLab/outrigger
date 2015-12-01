@@ -35,12 +35,6 @@ pip install .
 
 ## Features
 
-### Python 3 (in)compatibility
-
-Currently, `outrigger` only works on Python 2.6 and 2.7 because like Python 2.x, it was developed in the 
-[90s](https://www.youtube.com/watch?v=gJLIiF15wjQ). There is some [bug](https://travis-ci.org/olgabot/outrigger/jobs/81072380)
-in the code relating to string formatting/unicode/byte strings in Python 3. Help is welcomed.
-
 ### Aggregate splice junctions into splicing events
 
 Using just junction information, we can annotate these kinds of splicing 
