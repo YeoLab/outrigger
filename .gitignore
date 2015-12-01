@@ -2,6 +2,9 @@
 # Ignore temporary files from sed
 *-e
 
+# Emacs
+*~
+
 
 *.py[cod]
 
