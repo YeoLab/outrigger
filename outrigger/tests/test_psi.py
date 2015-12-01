@@ -49,7 +49,6 @@ def exons_to_junctions():
 
 
     n_exons_se = 3
-    print len(exons_to_junctions)
     exons_to_junctions = pd.DataFrame(exons_to_junctions).T.reset_index()
     exons_to_junctions = exons_to_junctions.rename(
         columns=dict(('level_{}'.format(i), 'exon{}'.format(i + 1)) for i in
@@ -207,8 +206,7 @@ def test_psi_se(splice_junction_reads, junction12_reads, junction23_reads,
     test = calculate_psi(exons_to_junctions, splice_junction_reads,
                          isoform1_junctions=['junction13'],
                          isoform2_junctions=['junction12', 'junction23'])
-    true = pd.read_csv(six.StringIO("""
-sample_id,exon:chr1:150-175:+@exon:chr1:200-250:+@exon:chr1:300-350:+,exon:chr1:150-175:+@exon:chr1:225-250:+@exon:chr1:300-350:+,exon:chr1:150-175:+@exon:chr1:225-275:+@exon:chr1:300-350:+
+    true = pd.read_csv(six.StringIO("""sample_id,exon:chr1:150-175:+@exon:chr1:200-250:+@exon:chr1:300-350:+,exon:chr1:150-175:+@exon:chr1:225-250:+@exon:chr1:300-350:+,exon:chr1:150-175:+@exon:chr1:225-275:+@exon:chr1:300-350:+
 sample1,{1},{0},{1}""".format(true_psi, other_isoform1_psi)), index_col=0)
     true = true.dropna(axis=1)
 
