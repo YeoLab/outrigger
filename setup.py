@@ -14,22 +14,22 @@ with open('README.rst') as readme_file:
 with open('HISTORY.rst') as history_file:
     history = history_file.read().replace('.. :changelog:', '')
 
-requirements = [
-    # TODO: put package requirements here
-]
+with open('requirements.txt') as requirements_file:
+    requirements = requirements_file.read()
 
 test_requirements = [
-    # TODO: put package test requirements here
+    'pytest', 'flake8'
 ]
 
 setup(
     name='outrigger',
     version='0.1.0',
-    description="Exon ontology is an attempt to catalogue scripts used to annotate exons and their functions",
+    description="Outrigger is a tool to de novo annotate splice sites "
+                "and exons",
     long_description=readme + '\n\n' + history,
     author="Olga Botvinnik",
     author_email='olga.botvinnik@gmail.com',
-    url='https://github.com/olgabot/outrigger',
+    url='https://github.com/yeolab/outrigger',
     packages=[
         'outrigger',
     ],
@@ -52,6 +52,5 @@ setup(
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
     ],
-    test_suite='tests',
     tests_require=test_requirements
 )
