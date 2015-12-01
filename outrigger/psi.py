@@ -3,10 +3,8 @@ import logging
 import pandas as pd
 
 idx = pd.IndexSlice
-
-
-
 MIN_READS = 10
+
 
 def filter_and_sum(reads, min_reads, junctions):
     """Require minimum reads and sum junctions from the same sample
@@ -25,6 +23,7 @@ def filter_and_sum(reads, min_reads, junctions):
     reads = reads.groupby(level=1).sum().dropna()
 
     return reads
+
 
 def maybe_get_isoform_reads(splice_junction_reads, junction_locations,
                             isoform_junctions, reads_col):
@@ -55,7 +54,6 @@ def maybe_get_isoform_reads(splice_junction_reads, junction_locations,
         return splice_junction_reads.loc[idx[junctions, :], reads_col]
     else:
         return pd.Series()
-
 
 
 def calculate_psi(exons_to_junctions, splice_junction_reads,

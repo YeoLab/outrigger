@@ -1,12 +1,13 @@
 import logging
 
-logging.basicConfig(level=logging.DEBUG)
-
 from graphlite import connect, V
 import pandas as pd
 import pandas.util.testing as pdt
 import pytest
 import six
+
+
+logging.basicConfig(level=logging.DEBUG)
 
 
 @pytest.fixture(params=['positive', 'negative'])
@@ -284,20 +285,20 @@ exon:chr1:400-425:-,exon:chr1:300-350:-,exon:chr1:225-250:-,exon:chr1:150-175:-,
                      'exon:chr1:225-250:+',  # Exon 2
                      'exon:chr1:300-350:+',  # Exon 3
                      'exon:chr1:400-425:+'):  # Exon 4
-                        ('junction:chr1:176-299:+',  # Exon1-Exon2 junction
-                         'junction:chr1:251-299:+',  # Exon2-Exon3 junction
-                         'junction:chr1:351-399:+',  # Exon3-Exon4 junction
-                         'junction:chr1:176-399:+')  # Exon1-Exon4 junction
+                    ('junction:chr1:176-299:+',  # Exon1-Exon2 junction
+                     'junction:chr1:251-299:+',  # Exon2-Exon3 junction
+                     'junction:chr1:351-399:+',  # Exon3-Exon4 junction
+                     'junction:chr1:176-399:+')  # Exon1-Exon4 junction
                     }
         else:
             true = {('exon:chr1:400-425:-',  # Exon 1
                      'exon:chr1:300-350:-',  # Exon 2
                      'exon:chr1:225-250:-',  # Exon 3
                      'exon:chr1:150-175:-'):  # Exon 4
-                        ('junction:chr1:351-399:-',  # Exon1-Exon2 junction
-                         'junction:chr1:251-299:-',  # Exon2-Exon3 junction
-                         'junction:chr1:176-225:-',  # Exon3-Exon4 junction
-                         'junction:chr1:176-399:-')  # Exon1-Exon4 junction
+                    ('junction:chr1:351-399:-',  # Exon1-Exon2 junction
+                     'junction:chr1:251-299:-',  # Exon2-Exon3 junction
+                     'junction:chr1:176-225:-',  # Exon3-Exon4 junction
+                     'junction:chr1:176-399:-')  # Exon1-Exon4 junction
                     }
         return true
         # pdt.assert_dict_equal(test, true)
@@ -306,32 +307,32 @@ exon:chr1:400-425:-,exon:chr1:300-350:-,exon:chr1:225-250:-,exon:chr1:150-175:-,
         true = {('exon:chr1:225-250:+',  # Exon 2
                  'exon:chr1:225-275:+',  # Exon 2, Alt 5' splice site
                  'exon:chr1:300-350:+'):  # Exon 3
-                    ('junction:chr1:251-299:+',  # Exon2-Exon3 junction
-                     'junction:chr1:276-299:+')}  # Exon2a5ss-Exon3 junction
+                ('junction:chr1:251-299:+',  # Exon2-Exon3 junction
+                 'junction:chr1:276-299:+')}  # Exon2a5ss-Exon3 junction
         return true
 
     def test_a3ss(self, junction_aggregator, strand):
         true = {('exon:chr1:150-175:+',  # Exon 1
                  'exon:chr1:200-250:+',  # Exon 2, Alt 3' splice site
                  'exon:chr1:225-250:+'):  # Exon 2
-                    ('junction:chr1:176-199:+',  # Exon1-Exon2a3ss junction
-                     'junction:chr1:176-224:+')}  # Exon1-Exon2 junction
+                ('junction:chr1:176-199:+',  # Exon1-Exon2a3ss junction
+                 'junction:chr1:176-224:+')}  # Exon1-Exon2 junction
         return true
 
     def test_afe(self, junction_aggregator, strand):
         true = {('exon:chr1:100-125:+',  # Exon 1 alt
                  'exon:chr1:150-175:+',  # Exon 1
                  'exon:chr1:225-250:+'):  # Exon 2
-                    ('junction:chr1:126-224:+',  # Exon1alt-Exon2 junction
-                     'junction:chr1:176-224:+')}  # Exon1-Exon2 junction
+                ('junction:chr1:126-224:+',  # Exon1alt-Exon2 junction
+                 'junction:chr1:176-224:+')}  # Exon1-Exon2 junction
         return true
 
     def test_ale(self, junction_aggregator, strand):
         true = {('exon:chr1:300-350:+',  # Exon 3
                  'exon:chr1:400-425:+',  # Exon 4
                  'exon:chr1:475-500:+'):  # Exon 4 alt
-                    ('junction:chr1:351-399:+',  # Exon3-Exon4 junction
-                     'junction:chr1:351-474:+')}  # Exon3-Exon4alt junction
+                ('junction:chr1:351-399:+',  # Exon3-Exon4 junction
+                 'junction:chr1:351-474:+')}  # Exon3-Exon4alt junction
         return true
 
 

@@ -13,40 +13,33 @@ def exons_to_junctions():
         ('exon:chr1:150-175:+',  # Exon 1
          'exon:chr1:225-250:+',  # Exon 2
          'exon:chr1:300-350:+'):  # Exon 3
-            ('junction:chr1:176-224:+',
-             'junction:chr1:251-299:+',
-             'junction:chr1:176-299:+'),
+        ('junction:chr1:176-224:+', 'junction:chr1:251-299:+',
+         'junction:chr1:176-299:+'),
         ('exon:chr1:150-175:+',  # Exon 1
          'exon:chr1:225-275:+',  # Exon 2, alt 5' splice site
          'exon:chr1:300-350:+'):  # Exon 3
-            ('junction:chr1:176-224:+',
-             'junction:chr1:276-299:+',
-             'junction:chr1:176-299:+'),
+        ('junction:chr1:176-224:+', 'junction:chr1:276-299:+',
+         'junction:chr1:176-299:+'),
         ('exon:chr1:150-175:+',  # Exon 1
          'exon:chr1:300-350:+',  # Exon 3
          'exon:chr1:400-425:+'):  # Exon 4
-            ('junction:chr1:176-299:+',
-             'junction:chr1:351-399:+',
-             'junction:chr1:176-399:+'),
+        ('junction:chr1:176-299:+', 'junction:chr1:351-399:+',
+         'junction:chr1:176-399:+'),
         ('exon:chr1:150-175:+',  # Exon 1
          'exon:chr1:225-250:+',  # Exon 2
          'exon:chr1:400-425:+'):  # Exon 4
-            ('junction:chr1:176-224:+',
-             'junction:chr1:251-399:+',
-             'junction:chr1:176-399:+'),
+        ('junction:chr1:176-224:+', 'junction:chr1:251-399:+',
+         'junction:chr1:176-399:+'),
         ('exon:chr1:225-250:+',  # Exon 2
          'exon:chr1:300-350:+',  # Exon 3
          'exon:chr1:400-425:+'):  # Exon 4
-            ('junction:chr1:251-299:+',
-             'junction:chr1:351-399:+',
-             'junction:chr1:251-399:+'),
+        ('junction:chr1:251-299:+', 'junction:chr1:351-399:+',
+         'junction:chr1:251-399:+'),
         ('exon:chr1:150-175:+',  # Exon 1
          'exon:chr1:200-250:+',  # Exon 2, alt 3' splice site
          'exon:chr1:300-350:+'):  # Exon 4
-            ('junction:chr1:176-199:+',
-             'junction:chr1:251-299:+',
-             'junction:chr1:176-299:+')}
-
+        ('junction:chr1:176-199:+', 'junction:chr1:251-299:+',
+         'junction:chr1:176-299:+')}
 
     n_exons_se = 3
     exons_to_junctions = pd.DataFrame(exons_to_junctions).T.reset_index()
@@ -56,8 +49,8 @@ def exons_to_junctions():
     exons_to_junctions = exons_to_junctions.rename(
         columns={0: 'junction12', 1: 'junction23', 2: 'junction13'})
     exons_to_junctions['event_id'] = exons_to_junctions.exon1 + '@' \
-                                       + exons_to_junctions.exon2 + '@' \
-                                       + exons_to_junctions.exon3
+        + exons_to_junctions.exon2 + '@' \
+        + exons_to_junctions.exon3
     return exons_to_junctions
 
 
@@ -110,15 +103,18 @@ def event_name():
 def junction12_reads(request):
     return request.param
 
+
 @pytest.fixture(params=[100, 2, np.nan],
                 ids=['enough reads', 'not enough reads', 'not there'])
 def junction23_reads(request):
     return request.param
 
+
 @pytest.fixture(params=[100, 2, np.nan],
                 ids=['enough reads', 'not enough reads', 'not there'])
 def junction13_reads(request):
     return request.param
+
 
 @pytest.fixture
 def reads_col():
@@ -133,8 +129,8 @@ def splice_junction_reads(junction12, junction12_reads,
 sample1,{0},{1}
 sample1,{2},{3}
 sample1,{4},{5}""".format(junction12, junction12_reads,
-                        junction23, junction23_reads,
-                        junction13, junction13_reads, reads_col)
+                          junction23, junction23_reads,
+                          junction13, junction13_reads, reads_col)
     data = pd.read_csv(six.StringIO(s), comment='#')
     data = data.dropna()
     data = data.set_index(
@@ -142,10 +138,12 @@ sample1,{4},{5}""".format(junction12, junction12_reads,
     data = data.sort_index()
     return data
 
+
 @pytest.fixture
 def junction_locations(junction12, junction23, junction13):
     return pd.Series({'junction12': junction12, 'junction23': junction23,
                       'junction13': junction13})
+
 
 @pytest.fixture
 def junction_to_reads(junction12, junction12_reads,
@@ -156,9 +154,9 @@ def junction_to_reads(junction12, junction12_reads,
                       junction23: junction23_reads,
                       junction13: junction13_reads})
 
+
 def test_filter_and_sum():
     pass
-
 
 
 def test_maybe_get_isoform_reads(splice_junction_reads, junction_locations,
@@ -206,8 +204,9 @@ def test_psi_se(splice_junction_reads, junction12_reads, junction23_reads,
     test = calculate_psi(exons_to_junctions, splice_junction_reads,
                          isoform1_junctions=['junction13'],
                          isoform2_junctions=['junction12', 'junction23'])
-    true = pd.read_csv(six.StringIO("""sample_id,exon:chr1:150-175:+@exon:chr1:200-250:+@exon:chr1:300-350:+,exon:chr1:150-175:+@exon:chr1:225-250:+@exon:chr1:300-350:+,exon:chr1:150-175:+@exon:chr1:225-275:+@exon:chr1:300-350:+
-sample1,{1},{0},{1}""".format(true_psi, other_isoform1_psi)), index_col=0)
+    true = pd.read_csv(six.StringIO("""sample_id,exon:chr1:150-175:+@exon:chr1:200-250:+@exon:chr1:300-350:+,exon:chr1:150-175:+@exon:chr1:225-250:+@exon:chr1:300-350:+,exon:chr1:150-175:+@exon:chr1:225-275:+@exon:chr1:300-350:+# noqa
+sample1,{1},{0},{1}""".format(true_psi, other_isoform1_psi)), index_col=0,
+                       comment='#')
     true = true.dropna(axis=1)
 
     if true.empty:

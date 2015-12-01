@@ -33,9 +33,10 @@ def opposite(direction):
 
 def make_junction_direction_df(direction_ind, direction, exon_id):
     return pd.DataFrame(zip(itertools.cycle((exon_id,)),
-                     itertools.cycle((direction,)),
-                     direction_ind[direction_ind].index),
-                 columns=['exon', 'direction', 'junction'])
+                            itertools.cycle((direction,)),
+                            direction_ind[direction_ind].index),
+                        columns=['exon', 'direction', 'junction'])
+
 
 def get_adjacent_exons(sj_metadata, db, exon_start='exon_start',
                        exon_stop='exon_stop', chrom='chrom'):
@@ -75,16 +76,17 @@ def get_adjacent_exons(sj_metadata, db, exon_start='exon_start',
                      'exons...\n')
     for i, exon in enumerate(db.features_of_type('exon')):
         if (i + 1) % 10000 == 0:
-            sys.stdout.write('\t{}/{} exons completed\n'.format(i + 1, n_exons))
+            sys.stdout.write('\t{}/{} exons completed\n'.format(i + 1,
+                                                                n_exons))
         chrom_ind = sj_metadata[chrom] == exon.chrom
         try:
             strand_ind = sj_metadata.strand == exon.strand
         except AttributeError:
             strand_ind = chrom_ind
-        upstream_ind = chrom_ind & strand_ind & \
-                       (sj_metadata[exon_stop] == exon.stop)
-        downstream_ind = chrom_ind & strand_ind & \
-                         (sj_metadata[exon_start] == exon.start)
+        upstream_ind = chrom_ind & strand_ind \
+            & (sj_metadata[exon_stop] == exon.stop)
+        downstream_ind = chrom_ind & strand_ind \
+            & (sj_metadata[exon_start] == exon.start)
 
         exon_id = exon.id
         if upstream_ind.any():
@@ -383,8 +385,6 @@ class JunctionAggregator(object):
         for exon1_name in self.exons:
             exon1_i = self.items.index(exon1_name)
 
-            downstream_junctions = set(self.graph.find(
-                V().downstream(exon1_i)))
             exon23s_from1 = list(
                 self.graph.find(V().downstream(
                     exon1_i)).traverse(V().upstream))
@@ -469,6 +469,7 @@ BEST_TAGS = 'appris_principal', 'appris_candidate', 'CCDS', 'basic'
 
 transcript_cols = ['isoform1_transcripts', 'isoform2_transcripts']
 
+
 def get_attribute(features, attribute):
     try:
         for feature in features:
@@ -479,6 +480,7 @@ def get_attribute(features, attribute):
     except TypeError:
         # The features aren't iterable
         pass
+
 
 def get_feature_attribute_with_value(features, attribute, value):
     try:
@@ -492,6 +494,7 @@ def get_feature_attribute_with_value(features, attribute, value):
         # The features aren't iterable
         pass
 
+
 def get_feature_attribute_startswith_value(features, attribute, value):
     try:
         for feature in features:
@@ -504,6 +507,7 @@ def get_feature_attribute_startswith_value(features, attribute, value):
     except TypeError:
         # The features aren't iterable
         pass
+
 
 def consolidate_junction_events(df, db, event_col='event_id',
                                 transcript_cols=['isoform1_transcripts',
