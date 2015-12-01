@@ -10,7 +10,18 @@ predicted functions.
 
 ## Installation
 
+### Bleeding edge code from Github (here)
 
+For advanced users, if you have [git](https://git-scm.com/) and [Anaconda Python](https://www.continuum.io/downloads) installed, you can:
+
+1. Clone this repository
+2. Change into that directory
+3. Create an environment with the necessary packages from Anaconda
+4. Activate the environment
+5. Install remaining packages from PyPI ([`graphlite`](https://github.com/eugene-eeo/graphlite) is only available on PyPI, not as a `conda` package) 
+6. Install this package
+
+These steps are shown in code below.
 
 ```
 git clone git@github.com:YeoLab/outrigger
@@ -18,6 +29,7 @@ cd outrigger
 conda create --name outrigger --yes --file conda_requirements.txt --channel bioconda
 source activate outrigger
 pip install -r requirements.txt
+pip install .
 ```
 
 
