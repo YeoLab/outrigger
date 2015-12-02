@@ -1,7 +1,9 @@
+from collections import OrderedDict
 import os
 
 import pandas as pd
 import pandas.util.testing as pdt
+import pybedtools
 import pytest
 import six
 
@@ -54,6 +56,27 @@ ttctctcttcagacttatAGcaa	-0.08
 ''')
         return example_three_prime_fasta, request.param, true
 
+
+@pytest.fixture
+def bed_filename():
+    dirname = os.path.dirname(__file__)
+    return '{}/test.bed'.format(dirname)
+
+@pytest.fixture(params=['BedTool', 'filename'])
+def exons(request, bed_filename):
+    if request.param == 'filename':
+        return bed_filename
+    elif request == 'BedTool':
+        return pybedtools.BedTool(bed_filename)
+
+@pytest.fixture
+def genome():
+    return OrderedDict([('chr1', (0, 599))])
+
+@pytest.fixture
+
+def test_get_ss_sequence(exons, genome, ):
+    pass
 
 def test_score_splice_fasta(splice_site_combo):
     from outrigger.splicestrength import score_splice_fasta

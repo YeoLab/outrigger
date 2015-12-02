@@ -187,7 +187,10 @@ def score_exons(exons, genome, genome_fasta):
         dataframe is taken from the "name" field of the exon bed file, and the
         scores are in the exact same order.
     """
-    bed = pybedtools.BedTool(exons)
+    if not isinstance(exons, pybedtools.BedTool):
+        bed = pybedtools.BedTool(exons)
+    else:
+        bed = exons
     df = pd.DataFrame(index=[x.name for x in bed])
     for splice_site in VALID_SPLICE_SITES:
         filename = tempfile.NamedTemporaryFile()
