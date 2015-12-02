@@ -42,6 +42,7 @@ test:
 
 coverage:
 	coverage run --source outrigger --omit=tests,external --module py.test
+	coverage report --show-missing
 
 docs:
 	rm -f docs/outrigger.rst
