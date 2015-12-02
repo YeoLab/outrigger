@@ -41,7 +41,7 @@ test:
 	py.test outrigger
 
 coverage:
-	coverage run --source outrigger --include=outrigger/*.py --module py.test
+	coverage run --source outrigger --omit="*/test*" --module py.test
 	coverage report --show-missing
 
 docs:
