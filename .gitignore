@@ -5,6 +5,8 @@
 # Emacs
 *~
 
+# IPython
+.ipynb_checkpoints
 
 *.py[cod]
 

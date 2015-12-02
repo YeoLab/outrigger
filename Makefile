@@ -35,13 +35,13 @@ clean-test:
 	rm -fr htmlcov/
 
 lint:
-	flake8 --exclude outrigger/external,doc,outrigger/isoforms.py outrigger
+	flake8 --exclude outrigger/external,doc outrigger
 
 test:
 	py.test outrigger
 
 coverage:
-	coverage run --source outrigger --omit=tests,external --module py.test
+	coverage run --source outrigger --include=outrigger/*.py --module py.test
 	coverage report --show-missing
 
 docs:
