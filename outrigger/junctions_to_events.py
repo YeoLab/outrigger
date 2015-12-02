@@ -141,9 +141,9 @@ class JunctionAggregator(object):
                 exon_i = self.items.index(exon)
 
                 self.log.debug('\n{} is {} of {}\n'.format(
-                        exon, row.direction, junction))
+                    exon, row.direction, junction))
                 self.log.debug('{} is {} of {}\n'.format(
-                        junction, opposite(row.direction), exon))
+                    junction, opposite(row.direction), exon))
 
                 tr.store(getattr(V(exon_i), row.direction)(junction_i))
                 tr.store(getattr(V(junction_i),

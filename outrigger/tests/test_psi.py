@@ -204,9 +204,10 @@ def test_psi_se(splice_junction_reads, junction12_reads, junction23_reads,
     test = calculate_psi(exons_to_junctions, splice_junction_reads,
                          isoform1_junctions=['junction13'],
                          isoform2_junctions=['junction12', 'junction23'])
-    true = pd.read_csv(six.StringIO("""sample_id,exon:chr1:150-175:+@exon:chr1:200-250:+@exon:chr1:300-350:+,exon:chr1:150-175:+@exon:chr1:225-250:+@exon:chr1:300-350:+,exon:chr1:150-175:+@exon:chr1:225-275:+@exon:chr1:300-350:+# noqa
-sample1,{1},{0},{1}""".format(true_psi, other_isoform1_psi)), index_col=0,
-                       comment='#')
+    s = """sample_id,exon:chr1:150-175:+@exon:chr1:200-250:+@exon:chr1:300-350:+,exon:chr1:150-175:+@exon:chr1:225-250:+@exon:chr1:300-350:+,exon:chr1:150-175:+@exon:chr1:225-275:+@exon:chr1:300-350:+# noqa
+sample1,{1},{0},{1}""".format(true_psi, other_isoform1_psi)
+
+    true = pd.read_csv(six.StringIO(s), index_col=0, comment='#')
     true = true.dropna(axis=1)
 
     if true.empty:
