@@ -510,8 +510,7 @@ def get_feature_attribute_startswith_value(features, attribute, value):
 
 
 def consolidate_junction_events(df, db, event_col='event_id',
-                                transcript_cols=['isoform1_transcripts',
-                                                 'isoform2_transcripts']):
+                                transcript_cols=transcript_cols):
     if len(df) == 1:
         return 'only one', df[event_col].values[0]
 
