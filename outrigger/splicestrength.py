@@ -28,8 +28,11 @@ def get_ss_sequence(exons, genome, splice_site, genome_fasta, filename):
     exons : pybedtools.BedTool | str
         Exons for which you want to find the splice site sequences, either a
         string to the full path of the bed file, or a pre-created pybedtool
-    genome : str
-        Name of the genome to use, e.g. "hg19"
+    genome : str | OrderedDict
+        Name of the genome to use, e.g. "hg19", which looks up the chromosome
+        sizes of that genome. If a non-standard genome, must instead provide
+        an OrderedDict of chromosome name to sizes, e.g.
+        OrderedDict([('chr1', (0, 1000))])
     splice_site : 5 | 3
         Either the 5' or 3' splice site
     genome_fasta : str
