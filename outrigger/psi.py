@@ -96,14 +96,15 @@ def calculate_psi(exons_to_junctions, splice_junction_reads,
 
     psis = []
 
+    junction_cols = isoform1_junctions + isoform2_junctions
+
     for i, row in exons_to_junctions.iterrows():
         isoform1 = maybe_get_isoform_reads(splice_junction_reads, row,
                                            isoform1_junctions, reads_col)
         isoform2 = maybe_get_isoform_reads(splice_junction_reads, row,
                                            isoform2_junctions, reads_col)
 
-        log.debug('\n\n%s\t%s\t%s', row.junction12, row.junction23,
-                  row.junction13)
+        log.debug('\n\n%s\t%s\t%s', row[junction_cols])
         log.debug('--- isoform1 ---\n%s', repr(isoform1))
         log.debug('--- isoform2 ---\n%s', repr(isoform2))
 
