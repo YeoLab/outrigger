@@ -3,4 +3,5 @@ pandas>=0.17.0
 biopython
 flake8
 coverage
+bedtools
 pybedtools
