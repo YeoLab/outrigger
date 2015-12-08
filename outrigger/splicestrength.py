@@ -12,11 +12,11 @@ import six
 __author__ = 'olgabotvinnik'
 
 
-VALID_SPLICE_SITES = (3, 5)
+VALID_SPLICE_SITES = 3, 5
 
 
-def get_ss_sequence(exons, genome, splice_site, genome_fasta, filename):
-    """Get the sequence of the 5' or 3' splice site
+def splice_site_sequences(exons, splice_site, genome_fasta, genome=None, g=None):
+    """Get the sequence of the 5' or 3' splice site of the exons
 
     The 5' splice site for MaxEntScan is defined as 9 bases:
         [3 bases in exon][6 bases in intron]
@@ -28,17 +28,15 @@ def get_ss_sequence(exons, genome, splice_site, genome_fasta, filename):
     exons : pybedtools.BedTool | str
         Exons for which you want to find the splice site sequences, either a
         string to the full path of the bed file, or a pre-created pybedtool
+    splice_site : 5 | 3
+        Either the 5' or 3' splice site
     genome : str | OrderedDict
         Name of the genome to use, e.g. "hg19", which looks up the chromosome
         sizes of that genome. If a non-standard genome, must instead provide
         an OrderedDict of chromosome name to sizes, e.g.
         OrderedDict([('chr1', (0, 1000))])
-    splice_site : 5 | 3
-        Either the 5' or 3' splice site
     genome_fasta : str
         Location of the (indexed) genome fasta file
-    filename : str, optional
-        Where to write the splice site sequences to, in fasta format
 
     Returns
     -------
@@ -59,6 +57,13 @@ def get_ss_sequence(exons, genome, splice_site, genome_fasta, filename):
         raise ValueError('{0} is not a valid splice site. Only 5 and 3 are '
                          'acceptable'.format(splice_site))
 
+    if g is None and genome is None:
+        raise ValueError('Either `g` or `genome` must be specified. `g` is '
+                         'a chromosome sizes file, while `genome` is a string '
+                         'like "hg19" that looks up the chromosome sizes from'
+                         ' a database')
+    kwargs = dict(g=g) if g is not None else dict(genome=genome)
+
     negative = exons.filter(lambda x: x.strand == '-')
     positive = exons.filter(lambda x: x.strand == '+')
 
@@ -70,11 +75,11 @@ def get_ss_sequence(exons, genome, splice_site, genome_fasta, filename):
             left -= 1
 
         if splice_site == 5:
-            flanked = bed.flank(genome=genome, l=0, r=right, s=True)
-            slopped = flanked.slop(genome=genome, r=0, l=left, s=True)
+            flanked = bed.flank(l=0, r=right, s=True, **kwargs)
+            slopped = flanked.slop(r=0, l=left, s=True, **kwargs)
         else:
-            flanked = bed.flank(genome=genome, l=left, r=0, s=True)
-            slopped = flanked.slop(genome=genome, l=0, r=right, s=True)
+            flanked = bed.flank(l=left, r=0, s=True, **kwargs)
+            slopped = flanked.slop(l=0, r=right, s=True, **kwargs)
         seq = slopped.sequence(fi=genome_fasta, s=True)
         with open(seq.seqfn) as f:
             records = SeqIO.parse(f, 'fasta')
@@ -86,20 +91,18 @@ def get_ss_sequence(exons, genome, splice_site, genome_fasta, filename):
     # Reorder the sequences into the original order
     seqs = seqs[names]
 
-    reordered_seqs = [SeqRecord(Seq(s), id=name)
-                      for name, s in seqs.iteritems()]
+    reordered = [SeqRecord(Seq(s), id=name, description='')
+                 for name, s in seqs.iteritems()]
 
-    with open(filename, 'w') as f:
-        SeqIO.write(reordered_seqs, f, 'fasta')
-    return filename
+    return reordered
 
 
-def score_splice_fasta(ss_fasta, splice_site, filename=None):
+def score_splice_fasta(fasta, splice_site, filename=None):
     """Get the Maximum Entropy scores of a splice site
 
     Parameters
     ----------
-    ss_fasta : str
+    fasta : str
         Location of the fasta files you want to test
     splice_site : 5 | 3
         Either the 5' or 3' splice site
@@ -116,7 +119,7 @@ def score_splice_fasta(ss_fasta, splice_site, filename=None):
         raise ValueError('{0} is not a valid splice site. Only 5 and 3 are '
                          'acceptable'.format(splice_site))
 
-    ss_fasta = os.path.abspath(os.path.expanduser(ss_fasta))
+    fasta = os.path.abspath(os.path.expanduser(fasta))
     maxentscan_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)),
                                   os.path.join(*['external', 'maxentscan']))
     currdir = os.getcwd()
@@ -124,7 +127,15 @@ def score_splice_fasta(ss_fasta, splice_site, filename=None):
 
     # Check that the input fasta files are the right length
     length = 9 if splice_site == 5 else 23
-    parsed = SeqIO.parse(open(ss_fasta), 'fasta')
+    try:
+        parsed = SeqIO.parse(open(fasta), 'fasta')
+    except IOError:
+        parsed = fasta
+        tempfasta = tempfile.NamedTemporaryFile()
+        with open(tempfasta.name, 'w') as f:
+            SeqIO.write(parsed, f, 'fasta')
+        fasta = tempfasta.name
+
     if sum(len(x.seq) != length for x in parsed) > 0:
         raise ValueError("Not all the sequences in the fasta file are {0}nt "
                          "long. For {1}' splice sites, the required"
@@ -132,8 +143,7 @@ def score_splice_fasta(ss_fasta, splice_site, filename=None):
                          "length {0}nt.".format(length, splice_site))
 
     program = 'score{0}.pl'.format(splice_site)
-    pipe = subprocess.Popen(["perl", program, ss_fasta],
-                            stdout=subprocess.PIPE)
+    pipe = subprocess.Popen(["perl", program, fasta], stdout=subprocess.PIPE)
     output = pipe.stdout.read()
 
     if filename is not None:
@@ -194,13 +204,13 @@ def score_exons(exons, genome, genome_fasta):
         bed = pybedtools.BedTool(exons)
     else:
         bed = exons
+
     df = pd.DataFrame(index=[x.name for x in bed])
+
     for splice_site in VALID_SPLICE_SITES:
-        filename = tempfile.NamedTemporaryFile()
-        ss_seqs = get_ss_sequence(bed, genome, splice_site, genome_fasta,
-                                  filename=filename.name)
-        score = score_splice_fasta(ss_seqs, splice_site)
-        score = read_splice_scores(score)
-        df['splice_site_{}p_score'.format(splice_site)] = score.values
-        df['splice_site_{}p_seq'.format(splice_site)] = score.index
+        ss_seqs = splice_site_sequences(bed, genome_fasta, splice_site, genome)
+        scores = score_splice_fasta(ss_seqs, splice_site)
+        scores = read_splice_scores(scores)
+        df['splice_site_{}p_score'.format(splice_site)] = scores.values
+        df['splice_site_{}p_seq'.format(splice_site)] = scores.index
     return df
