@@ -1,7 +1,6 @@
 import os
 
 from Bio import SeqIO
-from Bio.Alphabet import Alphabet
 
 import pandas as pd
 import pandas.util.testing as pdt
@@ -9,7 +8,7 @@ import pybedtools
 import pytest
 import six
 
-__author__ = 'olgabotvinnik'
+__author__ = 'Olga Botvinnik'
 
 
 @pytest.fixture
@@ -175,7 +174,55 @@ TGGGTCAATAAATTTAGAGATTA
     assert test == true
 
 
+@pytest.mark.xfail
+def test_splice_site_sequences_invalid_splice_site(exons, g, genome_fasta):
+    from outrigger.splicestrength import splice_site_sequences
+
+    splice_site_sequences(exons, 1, genome_fasta, g=g)
+
+
+@pytest.mark.xfail
+def test_splice_site_sequences_no_genome(exons, genome_fasta):
+    from outrigger.splicestrength import splice_site_sequences
+
+    splice_site_sequences(exons, 3, genome_fasta)
+
+
+@pytest.mark.xfail
+def test_check_correct_splice_site(tmpdir):
+    from outrigger.splicestrength import check_correct_splice_site
+
+    s = """>exon4_positive
+GAGAATGGC
+>exon4_negative
+GGTTCAATT
+>exon1alt_positive
+TGGCTTGTA
+"""
+    fasta = '{0}/tmp.fasta'.format(tmpdir)
+    with open(fasta, 'w') as f:
+        f.write(s)
+    check_correct_splice_site(fasta, 3)
+
+
 def test_score_splice_fasta(splice_site_combo):
+    from outrigger.splicestrength import score_splice_fasta
+
+    fasta, splice_site, true = splice_site_combo
+    test = score_splice_fasta(fasta, splice_site)
+    pdt.assert_equal(test, true)
+
+
+@pytest.mark.xfail
+def test_score_splice_fasta_invalid_splice_site(splice_site_combo):
+    from outrigger.splicestrength import score_splice_fasta
+
+    fasta, splice_site, true = splice_site_combo
+    score_splice_fasta(fasta, 40)
+
+
+@pytest.mark.skipif(not six.PY3)
+def test_score_splice_fasta_py3(splice_site_combo):
     from outrigger.splicestrength import score_splice_fasta
 
     fasta, splice_site, true = splice_site_combo
