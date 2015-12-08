@@ -1,5 +1,7 @@
-from collections import OrderedDict
 import os
+
+from Bio import SeqIO
+from Bio.Alphabet import Alphabet
 
 import pandas as pd
 import pandas.util.testing as pdt
@@ -58,8 +60,12 @@ ttctctcttcagacttatAGcaa	-0.08
 
 
 @pytest.fixture
-def bed_filename():
-    dirname = os.path.dirname(__file__)
+def dirname():
+    return os.path.dirname(__file__)
+
+
+@pytest.fixture
+def bed_filename(dirname):
     return '{}/test.bed'.format(dirname)
 
 
@@ -67,17 +73,105 @@ def bed_filename():
 def exons(request, bed_filename):
     if request.param == 'filename':
         return bed_filename
-    elif request == 'BedTool':
+    # elif request == 'BedTool':
+    else:
         return pybedtools.BedTool(bed_filename)
 
 
 @pytest.fixture
-def genome():
-    return OrderedDict([('chr1', (0, 599))])
+def genome(dirname):
+    return '{}/test.chromsizes'.format(dirname)
 
 
-def test_get_ss_sequence(exons, genome, ):
-    pass
+@pytest.fixture
+def genome_fasta(dirname):
+    return '{}/test.fasta'.format(dirname)
+
+
+@pytest.fixture(params=[5, 3])
+def splice_site(request):
+    return request.param
+
+
+def test_get_ss_sequence(exons, genome, splice_site, genome_fasta):
+    from outrigger.splicestrength import get_ss_sequence
+
+    seqs = get_ss_sequence(exons, splice_site, genome_fasta, g=genome)
+
+    string = six.StringIO()
+    SeqIO.write(seqs, string, 'fasta')
+    test = string.getvalue()
+
+    if splice_site == 5:
+        true = """>exon4_positive
+AAGGCCATC
+>exon4_negative
+TTCGACCAC
+>exon1alt_positive
+GACATCCAC
+>exon1alt_negative
+AGACCCGTT
+>exon2a5ss_positive
+GCATATCAA
+>exon2a5ss_negative
+CTCTACTCC
+>exon1_positive
+TATTGTGTC
+>exon1_negative
+CGTCGCATA
+>exon3_positive
+TCTAGTAAT
+>exon3_negative
+CGCCTTCTG
+>exon2_positive
+GCGTGTACC
+>exon2_negative
+CTCTACTCC
+>exon2a3ss_positive
+GCGTGTACC
+>exon2a3ss_negative
+TCAGTGTAG
+>exon4alt_positive
+AATCATTAC
+>exon4alt_negative
+TCCAGTCAA
+"""
+    elif splice_site == 3:
+        true = """>exon4_positive
+ACTATAATGCGTAAGTGGTCGAA
+>exon4_negative
+CATTGCCTTGCTCAGATGGCCTT
+>exon1alt_positive
+TCCCTACTGTCCCCAACGGGTCT
+>exon1alt_negative
+TAGCCGAGTCCTAAGTGGATGTC
+>exon2a5ss_positive
+AGTGCATGTCGTTCGGAGTAGAG
+>exon2a5ss_negative
+TGACGTTCGAACGATTGATATGC
+>exon1_positive
+ACTTAGGACTCGGCTATGCGACG
+>exon1_negative
+AGGGGGAACAGGTTGACACAATA
+>exon3_positive
+AATCGTTCGAACGTCAGAAGGCG
+>exon3_negative
+TAGAAACTATTATCATTACTAGA
+>exon2_positive
+AGTGCATGTCGTTCGGAGTAGAG
+>exon2_negative
+TGGTATGGACATGAGGTACACGC
+>exon2a3ss_positive
+TCAACCTGTTCCCCCTACACTGA
+>exon2a3ss_negative
+TGGTATGGACATGAGGTACACGC
+>exon4alt_positive
+AGGCTTGACGCATTTTGACTGGA
+>exon4alt_negative
+TGTCGAATACTACTGTAATGATT
+"""
+
+    assert test == true
 
 
 def test_score_splice_fasta(splice_site_combo):
