@@ -54,3 +54,6 @@ docs/_build
 
 # Pycharm
 .idea
+
+# Indexed fasta file
+*.fai
