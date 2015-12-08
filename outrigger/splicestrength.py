@@ -15,7 +15,8 @@ __author__ = 'olgabotvinnik'
 VALID_SPLICE_SITES = 3, 5
 
 
-def splice_site_sequences(exons, splice_site, genome_fasta, genome=None, g=None):
+def splice_site_sequences(exons, splice_site, genome_fasta, genome=None,
+                          g=None):
     """Get the sequence of the 5' or 3' splice site of the exons
 
     The 5' splice site for MaxEntScan is defined as 9 bases:
@@ -97,7 +98,29 @@ def splice_site_sequences(exons, splice_site, genome_fasta, genome=None, g=None)
     return reordered
 
 
-def score_splice_fasta(fasta, splice_site, filename=None):
+def maybe_get_abspath_fasta(fasta):
+    """Get absolute path of fasta, unless it's seqrecords so write the file"""
+    try:
+        return os.path.abspath(os.path.expanduser(fasta))
+    except AttributeError:
+        filename = '{}/temp.fasta'.format(tempfile.gettempdir())
+        with open(filename, 'w') as f:
+            SeqIO.write(fasta, f, 'fasta')
+        return filename
+
+
+def check_correct_splice_site(fasta, splice_site):
+    length = 9 if splice_site == 5 else 23
+    parsed = SeqIO.parse(open(fasta), 'fasta')
+
+    if sum(len(x.seq) != length for x in parsed) > 0:
+        raise ValueError("Not all the sequences in the fasta file are {0}nt "
+                         "long. For {1}' splice sites, the required"
+                         "input is fasta files with sequence "
+                         "length {0}nt.".format(length, splice_site))
+
+
+def score_splice_fasta(fasta, splice_site):
     """Get the Maximum Entropy scores of a splice site
 
     Parameters
@@ -119,36 +142,23 @@ def score_splice_fasta(fasta, splice_site, filename=None):
         raise ValueError('{0} is not a valid splice site. Only 5 and 3 are '
                          'acceptable'.format(splice_site))
 
-    fasta = os.path.abspath(os.path.expanduser(fasta))
+    fasta = maybe_get_abspath_fasta(fasta)
+
     maxentscan_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)),
                                   os.path.join(*['external', 'maxentscan']))
     currdir = os.getcwd()
+
+    # Have to change directories because maxentscan only runs from its
+    # directory
     os.chdir(maxentscan_dir)
 
     # Check that the input fasta files are the right length
-    length = 9 if splice_site == 5 else 23
-    try:
-        parsed = SeqIO.parse(open(fasta), 'fasta')
-    except IOError:
-        parsed = fasta
-        tempfasta = tempfile.NamedTemporaryFile()
-        with open(tempfasta.name, 'w') as f:
-            SeqIO.write(parsed, f, 'fasta')
-        fasta = tempfasta.name
-
-    if sum(len(x.seq) != length for x in parsed) > 0:
-        raise ValueError("Not all the sequences in the fasta file are {0}nt "
-                         "long. For {1}' splice sites, the required"
-                         "input is fasta files with sequence "
-                         "length {0}nt.".format(length, splice_site))
+    check_correct_splice_site(fasta, splice_site)
 
     program = 'score{0}.pl'.format(splice_site)
     pipe = subprocess.Popen(["perl", program, fasta], stdout=subprocess.PIPE)
     output = pipe.stdout.read()
 
-    if filename is not None:
-        with open(filename, 'w') as f:
-            f.write(output)
     os.chdir(currdir)
     if six.PY3:
         output = output.decode('utf-8')
@@ -178,7 +188,7 @@ def read_splice_scores(scores):
                          sep='\s+')
 
 
-def score_exons(exons, genome, genome_fasta):
+def score_exons(exons, fasta, genome=None, g=None):
     """One-stop shop to score 5' and 3' ends of exons
 
     Get the splice site strength of the 5' and 3' end of the exons.
@@ -187,10 +197,17 @@ def score_exons(exons, genome, genome_fasta):
     ----------
     exons : str
         Full path to the exons bed file
-    genome : str
-        Genome build, e.g. 'hg19'
-    genome_fasta : str
+    fasta : str
         Full path to the genome fasta file
+    genome : str, optional
+        Genome build, e.g. 'hg19'. Either `genome` or `g` must be specified.
+    g : str, optional
+        Location of the genome file specifying the chromosome sizes of the
+        genome
+
+    Notes
+    -----
+    Either `g` or `genome` must be specified.
 
     Returns
     -------
@@ -208,7 +225,8 @@ def score_exons(exons, genome, genome_fasta):
     df = pd.DataFrame(index=[x.name for x in bed])
 
     for splice_site in VALID_SPLICE_SITES:
-        ss_seqs = splice_site_sequences(bed, genome_fasta, splice_site, genome)
+        ss_seqs = splice_site_sequences(bed, splice_site, fasta, g=g,
+                                        genome=genome)
         scores = score_splice_fasta(ss_seqs, splice_site)
         scores = read_splice_scores(scores)
         df['splice_site_{}p_score'.format(splice_site)] = scores.values
