@@ -38,6 +38,45 @@ def make_junction_direction_df(direction_ind, direction, exon_id):
                         columns=['exon', 'direction', 'junction'])
 
 
+def genome_to_transcript_adjacency(adjacent_in_genome, strand):
+    if strand == '+':
+        return {UPSTREAM: adjacent_in_genome[UPSTREAM], DOWNSTREAM: adjacent_in_genome[DOWNSTREAM]}
+    elif strand == '-':
+        return {UPSTREAM: adjacent_in_genome[DOWNSTREAM], DOWNSTREAM: adjacent_in_genome[UPSTREAM]}
+
+def genome_adjacent(exon, sj_metadata, exon_start='exon_start',
+                       exon_stop='exon_stop', chrom='chrom', strand='strand'):
+    chrom_ind = sj_metadata[chrom] == exon.chrom
+
+    strand_ind = sj_metadata[strand] == exon.strand
+
+    upstream_in_genome = chrom_ind & strand_ind \
+        & (sj_metadata[exon_stop] == exon.stop)
+    downstream_in_genome = chrom_ind & strand_ind \
+        & (sj_metadata[exon_start] == exon.start)
+    return {UPSTREAM: upstream_in_genome, DOWNSTREAM: downstream_in_genome}
+
+
+def adjacent_junctions(exon, sj_metadata, exon_start='exon_start',
+                       exon_stop='exon_stop', chrom='chrom', strand='strand'):
+    dfs = []
+    adjacent_in_genome = genome_adjacent(exon, sj_metadata, exon_start,
+                                         exon_stop, chrom, strand)
+    adjacent_in_transcriptome = genome_to_transcript_adjacency(
+        adjacent_in_genome, exon.strand)
+
+    exon_id = exon.id
+    for direction, ind in adjacent_in_transcriptome.items():
+        if ind.any():
+            df = make_junction_direction_df(ind, direction, exon_id)
+            dfs.append(df)
+
+    if len(dfs) > 0:
+        return pd.concat(dfs, ignore_index=True)
+    else:
+        return pd.DataFrame()
+
+
 def get_adjacent_exons(sj_metadata, db, exon_start='exon_start',
                        exon_stop='exon_stop', chrom='chrom'):
     """Get upstream and downstream exons in database
@@ -79,10 +118,9 @@ def get_adjacent_exons(sj_metadata, db, exon_start='exon_start',
             sys.stdout.write('\t{}/{} exons completed\n'.format(i + 1,
                                                                 n_exons))
         chrom_ind = sj_metadata[chrom] == exon.chrom
-        try:
-            strand_ind = sj_metadata.strand == exon.strand
-        except AttributeError:
-            strand_ind = chrom_ind
+
+        strand_ind = sj_metadata.strand == exon.strand
+
         upstream_ind = chrom_ind & strand_ind \
             & (sj_metadata[exon_stop] == exon.stop)
         downstream_ind = chrom_ind & strand_ind \
