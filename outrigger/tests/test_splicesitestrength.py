@@ -62,6 +62,7 @@ def bed_filename():
     dirname = os.path.dirname(__file__)
     return '{}/test.bed'.format(dirname)
 
+
 @pytest.fixture(params=['BedTool', 'filename'])
 def exons(request, bed_filename):
     if request.param == 'filename':
@@ -69,14 +70,15 @@ def exons(request, bed_filename):
     elif request == 'BedTool':
         return pybedtools.BedTool(bed_filename)
 
+
 @pytest.fixture
 def genome():
     return OrderedDict([('chr1', (0, 599))])
 
-@pytest.fixture
 
 def test_get_ss_sequence(exons, genome, ):
     pass
+
 
 def test_score_splice_fasta(splice_site_combo):
     from outrigger.splicestrength import score_splice_fasta
