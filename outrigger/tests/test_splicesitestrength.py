@@ -94,9 +94,9 @@ def splice_site(request):
 
 
 def test_get_ss_sequence(exons, genome, splice_site, genome_fasta):
-    from outrigger.splicestrength import get_ss_sequence
+    from outrigger.splicestrength import splice_site_sequences
 
-    seqs = get_ss_sequence(exons, splice_site, genome_fasta, g=genome)
+    seqs = splice_site_sequences(exons, splice_site, genome_fasta, g=genome)
 
     string = six.StringIO()
     SeqIO.write(seqs, string, 'fasta')
@@ -104,71 +104,71 @@ def test_get_ss_sequence(exons, genome, splice_site, genome_fasta):
 
     if splice_site == 5:
         true = """>exon4_positive
-AAGGCCATC
+GAGAATGGC
 >exon4_negative
-TTCGACCAC
+GGTTCAATT
 >exon1alt_positive
-GACATCCAC
+TGGCTTGTA
 >exon1alt_negative
-AGACCCGTT
+ATCTATGGC
 >exon2a5ss_positive
-GCATATCAA
+ACTGTCACT
 >exon2a5ss_negative
-CTCTACTCC
+TGAATGAGA
 >exon1_positive
-TATTGTGTC
+AGAGAACCC
 >exon1_negative
-CGTCGCATA
+TCAGCAAGC
 >exon3_positive
-TCTAGTAAT
+TGTAACAAC
 >exon3_negative
-CGCCTTCTG
+CATAGGCGA
 >exon2_positive
-GCGTGTACC
+GTTGTCGAT
 >exon2_negative
-CTCTACTCC
+TGAATGAGA
 >exon2a3ss_positive
-GCGTGTACC
+GTTGTCGAT
 >exon2a3ss_negative
-TCAGTGTAG
+AATTTATTC
 >exon4alt_positive
-AATCATTAC
+TAATCTCTA
 >exon4alt_negative
-TCCAGTCAA
+TCCCACCAA
 """
     elif splice_site == 3:
         true = """>exon4_positive
-ACTATAATGCGTAAGTGGTCGAA
+AGGCGTACCATAGTAATTGAACC
 >exon4_negative
-CATTGCCTTGCTCAGATGGCCTT
+ACAAACTGTAGGGTGCCATTCTC
 >exon1alt_positive
-TCCCTACTGTCCCCAACGGGTCT
+ATAATTACACAATAGCCATAGAT
 >exon1alt_negative
-TAGCCGAGTCCTAAGTGGATGTC
+GCCGTTTGTGCCTATACAAGCCA
 >exon2a5ss_positive
-AGTGCATGTCGTTCGGAGTAGAG
+TTGGGGAAGTAGTATCTCATTCA
 >exon2a5ss_negative
-TGACGTTCGAACGATTGATATGC
+GAAAGAAGCAGCCTAGTGACAGT
 >exon1_positive
-ACTTAGGACTCGGCTATGCGACG
+TATAGGCACAAACGGCTTGCTGA
 >exon1_negative
-AGGGGGAACAGGTTGACACAATA
+TCCCTCCACGTTATGGGTTCTCT
 >exon3_positive
-AATCGTTCGAACGTCAGAAGGCG
+CTAGGCTGCTTCTTTCGCCTATG
 >exon3_negative
-TAGAAACTATTATCATTACTAGA
+TATGGAGCGATGACGTTGTTACA
 >exon2_positive
-AGTGCATGTCGTTCGGAGTAGAG
+TTGGGGAAGTAGTATCTCATTCA
 >exon2_negative
-TGGTATGGACATGAGGTACACGC
+TGAGAGCTTTGACTATCGACAAC
 >exon2a3ss_positive
-TCAACCTGTTCCCCCTACACTGA
+CCATAACGTGGAGGGAATAAATT
 >exon2a3ss_negative
-TGGTATGGACATGAGGTACACGC
+TGAGAGCTTTGACTATCGACAAC
 >exon4alt_positive
-AGGCTTGACGCATTTTGACTGGA
+AGGCCGGGCAGTGATTGGTGGGA
 >exon4alt_negative
-TGTCGAATACTACTGTAATGATT
+TGGGTCAATAAATTTAGAGATTA
 """
 
     assert test == true
