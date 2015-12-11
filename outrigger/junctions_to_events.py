@@ -140,6 +140,12 @@ def get_adjacent_exons(sj_metadata, db, exon_start='exon_start',
     return junction_exon_triples
 
 
+class JunctionAnnotator(object):
+
+    def __init__(self, splice_junctions):
+        pass
+
+
 class JunctionAggregator(object):
 
     def __init__(self, junction_exon_triples, db=None, junction_col='junction',
@@ -249,6 +255,51 @@ class JunctionAggregator(object):
             data.loc[i, 'event_id'] = event_id
         return data
 
+    def _check_exon_in_se_event(self, exon1_name):
+        event = {}
+
+        exon1_i = self.items.index(exon1_name)
+        exon23s = list(
+            self.graph.find(
+                V().downstream(exon1_i)).traverse(V().upstream))
+        exon23s = self.item_to_region[[self.items[i] for i in exon23s]]
+
+        for exon_a, exon_b in itertools.combinations(exon23s, 2):
+            if not exon_a.overlaps(exon_b):
+                exon2 = min((exon_a, exon_b), key=lambda x: x.start)
+                exon3 = max((exon_a, exon_b), key=lambda x: x.start)
+
+                exon2_i = self.items.index(exon2.name)
+                exon3_i = self.items.index(exon3.name)
+
+                exon23_junction_i = self.graph.find(
+                    V(exon2_i).upstream).intersection(
+                    V().upstream(exon3_i))
+                exon23_junction = [self.items[i] for i in
+                                   set(exon23_junction_i)]
+                if len(exon23_junction) > 0:
+                    # Isoform 1 - corresponds to Psi=0. Exclusion of exon2
+                    exon13_junction = self.graph.find(
+                        V(exon1_i).upstream) \
+                        .intersection(V(exon3_i).downstream)
+
+                    # Isoform 2 - corresponds to Psi=1. Inclusion of exon2
+                    exon12_junction = self.graph.find(
+                        V(exon1_i).upstream) \
+                        .intersection(V(exon2_i).downstream)
+                    exon23_junction = self.graph.find(
+                        V(exon2_i).upstream) \
+                        .intersection(V(exon3_i).downstream)
+
+                    junctions_i = list(itertools.chain(
+                        *[exon12_junction, exon23_junction,
+                          exon13_junction]))
+                    junctions = [self.items[i] for i in junctions_i]
+                    exons = exon1_name, exon2.name, exon3.name
+
+                    event[exons] = junctions
+        return event
+
     def skipped_exon(self):
         events = {}
         n_exons = self.exons.shape[0]
@@ -306,6 +357,70 @@ class JunctionAggregator(object):
                                                        'junction23',
                                                        'junction13'])
         return events
+
+    def _check_exon_in_mxe_event(self, exon1_name):
+        event = {}
+        exon1_i = self.items.index(exon1_name)
+
+        exon23s_from1 = list(
+            self.graph.find(V().downstream(
+                exon1_i)).traverse(V().upstream))
+        exon4s = self.graph.find(V().downstream(exon1_i)).traverse(
+            V().upstream).traverse(V().upstream).traverse(V().upstream)
+        exon23s_from4 = exon4s.traverse(V().downstream).traverse(
+            V().downstream)
+
+        exon23s = set(exon23s_from4) & set(exon23s_from1)
+        exon23s = [self.items[i] for i in exon23s]
+
+        exon23s = self.item_to_region[exon23s]
+
+        for exon_a, exon_b in itertools.combinations(exon23s, 2):
+            if not exon_a.overlaps(exon_b):
+                exon2 = min((exon_a, exon_b), key=lambda x: x.start)
+                exon3 = max((exon_a, exon_b), key=lambda x: x.start)
+
+                exon2_i = self.items.index(exon2.name)
+                exon3_i = self.items.index(exon3.name)
+
+                exon4_from2 = set(
+                    self.graph.find(V(exon2_i).upstream).traverse(
+                        V().upstream))
+                exon4_from3 = set(
+                    self.graph.find(V(exon3_i).upstream).traverse(
+                        V().upstream))
+                try:
+                    exon4_i = (exon4_from2 & exon4_from3).pop()
+                    exon4_name = self.items[exon4_i]
+                    # Isoform 1 - corresponds to Psi=0. Inclusion of exon3
+                    exon13_junction = self.graph.find(
+                        V(exon1_i).upstream).intersection(
+                        V(exon3_i).downstream)
+                    exon34_junction = self.graph.find(
+                        V(exon3_i).upstream) \
+                        .intersection(V(exon4_i).downstream)
+
+                    # Isoform 2 - corresponds to Psi=1. Inclusion of exon2
+                    exon12_junction = self.graph.find(
+                        V(exon1_i).upstream).intersection(
+                        V(exon2_i).downstream)
+                    exon24_junction = self.graph.find(
+                        V(exon2_i).upstream) \
+                        .intersection(V(exon4_i).downstream)
+
+                    exon_tuple = exon1_name, exon2.name, exon3.name, \
+                                 exon4_name
+                    #             print exon12_junction.next()
+                    junctions = list(
+                        itertools.chain(*[exon13_junction, exon34_junction,
+                                          exon12_junction,
+                                          exon24_junction]))
+                    junctions = [self.items[i] for i in junctions]
+
+                    event[exon_tuple] = junctions
+                except:
+                    pass
+        return event
 
     def mutually_exclusive_exon(self):
         events = {}
