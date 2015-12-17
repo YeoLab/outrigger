@@ -68,7 +68,7 @@ def region(request):
 @pytest.fixture
 def junction_to_exons(chrom, exon_start_stop, transcripts, strand):
     from collections import defaultdict
-    from outrigger.junctions_to_events import stringify_location
+    from outrigger.junctions import stringify_location
 
     data = defaultdict(lambda: {'upstream': set([]), 'downstream': set([])})
 
@@ -107,7 +107,7 @@ def junction_to_exons(chrom, exon_start_stop, transcripts, strand):
 
 @pytest.fixture
 def junction_exon_triples(chrom, exon_start_stop, transcripts, strand):
-    from outrigger.junctions_to_events import stringify_location
+    from outrigger.junctions import stringify_location
     data = []
 
     for transcript, exons in transcripts:
@@ -146,7 +146,7 @@ def junction_exon_triples(chrom, exon_start_stop, transcripts, strand):
 
 
 def test_stringify_location(chrom, strand, region):
-    from outrigger.junctions_to_events import stringify_location
+    from outrigger.junctions import stringify_location
 
     test = stringify_location(chrom, 100, 200, strand, region)
 
@@ -159,7 +159,7 @@ def test_stringify_location(chrom, strand, region):
 
 def assert_graph_items_equal(graph1, items1, graph2, items2):
     """Checks all relationships in graph1 exist in graph2, and vice versa"""
-    from outrigger.junctions_to_events import DIRECTIONS
+    from outrigger.junctions import DIRECTIONS
 
     for number1, item1 in enumerate(items1):
         for direction in DIRECTIONS:
@@ -193,15 +193,15 @@ def assert_graph_items_equal(graph1, items1, graph2, items2):
 class TestAggregateJunctions(object):
     @pytest.fixture
     def junction_aggregator(self, junction_exon_triples):
-        from outrigger.junctions_to_events import JunctionAggregator
-        return JunctionAggregator(junction_exon_triples)
+        from outrigger.junctions import EventMaker
+        return EventMaker(junction_exon_triples)
 
     def test_init(self, junction_exon_triples, graph_items):
-        from outrigger.junctions_to_events import JunctionAggregator
+        from outrigger.junctions import EventMaker
 
         graph, items = graph_items
 
-        test = JunctionAggregator(junction_exon_triples)
+        test = EventMaker(junction_exon_triples)
         pdt.assert_frame_equal(test.junction_exon_triples,
                                junction_exon_triples)
         assert test.db is None
@@ -216,9 +216,9 @@ class TestAggregateJunctions(object):
 
     def test_from_junction_to_exons(self, junction_to_exons,
                                     junction_aggregator):
-        from outrigger.junctions_to_events import JunctionAggregator
+        from outrigger.junctions import EventMaker
 
-        test = JunctionAggregator.from_junction_to_exons(junction_to_exons)
+        test = EventMaker.from_junction_to_exons(junction_to_exons)
 
         assert_graph_items_equal(test.graph, test.items,
                                  junction_aggregator.graph,
@@ -338,7 +338,7 @@ exon:chr1:400-425:-,exon:chr1:300-350:-,exon:chr1:225-250:-,exon:chr1:150-175:-,
 
 @pytest.fixture
 def graph_items(exon_start_stop, transcripts, chrom, strand):
-    from outrigger.junctions_to_events import stringify_location, opposite
+    from outrigger.junctions import stringify_location, opposite
 
     graph = connect(":memory:", graphs=['upstream', 'downstream'])
 

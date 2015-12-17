@@ -1,152 +1,22 @@
-import itertools
 import logging
-import sys
-
 import graphlite
 from graphlite import V
+
 import numpy as np
-import pandas as pd
 
 from .region import Region
-
-_db_doc = """db : gffutils.FeatureDB
-    Database of gene, transcript, and exon features. The exons must be
-    accessible by the id provided on the exon_{5,3}p_col columns. If
-    not provided, certain splice types which require information about
-    the transcript (AFE, ALE) cannot be annotated."""
-
-UPSTREAM = 'upstream'
-DOWNSTREAM = 'downstream'
-DIRECTIONS = [UPSTREAM, DOWNSTREAM]
+from .junctions import UPSTREAM, DOWNSTREAM
 
 
 def stringify_location(chrom, start, stop, strand, region=None):
+    """"""
     if region is not None:
-        return '{0}:{1}:{2}-{3}:{4}'.format(region, chrom, start, stop, strand)
+        return '{0}:{1}:{2}-{3}:{4}'.format(region, chrom, start, stop,
+                                            strand)
     else:
         return '{0}:{1}-{2}:{3}'.format(chrom, start, stop, strand)
 
-
-def opposite(direction):
-    return UPSTREAM if direction == DOWNSTREAM else DOWNSTREAM
-
-
-def make_junction_direction_df(direction_ind, direction, exon_id):
-    return pd.DataFrame(zip(itertools.cycle((exon_id,)),
-                            itertools.cycle((direction,)),
-                            direction_ind[direction_ind].index),
-                        columns=['exon', 'direction', 'junction'])
-
-
-def genome_to_transcript_adjacency(adjacent_in_genome, strand):
-    if strand == '+':
-        return {UPSTREAM: adjacent_in_genome[UPSTREAM], DOWNSTREAM: adjacent_in_genome[DOWNSTREAM]}
-    elif strand == '-':
-        return {UPSTREAM: adjacent_in_genome[DOWNSTREAM], DOWNSTREAM: adjacent_in_genome[UPSTREAM]}
-
-def genome_adjacent(exon, sj_metadata, exon_start='exon_start',
-                       exon_stop='exon_stop', chrom='chrom', strand='strand'):
-    chrom_ind = sj_metadata[chrom] == exon.chrom
-
-    strand_ind = sj_metadata[strand] == exon.strand
-
-    upstream_in_genome = chrom_ind & strand_ind \
-        & (sj_metadata[exon_stop] == exon.stop)
-    downstream_in_genome = chrom_ind & strand_ind \
-        & (sj_metadata[exon_start] == exon.start)
-    return {UPSTREAM: upstream_in_genome, DOWNSTREAM: downstream_in_genome}
-
-
-def adjacent_junctions(exon, sj_metadata, exon_start='exon_start',
-                       exon_stop='exon_stop', chrom='chrom', strand='strand'):
-    dfs = []
-    adjacent_in_genome = genome_adjacent(exon, sj_metadata, exon_start,
-                                         exon_stop, chrom, strand)
-    adjacent_in_transcriptome = genome_to_transcript_adjacency(
-        adjacent_in_genome, exon.strand)
-
-    exon_id = exon.id
-    for direction, ind in adjacent_in_transcriptome.items():
-        if ind.any():
-            df = make_junction_direction_df(ind, direction, exon_id)
-            dfs.append(df)
-
-    if len(dfs) > 0:
-        return pd.concat(dfs, ignore_index=True)
-    else:
-        return pd.DataFrame()
-
-
-def get_adjacent_exons(sj_metadata, db, exon_start='exon_start',
-                       exon_stop='exon_stop', chrom='chrom'):
-    """Get upstream and downstream exons in database
-
-    Use junctions defined in ``sj_metadata`` and exons in ``db`` to create
-    triples of (exon, direction, junction), which are read like
-    (subject, object, verb) e.g. ('exon1', 'upstream', 'junction12'), for
-    creation of a graph database.
-
-    Parameters
-    ----------
-    sj_metadata : pandas.DataFrame
-        A splice junction metadata dataframe with the junction id as the
-        index, with  columns defined by variables ``exon_start`` and
-        ``exon_stop``.
-    db : gffutils.FeatureDB
-        A database of gene annotations created by gffutils. Must have features
-        of type "exon"
-    exon_start : str, optional
-        Name of the column in sj_metadata corresponding to the start of the
-        exon
-    exon_stop : str, optional
-        Name of the column in sj_metadata corresponding to the end of the exon
-
-    Returns
-    -------
-    junction_exon_triples : pandas.DataFrame
-        A three-column dataframe describing the relationship of where an exon
-        is relative to junctions
-    """
-    n_exons = sum(1 for _ in db.features_of_type('exon'))
-
-    dfs = []
-
-    sys.stdout.write('Starting annotation of all junctions with known '
-                     'exons...\n')
-    for i, exon in enumerate(db.features_of_type('exon')):
-        if (i + 1) % 10000 == 0:
-            sys.stdout.write('\t{}/{} exons completed\n'.format(i + 1,
-                                                                n_exons))
-        chrom_ind = sj_metadata[chrom] == exon.chrom
-
-        strand_ind = sj_metadata.strand == exon.strand
-
-        upstream_ind = chrom_ind & strand_ind \
-            & (sj_metadata[exon_stop] == exon.stop)
-        downstream_ind = chrom_ind & strand_ind \
-            & (sj_metadata[exon_start] == exon.start)
-
-        exon_id = exon.id
-        if upstream_ind.any():
-            upstream_df = make_junction_direction_df(upstream_ind, UPSTREAM,
-                                                     exon_id)
-            dfs.append(upstream_df)
-        if downstream_ind.any():
-            downstream_df = make_junction_direction_df(downstream_ind,
-                                                       DOWNSTREAM, exon_id)
-            dfs.append(downstream_df)
-    junction_exon_triples = pd.concat(dfs, ignore_index=True)
-    sys.stdout.write('Done.\n')
-    return junction_exon_triples
-
-
-class JunctionAnnotator(object):
-
-    def __init__(self, splice_junctions):
-        pass
-
-
-class JunctionAggregator(object):
+class EventMaker(object):
 
     def __init__(self, junction_exon_triples, db=None, junction_col='junction',
                  exon_col='exon'):
@@ -164,7 +34,7 @@ class JunctionAggregator(object):
             columns. If not provided, certain splice types which require
             information about the transcript (AFE, ALE) cannot be annotated.
         """
-        self.log = logging.getLogger('JunctionAggregator')
+        self.log = logging.getLogger('EventMaker')
         self.junction_exon_triples = junction_exon_triples
         self.db = db
 
@@ -187,11 +57,15 @@ class JunctionAggregator(object):
                 self.log.debug('\n{} is {} of {}\n'.format(
                     exon, row.direction, junction))
                 self.log.debug('{} is {} of {}\n'.format(
-                    junction, opposite(row.direction), exon))
+                    junction, self.opposite(row.direction), exon))
 
                 tr.store(getattr(V(exon_i), row.direction)(junction_i))
                 tr.store(getattr(V(junction_i),
-                                 opposite(row.direction))(exon_i))
+                                 self.opposite(row.direction))(exon_i))
+
+    @staticmethod
+    def opposite(direction):
+        return UPSTREAM if direction == DOWNSTREAM else DOWNSTREAM
 
     @staticmethod
     def make_junction_exon_triples(junction_to_exons,
@@ -478,7 +352,8 @@ class JunctionAggregator(object):
                             exon4_name
                         #             print exon12_junction.next()
                         junctions = list(
-                            itertools.chain(*[exon13_junction, exon34_junction,
+                            itertools.chain(*[exon13_junction,
+                                              exon34_junction,
                                               exon12_junction,
                                               exon24_junction]))
                         junctions = [self.items[i] for i in junctions]
@@ -507,93 +382,104 @@ class JunctionAggregator(object):
     def alt_last_exon(self):
         pass
 
+    BEST_TAGS = 'appris_principal', 'appris_candidate', 'CCDS', 'basic'
 
-BEST_TAGS = 'appris_principal', 'appris_candidate', 'CCDS', 'basic'
+    transcript_cols = ['isoform1_transcripts', 'isoform2_transcripts']
 
-transcript_cols = ['isoform1_transcripts', 'isoform2_transcripts']
+    @staticmethod
+    def get_attribute(features, attribute):
+        try:
+            for feature in features:
+                try:
+                    yield feature[attribute]
+                except KeyError:
+                    pass
+        except TypeError:
+            # The features aren't iterable
+            pass
 
+    @staticmethod
+    def get_feature_attribute_with_value(features, attribute, value):
+        try:
+            for feature in features:
+                try:
+                    if value in feature[attribute]:
+                        yield feature.id
+                except KeyError:
+                    pass
+        except TypeError:
+            # The features aren't iterable
+            pass
 
-def get_attribute(features, attribute):
-    try:
-        for feature in features:
-            try:
-                yield feature[attribute]
-            except KeyError:
-                pass
-    except TypeError:
-        # The features aren't iterable
-        pass
+    @staticmethod
+    def get_feature_attribute_startswith_value(features, attribute, value):
+        try:
+            for feature in features:
+                try:
+                    if any(map(lambda x: x.startswith(value),
+                               feature[attribute])):
+                        yield feature.id
+                except KeyError:
+                    pass
+        except TypeError:
+            # The features aren't iterable
+            pass
 
+    @staticmethod
+    def consolidated_series_to_dataframe(series):
+        dataframe = series.reset_index()
+        dataframe['criteria_full'] = dataframe[0].map(lambda x: x[0])
+        dataframe['event_id'] = dataframe[0].map(lambda x: x[1])
+        dataframe['criteria'] = dataframe[0].map(lambda x: x[0].split(',')[0])
+        dataframe['criteria_additional'] = dataframe['criteria_full'].map(
+            lambda x: x.split(',')[1] if len(x.split(',')) > 1 else np.nan)
+        dataframe = dataframe.drop(0, axis=1)
+        return dataframe
 
-def get_feature_attribute_with_value(features, attribute, value):
-    try:
-        for feature in features:
-            try:
-                if value in feature[attribute]:
-                    yield feature.id
-            except KeyError:
-                pass
-    except TypeError:
-        # The features aren't iterable
-        pass
+    @staticmethod
+    def consolidate_junction_events(df, db, event_col='event_id',
+                                    transcript_cols=transcript_cols):
+        if len(df) == 1:
+            return 'only one', df[event_col].values[0]
 
+        df_isoforms = df[transcript_cols].applymap(
+            lambda x: np.nan if len(x) == 0 else map(lambda y: db[y], x))
+        df_isoforms = df_isoforms.dropna(how='all')
 
-def get_feature_attribute_startswith_value(features, attribute, value):
-    try:
-        for feature in features:
-            try:
-                if any(map(lambda x: x.startswith(value),
-                           feature[attribute])):
-                    yield feature.id
-            except KeyError:
-                pass
-    except TypeError:
-        # The features aren't iterable
-        pass
+        if df_isoforms.empty:
+            return 'random,no gencode transcripts', df.loc[
+                np.random.choice(df.index), event_col]
 
+        if len(df_isoforms) == 1:
+            return 'one event with gencode transcripts', df.loc[
+                df_isoforms.index[0], event_col]
 
-def consolidate_junction_events(df, db, event_col='event_id',
-                                transcript_cols=transcript_cols):
-    if len(df) == 1:
-        return 'only one', df[event_col].values[0]
+        df_tags = df_isoforms.applymap(
+            lambda x: tuple(
+                itertools.chain(*get_attribute(x, 'tag')))
+            if not isinstance(x, float) else x)
 
-    df_isoforms = df[transcript_cols].applymap(
-        lambda x: np.nan if len(x) == 0 else map(lambda y: db[y], x))
-    df_isoforms = df_isoforms.dropna(how='all')
+        df_tags = df_tags.applymap(
+            lambda x: x if not isinstance(x, list) or len(x) > 0 else np.nan)
+        df_tags = df_tags.dropna(how='all')
+        if df_tags.empty:
+            return 'random df_isoforms', df_isoforms.loc[
+                np.random.choice(df_isoforms.index)]
 
-    if df_isoforms.empty:
-        return 'random,no gencode transcripts', df.loc[
-            np.random.choice(df.index), event_col]
+        for tag in BEST_TAGS:
+            df_this_tag = df_tags.applymap(
+                lambda x: map(lambda y: y.startswith(tag), x)
+                if isinstance(x, tuple) else False)
 
-    if len(df_isoforms) == 1:
-        return 'one event with gencode transcripts', df.loc[
-            df_isoforms.index[0], event_col]
+            # Which isoform has at least one true
+            df_this_tag = df_this_tag.any(axis=1)
+            #         print df_this_tag
+            if df_this_tag.any():
+                best_index = np.random.choice(df_this_tag.index[df_this_tag])
+                #             print '- best isoform:', tag, best_index
+                #             print df.loc[best_index].event_id
+                return 'best,{}'.format(tag), df.loc[best_index].event_id
+        else:
+            return 'random,no good tags', df.loc[np.random.choice(df.index),
+                                                 event_col]
 
-    df_tags = df_isoforms.applymap(
-        lambda x: tuple(
-            itertools.chain(*get_attribute(x, 'tag')))
-        if not isinstance(x, float) else x)
-
-    df_tags = df_tags.applymap(
-        lambda x: x if not isinstance(x, list) or len(x) > 0 else np.nan)
-    df_tags = df_tags.dropna(how='all')
-    if df_tags.empty:
-        return 'random df_isoforms', df_isoforms.loc[
-            np.random.choice(df_isoforms.index)]
-
-    for tag in BEST_TAGS:
-        df_this_tag = df_tags.applymap(
-            lambda x: map(lambda y: y.startswith(tag), x)
-            if isinstance(x, tuple) else False)
-
-        # Which isoform has at least one true
-        df_this_tag = df_this_tag.any(axis=1)
-        #         print df_this_tag
-        if df_this_tag.any():
-            best_index = np.random.choice(df_this_tag.index[df_this_tag])
-            #             print '- best isoform:', tag, best_index
-            #             print df.loc[best_index].event_id
-            return 'best,{}'.format(tag), df.loc[best_index].event_id
-    else:
-        return 'random,no good tags', df.loc[np.random.choice(df.index),
-                                             event_col]
