@@ -190,7 +190,7 @@ def assert_graph_items_equal(graph1, items1, graph2, items2):
             pdt.assert_numpy_array_equal(test, true)
 
 
-class TestAggregateJunctions(object):
+class TestEventMaker(object):
     @pytest.fixture
     def junction_aggregator(self, junction_exon_triples):
         from outrigger.events import EventMaker
@@ -266,32 +266,6 @@ exon:chr1:400-425:-,exon:chr1:300-350:-,exon:chr1:225-250:-,exon:chr1:150-175:-,
         true.index = range(len(true))
 
         pdt.assert_frame_equal(test, true)
-
-    def test_twin_cassette(self, junction_aggregator, strand):
-        # test = junction_aggregator.twin_cassette()
-
-        if strand == '+':
-            true = {('exon:chr1:150-175:+',  # Exon 1
-                     'exon:chr1:225-250:+',  # Exon 2
-                     'exon:chr1:300-350:+',  # Exon 3
-                     'exon:chr1:400-425:+'):  # Exon 4
-                    ('junction:chr1:176-299:+',  # Exon1-Exon2 junction
-                     'junction:chr1:251-299:+',  # Exon2-Exon3 junction
-                     'junction:chr1:351-399:+',  # Exon3-Exon4 junction
-                     'junction:chr1:176-399:+')  # Exon1-Exon4 junction
-                    }
-        else:
-            true = {('exon:chr1:400-425:-',  # Exon 1
-                     'exon:chr1:300-350:-',  # Exon 2
-                     'exon:chr1:225-250:-',  # Exon 3
-                     'exon:chr1:150-175:-'):  # Exon 4
-                    ('junction:chr1:351-399:-',  # Exon1-Exon2 junction
-                     'junction:chr1:251-299:-',  # Exon2-Exon3 junction
-                     'junction:chr1:176-225:-',  # Exon3-Exon4 junction
-                     'junction:chr1:176-399:-')  # Exon1-Exon4 junction
-                    }
-        return true
-        # pdt.assert_dict_equal(test, true)
 
     def test_a5ss(self, junction_aggregator, strand):
         true = {('exon:chr1:225-250:+',  # Exon 2
@@ -386,3 +360,8 @@ def graph_items(exon_start_stop, transcripts, chrom, strand):
                         continue
     items = tuple(items)
     return graph, items
+
+
+class TestEventConsolidator(object):
+
+    pass
