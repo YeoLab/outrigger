@@ -1,7 +1,11 @@
+import argparse
+import datetime
 import itertools
 import logging
+import os
 import sys
 
+import gffutils
 import graphlite
 from graphlite import V
 import numpy as np
@@ -527,3 +531,4 @@ class EventConsolidator(object):
         consolidated_df = self._consolidated_series_to_dataframe(
             consolidated)
         return consolidated_df
+
