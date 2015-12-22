@@ -410,6 +410,25 @@ class EventConsolidator(object):
                     row, exons=self.isoform2_exons, db=self.db)), axis=1)
 
     @staticmethod
+    def _get_isoform_transcripts(row, exons, db, exclude_exons=None,
+                                 featuretype='transcript'):
+
+        transcripts = map(
+            lambda x: set(db.parents(db[row[x]],
+                                     featuretype=featuretype)), exons)
+        transcripts = set.intersection(*transcripts)
+
+        if exclude_exons is not None:
+            exclude_exons = [exclude_exons] if isinstance(exclude_exons, str) \
+                else exclude_exons
+            exclude_transcripts = map(
+                lambda x: set(db.parents(db[row[x]], featuretype=featuretype)),
+                exclude_exons)
+            transcripts = transcripts.difference(
+                set.intersection(*exclude_transcripts))
+        return transcripts
+
+    @staticmethod
     def _get_attribute(features, attribute):
         try:
             for feature in features:
