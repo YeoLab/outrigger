@@ -1,5 +1,7 @@
 import argparse
+import datetime
 import os
+
 import gffutils
 
 
@@ -36,7 +38,7 @@ class CommandLine(object):
                               "use. The exon IDs defined here will be used in "
                               "the function")
         parser.add_argument('-o', '--output', required=False, type=str,
-                            action='store', default='./',
+                            action='store', default='./outrigger_output',
                             help='Where you want to save the generated files')
         parser.add_argument('--chrom', type=str, action='store',
                             default='chrom',
