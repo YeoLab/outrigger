@@ -19,6 +19,7 @@ def stringify_location(chrom, start, stop, strand, region=None):
     else:
         return '{0}:{1}-{2}:{3}'.format(chrom, start, stop, strand)
 
+
 def opposite(direction):
     return UPSTREAM if direction == DOWNSTREAM else DOWNSTREAM
 
@@ -69,7 +70,6 @@ class EventMaker(object):
                 tr.store(getattr(V(exon_i), row.direction)(junction_i))
                 tr.store(getattr(V(junction_i),
                                  opposite(row.direction))(exon_i))
-
 
     @staticmethod
     def make_junction_exon_triples(junction_to_exons,
@@ -287,7 +287,7 @@ class EventMaker(object):
                         .intersection(V(exon4_i).downstream)
 
                     exon_tuple = exon1_name, exon2.name, exon3.name, \
-                                 exon4_name
+                        exon4_name
                     #             print exon12_junction.next()
                     junctions = list(
                         itertools.chain(*[exon13_junction, exon34_junction,
