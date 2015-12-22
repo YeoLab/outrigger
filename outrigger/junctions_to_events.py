@@ -304,11 +304,11 @@ class JunctionAggregator(object):
         events = {}
         n_exons = self.exons.shape[0]
 
-        sys.stdout.write('Trying out {0} exons'
+        sys.stdout.write('Trying out {0} exons for skipped exon events'
                          '...\n'.format(n_exons))
         for i, exon1_name in enumerate(self.exons):
             if (i + 1) % 10000 == 0:
-                sys.stdout.write('\t{0}/{1} '
+                sys.stdout.write('\t{0}/{1}\n'
                                  'exons tested'.format(i + 1, n_exons))
 
             exon1_i = self.items.index(exon1_name)
@@ -424,8 +424,15 @@ class JunctionAggregator(object):
 
     def mutually_exclusive_exon(self):
         events = {}
+        n_exons = self.exons.shape[0]
 
-        for exon1_name in self.exons:
+        sys.stdout.write('Trying out {0} exons for mutually exclusive exon '
+                         'events...\n'.format(n_exons))
+        for i, exon1_name in enumerate(self.exons):
+            if (i + 1) % 10000 == 0:
+                sys.stdout.write('\t{0}/{1}\n'
+                                 'exons tested for MXE events'.format(i + 1,
+                                                                      n_exons))
             exon1_i = self.items.index(exon1_name)
 
             exon23s_from1 = list(
