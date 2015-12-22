@@ -19,6 +19,10 @@ def stringify_location(chrom, start, stop, strand, region=None):
     else:
         return '{0}:{1}-{2}:{3}'.format(chrom, start, stop, strand)
 
+def opposite(direction):
+    return UPSTREAM if direction == DOWNSTREAM else DOWNSTREAM
+
+
 class EventMaker(object):
 
     def __init__(self, junction_exon_triples, db=None, junction_col='junction',
@@ -60,15 +64,12 @@ class EventMaker(object):
                 self.log.debug('\n{} is {} of {}\n'.format(
                     exon, row.direction, junction))
                 self.log.debug('{} is {} of {}\n'.format(
-                    junction, self.opposite(row.direction), exon))
+                    junction, opposite(row.direction), exon))
 
                 tr.store(getattr(V(exon_i), row.direction)(junction_i))
                 tr.store(getattr(V(junction_i),
-                                 self.opposite(row.direction))(exon_i))
+                                 opposite(row.direction))(exon_i))
 
-    @staticmethod
-    def opposite(direction):
-        return UPSTREAM if direction == DOWNSTREAM else DOWNSTREAM
 
     @staticmethod
     def make_junction_exon_triples(junction_to_exons,

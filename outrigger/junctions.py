@@ -1,5 +1,4 @@
 import datetime
-import itertools
 import sys
 
 import gffutils
@@ -8,7 +7,6 @@ import pandas as pd
 UPSTREAM = 'upstream'
 DOWNSTREAM = 'downstream'
 DIRECTIONS = UPSTREAM, DOWNSTREAM
-
 
 
 class JunctionAnnotator(object):
