@@ -104,7 +104,7 @@ class EventMaker(object):
                      'exon:chr1:300-400:+'],
          'downstream':['exon:chr1:300-400:+',
          'exon:chr1:500-600:+,exon:chr1:500-650:+']})
-        >>> Annotator.get_adjacent_exons(sj_metadata)
+        >>> EventMaker.get_adjacent_exons(sj_metadata)
 
         """
         grouped = junction_to_exons.groupby(junction_col)
@@ -374,40 +374,34 @@ class EventMaker(object):
                                                        'junction24'])
         return events
 
-    def alt_5p_splice_site(self):
-        pass
-
-    def alt_3p_splice_site(self):
-        pass
-
-    def alt_first_exon(self):
-        pass
-
-    def alt_last_exon(self):
-        pass
-
-BEST_TAGS = 'appris_principal', 'appris_candidate', 'CCDS', 'basic'
-
-transcript_cols = ['isoform1_transcripts', 'isoform2_transcripts']
 
 class EventConsolidator(object):
-    def __init__(self, events, db, isoform1_exons, isoform2_exons, junctions):
 
+    def __init__(self, events, db, isoform1_exons, isoform2_exons, junctions,
+                 best_tags):
+        """Group events that share junctions and pick the best one
+
+        For events that look identical based on their junctions, pick the best
+        event based on biological information from the genome annotation
+        """
         self.events = events
         self.db = db
         self.isoform1_exons = isoform1_exons
         self.isoform2_exons = isoform2_exons
         self.junctions = junctions
+        self.best_tags = best_tags
+
+        self.transcript_cols = ['isoform1_transcripts', 'isoform2_transcripts']
 
         # Add isoform columns
         self.events['isoform1_transcripts'] = self.events.apply(
             lambda row: map(
-                lambda x: x.id, self.get_isoform_transcripts(
+                lambda x: x.id, self._get_isoform_transcripts(
                     row, exons=self.isoform1_exons, exclude_exons='exon2',
                     db=self.db)), axis=1)
         self.events['isoform2_transcripts'] = self.events.apply(
             lambda row: map(
-                lambda x: x.id, self.get_isoform_transcripts(
+                lambda x: x.id, self._get_isoform_transcripts(
                     row, exons=self.isoform2_exons, db=self.db)), axis=1)
 
     @staticmethod
@@ -479,13 +473,12 @@ class EventConsolidator(object):
         dataframe = dataframe.drop(0, axis=1)
         return dataframe
 
-    def _consolidate_junction_events(self, df, db, event_col='event_id',
-                                    transcript_cols=transcript_cols):
+    def _consolidate_junction_events(self, df, db, event_col='event_id'):
         """Given events that share the same junctions, pick the best one"""
         if len(df) == 1:
             return 'only one', df[event_col].values[0]
 
-        df_isoforms = df[transcript_cols].applymap(
+        df_isoforms = df[self.transcript_cols].applymap(
             lambda x: np.nan if len(x) == 0 else map(lambda y: db[y], x))
         df_isoforms = df_isoforms.dropna(how='all')
 
@@ -509,7 +502,7 @@ class EventConsolidator(object):
             return 'random,df_isoforms', df_isoforms.loc[
                 np.random.choice(df_isoforms.index)]
 
-        for tag in BEST_TAGS:
+        for tag in self.best_tags:
             df_this_tag = df_tags.applymap(
                 lambda x: map(lambda y: y.startswith(tag), x)
                 if isinstance(x, tuple) else False)
@@ -530,8 +523,7 @@ class EventConsolidator(object):
         """Of events that share the same junctions, pick the best exons"""
         consolidated = self.events.groupby(self.junctions).apply(
             lambda x: self._consolidate_junction_events(
-                x, self.db, event_col='event_id',
-                transcript_cols=transcript_cols))
+                x, self.db, event_col='event_id'))
         consolidated_df = self._consolidated_series_to_dataframe(
             consolidated)
         return consolidated_df
