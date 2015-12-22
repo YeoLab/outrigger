@@ -1,11 +1,14 @@
+import itertools
 import logging
+import sys
+
 import graphlite
 from graphlite import V
-
 import numpy as np
+import pandas as pd
 
 from .region import Region
-from .junctions import UPSTREAM, DOWNSTREAM
+from .junctions import UPSTREAM, DOWNSTREAM, DIRECTIONS
 
 
 def stringify_location(chrom, start, stop, strand, region=None):
@@ -382,12 +385,32 @@ class EventMaker(object):
     def alt_last_exon(self):
         pass
 
-    BEST_TAGS = 'appris_principal', 'appris_candidate', 'CCDS', 'basic'
+BEST_TAGS = 'appris_principal', 'appris_candidate', 'CCDS', 'basic'
 
-    transcript_cols = ['isoform1_transcripts', 'isoform2_transcripts']
+transcript_cols = ['isoform1_transcripts', 'isoform2_transcripts']
+
+class EventConsolidator(object):
+    def __init__(self, events, db, isoform1_exons, isoform2_exons, junctions):
+
+        self.events = events
+        self.db = db
+        self.isoform1_exons = isoform1_exons
+        self.isoform2_exons = isoform2_exons
+        self.junctions = junctions
+
+        # Add isoform columns
+        self.events['isoform1_transcripts'] = self.events.apply(
+            lambda row: map(
+                lambda x: x.id, self.get_isoform_transcripts(
+                    row, exons=self.isoform1_exons, exclude_exons='exon2',
+                    db=self.db)), axis=1)
+        self.events['isoform2_transcripts'] = self.events.apply(
+            lambda row: map(
+                lambda x: x.id, self.get_isoform_transcripts(
+                    row, exons=self.isoform2_exons, db=self.db)), axis=1)
 
     @staticmethod
-    def get_attribute(features, attribute):
+    def _get_attribute(features, attribute):
         try:
             for feature in features:
                 try:
@@ -399,7 +422,7 @@ class EventMaker(object):
             pass
 
     @staticmethod
-    def get_feature_attribute_with_value(features, attribute, value):
+    def _get_feature_attribute_with_value(features, attribute, value):
         try:
             for feature in features:
                 try:
@@ -412,7 +435,7 @@ class EventMaker(object):
             pass
 
     @staticmethod
-    def get_feature_attribute_startswith_value(features, attribute, value):
+    def _get_feature_attribute_startswith_value(features, attribute, value):
         try:
             for feature in features:
                 try:
@@ -426,7 +449,7 @@ class EventMaker(object):
             pass
 
     @staticmethod
-    def consolidated_series_to_dataframe(series):
+    def _consolidated_series_to_dataframe(series):
         dataframe = series.reset_index()
         dataframe['criteria_full'] = dataframe[0].map(lambda x: x[0])
         dataframe['event_id'] = dataframe[0].map(lambda x: x[1])
@@ -436,9 +459,9 @@ class EventMaker(object):
         dataframe = dataframe.drop(0, axis=1)
         return dataframe
 
-    @staticmethod
-    def consolidate_junction_events(df, db, event_col='event_id',
+    def _consolidate_junction_events(self, df, db, event_col='event_id',
                                     transcript_cols=transcript_cols):
+        """Given events that share the same junctions, pick the best one"""
         if len(df) == 1:
             return 'only one', df[event_col].values[0]
 
@@ -456,14 +479,14 @@ class EventMaker(object):
 
         df_tags = df_isoforms.applymap(
             lambda x: tuple(
-                itertools.chain(*get_attribute(x, 'tag')))
+                itertools.chain(*self._get_attribute(x, 'tag')))
             if not isinstance(x, float) else x)
 
         df_tags = df_tags.applymap(
             lambda x: x if not isinstance(x, list) or len(x) > 0 else np.nan)
         df_tags = df_tags.dropna(how='all')
         if df_tags.empty:
-            return 'random df_isoforms', df_isoforms.loc[
+            return 'random,df_isoforms', df_isoforms.loc[
                 np.random.choice(df_isoforms.index)]
 
         for tag in BEST_TAGS:
@@ -483,3 +506,12 @@ class EventMaker(object):
             return 'random,no good tags', df.loc[np.random.choice(df.index),
                                                  event_col]
 
+    def consolidate(self):
+        """Of events that share the same junctions, pick the best exons"""
+        consolidated = self.events.groupby(self.junctions).apply(
+            lambda x: self._consolidate_junction_events(
+                x, self.db, event_col='event_id',
+                transcript_cols=transcript_cols))
+        consolidated_df = self._consolidated_series_to_dataframe(
+            consolidated)
+        return consolidated_df
