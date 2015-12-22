@@ -364,4 +364,26 @@ def graph_items(exon_start_stop, transcripts, chrom, strand):
 
 class TestEventConsolidator(object):
 
-    pass
+    def test_init(self):
+        pass
+
+    def test_get_isoform_transcripts(self):
+        pass
+
+    def test_get_attribute(self):
+        pass
+
+    def test_get_feature_attribute_with_value(self):
+        pass
+
+    def test_get_feature_attribute_startswith_value(self):
+        pass
+
+    def test_consolidated_series_to_dataframe(self):
+        pass
+
+    def test_consolidate_junction_events(self):
+        pass
+
+    def consolidate(self):
+        pass
