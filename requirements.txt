@@ -5,3 +5,4 @@ flake8
 coverage
 pybedtools
 graphlite
+sj2psi

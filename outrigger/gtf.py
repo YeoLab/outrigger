@@ -18,6 +18,7 @@ def transform(f):
         f.attributes['fancy_id'] = [exon_id]
         return f
 
+
 def create_db(gtf_filename, db_filename=None):
     db_filename = ':memory:' if db_filename is None else db_filename
 

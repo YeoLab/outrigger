@@ -10,13 +10,6 @@ import six
 logging.basicConfig(level=logging.DEBUG)
 
 
-@pytest.fixture(params=['positive', 'negative'])
-def strand(request):
-    if request.param == 'positive':
-        return '+'
-    else:
-        return '-'
-
 
 @pytest.fixture()
 def chrom():
@@ -363,6 +356,14 @@ def graph_items(exon_start_stop, transcripts, chrom, strand):
 
 
 class TestEventConsolidator(object):
+
+    @pytest.fixture
+    def se_events(self):
+        pass
+
+    @pytest.fixture
+    def mxe_events(self):
+        pass
 
     def test_init(self):
         pass
