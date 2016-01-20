@@ -1,11 +1,7 @@
-import argparse
-import datetime
 import itertools
 import logging
-import os
 import sys
 
-import gffutils
 import graphlite
 from graphlite import V
 import numpy as np
