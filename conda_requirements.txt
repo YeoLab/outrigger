@@ -5,3 +5,4 @@ flake8
 coverage
 bedtools
 pybedtools
+gffutils
