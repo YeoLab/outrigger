@@ -13,12 +13,9 @@ class CommandLine(object):
         self.parser = argparse.ArgumentParser(
             description='Calculate percent-spliced in on a *de novo* '
                         'custom-built splicing index')
-        self.subparser = self.parser.add_subparsers(help='Sub-command help')
+        self.subparser = self.parser.add_subparsers(help='Sub-commands')
 
-        if inOpts is None:
-            self.args = vars(self.parser.parse_args())
-        else:
-            self.args = vars(self.parser.parse_args(inOpts))
+
 
         # # parse_args defaults to [1:] for args, but you need to
         # # exclude the rest of the args too, or validation will fail
@@ -36,15 +33,9 @@ class CommandLine(object):
             'build', help='Build an index of splicing events using a graph '
                           'database on your junction reads and an annotation')
 
-        self.parser.add_argument('-j', '--sj-out-tab', required=True,
+        build_parser.add_argument('-j', '--sj-out-tab', required=True,
                                  type=str, action='store',
-                                 help='SJ')
-        self.parser.add_argument('-s', '--sep', type=str, action='store',
-                                 default=',',
-                                 help="Separator between items in '--junctions'. "
-                                      "Default is a comma, indicating a "
-                                      "comma-separated variable (CSV) file. For "
-                                      "tab-separated, specify '\\t'")
+                                 help='SJ.out.tab files from STAR aligner output')
         gtf = build_parser.add_mutually_exclusive_group(required=True)
         gtf.add_argument('-g', '--gtf', type=str, action='store',
                               help="Name of the gtf file you want to use. If a "
@@ -59,15 +50,21 @@ class CommandLine(object):
                               help="Name of the gffutils database file you want to "
                                    "use. The exon IDs defined here will be used in "
                                    "the function")
-        self.parser.add_argument('-o', '--output', required=False, type=str,
+        build_parser.add_argument('-o', '--output', required=False, type=str,
                                  action='store', default='./outrigger_output',
                                  help='Where you want to save the generated files')
 
     # def psi(self):
         """Subcommand to calculate psi on the built index"""
         psi_parser = self.subparser.add_parser(
-            'psi', help='Calculate "percent spliced-in" (Psi) values')
+            'psi', help='Calculate "percent spliced-in" (Psi) values using the '
+                        'splicing event index built with "outrigger index"')
         psi_parser.add_argument('-j')
+
+        if inOpts is None:
+            self.args = self.parser.print_usage()
+        else:
+            self.args = vars(self.parser.parse_args(inOpts))
 
     # def do_usage_and_die(self, str):
     #     '''
