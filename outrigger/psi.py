@@ -5,6 +5,17 @@ import pandas as pd
 idx = pd.IndexSlice
 MIN_READS = 10
 
+SE_ISOFORM1_JUNCTIONS = ['junction13']
+SE_ISOFORM2_JUNCTIONS = ['junction12', 'junction23']
+
+MXE_ISOFORM1_JUNCTIONS = ['junction13', 'junction34']
+MXE_ISOFORM2_JUNCTIONS = ['junction12', 'junction24']
+
+ISOFORM_JUNCTIONS = {'se': {'isoform1_junctions': SE_ISOFORM1_JUNCTIONS,
+                       'isoform2_junctions': SE_ISOFORM2_JUNCTIONS},
+                'mxe': {'isoform1_junctions': MXE_ISOFORM1_JUNCTIONS,
+                        'isoform2_junctions': MXE_ISOFORM2_JUNCTIONS}}
+
 
 def filter_and_sum(reads, min_reads, junctions):
     """Require minimum reads and sum junctions from the same sample
@@ -56,14 +67,14 @@ def maybe_get_isoform_reads(splice_junction_reads, junction_locations,
         return pd.Series()
 
 
-def calculate_psi(exons_to_junctions, splice_junction_reads,
+def calculate_psi(event_annotation, splice_junction_reads,
                   isoform1_junctions, isoform2_junctions, reads_col='reads',
                   min_reads=10, event_col='event_id', debug=False):
     """Compute percent-spliced-in of events based on junction reads
 
     Parameters
     ----------
-    exons_to_junctions : pandas.DataFrame
+    event_annotation : pandas.DataFrame
         A table where each row represents a single splicing event. The required
         columns are the ones specified in `isoform1_junctions`,
         `isoform2_junctions`, and `event_col`.
@@ -77,14 +88,14 @@ def calculate_psi(exons_to_junctions, splice_junction_reads,
         The minimum number of reads that need to be observed at each junction
         for an event to be counted.
     isoform1_junctions : list
-        Columns in `exons_to_junctions` which represent junctions that
+        Columns in `event_annotation` which represent junctions that
         correspond to isoform1, the Psi=0 isoform, e.g. ['junction13']
     isoform2_junctions : list
-        Columns in `exons_to_junctions` which represent junctions that
+        Columns in `event_annotation` which represent junctions that
         correspond to isoform2, the Psi=1 isoform, e.g.
         ['junction12', 'junction23']
     event_col : str
-        Column in `exons_to_junctions` which is a unique identifier for each
+        Column in `event_annotation` which is a unique identifier for each
         row, e.g.
 
     Returns
@@ -98,7 +109,7 @@ def calculate_psi(exons_to_junctions, splice_junction_reads,
 
     junction_cols = isoform1_junctions + isoform2_junctions
 
-    for i, row in exons_to_junctions.iterrows():
+    for i, row in event_annotation.iterrows():
         isoform1 = maybe_get_isoform_reads(splice_junction_reads, row,
                                            isoform1_junctions, reads_col)
         isoform2 = maybe_get_isoform_reads(splice_junction_reads, row,
