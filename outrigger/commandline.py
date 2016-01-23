@@ -47,7 +47,6 @@ class CommandLine(object):
                                     " samples from the SJ.out.tab files that were used during "
                                     "'outrigger index' will be used. Not required if you specify "
                                     "SJ.out.tab file with '--sj-out-tab'")
-
         index_parser.add_argument('-m', '--min-reads', type=int, action='store',
                                   required=False, default=10,
                                   help='Minimum number of reads per junction for '
@@ -73,6 +72,7 @@ class CommandLine(object):
                                    "will be used in the function when creating"
                                    " splicing event names. Not required if you"
                                    " provide a gtf file with '--gtf'")
+        index_parser.set_defaults(func=self.index)
 
         # Subcommand to calculate psi on the built index
         psi_parser = self.subparser.add_parser(
@@ -108,6 +108,7 @@ class CommandLine(object):
         psi_parser.add_argument('--debug', required=False, action='store_true',
                                 help='If given, print debugging logging '
                                      'information to standard out')
+        psi_parser.set_defaults(func=self.psi)
 
         print(input_options)
         if input_options is None or len(input_options) == 0:
@@ -117,7 +118,7 @@ class CommandLine(object):
             self.args = self.parser.parse_args(input_options)
         print(self.args)
 
-        getattr(self, self.args.subparser_name)()
+        self.args.func()
 
 
     def csv(self):
