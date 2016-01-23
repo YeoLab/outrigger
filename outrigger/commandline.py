@@ -10,9 +10,9 @@ with warnings.catch_warnings():
     warnings.simplefilter("ignore")
     import pandas as pd
 
-from outrigger.psi import calculate_psi, ISOFORM_JUNCTIONS
-from outrigger.star import read_multiple_sj_out_tab
-from outrigger.util import timestamp
+from outrigger import psi
+from outrigger import star
+from outrigger import util
 
 class CommandLine(object):
     def __init__(self, input_options=None):
@@ -142,7 +142,7 @@ class CommandLine(object):
         out : type
             Explanation of `out`.
         """
-        splice_junctions = read_multiple_sj_out_tab(self.args['sj_out_tab'])
+        splice_junctions = star.read_multiple_sj_out_tab(self.args['sj_out_tab'])
         splice_junctions.to_csv(os.path.join(self.args['index'], 'sj.csv'), index=False)
         return splice_junctions
 
@@ -154,14 +154,14 @@ class CommandLine(object):
         try:
             csv = self.args['splice_junction_csv']
             sys.stdout.write('{}\tReading splice junction reads from {} ...\n'.format(
-                timestamp(), csv))
+                util.timestamp(), csv))
             splice_junction_reads = pd.read_csv(csv)
-            sys.stdout.write('{}\t\tDone.\n'.format(timestamp()))
+            sys.stdout.write('{}\t\tDone.\n'.format(util.timestamp()))
         except KeyError:
             sys.stdout.write('{}\tCreating consolidated splice junction file "sj.csv" '
-                             'from SJ.out.tab files ...\n'.format(timestamp()))
+                             'from SJ.out.tab files ...\n'.format(util.timestamp()))
             splice_junction_reads = self.csv()
-            sys.stdout.write('{}\t\tDone.\n'.format(timestamp()))
+            sys.stdout.write('{}\t\tDone.\n'.format(util.timestamp()))
 
         splice_junction_reads = splice_junction_reads.set_index(
             ['junction_location', 'sample_id'])
@@ -171,31 +171,31 @@ class CommandLine(object):
         for filename in glob.iglob('{}/*.csv'.format(events_folder)):
             event_type = os.path.basename(filename).split('.csv')[0]
             sys.stdout.write('{}\tReading {} events from {} ...\n'.format(
-                timestamp(), event_type.upper(), filename))
+                util.timestamp(), event_type.upper(), filename))
 
-            isoform_junctions = ISOFORM_JUNCTIONS[event_type]
+            isoform_junctions = psi.ISOFORM_JUNCTIONS[event_type]
             event_annotation = pd.read_csv(filename)
-            sys.stdout.write('{}\t\tDone.\n'.format(timestamp()))
+            sys.stdout.write('{}\t\tDone.\n'.format(util.timestamp()))
 
             sys.stdout.write('{}\tCalculating percent spliced-in (Psi) '
                              'scores on {} events ...\n'.format(
-                timestamp(), event_type.upper()))
-            event_psi = calculate_psi(event_annotation, splice_junction_reads,
+                util.timestamp(), event_type.upper()))
+            event_psi = psi.calculate_psi(event_annotation, splice_junction_reads,
                                       min_reads=self.args['min_reads'],
                                       debug=self.args['debug'],
                                       **isoform_junctions)
-            sys.stdout.write('{}\t\tDone.\n'.format(timestamp()))
+            sys.stdout.write('{}\t\tDone.\n'.format(util.timestamp()))
             psis.append(event_psi)
 
         sys.stdout.write('{}\tConcatenating all calculated psi scores '
-                         'into one big matrix...\n'.format(timestamp()))
-        psi = pd.concat(psis)
-        psi = psi.T
+                         'into one big matrix...\n'.format(util.timestamp()))
+        splicing = pd.concat(psis)
+        splicing = splicing.T
         csv = os.path.join(self.args['index'], 'psi.csv')
         sys.stdout.write('{}\tWriting a samples x features matrix of Psi '
-                         'scores to {} ...\n'.format(timestamp(), csv))
-        psi.to_csv(csv)
-        sys.stdout.write('{}\t\tDone.\n'.format(timestamp()))
+                         'scores to {} ...\n'.format(util.timestamp(), csv))
+        splicing.to_csv(csv)
+        sys.stdout.write('{}\t\tDone.\n'.format(util.timestamp()))
 
 def main():
     cl = CommandLine(sys.argv[1:])
