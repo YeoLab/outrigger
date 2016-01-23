@@ -15,7 +15,7 @@ from outrigger.star import read_multiple_sj_out_tab
 from outrigger.util import timestamp
 
 class CommandLine(object):
-    def __init__(self, inOpts=None):
+    def __init__(self, input_options=None):
         self.parser = argparse.ArgumentParser(
             description='Calculate "percent-spliced in" (Psi) scores of '
                         'alternative splicing on a *de novo*, custom-built '
@@ -101,10 +101,12 @@ class CommandLine(object):
                                 help='If given, print debugging logging '
                                      'information to standard out')
 
-        if inOpts is None or len(inOpts) == 0:
-            self.args = self.parser.print_usage()
+        print(input_options)
+        if input_options is None or len(input_options) == 0:
+            self.parser.print_usage()
+            self.args = None
         else:
-            self.args = vars(self.parser.parse_args(inOpts))
+            self.args = vars(self.parser.parse_args(input_options))
         print(self.args)
 
     def csv(self):
@@ -187,7 +189,9 @@ class CommandLine(object):
         psi.to_csv(csv)
         sys.stdout.write('{}\t\tDone.\n'.format(timestamp()))
 
+def main():
+    cl = CommandLine(sys.argv[1:])
 
 if __name__ == '__main__':
     # try:
-    cl = CommandLine(sys.argv[1:])
+    main()
