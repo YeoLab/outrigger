@@ -23,7 +23,7 @@ class CommandLine(object):
 
         self.subparser = self.parser.add_subparsers(help='Sub-commands')
 
-        # Subcommand to build the index of splicing events
+        # --- Subcommand to build the index of splicing events --- #
         index_parser = self.subparser.add_parser(
             'index', help='Build an index of splicing events using a graph '
                           'database on your junction reads and an annotation')
@@ -74,7 +74,7 @@ class CommandLine(object):
                                    " provide a gtf file with '--gtf'")
         index_parser.set_defaults(func=self.index)
 
-        # Subcommand to calculate psi on the built index
+        # --- Subcommand to calculate psi on the built index --- #
         psi_parser = self.subparser.add_parser(
             'psi', help='Calculate "percent spliced-in" (Psi) values using the '
                         'splicing event index built with "outrigger index"')
@@ -105,6 +105,21 @@ class CommandLine(object):
                                 required=False,
                                 help='Minimum number of reads per junction for '
                                      'calculating Psi (default=10)')
+        psi_parser.add_argument('--reads-col', default='reads',
+                                help="Name of column in --splice-junction-csv "
+                                     "containing reads to use. "
+                                     "(default='reads')")
+        psi_parser.add_argument('--sample-id-col', default='sample_id',
+                                help="Name of column in --splice-junction-csv"
+                                     "containing sample ids to use. "
+                                     "(default='sample_id')")
+        psi_parser.add_argument('--junction-location-col',
+                                default='junction_location',
+                                help="Name of column in --splice-junction-csv"
+                                     "containing the ID of the junction to use"
+                                     ". Must match exactly with the junctions "
+                                     "in the index."
+                                     "(default='junction_location')")
         psi_parser.add_argument('--debug', required=False, action='store_true',
                                 help='If given, print debugging logging '
                                      'information to standard out')
@@ -156,19 +171,43 @@ class CommandLine(object):
     def psi(self):
 
         try:
-            csv = self.args.splice_junction_csv
-            sys.stdout.write('{}\tReading splice junction reads from {} ...\n'.format(
-                util.timestamp(), csv))
-            splice_junction_reads = pd.read_csv(csv)
+            sys.stdout.write('{}\tReading splice junction reads from {} ...'
+                             '\n'.format(
+                util.timestamp(), self.args.splice_junction_csv))
+            splice_junction_reads = pd.read_csv(self.args.splice_junction_csv)
+
+            try:
+                assert self.args.reads_col in splice_junction_reads
+            except AssertionError:
+                raise(AssertionError('The column specifying reads, '
+                                     '"{}", is not contained in {}'.format(
+                    self.args.reads_col), self.args.splice_junction_csv))
+            try:
+                assert self.args.sample_id_col in splice_junction_reads
+            except AssertionError:
+                raise(AssertionError('The column specifying the sample '
+                                     'ids, "{}", is not contained in '
+                                     '{}'.format(
+                    self.args.sample_id_col, self.args.splice_junction_csv)))
+            try:
+                assert self.args.junction_location_col in splice_junction_reads
+            except AssertionError:
+                raise(AssertionError('The column specifying the junction  '
+                                     'location, "{}", is not contained in '
+                                     '{}'.format(
+                    self.args.junction_location_col,
+                    self.args.splice_junction_csv)))
+
             sys.stdout.write('{}\t\tDone.\n'.format(util.timestamp()))
         except KeyError:
-            sys.stdout.write('{}\tCreating consolidated splice junction file "sj.csv" '
-                             'from SJ.out.tab files ...\n'.format(util.timestamp()))
+            sys.stdout.write('{}\tCreating consolidated splice junction '
+                             'file "sj.csv" from SJ.out.tab files ...'
+                             '\n'.format(util.timestamp()))
             splice_junction_reads = self.csv()
             sys.stdout.write('{}\t\tDone.\n'.format(util.timestamp()))
 
         splice_junction_reads = splice_junction_reads.set_index(
-            ['junction_location', 'sample_id'])
+            ['junction_location', self.args.sample_id_col])
 
         events_folder = os.path.join(self.args.index, 'events')
         psis = []
@@ -184,10 +223,10 @@ class CommandLine(object):
             sys.stdout.write('{}\tCalculating percent spliced-in (Psi) '
                              'scores on {} events ...\n'.format(
                 util.timestamp(), event_type.upper()))
-            event_psi = psi.calculate_psi(event_annotation, splice_junction_reads,
-                                      min_reads=self.args.min_reads,
-                                      debug=self.args.debug,
-                                      **isoform_junctions)
+            event_psi = psi.calculate_psi(
+                event_annotation, splice_junction_reads,
+                min_reads=self.args.min_reads, debug=self.args.debug,
+                reads_col=self.args.reads_col, **isoform_junctions)
             sys.stdout.write('{}\t\tDone.\n'.format(util.timestamp()))
             psis.append(event_psi)
 
