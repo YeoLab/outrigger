@@ -4,9 +4,11 @@ import argparse
 import glob
 import os
 import sys
+import warnings
 
-import gffutils
-import pandas as pd
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore")
+    import pandas as pd
 
 from outrigger.psi import calculate_psi, ISOFORM_JUNCTIONS
 from outrigger.star import read_multiple_sj_out_tab
