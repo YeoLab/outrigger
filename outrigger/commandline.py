@@ -37,14 +37,22 @@ class CommandLine(object):
                                      'program)". You will need this file for '
                                        'the next step, "outrigger psi"')
 
-        index_parser.add_argument(
-            '-j', '--sj-out-tab', required=True, type=str, action='store',
+        junctions = index_parser.add_mutually_exclusive_group(required=True)
+        junctions.add_argument(
+            '-j', '--sj-out-tab', type=str, action='store',
             nargs='*', help='SJ.out.tab files from STAR aligner output')
+        junctions.add_argument('-c', '--splice-junction-csv',
+                               help="Name of the splice junction files to calculate psi scores "
+                                    "on. If not provided, the compiled 'sj.csv' file with all the"
+                                    " samples from the SJ.out.tab files that were used during "
+                                    "'outrigger index' will be used. Not required if you specify "
+                                    "SJ.out.tab file with '--sj-out-tab'")
+
         index_parser.add_argument('-m', '--min-reads', type=int, action='store',
-                                  required=False,
+                                  required=False, default=10,
                                   help='Minimum number of reads per junction for '
-                                       'that junction to count in creating the '
-                                       'index of splicing events (default=10)')
+                                    'that junction to count in creating the '
+                                    'index of splicing events (default=10)')
 
         gtf = index_parser.add_mutually_exclusive_group(required=True)
         gtf.add_argument('-g', '--gtf', type=str, action='store',
@@ -92,7 +100,7 @@ class CommandLine(object):
             '-j', '--sj-out-tab', required=False,
             type=str, action='store', nargs='*',
             help='SJ.out.tab files from STAR aligner output. Not required if '
-                 'you specify')
+                 'you specify a file with "--splice-junction-csv"')
         psi_parser.add_argument('-m', '--min-reads', type=int, action='store',
                                 required=False,
                                 help='Minimum number of reads per junction for '
