@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/YeoLab/outrigger.svg?branch=master)](https://travis-ci.org/YeoLab/outrigger)[![](https://img.shields.io/pypi/v/outrigger.svg)](https://pypi.python.org/pypi/outrigger)[![Coverage Status](https://coveralls.io/repos/YeoLab/outrigger/badge.svg?branch=master&service=github)](https://coveralls.io/github/YeoLab/outrigger?branch=master)
 
-Outrigger is a program to analyze alternative splicing RNA-Seq data, specifically by
+Outrigger is a program to calculate splicing scores of RNA-Seq data based on junction reads and a *de novo*, custom annotation created with a graph database.
 
  1. Read all your `SJ.out.tab` files from the STAR aligner into a single, compiled file
  2. Building a *de novo* splicing annotation index [of skipped exon (SE) and mutually exclusive exon (MXE) events] that is custom to the junctions observed in your data
