@@ -1,12 +1,16 @@
 #!/usr/bin/env python
 
 import argparse
-import datetime
+import glob
 import os
 import sys
 
 import gffutils
+import pandas as pd
 
+from outrigger.psi import calculate_psi, ISOFORM_JUNCTIONS
+from outrigger.star import read_multiple_sj_out_tab
+from outrigger.util import timestamp
 
 class CommandLine(object):
     def __init__(self, inOpts=None):
@@ -14,20 +18,33 @@ class CommandLine(object):
             description='Calculate "percent-spliced in" (Psi) scores of '
                         'alternative splicing on a *de novo*, custom-built '
                         'splicing index')
+
         self.subparser = self.parser.add_subparsers(help='Sub-commands')
 
-
-    # def build(self):
-        """Subcommand to build the index of splicing events"""
-        build_parser = self.subparser.add_parser(
-            'build', help='Build an index of splicing events using a graph '
+        # Subcommand to build the index of splicing events
+        index_parser = self.subparser.add_parser(
+            'index', help='Build an index of splicing events using a graph '
                           'database on your junction reads and an annotation')
 
-        build_parser.add_argument('-j', '--sj-out-tab', required=True,
-                                 type=str, action='store', nargs='*',
-                                 help='SJ.out.tab files from STAR aligner '
-                                      'output')
-        gtf = build_parser.add_mutually_exclusive_group(required=True)
+        index_parser.add_argument('-i', '--index', required=False, type=str,
+                                  action='store', default='./outrigger_index',
+                                  help='Name of the folder where you saved the '
+                                     'output from "outrigger index" (default '
+                                     'is ./outrigger_index, which is relative '
+                                     'to the directory where you called the '
+                                     'program)". You will need this file for '
+                                       'the next step, "outrigger psi"')
+
+        index_parser.add_argument(
+            '-j', '--sj-out-tab', required=True, type=str, action='store',
+            nargs='*', help='SJ.out.tab files from STAR aligner output')
+        index_parser.add_argument('-m', '--min-reads', type=int, action='store',
+                                  required=False,
+                                  help='Minimum number of reads per junction for '
+                                       'that junction to count in creating the '
+                                       'index of splicing events (default=10)')
+
+        gtf = index_parser.add_mutually_exclusive_group(required=True)
         gtf.add_argument('-g', '--gtf', type=str, action='store',
                               help="Name of the gtf file you want to use. If "
                                    "a gffutils feature database doesn't "
@@ -46,22 +63,20 @@ class CommandLine(object):
                                    "will be used in the function when creating"
                                    " splicing event names. Not required if you"
                                    " provide a gtf file with '--gtf'")
-        build_parser.add_argument('-o', '--output', required=False, type=str,
-                                 action='store', default='./outrigger_index',
-                                 help='Where you want to save the index of '
-                                      'splicing events')
 
-    # def psi(self):
-        """Subcommand to calculate psi on the built index"""
+        # Subcommand to calculate psi on the built index
         psi_parser = self.subparser.add_parser(
             'psi', help='Calculate "percent spliced-in" (Psi) values using the '
                         'splicing event index built with "outrigger index"')
-        psi_parser.add_argument('-i', '--index', required=True,
+        psi_parser.add_argument('-i', '--index', required=False,
+                                default='./outrigger_index',
                                 help='Name of the folder where you saved the '
                                      'output from "outrigger index" (default '
                                      'is ./outrigger_index, which is relative '
-                                     'to the directory where you called the '
-                                     'program)"')
+                                     'to the directory where you called this '
+                                     'program, assuming you have called '
+                                     '"outrigger psi" in the same folder as '
+                                     'you called "outrigger index")')
         splice_junctions = psi_parser.add_mutually_exclusive_group(
             required=False)
         splice_junctions.add_argument(
@@ -76,6 +91,13 @@ class CommandLine(object):
             type=str, action='store', nargs='*',
             help='SJ.out.tab files from STAR aligner output. Not required if '
                  'you specify')
+        psi_parser.add_argument('-m', '--min-reads', type=int, action='store',
+                                required=False,
+                                help='Minimum number of reads per junction for '
+                                     'calculating Psi (default=10)')
+        psi_parser.add_argument('--debug', required=False, action='store_true',
+                                help='If given, print debugging logging '
+                                     'information to standard out')
 
         if inOpts is None or len(inOpts) == 0:
             self.args = self.parser.print_usage()
@@ -83,22 +105,85 @@ class CommandLine(object):
             self.args = vars(self.parser.parse_args(inOpts))
         print(self.args)
 
-        # # parse_args defaults to [1:] for args, but you need to
-        # # exclude the rest of the args too, or validation will fail
-        # args = self.parser.parse_args(sys.argv[1:2])
-        # if not hasattr(self, self.args[0]):
-        #     sys.stderr.write('Unrecognized command\n')
-        #     self.parser.print_help()
-        #     exit(1)
-        # # use dispatch pattern to invoke method with same name
-        # getattr(self, args.command)()
+    def csv(self):
+        """Create a csv file of compiled splice junctions
 
-    def build(self):
+        Parameters
+        ----------
+        var1 : array_like
+            Array_like means all those objects -- lists, nested lists, etc. --
+            that can be converted to an array.  We can also refer to
+            variables like `var1`.
+        var2 : int
+            The type above can either refer to an actual Python type
+            (e.g. ``int``), or describe the type of the variable in more
+            detail, e.g. ``(N,) ndarray`` or ``array_like``.
+        Long_variable_name : {'hi', 'ho'}, optional
+            Choices in brackets, default first when optional.
+
+        Returns
+        -------
+        type
+            Explanation of anonymous return value of type ``type``.
+        describe : type
+            Explanation of return value named `describe`.
+        out : type
+            Explanation of `out`.
+        """
+        splice_junctions = read_multiple_sj_out_tab(self.args['sj_out_tab'])
+        splice_junctions.to_csv(os.path.join(self.args['index'], 'sj.csv'), index=False)
+        return splice_junctions
+
+    def index(self):
         pass
 
     def psi(self):
-        pass
 
+        try:
+            csv = self.args['splice_junction_csv']
+            sys.stdout.write('{}\tReading splice junction reads from {} ...\n'.format(
+                timestamp(), csv))
+            splice_junction_reads = pd.read_csv(csv)
+            sys.stdout.write('{}\t\tDone.\n'.format(timestamp()))
+        except KeyError:
+            sys.stdout.write('{}\tCreating consolidated splice junction file "sj.csv" '
+                             'from SJ.out.tab files ...\n'.format(timestamp()))
+            splice_junction_reads = self.csv()
+            sys.stdout.write('{}\t\tDone.\n'.format(timestamp()))
+
+        splice_junction_reads = splice_junction_reads.set_index(
+            ['junction_location', 'sample_id'])
+
+        events_folder = os.path.join(self.args['index'], 'events')
+        psis = []
+        for filename in glob.iglob('{}/*.csv'.format(events_folder)):
+            event_type = os.path.basename(filename).split('.csv')[0]
+            sys.stdout.write('{}\tReading {} events from {} ...\n'.format(
+                timestamp(), event_type.upper(), filename))
+
+            isoform_junctions = ISOFORM_JUNCTIONS[event_type]
+            event_annotation = pd.read_csv(filename)
+            sys.stdout.write('{}\t\tDone.\n'.format(timestamp()))
+
+            sys.stdout.write('{}\tCalculating percent spliced-in (Psi) '
+                             'scores on {} events ...\n'.format(
+                timestamp(), event_type.upper()))
+            event_psi = calculate_psi(event_annotation, splice_junction_reads,
+                                      min_reads=self.args['min_reads'],
+                                      debug=self.args['debug'],
+                                      **isoform_junctions)
+            sys.stdout.write('{}\t\tDone.\n'.format(timestamp()))
+            psis.append(event_psi)
+
+        sys.stdout.write('{}\tConcatenating all calculated psi scores '
+                         'into one big matrix...\n'.format(timestamp()))
+        psi = pd.concat(psis)
+        psi = psi.T
+        csv = os.path.join(self.args['index'], 'psi.csv')
+        sys.stdout.write('{}\tWriting a samples x features matrix of Psi '
+                         'scores to {} ...\n'.format(timestamp(), csv))
+        psi.to_csv(csv)
+        sys.stdout.write('{}\t\tDone.\n'.format(timestamp()))
 
 
 if __name__ == '__main__':
