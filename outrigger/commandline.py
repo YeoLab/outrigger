@@ -114,8 +114,11 @@ class CommandLine(object):
             self.parser.print_usage()
             self.args = None
         else:
-            self.args = vars(self.parser.parse_args(input_options))
+            self.args = self.parser.parse_args(input_options)
         print(self.args)
+
+        getattr(self, self.args.subparser_name)()
+
 
     def csv(self):
         """Create a csv file of compiled splice junctions
@@ -142,8 +145,8 @@ class CommandLine(object):
         out : type
             Explanation of `out`.
         """
-        splice_junctions = star.read_multiple_sj_out_tab(self.args['sj_out_tab'])
-        splice_junctions.to_csv(os.path.join(self.args['index'], 'sj.csv'), index=False)
+        splice_junctions = star.read_multiple_sj_out_tab(self.args.sj_out_tab)
+        splice_junctions.to_csv(os.path.join(self.args.index, 'sj.csv'), index=False)
         return splice_junctions
 
     def index(self):
@@ -152,7 +155,7 @@ class CommandLine(object):
     def psi(self):
 
         try:
-            csv = self.args['splice_junction_csv']
+            csv = self.args.splice_junction_csv
             sys.stdout.write('{}\tReading splice junction reads from {} ...\n'.format(
                 util.timestamp(), csv))
             splice_junction_reads = pd.read_csv(csv)
@@ -166,7 +169,7 @@ class CommandLine(object):
         splice_junction_reads = splice_junction_reads.set_index(
             ['junction_location', 'sample_id'])
 
-        events_folder = os.path.join(self.args['index'], 'events')
+        events_folder = os.path.join(self.args.index, 'events')
         psis = []
         for filename in glob.iglob('{}/*.csv'.format(events_folder)):
             event_type = os.path.basename(filename).split('.csv')[0]
@@ -181,8 +184,8 @@ class CommandLine(object):
                              'scores on {} events ...\n'.format(
                 util.timestamp(), event_type.upper()))
             event_psi = psi.calculate_psi(event_annotation, splice_junction_reads,
-                                      min_reads=self.args['min_reads'],
-                                      debug=self.args['debug'],
+                                      min_reads=self.args.min_reads,
+                                      debug=self.args.debug,
                                       **isoform_junctions)
             sys.stdout.write('{}\t\tDone.\n'.format(util.timestamp()))
             psis.append(event_psi)
@@ -191,7 +194,7 @@ class CommandLine(object):
                          'into one big matrix...\n'.format(util.timestamp()))
         splicing = pd.concat(psis)
         splicing = splicing.T
-        csv = os.path.join(self.args['index'], 'psi.csv')
+        csv = os.path.join(self.args.index, 'psi.csv')
         sys.stdout.write('{}\tWriting a samples x features matrix of Psi '
                          'scores to {} ...\n'.format(util.timestamp(), csv))
         splicing.to_csv(csv)
