@@ -6,6 +6,7 @@ import os
 import sys
 import warnings
 
+import numpy as np
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
     import pandas as pd
@@ -41,12 +42,13 @@ class CommandLine(object):
         junctions.add_argument(
             '-j', '--sj-out-tab', type=str, action='store',
             nargs='*', help='SJ.out.tab files from STAR aligner output')
-        junctions.add_argument('-c', '--splice-junction-csv',
-                               help="Name of the splice junction files to calculate psi scores "
-                                    "on. If not provided, the compiled 'sj.csv' file with all the"
-                                    " samples from the SJ.out.tab files that were used during "
-                                    "'outrigger index' will be used. Not required if you specify "
-                                    "SJ.out.tab file with '--sj-out-tab'")
+        junctions.add_argument(
+            '-c', '--splice-junction-csv',
+            help="Name of the splice junction files to calculate psi scores "
+                 "on. If not provided, the compiled 'sj.csv' file with all the"
+                 " samples from the SJ.out.tab files that were used during "
+                 "'outrigger index' will be used. Not required if you specify "
+                 "SJ.out.tab file with '--sj-out-tab'")
         index_parser.add_argument('-m', '--min-reads', type=int, action='store',
                                   required=False, default=10,
                                   help='Minimum number of reads per junction for '
@@ -175,8 +177,9 @@ class CommandLine(object):
             sys.stdout.write('{}\tReading splice junction reads from {} ...'
                              '\n'.format(
                 util.timestamp(), self.args.splice_junction_csv))
-            splice_junction_reads = pd.read_csv(self.args.splice_junction_csv,
-                                                low_memory=False)
+            dtype = { self.args.reads_col: np.int64 }
+            splice_junction_reads = pd.read_csv(
+                self.args.splice_junction_csv, dtype=dtype)
 
             try:
                 assert self.args.reads_col in splice_junction_reads
