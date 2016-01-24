@@ -207,7 +207,8 @@ class CommandLine(object):
             sys.stdout.write('{}\t\tDone.\n'.format(util.timestamp()))
 
         splice_junction_reads = splice_junction_reads.set_index(
-            ['junction_location', self.args.sample_id_col])
+            [self.args.junction_location_col, self.args.sample_id_col])
+        splice_junction_reads.sort_index(inplace=True)
 
         events_folder = os.path.join(self.args.index, 'events')
         psis = []
