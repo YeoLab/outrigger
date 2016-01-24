@@ -1,8 +1,6 @@
-import glob
 import os
 
 import pytest
-import sj2psi
 
 
 @pytest.fixture
@@ -48,9 +46,13 @@ def db(gtf_filename):
 
 @pytest.fixture
 def splice_junctions(sj_filenames):
-    return sj2psi.read_multiple_sj_out_tab(sj_filenames)
+    from outrigger import star
+
+    return star.read_multiple_sj_out_tab(sj_filenames)
 
 
 @pytest.fixture
 def metadata(splice_junctions):
-    return sj2psi.sj_count_to_metadata(splice_junctions)
+    from outrigger import star
+
+    return star.sj_count_to_metadata(splice_junctions)
