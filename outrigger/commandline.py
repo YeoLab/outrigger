@@ -174,7 +174,8 @@ class CommandLine(object):
             sys.stdout.write('{}\tReading splice junction reads from {} ...'
                              '\n'.format(
                 util.timestamp(), self.args.splice_junction_csv))
-            splice_junction_reads = pd.read_csv(self.args.splice_junction_csv)
+            splice_junction_reads = pd.read_csv(self.args.splice_junction_csv,
+                                                low_memory=False)
 
             try:
                 assert self.args.reads_col in splice_junction_reads
