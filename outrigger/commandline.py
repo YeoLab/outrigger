@@ -162,6 +162,7 @@ class CommandLine(object):
             Explanation of `out`.
         """
         splice_junctions = star.read_multiple_sj_out_tab(self.args.sj_out_tab)
+        splice_junctions['reads'] = splice_junctions['uniquely_mapped_reads']
         splice_junctions.to_csv(os.path.join(self.args.index, 'sj.csv'), index=False)
         return splice_junctions
 
