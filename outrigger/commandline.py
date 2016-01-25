@@ -177,7 +177,7 @@ class CommandLine(object):
             sys.stdout.write('{}\tReading splice junction reads from {} ...'
                              '\n'.format(
                 util.timestamp(), self.args.splice_junction_csv))
-            dtype = { self.args.reads_col: np.int64 }
+            dtype = {self.args.reads_col: np.int64}
             splice_junction_reads = pd.read_csv(
                 self.args.splice_junction_csv, dtype=dtype)
 
