@@ -234,7 +234,8 @@ class CommandLine(object):
                 min_reads=self.args.min_reads, debug=self.args.debug,
                 reads_col=self.args.reads_col, **isoform_junctions)
             sys.stdout.write('{}\t\tDone.\n'.format(util.timestamp()))
-            event_psi.to_csv(self.args.index, '{}_psi.csv'.format(event_type))
+            event_psi.to_csv(os.path.join(self.args.index,
+                                          '{}_psi.csv'.format(event_type)))
             psis.append(event_psi)
 
         sys.stdout.write('{}\tConcatenating all calculated psi scores '
