@@ -223,7 +223,7 @@ class CommandLine(object):
                 util.timestamp(), event_type.upper(), filename))
 
             isoform_junctions = psi.ISOFORM_JUNCTIONS[event_type]
-            event_annotation = pd.read_csv(filename)
+            event_annotation = pd.read_csv(filename, index_col=0)
             sys.stdout.write('{}\t\tDone.\n'.format(util.timestamp()))
 
             sys.stdout.write('{}\tCalculating percent spliced-in (Psi) '
