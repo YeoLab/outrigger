@@ -5,6 +5,9 @@ import pandas as pd
 
 from .util import timestamp
 
+
+logging.basicConfig()
+
 idx = pd.IndexSlice
 MIN_READS = 10
 
