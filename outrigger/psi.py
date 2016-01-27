@@ -76,7 +76,7 @@ def calculate_psi(event_annotation, splice_junction_reads,
     ----------
     event_annotation : pandas.DataFrame
         A table where each row represents a single splicing event. The required
-        columns are the ones specified in `isoform1_junctions`,
+       columns are the ones specified in `isoform1_junctions`,
         `isoform2_junctions`, and `event_col`.
     splice_junction_reads : pandas.DataFrame
         A table of the number of junction reads observed in each sample.
