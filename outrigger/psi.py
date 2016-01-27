@@ -142,7 +142,7 @@ def calculate_psi(event_annotation, splice_junction_reads,
 
         multiplier = float(len(isoform2_junctions))/len(isoform1_junctions)
         psi = (isoform2)/(isoform2 + multiplier * isoform1)
-        log.debug('--- Psi ---\n%.2f', psi)
+        log.debug('--- Psi ---\n%s', repr(psi))
         psi.name = row[event_col]
         psis.append(psi)
 
