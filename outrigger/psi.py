@@ -13,8 +13,8 @@ MXE_ISOFORM2_JUNCTIONS = ['junction12', 'junction24']
 
 ISOFORM_JUNCTIONS = {'se': {'isoform1_junctions': SE_ISOFORM1_JUNCTIONS,
                        'isoform2_junctions': SE_ISOFORM2_JUNCTIONS},
-                'mxe': {'isoform1_junctions': MXE_ISOFORM1_JUNCTIONS,
-                        'isoform2_junctions': MXE_ISOFORM2_JUNCTIONS}}
+                    'mxe': {'isoform1_junctions': MXE_ISOFORM1_JUNCTIONS,
+                            'isoform2_junctions': MXE_ISOFORM2_JUNCTIONS}}
 
 
 def filter_and_sum(reads, min_reads, junctions):
@@ -89,11 +89,13 @@ def calculate_psi(event_annotation, splice_junction_reads,
         for an event to be counted.
     isoform1_junctions : list
         Columns in `event_annotation` which represent junctions that
-        correspond to isoform1, the Psi=0 isoform, e.g. ['junction13']
+        correspond to isoform1, the Psi=0 isoform, e.g. ['junction13'] for SE
+        (junctions between exon1 and exon3)
     isoform2_junctions : list
         Columns in `event_annotation` which represent junctions that
         correspond to isoform2, the Psi=1 isoform, e.g.
-        ['junction12', 'junction23']
+        ['junction12', 'junction23'] (junctions between exon1, exon2, and
+        junction between exon2 and exon3)
     event_col : str
         Column in `event_annotation` which is a unique identifier for each
         row, e.g.
@@ -104,6 +106,9 @@ def calculate_psi(event_annotation, splice_junction_reads,
         An (samples, events) dataframe of the percent spliced-in values
     """
     log = logging.getLogger('calculate_psi')
+
+    if debug:
+        log.setLevel(10)
 
     psis = []
 
