@@ -1,6 +1,9 @@
 import logging
+import sys
 
 import pandas as pd
+
+from .util import timestamp
 
 idx = pd.IndexSlice
 MIN_READS = 10
@@ -114,13 +117,19 @@ def calculate_psi(event_annotation, splice_junction_reads,
 
     junction_cols = isoform1_junctions + isoform2_junctions
 
+    sys.stdout.write('{}\t\tIterating over {} events ...\n'.format(
+        timestamp(), event_annotation.shape[0]))
     for i, row in event_annotation.iterrows():
+        if (i+1) % 1000 == 0:
+            sys.stdout.write('{}\t\t\t{} events completed'.format(
+                timestamp(), i))
         isoform1 = maybe_get_isoform_reads(splice_junction_reads, row,
                                            isoform1_junctions, reads_col)
         isoform2 = maybe_get_isoform_reads(splice_junction_reads, row,
                                            isoform2_junctions, reads_col)
 
-        log.debug('\n\n%s\t%s\t%s', row[junction_cols])
+        log.debug('--- junction columns of row ---\n%s',
+                  repr(row[junction_cols]))
         log.debug('--- isoform1 ---\n%s', repr(isoform1))
         log.debug('--- isoform2 ---\n%s', repr(isoform2))
 
@@ -145,6 +154,7 @@ def calculate_psi(event_annotation, splice_junction_reads,
         log.debug('--- Psi ---\n%s', repr(psi))
         psi.name = row[event_col]
         psis.append(psi)
+    sys.stdout.write('{}\t\t\tDone.\n'.format(timestamp()))
 
     if len(psis) > 0:
         psi_df = pd.concat(psis, axis=1)
