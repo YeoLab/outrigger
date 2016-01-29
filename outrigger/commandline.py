@@ -200,7 +200,7 @@ class CommandLine(object):
             sys.stdout.write('{}\t\tDone.\n'.format(util.timestamp()))
 
         splice_junction_reads = splice_junction_reads.set_index(
-            [self.args.junction_locatio217n_col, self.args.sample_id_col])
+            [self.args.junction_location_col, self.args.sample_id_col])
         splice_junction_reads.sort_index(inplace=True)
         logger.debug('\n--- Splice Junction reads ---')
         logger.debug(repr(splice_junction_reads.head()))
