@@ -111,7 +111,7 @@ def calculate_psi(event_annotation, splice_junction_reads,
     psi : pandas.DataFrame
         An (samples, events) dataframe of the percent spliced-in values
     """
-    log = logging.getLogger('calculate_psi')
+    log = logging.getLogger('outrigger.psi.calculate_psi')
 
     if debug:
         log.setLevel(10)
