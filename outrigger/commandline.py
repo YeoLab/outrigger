@@ -2,6 +2,7 @@
 
 import argparse
 import glob
+import logging
 import os
 import sys
 import warnings
@@ -78,8 +79,9 @@ class CommandLine(object):
 
         # --- Subcommand to calculate psi on the built index --- #
         psi_parser = self.subparser.add_parser(
-            'psi', help='Calculate "percent spliced-in" (Psi) values using the '
-                        'splicing event index built with "outrigger index"')
+            'psi', help='Calculate "percent spliced-in" (Psi) values using '
+                        'the splicing event index built with "outrigger '
+                        'index"')
         psi_parser.add_argument('-i', '--index', required=False,
                                 default='./outrigger_index',
                                 help='Name of the folder where you saved the '
@@ -173,6 +175,8 @@ class CommandLine(object):
 
     def psi(self):
 
+        logger = logging.get_logger('outrigger.psi')
+
         try:
             sys.stdout.write('{}\tReading splice junction reads from {} ...'
                              '\n'.format(
@@ -214,6 +218,8 @@ class CommandLine(object):
         splice_junction_reads = splice_junction_reads.set_index(
             [self.args.junction_location_col, self.args.sample_id_col])
         splice_junction_reads.sort_index(inplace=True)
+        logger.debug('\n--- Splice Junction reads ---')
+        logger.debug(repr(splice_junction_reads.head()))
 
         events_folder = os.path.join(self.args.index, 'events')
         psis = []
@@ -225,6 +231,8 @@ class CommandLine(object):
             isoform_junctions = psi.ISOFORM_JUNCTIONS[event_type]
             event_annotation = pd.read_csv(filename, index_col=0)
             sys.stdout.write('{}\t\tDone.\n'.format(util.timestamp()))
+            logger.debug('\n--- Splicing event annotation ---')
+            logger.debug(repr(event_annotation.head()))
 
             sys.stdout.write('{}\tCalculating percent spliced-in (Psi) '
                              'scores on {} events ...\n'.format(
