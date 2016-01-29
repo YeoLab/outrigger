@@ -141,30 +141,7 @@ class CommandLine(object):
 
 
     def csv(self):
-        """Create a csv file of compiled splice junctions
-
-        Parameters
-        ----------
-        var1 : array_like
-            Array_like means all those objects -- lists, nested lists, etc. --
-            that can be converted to an array.  We can also refer to
-            variables like `var1`.
-        var2 : int
-            The type above can either refer to an actual Python type
-            (e.g. ``int``), or describe the type of the variable in more
-            detail, e.g. ``(N,) ndarray`` or ``array_like``.
-        Long_variable_name : {'hi', 'ho'}, optional
-            Choices in brackets, default first when optional.
-
-        Returns
-        -------
-        type
-            Explanation of anonymous return value of type ``type``.
-        describe : type
-            Explanation of return value named `describe`.
-        out : type
-            Explanation of `out`.
-        """
+        """Create a csv file of compiled splice junctions"""
         splice_junctions = star.read_multiple_sj_out_tab(self.args.sj_out_tab)
         splice_junctions['reads'] = splice_junctions['uniquely_mapped_reads']
         splice_junctions.to_csv(os.path.join(self.args.index, 'sj.csv'), index=False)
@@ -174,8 +151,9 @@ class CommandLine(object):
         pass
 
     def psi(self):
+        """Calculate percent spliced in (psi) of splicing events"""
 
-        logger = logging.get_logger('outrigger.psi')
+        logger = logging.getLogger('outrigger.psi')
 
         try:
             sys.stdout.write('{}\tReading splice junction reads from {} ...'
