@@ -10,7 +10,6 @@ import six
 logging.basicConfig(level=logging.DEBUG)
 
 
-
 @pytest.fixture()
 def chrom():
     return 'chr1'

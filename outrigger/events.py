@@ -527,4 +527,3 @@ class EventConsolidator(object):
         consolidated_df = self._consolidated_series_to_dataframe(
             consolidated)
         return consolidated_df
-

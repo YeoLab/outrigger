@@ -13,4 +13,5 @@ def wannabe():
     except ImportError:
         pass
 
-__all__ = ['psi', 'events', 'gtf', 'junctions', 'psi', 'region', 'star', 'util']
+__all__ = ['psi', 'events', 'gtf', 'junctions', 'psi', 'region', 'star',
+           'util']

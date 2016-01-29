@@ -31,7 +31,7 @@ def strand(request):
 
 @pytest.fixture
 def gtf_filename(strand, positive_strand_gtf_filename,
-        negative_strand_gtf_filename):
+                 negative_strand_gtf_filename):
     if strand == '+':
         return positive_strand_gtf_filename
     elif strand == '-':

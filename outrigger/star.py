@@ -68,9 +68,9 @@ def read_sj_out_tab(filename):
 
     # Add intron location
     sj['junction_location'] = sj.chrom.astype(str) + ':' \
-                              + sj.intron_start.astype(str) + '-' \
-                              + sj.intron_stop.astype(str) + ':' \
-                              + sj.strand.astype(str)
+        + sj.intron_start.astype(str) + '-' \
+        + sj.intron_stop.astype(str) + ':' \
+        + sj.strand.astype(str)
 
     return sj
 
@@ -112,4 +112,3 @@ def sj_count_to_metadata(splice_junctions):
                                      axis=1)
     metadata = metadata.drop_duplicates()
     return metadata
-

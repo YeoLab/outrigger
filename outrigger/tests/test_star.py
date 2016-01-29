@@ -44,14 +44,18 @@ def splice_junctions(sj_filenames):
 
     return read_multiple_sj_out_tab(sj_filenames)
 
+
 def test_read_sj_out_tab(sj_out_tab):
     pass
+
 
 def test_int_to_intron_motif():
     pass
 
+
 def test_read_multiple_sj_out_tab():
     pass
+
 
 def test_sj_count_to_metadata():
     pass

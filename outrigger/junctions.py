@@ -1,6 +1,5 @@
 import sys
 
-import gffutils
 import pandas as pd
 
 UPSTREAM = 'upstream'
@@ -28,7 +27,7 @@ class JunctionAnnotator(object):
             Columns in `splice_junctions`
         """
         columns = self.junction_id, self.exon_start, self.exon_stop, \
-                  self.chrom, self.strand
+            self.chrom, self.strand
 
         for column in columns:
             if column not in splice_junctions:
@@ -84,7 +83,6 @@ class JunctionAnnotator(object):
             return {UPSTREAM: adjacent_in_genome[DOWNSTREAM],
                     DOWNSTREAM: adjacent_in_genome[UPSTREAM]}
 
-
     def genome_adjacent(self, exon, exon_start='exon_start',
                         exon_stop='exon_stop', chrom='chrom', strand='strand'):
         """Get indices of junctions next to an exon, in genome coordinates"""
@@ -92,12 +90,13 @@ class JunctionAnnotator(object):
 
         strand_ind = self.splice_junctions[strand] == exon.strand
 
-        upstream_in_genome = chrom_ind & strand_ind \
-                             & (self.splice_junctions[exon_stop] == exon.stop)
-        downstream_in_genome = chrom_ind & strand_ind \
-                               & (self.splice_junctions[exon_start] == exon.start)
+        upstream_in_genome = \
+            chrom_ind & strand_ind \
+            & (self.splice_junctions[exon_stop] == exon.stop)
+        downstream_in_genome = \
+            chrom_ind & strand_ind & \
+            (self.splice_junctions[exon_start] == exon.start)
         return {UPSTREAM: upstream_in_genome, DOWNSTREAM: downstream_in_genome}
-
 
     def adjacent_junctions(self, exon, exon_start='exon_start',
                            exon_stop='exon_stop', chrom='chrom',
@@ -137,19 +136,20 @@ class JunctionAnnotator(object):
             index, with  columns defined by variables ``exon_start`` and
             ``exon_stop``.
         db : gffutils.FeatureDB
-            A database of gene annotations created by gffutils. Must have features
-            of type "exon"
+            A database of gene annotations created by gffutils. Must have
+            features of type "exon"
         exon_start : str, optional
             Name of the column in sj_metadata corresponding to the start of the
             exon
         exon_stop : str, optional
-            Name of the column in sj_metadata corresponding to the end of the exon
+            Name of the column in sj_metadata corresponding to the end of the
+            exon
 
         Returns
         -------
         junction_exon_triples : pandas.DataFrame
-            A three-column dataframe describing the relationship of where an exon
-            is relative to junctions
+            A three-column dataframe describing the relationship of where an
+            exon is relative to junctions
         """
         n_exons = sum(1 for _ in self.db.features_of_type('exon'))
 
@@ -162,6 +162,7 @@ class JunctionAnnotator(object):
                 sys.stdout.write('\t{}/{} exons completed\n'.format(i + 1,
                                                                     n_exons))
             df = self.adjacent_junctions(exon)
+            dfs.append(df)
         junction_exon_triples = pd.concat(dfs, ignore_index=True)
         sys.stdout.write('Done.\n')
         return junction_exon_triples
