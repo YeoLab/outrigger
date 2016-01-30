@@ -24,21 +24,27 @@ ISOFORM_JUNCTIONS = {
             'isoform2_junctions': MXE_ISOFORM2_JUNCTIONS}}
 
 
-def filter_and_sum(reads, min_reads, junctions):
+def filter_and_sum(reads, min_reads, junctions, debug=False):
     """Require minimum reads and sum junctions from the same sample
 
     Remove all samples that don't have enough reads
 
     """
+    logger = logging.getLogger('outrigger.psi.filter_and_sum')
+    if debug:
+        logger.setLevel(10)
+
     if reads.empty:
         return reads
 
     # Remove all samples that don't have enough reads in all required junctions
     reads = reads.groupby(level=1).filter(
-        lambda x: all(x >= min_reads) and len(x) == len(junctions))
+        lambda x: (x >= min_reads).all() and len(x) == len(junctions))
+    logger.debug('filtered reads:\n' + repr(reads.head()))
 
     # Sum all reads from junctions in the same samples (level=1), remove NAs
     reads = reads.groupby(level=1).sum().dropna()
+    logger.debug('summed reads:\n' + repr(reads.head()))
 
     return reads
 
@@ -137,8 +143,10 @@ def calculate_psi(event_annotation, splice_junction_reads,
         log.debug('--- isoform1 ---\n%s', repr(isoform1))
         log.debug('--- isoform2 ---\n%s', repr(isoform2))
 
-        isoform1 = filter_and_sum(isoform1, min_reads, isoform1_junctions)
-        isoform2 = filter_and_sum(isoform2, min_reads, isoform2_junctions)
+        isoform1 = filter_and_sum(isoform1, min_reads, isoform1_junctions,
+                                  debug=debug)
+        isoform2 = filter_and_sum(isoform2, min_reads, isoform2_junctions,
+                                  debug=debug)
 
         if isoform1.empty and isoform2.empty:
             # If both are empty after filtering this event --> don't calculate
