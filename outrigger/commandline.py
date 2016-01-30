@@ -157,6 +157,8 @@ class CommandLine(object):
         """Calculate percent spliced in (psi) of splicing events"""
 
         logger = logging.getLogger('outrigger.psi')
+        if self.args.debug:
+            logger.setLevel(10)
 
         try:
             sys.stdout.write(
