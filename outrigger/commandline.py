@@ -109,7 +109,7 @@ class CommandLine(object):
             help='SJ.out.tab files from STAR aligner output. Not required if '
                  'you specify a file with "--splice-junction-csv"')
         psi_parser.add_argument('-m', '--min-reads', type=int, action='store',
-                                required=False,
+                                required=False, default=10,
                                 help='Minimum number of reads per junction for'
                                      ' calculating Psi (default=10)')
         psi_parser.add_argument('--reads-col', default='reads',
