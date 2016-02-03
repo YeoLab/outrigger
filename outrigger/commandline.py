@@ -234,7 +234,7 @@ class CommandLine(object):
 
         sys.stdout.write('{}\tConcatenating all calculated psi scores '
                          'into one big matrix...\n'.format(util.timestamp()))
-        splicing = pd.concat(psis)
+        splicing = pd.concat(psis, axis=1)
         sys.stdout.write('{}\t\tDone.\n')
         splicing = splicing.T
         csv = os.path.join(self.args.index, 'psi.csv')
