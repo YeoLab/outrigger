@@ -131,7 +131,7 @@ def calculate_psi(event_annotation, splice_junction_reads,
         timestamp(), event_annotation.shape[0]))
     for i, row in event_annotation.iterrows():
         if (i+1) % 1000 == 0:
-            sys.stdout.write('{}\t\t\t{} events completed'.format(
+            sys.stdout.write('{}\t\t\t{} events completed\n'.format(
                 timestamp(), i))
         isoform1 = maybe_get_isoform_reads(splice_junction_reads, row,
                                            isoform1_junctions, reads_col)
