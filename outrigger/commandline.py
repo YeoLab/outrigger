@@ -151,6 +151,7 @@ class CommandLine(object):
         return splice_junctions
 
     def index(self):
+        # Must output the junction exon triples
         pass
 
     def psi(self):
