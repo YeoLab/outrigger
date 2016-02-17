@@ -30,39 +30,44 @@ class Region(object):
         self.region = region
         self.chrom = chrom
 
-        # Use "private" variables to store the true genome location
-        self._start = start
-        self._stop = stop
+        self.start = start
+        self.stop = stop
         self.strand = strand
 
     # Use non-private start, stop to save negative strand coordinates with
     # negative numbers to make the calculation of "before" and "after" in
     # the transcript easier
     @property
-    def start(self):
+    def _start(self):
+        """Relative start of the feature
+
+        If strand is negative, this is negative so relativity is easy"""
         if self.strand == '-':
-            return -self._start
+            return -self.start
         else:
-            return self._start
+            return self.start
 
     @property
-    def stop(self):
+    def _stop(self):
+        """Relative start of the feature
+
+        If strand is negative, this is negative so relativity is easy"""
         if self.strand == '-':
-            return -self._stop
+            return -self.stop
         else:
-            return self._stop
+            return self.stop
 
     @property
     def name(self):
-        base = '{0}:{1}-{2}:{3}'.format(self.chrom, self._start,
-                                        self._stop, self.strand)
+        base = '{0}:{1}-{2}:{3}'.format(self.chrom, self.stop,
+                                        self.stop, self.strand)
         if self.region is not None:
             base = self.region + ':' + base
         return base
 
     def __len__(self):
         """Length of region. Add 1 to include last base of stop"""
-        return self._stop - self._start + 1
+        return self.stop - self.start + 1
 
     def __repr__(self):
         return 'poshsplice.Region <{0}>'.format(self.name)
@@ -79,7 +84,7 @@ class Region(object):
 
     def overlaps(self, other):
         """Returns true if any part of other region is contained in this one"""
-        if other._start > self._stop or other._stop < self._start:
+        if other.start > self.stop or other.stop < self.start:
             return False
         else:
             return True

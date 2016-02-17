@@ -144,8 +144,8 @@ class EventMaker(object):
 
         for exon_a, exon_b in itertools.combinations(exon23s, 2):
             if not exon_a.overlaps(exon_b):
-                exon2 = min((exon_a, exon_b), key=lambda x: x.start)
-                exon3 = max((exon_a, exon_b), key=lambda x: x.start)
+                exon2 = min((exon_a, exon_b), key=lambda x: x._start)
+                exon3 = max((exon_a, exon_b), key=lambda x: x._start)
 
                 exon2_i = self.items.index(exon2.name)
                 exon3_i = self.items.index(exon3.name)
@@ -255,8 +255,8 @@ class EventMaker(object):
 
         for exon_a, exon_b in itertools.combinations(exon23s, 2):
             if not exon_a.overlaps(exon_b):
-                exon2 = min((exon_a, exon_b), key=lambda x: x.start)
-                exon3 = max((exon_a, exon_b), key=lambda x: x.start)
+                exon2 = min((exon_a, exon_b), key=lambda x: x._start)
+                exon3 = max((exon_a, exon_b), key=lambda x: x._start)
 
                 exon2_i = self.items.index(exon2.name)
                 exon3_i = self.items.index(exon3.name)
@@ -321,8 +321,8 @@ class EventMaker(object):
 
             for exon_a, exon_b in itertools.combinations(exon23s, 2):
                 if not exon_a.overlaps(exon_b):
-                    exon2 = min((exon_a, exon_b), key=lambda x: x.start)
-                    exon3 = max((exon_a, exon_b), key=lambda x: x.start)
+                    exon2 = min((exon_a, exon_b), key=lambda x: x._start)
+                    exon3 = max((exon_a, exon_b), key=lambda x: x._start)
 
                     exon2_i = self.items.index(exon2.name)
                     exon3_i = self.items.index(exon3.name)
