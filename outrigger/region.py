@@ -3,7 +3,7 @@
 
 class Region(object):
 
-    __slots__ = ('region', 'chrom', '_start', '_stop', 'strand')
+    __slots__ = ('region', 'chrom', 'start', 'stop', 'strand')
 
     def __init__(self, name):
         """A location in the genome
@@ -59,7 +59,7 @@ class Region(object):
 
     @property
     def name(self):
-        base = '{0}:{1}-{2}:{3}'.format(self.chrom, self.stop,
+        base = '{0}:{1}-{2}:{3}'.format(self.chrom, self.start,
                                         self.stop, self.strand)
         if self.region is not None:
             base = self.region + ':' + base
@@ -73,7 +73,7 @@ class Region(object):
         return 'poshsplice.Region <{0}>'.format(self.name)
 
     def __str__(self):
-        return self.name
+        return self.__repr__()
 
     def __eq__(self, other):
         if isinstance(other, Region):
