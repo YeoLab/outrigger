@@ -70,7 +70,7 @@ class Region(object):
         return self.stop - self.start + 1
 
     def __repr__(self):
-        return 'poshsplice.Region <{0}>'.format(self.name)
+        return 'poshsplice.Region ({0})'.format(self.name)
 
     def __str__(self):
         return self.__repr__()
