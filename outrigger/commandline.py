@@ -6,11 +6,11 @@ import logging
 import os
 import sys
 import warnings
+
+import gffutils
 import numpy as np
 
-from outrigger import psi
-from outrigger import star
-from outrigger import util
+from outrigger import events, gtf, junctions, psi, star, util
 
 
 with warnings.catch_warnings():
@@ -142,17 +142,60 @@ class CommandLine(object):
 
         self.args.func()
 
+    @staticmethod
+    def _done():
+        """Write timestamp plus 'Done.' to stdout"""
+        sys.stdout.write('{}\t\tDone.\n'.format(util.timestamp()))
+
     def csv(self):
         """Create a csv file of compiled splice junctions"""
         splice_junctions = star.read_multiple_sj_out_tab(self.args.sj_out_tab)
         splice_junctions['reads'] = splice_junctions['uniquely_mapped_reads']
-        splice_junctions.to_csv(os.path.join(self.args.index, 'sj.csv'),
-                                index=False)
+
+        filename = os.path.join(self.args.index, 'sj.csv')
+        sys.stdout.write('{}\tWriting {} ...\n'.format(util.timestamp(), filename))
+        splice_junctions.to_csv(filename, index=False)
         return splice_junctions
 
     def index(self):
         # Must output the junction exon triples
-        pass
+        logger = logging.getLogger('outrigger.index')
+
+        if self.args.deug:
+            logger.setLevel(10)
+        sys.stdout.write('{}\tReading SJ.out.files and creating a big splice '
+                         'junction matrix ...\n'.format(util.timestamp()))
+        splice_junctions = self.csv()
+        self._done()
+
+        if self.args.gffutils_database is not None:
+            sys.stdout.write('{}\tReading gffutils database '
+                             'from {} ...\n'.format(
+                util.timestamp(), self.args.gffutils_database))
+            db = gffutils.FeatureDB(self.args.gffutils_database)
+            self._done()
+        else:
+            db_filename = '{}.db'.format(self.args.gtf)
+            try:
+                db = gffutils.FeatureDB(db_filename)
+            except ValueError:
+                sys.stdout.write(
+                    '{}\tCreating a "gffutils" '
+                    'database {} ...\n'.format(util.timestamp(), db_filename))
+                db = gtf.create_db(self.args.gtf, db_filename)
+                self._done()
+
+        sys.stdout.write('{}\tGetting junction-direction-exon triples for '
+                         'graph database ...\n'.format(util.timestamp()))
+        junction_annotator = junctions.JunctionAnnotator(splice_junctions, db)
+        junction_exon_triples = junction_annotator.get_adjacent_exons()
+        self._done()
+
+        sys.stdout.write('{}\tPopulating graph database of the '
+                         'junction-direction-exon triples ...'.format(
+            util.timestamp()))
+        event_maker = events.EventMaker(junction_exon_triples, db)
+        self._done()
 
     def psi(self):
         """Calculate percent spliced in (psi) of splicing events"""
@@ -200,7 +243,7 @@ class CommandLine(object):
                              'file "sj.csv" from SJ.out.tab files ...'
                              '\n'.format(util.timestamp()))
             splice_junction_reads = self.csv()
-            sys.stdout.write('{}\t\tDone.\n'.format(util.timestamp()))
+            self._done()
 
         splice_junction_reads = splice_junction_reads.set_index(
             [self.args.junction_location_col, self.args.sample_id_col])
@@ -217,7 +260,7 @@ class CommandLine(object):
 
             isoform_junctions = psi.ISOFORM_JUNCTIONS[event_type]
             event_annotation = pd.read_csv(filename, index_col=0)
-            sys.stdout.write('{}\t\tDone.\n'.format(util.timestamp()))
+            self._done()
             logger.debug('\n--- Splicing event annotation ---')
             logger.debug(repr(event_annotation.head()))
 
