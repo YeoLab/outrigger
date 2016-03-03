@@ -143,3 +143,19 @@ The above command is equivalent to specifying all the arguments with their defau
 ```
 outrigger psi --index ./outrigger_index --min-reads 10
 ```
+
+
+## Outputs
+
+```
+outrigger_index
+├── index
+│   └── mxe
+│       ├── junctions.csv
+│       └── metadata.csv
+│   └── se
+│       ├── junctions.csv
+│       └── metadata.csv
+├── psi.csv
+└── splice_junctions.csv
+```
