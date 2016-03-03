@@ -13,6 +13,7 @@ from .junctions import UPSTREAM, DOWNSTREAM, DIRECTIONS
 
 EVENT_TYPES = (('skipped_exon', 'se'), ('mutually_exclusive_exon', 'mxe'))
 
+
 def stringify_location(chrom, start, stop, strand, region=None):
     """"""
     if region is not None:
@@ -86,7 +87,6 @@ class EventMaker(object):
 
     def skipped_exon(self):
         events = {}
-
 
         sys.stdout.write('Trying out {0} exons'
                          '...\n'.format(self.n_exons))
@@ -213,5 +213,3 @@ class EventMaker(object):
                                                        'junction12',
                                                        'junction24'])
         return events
-
-

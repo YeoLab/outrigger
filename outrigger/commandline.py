@@ -17,6 +17,7 @@ with warnings.catch_warnings():
     warnings.simplefilter("ignore")
     import pandas as pd
 
+SPLICE_JUNCTIONS_CSV = 'splice_junctions.csv'
 
 class CommandLine(object):
     def __init__(self, input_options=None):
@@ -47,10 +48,11 @@ class CommandLine(object):
         junctions.add_argument(
             '-c', '--splice-junction-csv',
             help="Name of the splice junction files to calculate psi scores "
-                 "on. If not provided, the compiled 'sj.csv' file with all the"
-                 " samples from the SJ.out.tab files that were used during "
-                 "'outrigger index' will be used. Not required if you specify "
-                 "SJ.out.tab file with '--sj-out-tab'")
+                 "on. If not provided, the compiled '{sj_csv}' file with all"
+                 " the samples from the SJ.out.tab files thatm were used "
+                 "during 'outrigger index' will be used. Not required if you "
+                 "specify SJ.out.tab file with '--sj-out-tab'".format(
+                        sj_csv=SPLICE_JUNCTIONS_CSV))
         index_parser.add_argument('-m', '--min-reads', type=int,
                                   action='store',
                                   required=False, default=10,
@@ -99,10 +101,11 @@ class CommandLine(object):
         splice_junctions.add_argument(
             '-c', '--splice-junction-csv', required=False,
             help="Name of the splice junction files to calculate psi scores "
-                 "on. If not provided, the compiled 'sj.csv' file with all the"
-                 " samples from the SJ.out.tab files that were used during "
+                 "on. If not provided, the compiled '{sj_csv}' file with all "
+                 "the samples from the SJ.out.tab files that were used during "
                  "'outrigger index' will be used. Not required if you specify "
-                 "SJ.out.tab file with '--sj-out-tab'")
+                 "SJ.out.tab file with '--sj-out-tab'".format(
+                        sj_csv=SPLICE_JUNCTIONS_CSV))
         splice_junctions.add_argument(
             '-j', '--sj-out-tab', required=False,
             type=str, action='store', nargs='*',
@@ -152,8 +155,9 @@ class CommandLine(object):
         splice_junctions = star.read_multiple_sj_out_tab(self.args.sj_out_tab)
         splice_junctions['reads'] = splice_junctions['uniquely_mapped_reads']
 
-        filename = os.path.join(self.args.index, 'sj.csv')
-        sys.stdout.write('{}\tWriting {} ...\n'.format(util.timestamp(), filename))
+        filename = os.path.join(self.args.index, SPLICE_JUNCTIONS_CSV)
+        sys.stdout.write('{}\tWriting {} ...\n'.format(util.timestamp(),
+                                                       filename))
         splice_junctions.to_csv(filename, index=False)
         return splice_junctions
 
@@ -169,9 +173,9 @@ class CommandLine(object):
         self._done()
 
         if self.args.gffutils_database is not None:
-            sys.stdout.write('{}\tReading gffutils database '
-                             'from {} ...\n'.format(
-                util.timestamp(), self.args.gffutils_database))
+            sys.stdout.write(
+                '{}\tReading gffutils database from {} ...\n'.format(
+                                util.timestamp(), self.args.gffutils_database))
             db = gffutils.FeatureDB(self.args.gffutils_database)
             self._done()
         else:
@@ -204,7 +208,7 @@ class CommandLine(object):
                 '{timestamp}\tFinding all {name} ({abbrev}) event ...'
                 '\n'.format(timestamp=util.timestamp(),
                             name=name_with_spaces, abbrev=abbrev.upper()))
-            events = getattr(event_maker, name)()
+            events_of_type = getattr(event_maker, name)()
             self._done()
 
             # Write to a file
@@ -212,7 +216,7 @@ class CommandLine(object):
             sys.stdout.write('{timestamp}\tWriting {abbrev} events to {csv} '
                              '...\n'.format(timestamp=util.timestamp(),
                                             abbrev=abbrev.upper(), csv=csv))
-            events.to_csv(csv, index=False)
+            events_of_type.to_csv(csv, index=False)
             self._done()
 
     def psi(self):
@@ -258,8 +262,9 @@ class CommandLine(object):
             sys.stdout.write('{}\t\tDone.\n'.format(util.timestamp()))
         except KeyError:
             sys.stdout.write('{}\tCreating consolidated splice junction '
-                             'file "sj.csv" from SJ.out.tab files ...'
-                             '\n'.format(util.timestamp()))
+                             'file "{sj_csv}" from SJ.out.tab files ...'
+                             '\n'.format(util.timestamp(),
+                                         sj_csv=SPLICE_JUNCTIONS_CSV))
             splice_junction_reads = self.csv()
             self._done()
 

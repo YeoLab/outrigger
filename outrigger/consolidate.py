@@ -8,6 +8,7 @@ import itertools
 
 import numpy as np
 
+
 class EventConsolidator(object):
 
     def __init__(self, events, db, isoform1_exons, isoform2_exons, junctions,
