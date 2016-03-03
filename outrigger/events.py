@@ -11,6 +11,8 @@ from .region import Region
 from .junctions import UPSTREAM, DOWNSTREAM, DIRECTIONS
 
 
+EVENT_TYPES = (('skipped_exon', 'se'), ('mutually_exclusive_exon', 'mxe'))
+
 def stringify_location(chrom, start, stop, strand, region=None):
     """"""
     if region is not None:

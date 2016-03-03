@@ -192,10 +192,28 @@ class CommandLine(object):
         self._done()
 
         sys.stdout.write('{}\tPopulating graph database of the '
-                         'junction-direction-exon triples ...'.format(
-            util.timestamp()))
+                         'junction-direction-exon triples '
+                         '...'.format(util.timestamp()))
         event_maker = events.EventMaker(junction_exon_triples, db)
         self._done()
+
+        for name, abbrev in events.EVENT_TYPES:
+            name_with_spaces = name.replace('_', ' ')
+            # Find event junctions
+            sys.stdout.write(
+                '{timestamp}\tFinding all {name} ({abbrev}) event ...'
+                '\n'.format(timestamp=util.timestamp(),
+                            name=name_with_spaces, abbrev=abbrev.upper()))
+            events = getattr(event_maker, name)()
+            self._done()
+
+            # Write to a file
+            csv = os.path.join(self.args.index, ['index', abbrev, 'junctions'])
+            sys.stdout.write('{timestamp}\tWriting {abbrev} events to {csv} '
+                             '...\n'.format(timestamp=util.timestamp(),
+                                            abbrev=abbrev.upper(), csv=csv))
+            events.to_csv(csv, index=False)
+            self._done()
 
     def psi(self):
         """Calculate percent spliced in (psi) of splicing events"""
