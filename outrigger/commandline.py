@@ -19,6 +19,7 @@ with warnings.catch_warnings():
 
 SPLICE_JUNCTIONS_CSV = 'splice_junctions.csv'
 
+
 class CommandLine(object):
     def __init__(self, input_options=None):
         self.parser = argparse.ArgumentParser(
@@ -145,11 +146,6 @@ class CommandLine(object):
 
         self.args.func()
 
-    @staticmethod
-    def _done():
-        """Write timestamp plus 'Done.' to stdout"""
-        sys.stdout.write('{}\t\tDone.\n'.format(util.timestamp()))
-
     def csv(self):
         """Create a csv file of compiled splice junctions"""
         splice_junctions = star.read_multiple_sj_out_tab(self.args.sj_out_tab)
@@ -170,14 +166,14 @@ class CommandLine(object):
         sys.stdout.write('{}\tReading SJ.out.files and creating a big splice '
                          'junction matrix ...\n'.format(util.timestamp()))
         splice_junctions = self.csv()
-        self._done()
+        util.done()
 
         if self.args.gffutils_database is not None:
             sys.stdout.write(
                 '{}\tReading gffutils database from {} ...\n'.format(
                                 util.timestamp(), self.args.gffutils_database))
             db = gffutils.FeatureDB(self.args.gffutils_database)
-            self._done()
+            util.done()
         else:
             db_filename = '{}.db'.format(self.args.gtf)
             try:
@@ -187,19 +183,19 @@ class CommandLine(object):
                     '{}\tCreating a "gffutils" '
                     'database {} ...\n'.format(util.timestamp(), db_filename))
                 db = gtf.create_db(self.args.gtf, db_filename)
-                self._done()
+                util.done()
 
         sys.stdout.write('{}\tGetting junction-direction-exon triples for '
                          'graph database ...\n'.format(util.timestamp()))
         junction_annotator = junctions.JunctionAnnotator(splice_junctions, db)
         junction_exon_triples = junction_annotator.get_adjacent_exons()
-        self._done()
+        util.done()
 
         sys.stdout.write('{}\tPopulating graph database of the '
                          'junction-direction-exon triples '
                          '...'.format(util.timestamp()))
         event_maker = events.EventMaker(junction_exon_triples, db)
-        self._done()
+        util.done()
 
         for name, abbrev in events.EVENT_TYPES:
             name_with_spaces = name.replace('_', ' ')
@@ -209,7 +205,7 @@ class CommandLine(object):
                 '\n'.format(timestamp=util.timestamp(),
                             name=name_with_spaces, abbrev=abbrev.upper()))
             events_of_type = getattr(event_maker, name)()
-            self._done()
+            util.done()
 
             # Write to a file
             csv = os.path.join(self.args.index, ['index', abbrev, 'junctions'])
@@ -217,7 +213,7 @@ class CommandLine(object):
                              '...\n'.format(timestamp=util.timestamp(),
                                             abbrev=abbrev.upper(), csv=csv))
             events_of_type.to_csv(csv, index=False)
-            self._done()
+            util.done()
 
     def psi(self):
         """Calculate percent spliced in (psi) of splicing events"""
@@ -266,7 +262,7 @@ class CommandLine(object):
                              '\n'.format(util.timestamp(),
                                          sj_csv=SPLICE_JUNCTIONS_CSV))
             splice_junction_reads = self.csv()
-            self._done()
+            util.done()
 
         splice_junction_reads = splice_junction_reads.set_index(
             [self.args.junction_location_col, self.args.sample_id_col])
@@ -283,7 +279,7 @@ class CommandLine(object):
 
             isoform_junctions = psi.ISOFORM_JUNCTIONS[event_type]
             event_annotation = pd.read_csv(filename, index_col=0)
-            self._done()
+            util.done()
             logger.debug('\n--- Splicing event annotation ---')
             logger.debug(repr(event_annotation.head()))
 
