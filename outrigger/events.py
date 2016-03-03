@@ -72,58 +72,6 @@ class EventMaker(object):
                 tr.store(getattr(V(junction_i),
                                  opposite(row.direction))(exon_i))
 
-    @staticmethod
-    def make_junction_exon_triples(junction_to_exons,
-                                   junction_col='junction',
-                                   upstream_col=UPSTREAM,
-                                   downstream_col=DOWNSTREAM):
-        """Create tidy table of exons upstream and downstream of a junction
-
-        Parameters
-        ----------
-        sj_metadata : pandas.DataFrame
-            A table with a column indicating "junction_location"
-        junction_col : str
-            Column name of the raw junction location (without |5p or |3p
-            annotated)
-        upstream_col : str
-            Column name where exons upstream of the junction are stored
-        downstream_col : str
-            Column name where exons downstream of the junction are stored
-
-        Returns
-        -------
-        junction_exon_triples
-            A three-column table of junction_location, exon, and direction
-
-        Examples
-        --------
-        >>> import pandas as pd
-        >>> sj_metadata = pd.DataFrame(
-        {'junction':['chr1:201-299:+', 'chr1:401:499:+'],
-         'upstream': ['exon:chr1:100-200:+,exon:chr1:50-200:+',
-                     'exon:chr1:300-400:+'],
-         'downstream':['exon:chr1:300-400:+',
-         'exon:chr1:500-600:+,exon:chr1:500-650:+']})
-        >>> EventMaker.get_adjacent_exons(sj_metadata)
-
-        """
-        grouped = junction_to_exons.groupby(junction_col)
-        direction_to_exon = {UPSTREAM: upstream_col,
-                             DOWNSTREAM: downstream_col}
-        dfs = []
-        for direction, exon in direction_to_exon.items():
-            df = grouped.apply(
-                lambda x: x[exon].dropna().str.split(',').apply(pd.Series, 1))
-            df = df.stack()
-            df.index = df.index.droplevel((-2, -1))
-            df = df.reset_index()
-            df = df.rename(columns={0: 'exon'})
-            df['direction'] = direction
-            dfs.append(df)
-        junction_exons = pd.concat(dfs, ignore_index=True)
-        return junction_exons
-
     def event_dict_to_df(self, events, exon_names, junction_names):
         columns = list(exon_names) + list(junction_names) + ['event_id']
         data = pd.DataFrame(index=np.arange(len(events)), columns=columns)
