@@ -157,17 +157,7 @@ class CommandLine(object):
         splice_junctions.to_csv(filename, index=False)
         return splice_junctions
 
-    def index(self):
-        # Must output the junction exon triples
-        logger = logging.getLogger('outrigger.index')
-
-        if self.args.deug:
-            logger.setLevel(10)
-        sys.stdout.write('{}\tReading SJ.out.files and creating a big splice '
-                         'junction matrix ...\n'.format(util.timestamp()))
-        splice_junctions = self.csv()
-        util.done()
-
+    def get_db(self):
         if self.args.gffutils_database is not None:
             sys.stdout.write(
                 '{}\tReading gffutils database from {} ...\n'.format(
@@ -184,6 +174,20 @@ class CommandLine(object):
                     'database {} ...\n'.format(util.timestamp(), db_filename))
                 db = gtf.create_db(self.args.gtf, db_filename)
                 util.done()
+        return db
+
+    def index(self):
+        # Must output the junction exon triples
+        logger = logging.getLogger('outrigger.index')
+
+        if self.args.deug:
+            logger.setLevel(10)
+        sys.stdout.write('{}\tReading SJ.out.files and creating a big splice '
+                         'junction matrix ...\n'.format(util.timestamp()))
+        splice_junctions = self.csv()
+        util.done()
+
+        db = self.get_db()
 
         sys.stdout.write('{}\tGetting junction-direction-exon triples for '
                          'graph database ...\n'.format(util.timestamp()))
