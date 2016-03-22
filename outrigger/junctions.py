@@ -34,12 +34,18 @@ def make_metadata(spliced_reads):
     junctions = spliced_reads[['chrom', 'intron_start', 'intron_stop',
                                'strand', 'intron_motif', 'annotated']]
 
-
-    junctions['junction_id'] = 'junction:', junctions['chrom'] + ':' + junctions[
-        'intron_start']
     junctions = junctions.drop_duplicates()
-    junctions.loc['exon_start'] = junctions['intron_stop'] + 1
-    junctions.loc['exon_stop'] = junctions['intron_start'] - 1
+
+    # Add a unique id for the junction
+    junctions['junction_id'] = 'junction:' + junctions['chrom'] + ':' + \
+                               junctions['intron_start'].astype(str) + \
+                               junctions['intron_stop'].astype(str)
+
+    # From STAR, exons start one base pair down from the end of the intron
+    junctions['exon_start'] = junctions['intron_stop'] + 1
+
+    # From STAR, exons stop one base pair up from the start of the intron
+    junctions['exon_stop'] = junctions['intron_start'] - 1
     return junctions
 
 
@@ -111,7 +117,7 @@ class ExonJunctionAdjacencies(object):
                             columns=['exon', 'direction', 'junction'])
 
     @staticmethod
-    def genome_to_transcript_adjacency(adjacent_in_genome, strand):
+    def _convert_to_stranded_transcript_adjacency(adjacent_in_genome, strand):
         """If negative strand, swap the upstream/downstream adjacency"""
         if strand == '+':
             return {UPSTREAM: adjacent_in_genome[UPSTREAM],
@@ -120,30 +126,25 @@ class ExonJunctionAdjacencies(object):
             return {UPSTREAM: adjacent_in_genome[DOWNSTREAM],
                     DOWNSTREAM: adjacent_in_genome[UPSTREAM]}
 
-    def genome_adjacent(self, exon, exon_start='exon_start',
-                        exon_stop='exon_stop', chrom='chrom', strand='strand'):
+    def _junctions_genome_adjacent_to_exon(self, exon):
         """Get indices of junctions next to an exon, in genome coordinates"""
-        chrom_ind = self.junction_metadata[chrom] == exon.chrom
+        chrom_ind = self.junction_metadata[self.chrom] == exon.chrom
 
-        strand_ind = self.junction_metadata[strand] == exon.strand
+        strand_ind = self.junction_metadata[self.strand] == exon.strand
 
         upstream_in_genome = \
             chrom_ind & strand_ind \
-            & (self.junction_metadata[exon_stop] == exon.stop)
+            & (self.junction_metadata[self.exon_stop] == exon.stop)
         downstream_in_genome = \
             chrom_ind & strand_ind & \
-            (self.junction_metadata[exon_start] == exon.start)
+            (self.junction_metadata[self.exon_start] == exon.start)
         return {UPSTREAM: upstream_in_genome, DOWNSTREAM: downstream_in_genome}
 
-    def adjacent_junctions(self, exon, exon_start='exon_start',
-                           exon_stop='exon_stop', chrom='chrom',
-                           strand='strand'):
+    def _adjacent_junctions_single_exon(self, exon):
         """Get junctions adjacent to this exon"""
         dfs = []
-        adjacent_in_genome = self.genome_adjacent(exon, self.junction_metadata,
-                                                  exon_start, exon_stop, chrom,
-                                                  strand)
-        adjacent_in_transcriptome = self.genome_to_transcript_adjacency(
+        adjacent_in_genome = self._junctions_genome_adjacent_to_exon(exon)
+        adjacent_in_transcriptome = self._convert_to_stranded_transcript_adjacency(
             adjacent_in_genome, exon.strand)
 
         exon_id = exon.id
@@ -157,8 +158,7 @@ class ExonJunctionAdjacencies(object):
         else:
             return pd.DataFrame()
 
-    def get_adjacent_exons(self, exon_start='exon_start',
-                           exon_stop='exon_stop', chrom='chrom'):
+    def find_adjacencies(self):
         """Get upstream and downstream exons of each junction
 
         Use junctions defined in ``sj_metadata`` and exons in ``db`` to create
@@ -198,9 +198,7 @@ class ExonJunctionAdjacencies(object):
             if (i + 1) % 10000 == 0:
                 sys.stdout.write('\t{}/{} exons completed\n'.format(i + 1,
                                                                     n_exons))
-            df = self.adjacent_junctions(exon, exon_start=exon_start,
-                                         exon_stop=exon_stop, chrom=chrom,
-                                         strand=exon.strand)
+            df = self._adjacent_junctions_single_exon(exon)
             dfs.append(df)
         junction_exon_triples = pd.concat(dfs, ignore_index=True)
         sys.stdout.write('Done.\n')
