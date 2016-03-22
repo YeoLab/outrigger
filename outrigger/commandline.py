@@ -81,6 +81,9 @@ class CommandLine(object):
                               "will be used in the function when creating"
                               " splicing event names. Not required if you"
                               " provide a gtf file with '--gtf'")
+        index_parser.add_argument('--debug', required=False, action='store_true',
+                                help='If given, print debugging logging '
+                                     'information to standard out')
         index_parser.set_defaults(func=self.index)
 
         # --- Subcommand to calculate psi on the built index --- #
@@ -149,7 +152,7 @@ class CommandLine(object):
     def csv(self):
         """Create a csv file of compiled splice junctions"""
         splice_junctions = star.read_multiple_sj_out_tab(self.args.sj_out_tab)
-        splice_junctions['reads'] = splice_junctions['uniquely_mapped_reads']
+        splice_junctions['reads'] = splice_junctions['unique_junction_reads']
 
         filename = os.path.join(self.args.index, SPLICE_JUNCTIONS_CSV)
         sys.stdout.write('{}\tWriting {} ...\n'.format(util.timestamp(),
@@ -214,7 +217,10 @@ class CommandLine(object):
         # Must output the junction exon triples
         logger = logging.getLogger('outrigger.index')
 
-        if self.args.deug:
+        if not os.path.exists(self.args.index):
+            os.mkdir(self.args.index)
+
+        if self.args.debug:
             logger.setLevel(10)
         sys.stdout.write('{}\tReading SJ.out.files and creating a big splice '
                          'junction matrix ...\n'.format(util.timestamp()))
