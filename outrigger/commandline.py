@@ -151,20 +151,29 @@ class CommandLine(object):
 
     def csv(self):
         """Create a csv file of compiled splice junctions"""
+
+        util.progress('Reading SJ.out.files and creating a big splice junction'
+                      ' matrix of reads spanning exon-exon junctions...')
         splice_junctions = star.read_multiple_sj_out_tab(self.args.sj_out_tab)
         splice_junctions['reads'] = splice_junctions['unique_junction_reads']
 
         filename = os.path.join(self.args.index, SPLICE_JUNCTIONS_CSV)
-        sys.stdout.write('{}\tWriting {} ...\n'.format(util.timestamp(),
-                                                       filename))
+        util.progress('{Writing {} ...\n'.format(filename))
         splice_junctions.to_csv(filename, index=False)
+        util.done()
         return splice_junctions
+
+    def junction_metadata(self):
+        """Get just the juunction info from the concatenated read files"""
+        util.progress('Creating splice junction metadata of merely where '
+                      'junctions start and stop')
+
+        util.done()
 
     def make_db(self):
         if self.args.gffutils_database is not None:
-            sys.stdout.write(
-                '{}\tReading gffutils database from {} ...\n'.format(
-                                util.timestamp(), self.args.gffutils_database))
+            util.progress('Reading gffutils database from {} ...\n'.format(
+                self.args.gffutils_database))
             db = gffutils.FeatureDB(self.args.gffutils_database)
             util.done()
         else:
@@ -172,9 +181,9 @@ class CommandLine(object):
             try:
                 db = gffutils.FeatureDB(db_filename)
             except ValueError:
-                sys.stdout.write(
-                    '{}\tCreating a "gffutils" '
-                    'database {} ...\n'.format(util.timestamp(), db_filename))
+                util.progress(
+                    'Creating a "gffutils" '
+                    'database {} ...\n'.format(db_filename))
                 db = gtf.create_db(self.args.gtf, db_filename)
                 util.done()
         return db
@@ -186,9 +195,8 @@ class CommandLine(object):
 
     def make_graph(self, junction_exon_triples, db):
         """Create graph database of exon-junction adjacencies"""
-        sys.stdout.write('{}\tPopulating graph database of the '
-                         'junction-direction-exon triples '
-                         '...'.format(util.timestamp()))
+        util.progress('Populating graph database of the '
+                      'junction-direction-exon triples ...')
 
         event_maker = events.EventMaker(junction_exon_triples, db)
         util.done()
@@ -198,18 +206,15 @@ class CommandLine(object):
         for name, abbrev in events.EVENT_TYPES:
             name_with_spaces = name.replace('_', ' ')
             # Find event junctions
-            sys.stdout.write(
-                '{timestamp}\tFinding all {name} ({abbrev}) event ...'
-                '\n'.format(timestamp=util.timestamp(),
-                            name=name_with_spaces, abbrev=abbrev.upper()))
+            util.progress('Finding all {name} ({abbrev}) event ...'.format(
+                name=name_with_spaces, abbrev=abbrev.upper()))
             events_of_type = getattr(event_maker, name)()
             util.done()
 
             # Write to a file
             csv = os.path.join(self.args.index, ['index', abbrev, 'junctions'])
-            sys.stdout.write('{timestamp}\tWriting {abbrev} events to {csv} '
-                             '...\n'.format(timestamp=util.timestamp(),
-                                            abbrev=abbrev.upper(), csv=csv))
+            util.progress('Writing {abbrev} events to {csv} '
+                          '...'.format(abbrev=abbrev.upper(), csv=csv))
             events_of_type.to_csv(csv, index=False)
             util.done()
 
@@ -222,22 +227,19 @@ class CommandLine(object):
 
         if self.args.debug:
             logger.setLevel(10)
-        sys.stdout.write('{}\tReading SJ.out.files and creating a big splice '
-                         'junction matrix ...\n'.format(util.timestamp()))
-        splice_junctions = self.csv()
-        util.done()
+
+        spliced_reads = self.csv()
+
 
         db = self.make_db()
 
-        sys.stdout.write('{}\tGetting junction-direction-exon triples for '
-                         'graph database ...\n'.format(util.timestamp()))
+        util.progress('Getting junction-direction-exon triples for graph '
+                      'database ...')
         exon_junction_adjacencies = junctions.ExonJunctionAdjacencies(
-            splice_junctions, db)
+            spliced_reads, db)
         junction_exon_triples = exon_junction_adjacencies.get_adjacent_exons()
-        util.done()
 
-        sys.stdout.write('{}\tBuilding exon-junction graph ...'.foramt(
-            util.timestamp()))
+        util.progress('Building exon-junction graph ...')
         event_maker = events.EventMaker(junction_exon_triples, db=db)
         util.done()
         self.make_events_by_traversing_graph(event_maker)
@@ -251,9 +253,9 @@ class CommandLine(object):
             logger.setLevel(10)
 
         try:
-            sys.stdout.write(
-                '{}\tReading splice junction reads from {} ...'
-                '\n'.format(util.timestamp(), self.args.splice_junction_csv))
+            util.progress(
+                'Reading splice junction reads from {} ...'.format(
+                    self.args.splice_junction_csv))
             dtype = {self.args.reads_col: np.float32}
             splice_junction_reads = pd.read_csv(
                 self.args.splice_junction_csv, dtype=dtype)
@@ -283,12 +285,11 @@ class CommandLine(object):
                         self.args.junction_location_col,
                         self.args.splice_junction_csv)))
 
-            sys.stdout.write('{}\t\tDone.\n'.format(util.timestamp()))
+            util.done()
         except KeyError:
-            sys.stdout.write('{}\tCreating consolidated splice junction '
-                             'file "{sj_csv}" from SJ.out.tab files ...'
-                             '\n'.format(util.timestamp(),
-                                         sj_csv=SPLICE_JUNCTIONS_CSV))
+            util.progress('Creating consolidated splice junction '
+                             'file "{sj_csv}" from SJ.out.tab files '
+                          '...'.format(sj_csv=SPLICE_JUNCTIONS_CSV))
             splice_junction_reads = self.csv()
             util.done()
 
@@ -302,8 +303,8 @@ class CommandLine(object):
         psis = []
         for filename in glob.iglob('{}/*.csv'.format(events_folder)):
             event_type = os.path.basename(filename).split('.csv')[0]
-            sys.stdout.write('{}\tReading {} events from {} ...\n'.format(
-                util.timestamp(), event_type.upper(), filename))
+            util.progress('Reading {} events from {} ...'.format(
+                event_type.upper(), filename))
 
             isoform_junctions = psi.ISOFORM_JUNCTIONS[event_type]
             event_annotation = pd.read_csv(filename, index_col=0)
@@ -311,9 +312,9 @@ class CommandLine(object):
             logger.debug('\n--- Splicing event annotation ---')
             logger.debug(repr(event_annotation.head()))
 
-            sys.stdout.write('{}\tCalculating percent spliced-in (Psi) '
-                             'scores on {} events ...\n'.format(
-                                util.timestamp(), event_type.upper()))
+            util.progress('Calculating percent spliced-in (Psi) '
+                          'scores on {} events ...'.format(
+                event_type.upper()))
             event_psi = psi.calculate_psi(
                 event_annotation, splice_junction_reads,
                 min_reads=self.args.min_reads, debug=self.args.debug,
@@ -321,18 +322,18 @@ class CommandLine(object):
             event_psi.to_csv(os.path.join(self.args.index,
                                           '{}_psi.csv'.format(event_type)))
             psis.append(event_psi)
-            sys.stdout.write('{}\t\tDone.\n'.format(util.timestamp()))
+            util.done()
 
-        sys.stdout.write('{}\tConcatenating all calculated psi scores '
-                         'into one big matrix...\n'.format(util.timestamp()))
+        util.progress('Concatenating all calculated psi scores '
+                         'into one big matrix...')
         splicing = pd.concat(psis, axis=1)
-        sys.stdout.write('{}\t\tDone.\n')
+        util.done()
         splicing = splicing.T
         csv = os.path.join(self.args.index, 'psi.csv')
-        sys.stdout.write('{}\tWriting a samples x features matrix of Psi '
-                         'scores to {} ...\n'.format(util.timestamp(), csv))
+        util.progress('Writing a samples x features matrix of Psi '
+                      'scores to {} ...'.format(csv))
         splicing.to_csv(csv)
-        sys.stdout.write('{}\t\tDone.\n'.format(util.timestamp()))
+        util.done()
 
 
 def main():
