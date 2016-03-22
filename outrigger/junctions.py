@@ -113,7 +113,7 @@ class ExonJunctionAdjacencies(object):
         exons = [exon_id] * length
         directions = [direction] * length
         junctions = direction_ind[direction_ind].index
-        return pd.DataFrame(zip(exons, directions, junctions),
+        return pd.DataFrame(list(zip(exons, directions, junctions)),
                             columns=['exon', 'direction', 'junction'])
 
     @staticmethod
