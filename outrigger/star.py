@@ -21,15 +21,18 @@ def int_to_intron_motif(n):
     if n == 1:
         return 'GT/AG'
     if n == 2:
-        return 'CT/AC'
+        # Negative strand: CT/AC
+        return 'GT/AG'
     if n == 3:
         return 'GC/AG'
     if n == 4:
-        return 'CT/GC'
+        # Negative strand: CT/GC
+        return 'GC/AG'
     if n == 5:
         return 'AT/AC'
     if n == 6:
-        return 'GT/AT'
+        # Negative strand: GT/AT
+        return 'AT/AC'
 
 
 def read_sj_out_tab(filename):
@@ -61,9 +64,9 @@ def read_sj_out_tab(filename):
     sj.loc[rows, 'strand'] = '-'
 
     # Translate negative strand intron motifs
-    rows = sj.strand == '-'
-    sj.loc[rows, 'intron_motif'] = sj.intron_motif[rows].map(
-        lambda x: NEG_STRAND_INTRON_MOTIF[x])
+    # rows = sj.strand == '-'
+    # sj.loc[rows, 'intron_motif'] = sj.intron_motif[rows].map(
+    #     lambda x: NEG_STRAND_INTRON_MOTIF[x])
     sj.annotated = sj.annotated.astype(bool)
 
     # Add intron location
@@ -99,6 +102,7 @@ def read_multiple_sj_out_tab(filenames, sample_id_func=os.path.basename):
         sample_id = sample_id_func(filename)
         sample_id = sample_id.split('SJ.out.tab')[0].rstrip('.')
         splice_junction['sample_id'] = sample_id
+        splice_junctions.append(splice_junction)
     splice_junctions = pd.concat(splice_junctions, ignore_index=True)
     splice_junctions = splice_junctions.set_index('junction_location')
     return splice_junctions
