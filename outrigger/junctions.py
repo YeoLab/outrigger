@@ -7,7 +7,7 @@ DOWNSTREAM = 'downstream'
 DIRECTIONS = UPSTREAM, DOWNSTREAM
 
 
-class JunctionAnnotator(object):
+class ExonJunctionAdjacencies(object):
     """Annotate junctions with adjacent exons"""
 
     def __init__(self, splice_junctions, db, junction_id='junction_id',
@@ -161,7 +161,9 @@ class JunctionAnnotator(object):
             if (i + 1) % 10000 == 0:
                 sys.stdout.write('\t{}/{} exons completed\n'.format(i + 1,
                                                                     n_exons))
-            df = self.adjacent_junctions(exon)
+            df = self.adjacent_junctions(exon, exon_start=exon_start,
+                                         exon_stop=exon_stop, chrom=chrom,
+                                         strand=exon.strand)
             dfs.append(df)
         junction_exon_triples = pd.concat(dfs, ignore_index=True)
         sys.stdout.write('Done.\n')
