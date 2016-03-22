@@ -26,8 +26,7 @@ class ExonJunctionAdjacencies(object):
         junction_id, exon_start, exon_stop, chrom, strand : str
             Columns in `splice_junctions`
         """
-        columns = self.junction_id, self.exon_start, self.exon_stop, \
-            self.chrom, self.strand
+        columns = junction_id, exon_start, exon_stop, chrom, strand
 
         for column in columns:
             if column not in splice_junctions:
