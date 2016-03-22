@@ -157,7 +157,7 @@ class CommandLine(object):
         splice_junctions.to_csv(filename, index=False)
         return splice_junctions
 
-    def get_db(self):
+    def make_db(self):
         if self.args.gffutils_database is not None:
             sys.stdout.write(
                 '{}\tReading gffutils database from {} ...\n'.format(
@@ -176,31 +176,22 @@ class CommandLine(object):
                 util.done()
         return db
 
-    def index(self):
-        # Must output the junction exon triples
-        logger = logging.getLogger('outrigger.index')
+    def make_exon_junction_adjacencies(self):
+        """Get annotated exons next to junctions in data"""
+        eja = junctions.ExonJunctionAdjacencies(self.splice_junctions, self.db)
+        pass
 
-        if self.args.deug:
-            logger.setLevel(10)
-        sys.stdout.write('{}\tReading SJ.out.files and creating a big splice '
-                         'junction matrix ...\n'.format(util.timestamp()))
-        splice_junctions = self.csv()
-        util.done()
-
-        db = self.get_db()
-
-        sys.stdout.write('{}\tGetting junction-direction-exon triples for '
-                         'graph database ...\n'.format(util.timestamp()))
-        junction_annotator = junctions.JunctionAnnotator(splice_junctions, db)
-        junction_exon_triples = junction_annotator.get_adjacent_exons()
-        util.done()
-
+    def make_graph(self, junction_exon_triples, db):
+        """Create graph database of exon-junction adjacencies"""
         sys.stdout.write('{}\tPopulating graph database of the '
                          'junction-direction-exon triples '
                          '...'.format(util.timestamp()))
+
         event_maker = events.EventMaker(junction_exon_triples, db)
         util.done()
+        return event_maker
 
+    def make_events_by_traversing_graph(self, event_maker):
         for name, abbrev in events.EVENT_TYPES:
             name_with_spaces = name.replace('_', ' ')
             # Find event junctions
@@ -218,6 +209,33 @@ class CommandLine(object):
                                             abbrev=abbrev.upper(), csv=csv))
             events_of_type.to_csv(csv, index=False)
             util.done()
+
+    def index(self):
+        # Must output the junction exon triples
+        logger = logging.getLogger('outrigger.index')
+
+        if self.args.deug:
+            logger.setLevel(10)
+        sys.stdout.write('{}\tReading SJ.out.files and creating a big splice '
+                         'junction matrix ...\n'.format(util.timestamp()))
+        splice_junctions = self.csv()
+        util.done()
+
+        db = self.make_db()
+
+        sys.stdout.write('{}\tGetting junction-direction-exon triples for '
+                         'graph database ...\n'.format(util.timestamp()))
+        exon_junction_adjacencies = junctions.ExonJunctionAdjacencies(
+            splice_junctions, db)
+        junction_exon_triples = exon_junction_adjacencies.get_adjacent_exons()
+        util.done()
+
+        sys.stdout.write('{}\tBuilding exon-junction graph ...'.foramt(
+            util.timestamp()))
+        event_maker = events.EventMaker(junction_exon_triples, db=db)
+        util.done()
+        self.make_events_by_traversing_graph(event_maker)
+
 
     def psi(self):
         """Calculate percent spliced in (psi) of splicing events"""
