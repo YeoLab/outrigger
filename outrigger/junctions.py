@@ -2,39 +2,76 @@ import sys
 
 import pandas as pd
 
+from .util import timestamp, done
+
 UPSTREAM = 'upstream'
 DOWNSTREAM = 'downstream'
 DIRECTIONS = UPSTREAM, DOWNSTREAM
 
 
+def make_metadata(spliced_reads):
+    """Get barebones junction chrom, start, stop, strand information
+
+    Parameters
+    ----------
+    spliced_reads : pandas.DataFrame
+        Concatenated SJ.out.tab files created by read_sj_out_tab
+
+    Returns
+    -------
+    junctions : pandas.DataFrame
+        A (n_junctions, 9) dataframe containing the columns:
+         - junction_id
+         - chrom
+         - intron_start
+         - intron_stop
+         - exon_start
+         - exon_stop
+         - strand
+         - intron_motif
+         - annotated
+    """
+    junctions = spliced_reads[['chrom', 'intron_start', 'intron_stop',
+                               'strand', 'intron_motif', 'annotated']]
+
+
+    junctions['junction_id'] = 'junction:', junctions['chrom'] + ':' + junctions[
+        'intron_start']
+    junctions = junctions.drop_duplicates()
+    junctions.loc['exon_start'] = junctions['intron_stop'] + 1
+    junctions.loc['exon_stop'] = junctions['intron_start'] - 1
+    return junctions
+
+
 class ExonJunctionAdjacencies(object):
     """Annotate junctions with adjacent exons"""
 
-    def __init__(self, splice_junctions, db, junction_id='junction_id',
+    def __init__(self, junction_metadata, db, junction_id='junction_id',
                  exon_start='exon_start', exon_stop='exon_stop',
                  chrom='chrom', strand='strand'):
         """Initialize class to get upstream/downstream exons of junctions
 
         Parameters
         ----------
-        splice_junctions : pandas.DataFrame
+        junction_metadata : pandas.DataFrame
             A table of splice junctions with the columns indicated by the
             variables `junction_id`, `exon_start`, `exon_stop`, `chrom`,
             `strand`
         db : gffutils.FeatureDB
             Gffutils Database of gene, transcript, and exon features.
         junction_id, exon_start, exon_stop, chrom, strand : str
-            Columns in `splice_junctions`
+            Columns in `junction_metadata`
         """
+
         columns = junction_id, exon_start, exon_stop, chrom, strand
 
         for column in columns:
-            if column not in splice_junctions:
+            if column not in junction_metadata:
                 raise ValueError('The required column {} is not in the splice '
                                  'junction dataframe'.format(column))
 
-        self.splice_junctions = splice_junctions.set_index(junction_id)
-        self.splice_junctions = self.splice_junctions.sort_index()
+        self.junction_metadata = junction_metadata.set_index(junction_id)
+        self.junction_metadata = self.junction_metadata.sort_index()
 
         self.junction_id = junction_id
         self.exon_start = exon_start
@@ -43,6 +80,7 @@ class ExonJunctionAdjacencies(object):
         self.strand = strand
 
         self.db = db
+        done()
 
     @staticmethod
     def _single_junction_exon_triple(direction_ind, direction, exon_id):
@@ -85,16 +123,16 @@ class ExonJunctionAdjacencies(object):
     def genome_adjacent(self, exon, exon_start='exon_start',
                         exon_stop='exon_stop', chrom='chrom', strand='strand'):
         """Get indices of junctions next to an exon, in genome coordinates"""
-        chrom_ind = self.splice_junctions[chrom] == exon.chrom
+        chrom_ind = self.junction_metadata[chrom] == exon.chrom
 
-        strand_ind = self.splice_junctions[strand] == exon.strand
+        strand_ind = self.junction_metadata[strand] == exon.strand
 
         upstream_in_genome = \
             chrom_ind & strand_ind \
-            & (self.splice_junctions[exon_stop] == exon.stop)
+            & (self.junction_metadata[exon_stop] == exon.stop)
         downstream_in_genome = \
             chrom_ind & strand_ind & \
-            (self.splice_junctions[exon_start] == exon.start)
+            (self.junction_metadata[exon_start] == exon.start)
         return {UPSTREAM: upstream_in_genome, DOWNSTREAM: downstream_in_genome}
 
     def adjacent_junctions(self, exon, exon_start='exon_start',
@@ -102,7 +140,7 @@ class ExonJunctionAdjacencies(object):
                            strand='strand'):
         """Get junctions adjacent to this exon"""
         dfs = []
-        adjacent_in_genome = self.genome_adjacent(exon, self.splice_junctions,
+        adjacent_in_genome = self.genome_adjacent(exon, self.junction_metadata,
                                                   exon_start, exon_stop, chrom,
                                                   strand)
         adjacent_in_transcriptome = self.genome_to_transcript_adjacency(
