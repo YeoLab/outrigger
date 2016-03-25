@@ -17,14 +17,11 @@ SPLICE_TYPE_ISOFORM_EXONS = {'SE': {'isoform1': ('exon1', 'exon3'),
 class SplicingAnnotator(object):
     """Annotates basic features of splicing events: gene ids and names"""
 
-    def __init__(self, outrigger_folder, events_folder, db):
-        self.event_dfs = {}
+    def __init__(self, db, events, splice_type):
         self.db = db
-
-        for filename in glob.iglob('{}/*.csv'.format(events_folder)):
-            event_type = os.path.basename(filename).split('.csv')[0].upper()
-            df = pd.read_csv(filename)
-            self.event_dfs[event_type] = df
+        self.events = events
+        self.splice_type = splice_type
+        self.isoform_exons = SPLICE_TYPE_ISOFORM_EXONS[self.splice_type]
 
     # def get_gene_attributes(self):
     #     """Iterate over all events in all types and get gene ids"""
@@ -61,7 +58,7 @@ class SplicingAnnotator(object):
         df['strand'] = df[exon_cols[0]].str[-1]
         return df
 
-    def get_transcripts(self, row, isoform1_exons, isoform2_exons):
+    def _single_row_transcripts(self, row, isoform1_exons, isoform2_exons):
 
         isoform_to_exons = {
             'isoform1': map(lambda x: self.db[row[x]], isoform1_exons),
@@ -73,3 +70,23 @@ class SplicingAnnotator(object):
                                       for k, v in isoform_to_exons.items())
 
         return isoform_to_transcripts
+
+    def _get_attributes(self):
+
+        lines = []
+
+        for row in self.events.iterrows():
+            for isoform, exons in self.isoform_exons:
+                exon1 = self.db[row[exons[0]]]
+                other_exons = row[exons[1:]]
+                attributes = {}
+                for (k1, v1) in exon1.attributes.items():
+                    v2 = set(itertools.chain(*[self.db[i].attributes[k1]
+                                               for i in other_exons]))
+                    value = set(v1) & v2
+                    if len(value) > 0:
+                        attributes[k1] = ','.join(sorted(list(value)))
+                attributes = pd.Series(attributes, name=row['exons'])
+                attributes.index = isoform + '_' + attributes.index
+                lines.append(exons)
+        return pd.concat(attributes)
