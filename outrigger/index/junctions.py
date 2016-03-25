@@ -2,12 +2,14 @@ import sys
 
 import pandas as pd
 
-from outrigger.util import timestamp, done
+from outrigger.util import done
 
 UPSTREAM = 'upstream'
 DOWNSTREAM = 'downstream'
 DIRECTIONS = UPSTREAM, DOWNSTREAM
 
+from ..io.common import JUNCTION_START, JUNCTION_STOP, JUNCTION_MOTIF, \
+    JUNCTION_ID, EXON_START, EXON_STOP, CHROM, STRAND, ANNOTATED
 
 def make_metadata(spliced_reads):
     """Get barebones junction chrom, start, stop, strand information
@@ -31,30 +33,20 @@ def make_metadata(spliced_reads):
          - intron_motif
          - annotated
     """
-    junctions = spliced_reads[['chrom', 'intron_start', 'intron_stop',
-                               'strand', 'intron_motif', 'annotated']]
-
+    junctions = spliced_reads[[JUNCTION_ID, CHROM, JUNCTION_START,
+                               JUNCTION_STOP, STRAND, JUNCTION_ID,
+                               ANNOTATED]]
     junctions = junctions.drop_duplicates()
 
-    # Add a unique id for the junction
-    junctions['junction_id'] = 'junction:' + junctions['chrom'] + ':' + \
-                               junctions['intron_start'].astype(str) + \
-                               junctions['intron_stop'].astype(str)
-
-    # From STAR, exons start one base pair down from the end of the intron
-    junctions['exon_start'] = junctions['intron_stop'] + 1
-
-    # From STAR, exons stop one base pair up from the start of the intron
-    junctions['exon_stop'] = junctions['intron_start'] - 1
     return junctions
 
 
 class ExonJunctionAdjacencies(object):
     """Annotate junctions with adjacent exons"""
 
-    def __init__(self, junction_metadata, db, junction_id='junction_id',
-                 exon_start='exon_start', exon_stop='exon_stop',
-                 chrom='chrom', strand='strand'):
+    def __init__(self, junction_metadata, db, junction_id=JUNCTION_ID,
+                 exon_start=EXON_START, exon_stop=EXON_STOP,
+                 chrom=CHROM, strand=STRAND):
         """Initialize class to get upstream/downstream exons of junctions
 
         Parameters
