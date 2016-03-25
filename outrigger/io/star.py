@@ -81,7 +81,7 @@ def read_sj_out_tab(filename):
     # From STAR, exons stop one base pair up from the start of the intron
     sj[EXON_STOP] = sj[JUNCTION_START] - 1
 
-    sj[JUNCTION_ID] = sj.chrom.astype(str) + ':' \
+    sj[JUNCTION_ID] = 'junction:' + sj.chrom.astype(str) + ':' \
         + sj[JUNCTION_START].astype(str) + '-' \
         + sj[JUNCTION_STOP].astype(str) + ':' \
         + sj.strand.astype(str)
