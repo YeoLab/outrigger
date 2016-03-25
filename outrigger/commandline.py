@@ -282,7 +282,11 @@ class Index(Subcommand):
             util.done()
 
             # Write to a file
-            csv = os.path.join(self.output, ['index', abbrev, 'junctions'])
+            csv = os.path.join(self.output, *['index', abbrev, 'junctions.csv'])
+            dirname = os.path.dirname(csv)
+            if not os.path.exists(dirname):
+                os.makedirs(dirname)
+
             util.progress('Writing {abbrev} events to {csv} '
                           '...'.format(abbrev=abbrev.upper(), csv=csv))
             events_of_type.to_csv(csv, index=False)
@@ -324,12 +328,12 @@ class Psi(Subcommand):
 
     def maybe_read_junction_reads(self):
         try:
-            util.progress(
-                'Reading splice junction reads from {} ...'.format(
-                    self.junction_read_csv))
             dtype = {self.reads_col: np.float32}
             if self.junction_read_csv is None:
                 self.junction_read_csv = JUNCTION_READS_PATH
+            util.progress(
+                'Reading splice junction reads from {} ...'.format(
+                    self.junction_read_csv))
             junction_reads = pd.read_csv(
                 self.junction_read_csv, dtype=dtype)
             util.done()
