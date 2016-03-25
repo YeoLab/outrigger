@@ -76,13 +76,16 @@ class EventMaker(object):
                                  opposite(row.direction))(exon_i))
 
     def event_dict_to_df(self, events, exon_names, junction_names):
-        columns = list(exon_names) + list(junction_names) + ['event_id']
+        columns = list(exon_names) + list(junction_names) \
+                  + ['exons', 'junctions']
         data = pd.DataFrame(index=np.arange(len(events)), columns=columns)
         for i, (exons, junctions) in enumerate(events.items()):
-            event_id = '@'.join(exons)
+            exon_ids = '@'.join(exons)
+            junction_ids = '@'.join(junctions)
             data.loc[i, exon_names] = list(exons)
             data.loc[i, junction_names] = list(junctions)
-            data.loc[i, 'event_id'] = event_id
+            data.loc[i, 'exons'] = exon_ids
+            data.loc[i, 'junctions'] = junction_ids
         return data
 
     def skipped_exon(self):
