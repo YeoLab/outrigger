@@ -12,8 +12,6 @@ UNIQUE_READS = 'unique_junction_reads'
 MULTIMAP_READS = 'multimap_junction_reads'
 MAX_OVERHANG = 'max_overhang'
 
-READS = UNIQUE_READS
-
 COLUMN_NAMES = (CHROM, JUNCTION_START, JUNCTION_STOP, STRAND,
                 JUNCTION_MOTIF, ANNOTATED, UNIQUE_READS, MULTIMAP_READS,
                 MAX_OVERHANG)
@@ -89,7 +87,6 @@ def read_sj_out_tab(filename):
         + sj.strand.astype(str)
 
     return sj
-
 
 def read_multiple_sj_out_tab(filenames, sample_id_func=os.path.basename):
     """Read the splice junction files and return a tall, tidy dataframe
