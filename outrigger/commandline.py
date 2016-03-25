@@ -19,7 +19,7 @@ with warnings.catch_warnings():
     warnings.simplefilter("ignore")
     import pandas as pd
 
-SPLICE_JUNCTIONS_CSV = 'junctions/reads.csv'
+JUNCTION_READS_PATH = 'junctions/reads.csv'
 
 
 class CommandLine(object):
@@ -56,7 +56,7 @@ class CommandLine(object):
                  " the samples from the SJ.out.tab files that were used "
                  "during 'outrigger index' will be used. Not required if you "
                  "specify SJ.out.tab file with '--sj-out-tab'".format(
-                        sj_csv=SPLICE_JUNCTIONS_CSV))
+                        sj_csv=JUNCTION_READS_PATH))
         index_parser.add_argument('-m', '--min-reads', type=int,
                                   action='store',
                                   required=False, default=10,
@@ -112,12 +112,12 @@ class CommandLine(object):
                  "the samples from the SJ.out.tab files that were used during "
                  "'outrigger index' will be used. Not required if you specify "
                  "SJ.out.tab file with '--sj-out-tab'".format(
-                        sj_csv=SPLICE_JUNCTIONS_CSV))
+                        sj_csv=JUNCTION_READS_PATH))
         splice_junctions.add_argument(
             '-j', '--sj-out-tab', required=False,
             type=str, action='store', nargs='*',
             help='SJ.out.tab files from STAR aligner output. Not required if '
-                 'you specify a file with "--splice-junction-csv"')
+                 'you specify a file with "--junction-read-csv"')
         psi_parser.add_argument('-m', '--min-reads', type=int, action='store',
                                 required=False, default=10,
                                 help='Minimum number of reads per junction for'
@@ -153,17 +153,21 @@ class CommandLine(object):
         self.args.func()
 
     def index(self):
-        index = Index(vars(self.args))
+        index = Index(**vars(self.args))
         index.execute()
 
     def psi(self):
-        psi = Psi(vars(self.args))
+        psi = Psi(**vars(self.args))
         psi.execute()
 
 
 class Subcommand(object):
 
     output = 'outrigger_output'
+
+    def __init__(self, **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
 
     def csv(self, sj_out_tab):
         """Create a csv file of compiled splice junctions"""
@@ -173,7 +177,7 @@ class Subcommand(object):
         splice_junctions = star.read_multiple_sj_out_tab(sj_out_tab)
         splice_junctions['reads'] = splice_junctions['unique_junction_reads']
 
-        filename = os.path.join(self.output, SPLICE_JUNCTIONS_CSV)
+        filename = os.path.join(self.output, JUNCTION_READS_PATH)
         util.progress('Writing {} ...\n'.format(filename))
         splice_junctions.to_csv(filename, index=False)
         util.done()
@@ -201,16 +205,6 @@ class Subcommand(object):
 
 
 class Index(Subcommand):
-
-    def __init__(self, output=None, splice_junctions=None, min_reads=None,
-                 gtf_filename=None, gffutils_db=None, debug=False):
-        self.output = output
-        self.splice_junctions = splice_junctions
-        self.min_reads = min_reads
-        self.gtf_filename = gtf_filename
-        self.gffutils_db = gffutils_db
-        self.debug = debug
-
 
     @staticmethod
     def junction_metadata(spliced_reads):
@@ -284,18 +278,6 @@ class Index(Subcommand):
 
 class Psi(Subcommand):
 
-    def __init__(self, index=None, junction_read_csv=None, sj_out_tab=None,
-                 min_reads=None, sample_id_col=None, reads_col=None,
-                 junction_id_col=None, debug=None):
-        self.index = index
-        self.junction_read_csv = junction_read_csv
-        self.sj_out_tab = sj_out_tab
-        self.min_reads = min_reads
-        self.sample_id_col = sample_id_col
-        self.reads_col = reads_col
-        self.junction_id_col = junction_id_col
-        self.debug = debug
-
     def execute(self):
         """Calculate percent spliced in (psi) of splicing events"""
 
@@ -304,12 +286,21 @@ class Psi(Subcommand):
             logger.setLevel(10)
 
         try:
-            util.progress(
-                'Reading splice junction reads from {} ...'.format(
-                    self.junction_read_csv))
-            dtype = {self.reads_col: np.float32}
-            splice_junction_reads = pd.read_csv(
-                self.junction_read_csv, dtype=dtype)
+            try:
+                util.progress(
+                    'Reading splice junction reads from {} ...'.format(
+                        self.junction_read_csv))
+                dtype = {self.reads_col: np.float32}
+                if self.junction_read_csv is None:
+                    self.junction_read_csv = '{output}/{reads}'.format(
+                       output=self.output, reads=JUNCTION_READS_PATH)
+                splice_junction_reads = pd.read_csv(
+                    self.junction_read_csv, dtype=dtype)
+            except OSError:
+                raise IOError(
+                    "There is no junction reads file at the expected location"
+                    " ({csv}). Are you in the correct directory?".format(
+                        csv=self.junction_read_csv))
 
             try:
                 assert self.reads_col in splice_junction_reads
@@ -338,7 +329,7 @@ class Psi(Subcommand):
 
             util.done()
         except KeyError:
-            splice_junction_reads = self.csv(self.sj_out_tab, )
+            splice_junction_reads = self.csv(self.sj_out_tab)
 
         splice_junction_reads = splice_junction_reads.set_index(
             [self.junction_id_col, self.sample_id_col])
