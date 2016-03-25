@@ -66,6 +66,14 @@ class CommandLine(object):
                                        'for that junction to count in creating'
                                        ' the index of splicing events '
                                        '(default=10)')
+        index_parser.add_argument('--use-multimapping', action='store_true',
+                                  help='Applies to STAR SJ.out.tab files only.'
+                                       ' If this flag is used, then include '
+                                       'reads that mapped to multiple '
+                                       'locations in the genome, not uniquely '
+                                       'to a locus, in the read count for a '
+                                       'junction. By default, this is off, and'
+                                       ' only uniquely mapped reads are used.')
 
         gtf_parser = index_parser.add_mutually_exclusive_group(required=True)
         gtf_parser.add_argument('-g', '--gtf-filename', type=str,
@@ -130,6 +138,14 @@ class CommandLine(object):
                                 required=False, default=10,
                                 help='Minimum number of reads per junction for'
                                      ' calculating Psi (default=10)')
+        psi_parser.add_argument('--use-multimapping', action='store_true',
+                                help='Applies to STAR SJ.out.tab files only.'
+                                     ' If this flag is used, then include '
+                                     'reads that mapped to multiple '
+                                     'locations in the genome, not uniquely '
+                                     'to a locus, in the read count for a '
+                                     'junction. By default, this is off, and'
+                                     ' only uniquely mapped reads are used.')
         psi_parser.add_argument('--reads-col', default='reads',
                                 help="Name of column in --splice-junction-csv "
                                      "containing reads to use. "
@@ -174,6 +190,7 @@ class Subcommand(object):
     output = OUTPUT
     sj_out_tab = None
     junction_read_csv = None
+    use_multimapping = False
     min_reads = MIN_READS
     gtf_filename = None
     gffutils_db = None
@@ -185,13 +202,14 @@ class Subcommand(object):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def csv(self, sj_out_tab):
+    def csv(self):
         """Create a csv file of compiled splice junctions"""
 
         util.progress('Reading SJ.out.files and creating a big splice junction'
                       ' matrix of reads spanning exon-exon junctions...')
-        splice_junctions = star.read_multiple_sj_out_tab(sj_out_tab)
-        splice_junctions['reads'] = splice_junctions['unique_junction_reads']
+        splice_junctions = star.read_multiple_sj_out_tab(
+            self.sj_out_tab, use_multimapping=self.use_multimapping)
+        # splice_junctions['reads'] = splice_junctions['unique_junction_reads']
 
         filename = JUNCTION_READS_PATH
         dirname = os.path.dirname(filename)
@@ -202,23 +220,22 @@ class Subcommand(object):
         util.done()
         return splice_junctions
 
-    @staticmethod
-    def maybe_make_db(gtf_filename, gffutils_db):
+    def maybe_make_db(self):
         """Get GFFutils database from file or create from a gtf"""
-        if gffutils_db is not None:
+        if self.gffutils_db is not None:
             util.progress('Reading gffutils database from {} ...\n'.format(
-                gffutils_db))
-            db = gffutils.FeatureDB(gffutils_db)
+                self.gffutils_db))
+            db = gffutils.FeatureDB(self.gffutils_db)
             util.done()
         else:
-            db_filename = '{}.db'.format(gtf_filename)
+            db_filename = '{}.db'.format(self.gtf_filename)
             try:
                 db = gffutils.FeatureDB(db_filename)
             except ValueError:
                 util.progress(
                     'Creating a "gffutils" '
                     'database {} ...\n'.format(db_filename))
-                db = gtf.create_db(gtf_filename, db_filename)
+                db = gtf.create_db(self.gtf_filename, db_filename)
                 util.done()
         return db
 
@@ -281,10 +298,10 @@ class Index(Subcommand):
         if self.debug:
             logger.setLevel(10)
 
-        spliced_reads = self.csv(self.sj_out_tab)
+        spliced_reads = self.csv()
         metadata = self.junction_metadata(spliced_reads)
 
-        db = self.maybe_make_db(self.gtf_filename, self.gffutils_db)
+        db = self.maybe_make_db()
 
         junction_exon_triples = self.make_exon_junction_adjacencies(metadata, db)
 
