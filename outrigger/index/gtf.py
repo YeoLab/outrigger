@@ -99,7 +99,6 @@ class SplicingAnnotator(object):
                 attributes = pd.Series(attributes, name=row['exons'])
                 attributes.index = isoform + '_' + attributes.index
                 lines.append(attributes)
-        # import pdb; pdb.set_trace()
         return pd.concat(lines, axis=1).T
 
     def lengths(self):
