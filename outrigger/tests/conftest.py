@@ -40,19 +40,19 @@ def gtf_filename(strand, positive_strand_gtf_filename,
 
 @pytest.fixture
 def db(gtf_filename):
-    from outrigger.gtf import create_db
+    from outrigger.index.gtf import create_db
     return create_db(gtf_filename)
 
 
 @pytest.fixture
 def splice_junctions(sj_filenames):
-    from outrigger import star
+    from outrigger.io import star
 
     return star.read_multiple_sj_out_tab(sj_filenames)
 
 
 @pytest.fixture
 def metadata(splice_junctions):
-    from outrigger import star
+    from outrigger.io import star
 
     return star.sj_count_to_metadata(splice_junctions)

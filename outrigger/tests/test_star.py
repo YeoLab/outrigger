@@ -2,6 +2,7 @@ import glob
 import os
 
 import pandas as pd
+import pandas.util.testing as pdt
 import pytest
 import six
 
@@ -35,18 +36,22 @@ chr1    668587  671992  1       1       0       0       4       28
 
 @pytest.fixture
 def sj_filenames(data_folder):
-    return glob.glob('{}/*SJ.out.tab'.format(data_folder))
+    return glob.glob('{}/treutlein2014/*SJ.out.tab'.format(data_folder))
 
 
 @pytest.fixture
 def splice_junctions(sj_filenames):
-    from outrigger.star import read_multiple_sj_out_tab
+    from outrigger.io.star import read_multiple_sj_out_tab
 
     return read_multiple_sj_out_tab(sj_filenames)
 
 
 def test_read_sj_out_tab(sj_out_tab):
-    pass
+    from outrigger.io.star import read_sj_out_tab
+
+    sj = read_sj_out_tab(sj_out_tab)
+
+    pdt.assert_frame_equal(sj, False)
 
 
 def test_int_to_intron_motif():

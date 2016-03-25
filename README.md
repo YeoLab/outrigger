@@ -148,7 +148,7 @@ outrigger psi --index ./outrigger_index --min-reads 10
 ## Outputs
 
 ```
-outrigger_index
+outrigger/
 ├── index
 │   └── mxe
 │       ├── junctions.csv
@@ -157,5 +157,5 @@ outrigger_index
 │       ├── junctions.csv
 │       └── metadata.csv
 ├── psi.csv
-└── splice_junctions.csv
+└── junction_reads.csv
 ```

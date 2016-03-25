@@ -1,11 +1,10 @@
 import logging
 
-from graphlite import connect, V
 import pandas as pd
 import pandas.util.testing as pdt
 import pytest
 import six
-
+from graphlite import connect, V
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -60,7 +59,7 @@ def region(request):
 @pytest.fixture
 def junction_to_exons(chrom, exon_start_stop, transcripts, strand):
     from collections import defaultdict
-    from outrigger.events import stringify_location
+    from outrigger.index.events import stringify_location
 
     data = defaultdict(lambda: {'upstream': set([]), 'downstream': set([])})
 
@@ -99,7 +98,7 @@ def junction_to_exons(chrom, exon_start_stop, transcripts, strand):
 
 @pytest.fixture
 def junction_exon_triples(chrom, exon_start_stop, transcripts, strand):
-    from outrigger.events import stringify_location
+    from outrigger.index.events import stringify_location
     data = []
 
     for transcript, exons in transcripts:
@@ -138,7 +137,7 @@ def junction_exon_triples(chrom, exon_start_stop, transcripts, strand):
 
 
 def test_stringify_location(chrom, strand, region):
-    from outrigger.events import stringify_location
+    from outrigger.index.events import stringify_location
 
     test = stringify_location(chrom, 100, 200, strand, region)
 
@@ -151,7 +150,7 @@ def test_stringify_location(chrom, strand, region):
 
 def assert_graph_items_equal(graph1, items1, graph2, items2):
     """Checks all relationships in graph1 exist in graph2, and vice versa"""
-    from outrigger.junctions import DIRECTIONS
+    from outrigger.index.junctions import DIRECTIONS
 
     for number1, item1 in enumerate(items1):
         for direction in DIRECTIONS:
@@ -185,11 +184,11 @@ def assert_graph_items_equal(graph1, items1, graph2, items2):
 class TestEventMaker(object):
     @pytest.fixture
     def junction_aggregator(self, junction_exon_triples):
-        from outrigger.events import EventMaker
+        from outrigger.index.events import EventMaker
         return EventMaker(junction_exon_triples)
 
     def test_init(self, junction_exon_triples, graph_items):
-        from outrigger.events import EventMaker
+        from outrigger.index.events import EventMaker
 
         graph, items = graph_items
 
@@ -294,7 +293,7 @@ exon:chr1:400-425:-,exon:chr1:300-350:-,exon:chr1:225-250:-,exon:chr1:150-175:-,
 
 @pytest.fixture
 def graph_items(exon_start_stop, transcripts, chrom, strand):
-    from outrigger.events import stringify_location, opposite
+    from outrigger.index.events import stringify_location, opposite
 
     graph = connect(":memory:", graphs=['upstream', 'downstream'])
 

@@ -10,14 +10,14 @@ import warnings
 import gffutils
 import numpy as np
 
-from outrigger import events, gtf, junctions, psi, star, util
-
+from outrigger import events, junctions, psi, star, util
+from outrigger.index import gtf
 
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
     import pandas as pd
 
-SPLICE_JUNCTIONS_CSV = 'concatenated_splice_junction_reads.csv'
+SPLICE_JUNCTIONS_CSV = 'junctions/reads.csv'
 
 
 class CommandLine(object):
@@ -50,7 +50,7 @@ class CommandLine(object):
             '-c', '--splice-junction-csv',
             help="Name of the splice junction files to calculate psi scores "
                  "on. If not provided, the compiled '{sj_csv}' file with all"
-                 " the samples from the SJ.out.tab files thatm were used "
+                 " the samples from the SJ.out.tab files that were used "
                  "during 'outrigger index' will be used. Not required if you "
                  "specify SJ.out.tab file with '--sj-out-tab'".format(
                         sj_csv=SPLICE_JUNCTIONS_CSV))
@@ -372,7 +372,6 @@ class Subcommand(object):
                 util.done()
         return db
 
-
 class Index(Subcommand):
 
     def __init__(self):
@@ -442,6 +441,9 @@ class Index(Subcommand):
         event_maker = events.EventMaker(junction_exon_triples, db=db)
         util.done()
         self.make_events_by_traversing_graph(event_maker)
+
+
+
 
 
 class Psi(Subcommand):
@@ -538,6 +540,7 @@ class Psi(Subcommand):
                       'scores to {} ...'.format(csv))
         splicing.to_csv(csv)
         util.done()
+
 
 
 def main():
