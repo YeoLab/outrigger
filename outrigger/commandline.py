@@ -12,6 +12,7 @@ import numpy as np
 
 from outrigger.index import events, junctions, gtf
 from outrigger.psi import compute
+from outrigger.psi.compute import MIN_READS, ISOFORM_JUNCTIONS
 from outrigger.io import star
 from outrigger import util
 
@@ -19,8 +20,9 @@ with warnings.catch_warnings():
     warnings.simplefilter("ignore")
     import pandas as pd
 
-JUNCTION_READS_PATH = 'junctions/reads.csv'
-
+OUTPUT = './outrigger_output'
+JUNCTION_READS_PATH = '{output}/junctions/reads.csv'.format(output=OUTPUT)
+INDEX = '{output}/index'.format(output=OUTPUT)
 
 class CommandLine(object):
     def __init__(self, input_options=None):
@@ -38,7 +40,7 @@ class CommandLine(object):
 
         index_parser.add_argument(
             '-o', '--output', required=False, type=str, action='store',
-            default='./outrigger_output',
+            default=OUTPUT,
             help='Name of the folder where you saved the output from '
                  '"outrigger index" (default is ./outrigger_output, which is '
                  'relative to the directory where you called the program)". '
@@ -65,28 +67,34 @@ class CommandLine(object):
                                        ' the index of splicing events '
                                        '(default=10)')
 
-        gtf = index_parser.add_mutually_exclusive_group(required=True)
-        gtf.add_argument('-g', '--gtf-filename', type=str, action='store',
-                         help="Name of the gtf file you want to use. If "
-                              "a gffutils feature database doesn't "
-                              "already exist at this location plus '.db'"
-                              " (e.g. if your gtf is gencode.v19."
-                              "annotation.gtf, then the database is "
-                              "inferred to be gencode.v19.annotation.gtf"
-                              ".db), then a database will be auto-"
-                              "created. Not required if you provide a "
-                              "pre-built database with "
-                              "'--gffutils-db'")
-        gtf.add_argument('-d', '--gffutils-db', type=str,
-                         action='store',
-                         help="Name of the gffutils database file you "
-                              "want to use. The exon IDs defined here "
-                              "will be used in the function when creating"
-                              " splicing event names. Not required if you"
-                              " provide a gtf file with '--gtf-filename'")
-        index_parser.add_argument('--debug', required=False, action='store_true',
-                                help='If given, print debugging logging '
-                                     'information to standard out')
+        gtf_parser = index_parser.add_mutually_exclusive_group(required=True)
+        gtf_parser.add_argument('-g', '--gtf-filename', type=str,
+                                action='store',
+                                help="Name of the gtf file you want to use. If"
+                                     " a gffutils feature database doesn't "
+                                     "already exist at this location plus "
+                                     "'.db' (e.g. if your gtf is gencode.v19."
+                                     "annotation.gtf, then the database is "
+                                     "inferred to be gencode.v19.annotation."
+                                     "gtf.db), then a database will be auto-"
+                                     "created. Not required if you provide a "
+                                     "pre-built database with "
+                                     "'--gffutils-db'")
+        gtf_parser.add_argument('-d', '--gffutils-db', type=str,
+                                action='store',
+                                help="Name of the gffutils database file you "
+                                     "want to use. The exon IDs defined here "
+                                     "will be used in the function when "
+                                     "creating splicing event names. Not "
+                                     "required if you provide a gtf file with"
+                                     " '--gtf-filename'")
+        index_parser.add_argument('--debug', required=False,
+                                  action='store_true',
+                                  help='If given, print debugging logging '
+                                       'information to standard out (Warning:'
+                                       ' LOTS of output. Not recommended '
+                                       'unless you think something is going '
+                                       'wrong)')
         index_parser.set_defaults(func=self.index)
 
         # --- Subcommand to calculate psi on the built index --- #
@@ -95,7 +103,7 @@ class CommandLine(object):
                         'the splicing event index built with "outrigger '
                         'index"')
         psi_parser.add_argument('-i', '--index', required=False,
-                                default='./outrigger_index',
+                                default=INDEX,
                                 help='Name of the folder where you saved the '
                                      'output from "outrigger index" (default '
                                      'is ./outrigger_index, which is relative '
@@ -163,9 +171,17 @@ class CommandLine(object):
 
 class Subcommand(object):
 
-    output = 'outrigger_output'
+    output = OUTPUT
+    sj_out_tab = None
+    junction_read_csv = None
+    min_reads = MIN_READS
+    gtf_filename = None
+    gffutils_db = None
+    debug = False
 
     def __init__(self, **kwargs):
+
+        # Read all arguments and set as attributes of this class
         for key, value in kwargs.items():
             setattr(self, key, value)
 
@@ -177,7 +193,10 @@ class Subcommand(object):
         splice_junctions = star.read_multiple_sj_out_tab(sj_out_tab)
         splice_junctions['reads'] = splice_junctions['unique_junction_reads']
 
-        filename = os.path.join(self.output, JUNCTION_READS_PATH)
+        filename = JUNCTION_READS_PATH
+        dirname = os.path.dirname(filename)
+        if not os.path.exists(dirname):
+            os.makedirs(dirname)
         util.progress('Writing {} ...\n'.format(filename))
         splice_junctions.to_csv(filename, index=False)
         util.done()
@@ -215,7 +234,6 @@ class Index(Subcommand):
         util.done()
         return metadata
 
-
     @staticmethod
     def make_exon_junction_adjacencies(metadata, db):
         """Get annotated exons next to junctions in data"""
@@ -227,7 +245,8 @@ class Index(Subcommand):
         util.done()
         return junction_exon_triples
 
-    def make_graph(self, junction_exon_triples, db):
+    @staticmethod
+    def make_graph(junction_exon_triples, db):
         """Create graph database of exon-junction adjacencies"""
         util.progress('Populating graph database of the '
                       'junction-direction-exon triples ...')
@@ -262,21 +281,56 @@ class Index(Subcommand):
         if self.debug:
             logger.setLevel(10)
 
-        spliced_reads = self.csv()
+        spliced_reads = self.csv(self.sj_out_tab)
         metadata = self.junction_metadata(spliced_reads)
 
         db = self.maybe_make_db(self.gtf_filename, self.gffutils_db)
 
         junction_exon_triples = self.make_exon_junction_adjacencies(metadata, db)
 
-        util.progress('Building exon-junction graph ...')
-        event_maker = events.EventMaker(junction_exon_triples, db=db)
-        util.done()
+        event_maker = self.make_graph(junction_exon_triples, db=db)
         self.make_events_by_traversing_graph(event_maker)
 
 
 
 class Psi(Subcommand):
+
+    # Instantiate empty variables here so PyCharm doens't get mad at me
+    index = INDEX
+    reads_col = None
+    sample_id_col = None
+    junction_id_col = None
+
+    required_cols = {'--reads-col': reads_col,
+                     '--sample-id-col': sample_id_col,
+                     '--junction-id-col': junction_id_col}
+
+    def maybe_read_junction_reads(self):
+        try:
+            util.progress(
+                'Reading splice junction reads from {} ...'.format(
+                    self.junction_read_csv))
+            dtype = {self.reads_col: np.float32}
+            if self.junction_read_csv is None:
+                self.junction_read_csv = JUNCTION_READS_PATH
+            junction_reads = pd.read_csv(
+                self.junction_read_csv, dtype=dtype)
+            util.done()
+        except OSError:
+            raise IOError(
+                "There is no junction reads file at the expected location"
+                " ({csv}). Are you in the correct directory?".format(
+                    csv=self.junction_read_csv))
+        return junction_reads
+
+    def validate_junction_reads_data(self, junction_reads):
+        for flag, col in self.required_cols.items():
+            if col not in junction_reads:
+                raise ValueError(
+                    "The required column name {col} does not exist in {csv}. "
+                    "You can change this with the command line flag, "
+                    "{flag}".format( col=col, csv=self.junction_read_csv,
+                                     flag=flag))
 
     def execute(self):
         """Calculate percent spliced in (psi) of splicing events"""
@@ -285,57 +339,17 @@ class Psi(Subcommand):
         if self.debug:
             logger.setLevel(10)
 
-        try:
-            try:
-                util.progress(
-                    'Reading splice junction reads from {} ...'.format(
-                        self.junction_read_csv))
-                dtype = {self.reads_col: np.float32}
-                if self.junction_read_csv is None:
-                    self.junction_read_csv = '{output}/{reads}'.format(
-                       output=self.output, reads=JUNCTION_READS_PATH)
-                splice_junction_reads = pd.read_csv(
-                    self.junction_read_csv, dtype=dtype)
-            except OSError:
-                raise IOError(
-                    "There is no junction reads file at the expected location"
-                    " ({csv}). Are you in the correct directory?".format(
-                        csv=self.junction_read_csv))
+        # try:
+        junction_reads = self.maybe_read_junction_reads()
 
-            try:
-                assert self.reads_col in splice_junction_reads
-            except AssertionError:
-                raise (AssertionError(
-                    'The column specifying reads, '
-                    '"{}", is not contained in {}'.format(
-                        self.reads_col), self.junction_read_csv))
-            try:
-                assert self.sample_id_col in splice_junction_reads
-            except AssertionError:
-                raise (AssertionError('The column specifying the sample '
-                                      'ids, "{}", is not contained in '
-                                      '{}'.format(
-                    self.sample_id_col,
-                    self.junction_read_csv)))
-            try:
-                assert self.junction_id_col in splice_junction_reads
-            except AssertionError:
-                raise (AssertionError(
-                    'The column specifying the junction  '
-                    'location, "{}", is not contained in '
-                    '{}'.format(
-                        self.junction_id_col,
-                        self.junction_read_csv)))
+        # except Key:
+        #     splice_junction_reads = self.csv(self.sj_out_tab)
 
-            util.done()
-        except KeyError:
-            splice_junction_reads = self.csv(self.sj_out_tab)
-
-        splice_junction_reads = splice_junction_reads.set_index(
+        junction_reads = junction_reads.set_index(
             [self.junction_id_col, self.sample_id_col])
-        splice_junction_reads.sort_index(inplace=True)
+        junction_reads.sort_index(inplace=True)
         logger.debug('\n--- Splice Junction reads ---')
-        logger.debug(repr(splice_junction_reads.head()))
+        logger.debug(repr(junction_reads.head()))
 
         events_folder = os.path.join(self.index, 'events')
         psis = []
@@ -354,7 +368,7 @@ class Psi(Subcommand):
                           'scores on {} events ...'.format(
                 event_type.upper()))
             event_psi = compute.calculate_psi(
-                event_annotation, splice_junction_reads,
+                event_annotation, junction_reads,
                 min_reads=self.min_reads, debug=self.debug,
                 reads_col=self.reads_col, **isoform_junctions)
             event_psi.to_csv(os.path.join(self.index,
