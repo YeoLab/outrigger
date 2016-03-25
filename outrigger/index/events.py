@@ -10,6 +10,8 @@ import pandas as pd
 from .region import Region
 from .junctions import UPSTREAM, DOWNSTREAM, DIRECTIONS
 
+from ..io.common import STRAND
+
 
 EVENT_TYPES = (('skipped_exon', 'se'), ('mutually_exclusive_exon', 'mxe'))
 
@@ -86,6 +88,7 @@ class EventMaker(object):
             data.loc[i, junction_names] = list(junctions)
             data.loc[i, 'exons'] = exon_ids
             data.loc[i, 'junctions'] = junction_ids
+            data.loc[i, STRAND] = exons[0][-1]
         return data
 
     def skipped_exon(self):
