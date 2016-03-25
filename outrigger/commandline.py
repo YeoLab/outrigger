@@ -272,25 +272,59 @@ class Index(Subcommand):
         util.done()
         return event_maker
 
-    def make_events_by_traversing_graph(self, event_maker):
-        for name, abbrev in events.EVENT_TYPES:
-            name_with_spaces = name.replace('_', ' ')
+    def make_events_by_traversing_graph(self, event_maker, db):
+        for full_name, splice_type in events.EVENT_TYPES:
+            name_with_spaces = full_name.replace('_', ' ')
             # Find event junctions
-            util.progress('Finding all {name} ({abbrev}) event ...'.format(
-                name=name_with_spaces, abbrev=abbrev.upper()))
-            events_of_type = getattr(event_maker, name)()
+            util.progress('Finding all {full_name} ({splice_type}) event'
+                          ' ...'.format(
+                name=name_with_spaces, abbrev=splice_type.upper()))
+            events_of_type = getattr(event_maker, full_name)()
             util.done()
 
             # Write to a file
-            csv = os.path.join(self.output, *['index', abbrev, 'junctions.csv'])
+            csv = os.path.join(self.output, *['index', splice_type, 'junctions.csv'])
             dirname = os.path.dirname(csv)
             if not os.path.exists(dirname):
                 os.makedirs(dirname)
 
-            util.progress('Writing {abbrev} events to {csv} '
-                          '...'.format(abbrev=abbrev.upper(), csv=csv))
+            util.progress('Writing {splice_type} events to {csv} '
+                          '...'.format(abbrev=splice_type.upper(), csv=csv))
             events_of_type.to_csv(csv, index=False)
             util.done()
+
+            self.make_event_metadata(db, events_of_type, splice_type)
+
+    def make_event_metadata(self, db, event_df, splice_type):
+        util.progress('Making metadata file of {splice_type} events, '
+                      'annotating them with GTF attributes ...'.format(
+            splice_type.upper()))
+
+        sa = gtf.SplicingAnnotator(db, event_df, splice_type.upper())
+        attributes = sa.attributes()
+        util.done()
+        util.progress('Getting exon and intron lengths of alternative '
+                      'events ...')
+        lengths = sa.lengths()
+        util.done()
+        util.progress('Combining lengths and attributes into one big '
+                      'dataframe ...')
+        lengths, attributes = lengths.align(attributes, axis=0, join='outer')
+
+        metadata = pd.concat([lengths, attributes], axis=1)
+        util.done()
+
+        # Write to a file
+        csv = os.path.join(self.output,
+                           *['index', splice_type, 'metadata.csv'])
+        dirname = os.path.dirname(csv)
+        if not os.path.exists(dirname):
+            os.makedirs(dirname)
+
+        util.progress('Writing {splice_type} events to {csv} '
+                      '...'.format(abbrev=splice_type.upper(), csv=csv))
+        metadata.to_csv(csv, index=False)
+        util.done()
 
     def execute(self):
         # Must output the junction exon triples
