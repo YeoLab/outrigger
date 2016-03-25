@@ -4,7 +4,9 @@ import argparse
 import glob
 import logging
 import os
+import pdb
 import sys
+import traceback
 import warnings
 
 import gffutils
@@ -273,32 +275,33 @@ class Index(Subcommand):
         return event_maker
 
     def make_events_by_traversing_graph(self, event_maker, db):
-        for full_name, splice_type in events.EVENT_TYPES:
-            name_with_spaces = full_name.replace('_', ' ')
+        for splice_name, splice_abbrev in events.EVENT_TYPES:
+            name_with_spaces = splice_name.replace('_', ' ')
             # Find event junctions
-            util.progress('Finding all {full_name} ({splice_type}) event'
+            util.progress('Finding all {name} ({abbrev}) event'
                           ' ...'.format(
-                name=name_with_spaces, abbrev=splice_type.upper()))
-            events_of_type = getattr(event_maker, full_name)()
+                name=name_with_spaces, abbrev=splice_abbrev.upper()))
+            events_of_type = getattr(event_maker, splice_name)()
             util.done()
 
             # Write to a file
-            csv = os.path.join(self.output, *['index', splice_type, 'junctions.csv'])
+            csv = os.path.join(self.output, *['index', splice_abbrev.lower(),
+                                              'junctions.csv'])
             dirname = os.path.dirname(csv)
             if not os.path.exists(dirname):
                 os.makedirs(dirname)
 
-            util.progress('Writing {splice_type} events to {csv} '
-                          '...'.format(abbrev=splice_type.upper(), csv=csv))
+            util.progress('Writing {abbrev} events to {csv} '
+                          '...'.format(abbrev=splice_abbrev.upper(), csv=csv))
             events_of_type.to_csv(csv, index=False)
             util.done()
 
-            self.make_event_metadata(db, events_of_type, splice_type)
+            self.make_event_metadata(db, events_of_type, splice_abbrev)
 
     def make_event_metadata(self, db, event_df, splice_type):
         util.progress('Making metadata file of {splice_type} events, '
                       'annotating them with GTF attributes ...'.format(
-            splice_type.upper()))
+            splice_type=splice_type.upper()))
 
         sa = gtf.SplicingAnnotator(db, event_df, splice_type.upper())
         attributes = sa.attributes()
@@ -317,12 +320,8 @@ class Index(Subcommand):
         # Write to a file
         csv = os.path.join(self.output,
                            *['index', splice_type, 'metadata.csv'])
-        dirname = os.path.dirname(csv)
-        if not os.path.exists(dirname):
-            os.makedirs(dirname)
-
-        util.progress('Writing {splice_type} events to {csv} '
-                      '...'.format(abbrev=splice_type.upper(), csv=csv))
+        util.progress('Writing {splice_type} metadata to {csv} '
+                      '...'.format(splice_type=splice_type.upper(), csv=csv))
         metadata.to_csv(csv, index=False)
         util.done()
 
@@ -341,10 +340,11 @@ class Index(Subcommand):
 
         db = self.maybe_make_db()
 
-        junction_exon_triples = self.make_exon_junction_adjacencies(metadata, db)
+        junction_exon_triples = self.make_exon_junction_adjacencies(
+            metadata, db)
 
         event_maker = self.make_graph(junction_exon_triples, db=db)
-        self.make_events_by_traversing_graph(event_maker)
+        self.make_events_by_traversing_graph(event_maker, db)
 
 
 
@@ -445,7 +445,18 @@ class Psi(Subcommand):
 
 
 def main():
-    CommandLine(sys.argv[1:])
+    try:
+        CommandLine(sys.argv[1:])
+    except:
+        type, value, tb = sys.exc_info()
+        traceback.print_exc()
+        print(os.environ)
+        try:
+            os.getenv('PYTHONDEBUG')
+            pdb.post_mortem(tb)
+        except KeyError:
+            pass
+
 
 
 if __name__ == '__main__':
