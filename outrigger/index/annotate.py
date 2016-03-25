@@ -6,11 +6,12 @@ import itertools
 import pandas as pd
 
 from .region import Region
+from ..io.common import STRAND
 
-SPLICE_TYPE_ISOFORM_EXONS = {'SE': {'isoform1': ('exon1', 'exon3'),
-                                    'isoform2': ('exon1', 'exon2', 'exon3')},
-                             'MXE': {'isoform1': ('exon1', 'exon3', 'exon4'),
-                                     'isoform2': ('exon1', 'exon2', 'exon4')}
+SPLICE_TYPE_ISOFORM_EXONS = {'SE': {'isoform1': ['exon1', 'exon3'],
+                                    'isoform2': ['exon1', 'exon2', 'exon3']},
+                             'MXE': {'isoform1': ['exon1', 'exon3', 'exon4'],
+                                     'isoform2': ['exon1', 'exon2', 'exon4']}
                              }
 
 
@@ -22,71 +23,66 @@ class SplicingAnnotator(object):
         self.events = events
         self.splice_type = splice_type
         self.isoform_exons = SPLICE_TYPE_ISOFORM_EXONS[self.splice_type]
+        self.exons = list(set(itertools.chain(*self.isoform_exons.values())))
+        self.exons.sort()
 
-    # def get_gene_attributes(self):
-    #     """Iterate over all events in all types and get gene ids"""
-    #     for splice_type, df in self.event_dfs.items():
-    #         exon_cols = SPLICE_TYPE_ISOFORM_EXONS[splice_type]
-    #         sys.stdout.write('{timestamp}\tGetting gene attributes for '
-    #                          '{splice_type} events ...\n'.format(
-    #                     timestamp=timestamp(), splice_type=splice_type))
-    #         annotated = self._get_gene_attributes(df, exon_cols)
-    #         done()
-
-    def _get_gene_attributes(self, df, exon_cols):
-        """Get gene, transcript ids and names for one event dataframe"""
-        df['gencode_id'] = df[exon_cols].apply(
-            lambda x: ','.join(set(itertools.chain(
-                *[self.db[i].attributes['gene_id'] for i in x]))), axis=1)
-        df['transcript_id'] = df[exon_cols].apply(
-            lambda x: ','.join(set(itertools.chain(
-                *[self.db[i].attributes['transcript_id'] for i in x]))),
-            axis=1)
-        df['gene_name'] = df[exon_cols].apply(
-            lambda x: ','.join(set(itertools.chain(
-                *[self.db[i].attributes['gene_name'] for i in x]))), axis=1)
-        df['ensembl_id'] = df[exon_cols].apply(
-            lambda x: ','.join(set(itertools.chain(
-                *[map(lambda y: y.split('.')[0],
-                      self.db[i].attributes['gene_id']) for i in x]))),
-            axis=1)
-
-        for exon_col in exon_cols:
-            df['{}_region'.format(exon_col)] = df[exon_col].map(Region)
-            df['{}_length'.format(exon_col)] = df['{}_region'.format(
-                exon_col)].map(len)
-        df['strand'] = df[exon_cols[0]].str[-1]
-        return df
-
-    def _single_row_transcripts(self, row, isoform1_exons, isoform2_exons):
-
-        isoform_to_exons = {
-            'isoform1': map(lambda x: self.db[row[x]], isoform1_exons),
-            'isoform2': map(lambda x: self.db[row[x]], isoform2_exons)}
-
-        isoform_to_transcripts = dict((k, set.intersection(
-            *map(lambda x: set(self.db.parents(x, featuretype='transcript')),
-                 v)))
-                                      for k, v in isoform_to_exons.items())
-
-        return isoform_to_transcripts
-
-    def _get_attributes(self):
+    def attributes(self):
+        """Retrieve all GTF attributes for each isoform's event"""
 
         lines = []
 
-        for row in self.events.iterrows():
-            for isoform, exons in self.isoform_exons:
+        for row_index, row in self.events.iterrows():
+            for isoform, exons in self.isoform_exons.items():
+                attributes = {}
+
                 exon1 = self.db[row[exons[0]]]
                 other_exons = row[exons[1:]]
-                attributes = {}
-                for (k1, v1) in exon1.attributes.items():
-                    v2 = set(itertools.chain(*[self.db[i].attributes[k1]
-                                               for i in other_exons]))
-                    value = set(v1) & v2
-                    if len(value) > 0:
-                        attributes[k1] = ','.join(sorted(list(value)))
+                for (key, value) in exon1.attributes.items():
+                    # v2 = set.intersection(*[set(self.db[e].attributes[key])
+                    #                            for e in other_exons])
+                    other_values = set([])
+                    for i, e in enumerate(other_exons):
+                        try:
+                            if i == 0:
+                                other_values = set(self.db[e].attributes[key])
+                            else:
+                                other_values.intersection_update(
+                                    self.db[e].attributes[key])
+                        except KeyError:
+                            # i -= 1
+                            continue
+
+                    intersection = set(value) & other_values
+                    if len(intersection) > 0:
+                        attributes[key] = ','.join(sorted(list(intersection)))
                 attributes = pd.Series(attributes, name=row['exons'])
                 attributes.index = isoform + '_' + attributes.index
-                lines.append(exons)
-        return pd.concat(attributes)
+                lines.append(attributes)
+        # import pdb; pdb.set_trace()
+        return pd.concat(lines, axis=1).T
+
+    def lengths(self):
+        """Retrieve exon and intron lengths for an event"""
+        df = pd.DataFrame(index=self.events.index)
+
+        for exon_col in self.exons:
+            df['{}_region'.format(exon_col)] = self.events[exon_col].map(Region)
+            df['{}_length'.format(exon_col)] = df['{}_region'.format(
+                exon_col)].map(len)
+
+        first_exon = '{}_region'.format(self.exons[0])
+        last_exon = '{}_region'.format(self.exons[-1])
+        positive = self.events[STRAND] == '+'
+        df.loc[positive, 'intron_length'] = \
+            df.loc[positive].apply(
+                lambda x: x[last_exon].start - x[first_exon].stop - 1, axis=1)
+        df.loc[~positive, 'intron_length'] = \
+            df.loc[~positive].apply(
+                lambda x: x[first_exon].start - x[last_exon].stop - 1, axis=1)
+
+        regions = [x for x in df if x.endswith('_region')]
+        df = df.drop(regions, axis=1)
+        df.index = self.events['exons']
+        return df
+
+
