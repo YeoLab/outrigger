@@ -17,7 +17,7 @@ with warnings.catch_warnings():
     warnings.simplefilter("ignore")
     import pandas as pd
 
-SPLICE_JUNCTIONS_CSV = 'splice_junctions.csv'
+SPLICE_JUNCTIONS_CSV = 'concatenated_splice_junction_reads.csv'
 
 
 class CommandLine(object):
@@ -158,19 +158,21 @@ class CommandLine(object):
         splice_junctions['reads'] = splice_junctions['unique_junction_reads']
 
         filename = os.path.join(self.args.index, SPLICE_JUNCTIONS_CSV)
-        util.progress('{Writing {} ...\n'.format(filename))
+        util.progress('Writing {} ...\n'.format(filename))
         splice_junctions.to_csv(filename, index=False)
         util.done()
         return splice_junctions
 
-    def junction_metadata(self):
+    def junction_metadata(self, spliced_reads):
         """Get just the juunction info from the concatenated read files"""
         util.progress('Creating splice junction metadata of merely where '
                       'junctions start and stop')
-
+        metadata = junctions.make_metadata(spliced_reads)
         util.done()
+        return metadata
 
     def make_db(self):
+        """Get GFFutils database from file or create from a gtf"""
         if self.args.gffutils_database is not None:
             util.progress('Reading gffutils database from {} ...\n'.format(
                 self.args.gffutils_database))
@@ -229,15 +231,15 @@ class CommandLine(object):
             logger.setLevel(10)
 
         spliced_reads = self.csv()
-
+        metadata = self.junction_metadata(spliced_reads)
 
         db = self.make_db()
 
         util.progress('Getting junction-direction-exon triples for graph '
                       'database ...')
         exon_junction_adjacencies = junctions.ExonJunctionAdjacencies(
-            spliced_reads, db)
-        junction_exon_triples = exon_junction_adjacencies.get_adjacent_exons()
+            metadata, db)
+        junction_exon_triples = exon_junction_adjacencies.find_adjacencies()
 
         util.progress('Building exon-junction graph ...')
         event_maker = events.EventMaker(junction_exon_triples, db=db)
@@ -326,6 +328,208 @@ class CommandLine(object):
 
         util.progress('Concatenating all calculated psi scores '
                          'into one big matrix...')
+        splicing = pd.concat(psis, axis=1)
+        util.done()
+        splicing = splicing.T
+        csv = os.path.join(self.args.index, 'psi.csv')
+        util.progress('Writing a samples x features matrix of Psi '
+                      'scores to {} ...'.format(csv))
+        splicing.to_csv(csv)
+        util.done()
+
+
+class Subcommand(object):
+    def csv(self):
+        """Create a csv file of compiled splice junctions"""
+
+        util.progress('Reading SJ.out.files and creating a big splice junction'
+                      ' matrix of reads spanning exon-exon junctions...')
+        splice_junctions = star.read_multiple_sj_out_tab(self.args.sj_out_tab)
+        splice_junctions['reads'] = splice_junctions['unique_junction_reads']
+
+        filename = os.path.join(self.args.index, SPLICE_JUNCTIONS_CSV)
+        util.progress('Writing {} ...\n'.format(filename))
+        splice_junctions.to_csv(filename, index=False)
+        util.done()
+        return splice_junctions
+
+    def make_db(self):
+        """Get GFFutils database from file or create from a gtf"""
+        if self.args.gffutils_database is not None:
+            util.progress('Reading gffutils database from {} ...\n'.format(
+                self.args.gffutils_database))
+            db = gffutils.FeatureDB(self.args.gffutils_database)
+            util.done()
+        else:
+            db_filename = '{}.db'.format(self.args.gtf)
+            try:
+                db = gffutils.FeatureDB(db_filename)
+            except ValueError:
+                util.progress(
+                    'Creating a "gffutils" '
+                    'database {} ...\n'.format(db_filename))
+                db = gtf.create_db(self.args.gtf, db_filename)
+                util.done()
+        return db
+
+
+class Index(Subcommand):
+
+    def __init__(self):
+        pass
+
+    def junction_metadata(self, spliced_reads):
+        """Get just the juunction info from the concatenated read files"""
+        util.progress('Creating splice junction metadata of merely where '
+                      'junctions start and stop')
+        metadata = junctions.make_metadata(spliced_reads)
+        util.done()
+        return metadata
+
+
+    def make_exon_junction_adjacencies(self):
+        """Get annotated exons next to junctions in data"""
+        eja = junctions.ExonJunctionAdjacencies(self.splice_junctions, self.db)
+        pass
+
+    def make_graph(self, junction_exon_triples, db):
+        """Create graph database of exon-junction adjacencies"""
+        util.progress('Populating graph database of the '
+                      'junction-direction-exon triples ...')
+
+        event_maker = events.EventMaker(junction_exon_triples, db)
+        util.done()
+        return event_maker
+
+    def make_events_by_traversing_graph(self, event_maker):
+        for name, abbrev in events.EVENT_TYPES:
+            name_with_spaces = name.replace('_', ' ')
+            # Find event junctions
+            util.progress('Finding all {name} ({abbrev}) event ...'.format(
+                name=name_with_spaces, abbrev=abbrev.upper()))
+            events_of_type = getattr(event_maker, name)()
+            util.done()
+
+            # Write to a file
+            csv = os.path.join(self.args.index, ['index', abbrev, 'junctions'])
+            util.progress('Writing {abbrev} events to {csv} '
+                          '...'.format(abbrev=abbrev.upper(), csv=csv))
+            events_of_type.to_csv(csv, index=False)
+            util.done()
+
+    def execute(self):
+        # Must output the junction exon triples
+        logger = logging.getLogger('outrigger.index')
+
+        if not os.path.exists(self.args.index):
+            os.mkdir(self.args.index)
+
+        if self.args.debug:
+            logger.setLevel(10)
+
+        spliced_reads = self.csv()
+        metadata = self.junction_metadata(spliced_reads)
+
+        db = self.make_db()
+
+        util.progress('Getting junction-direction-exon triples for graph '
+                      'database ...')
+        exon_junction_adjacencies = junctions.ExonJunctionAdjacencies(
+            metadata, db)
+        junction_exon_triples = exon_junction_adjacencies.find_adjacencies()
+
+        util.progress('Building exon-junction graph ...')
+        event_maker = events.EventMaker(junction_exon_triples, db=db)
+        util.done()
+        self.make_events_by_traversing_graph(event_maker)
+
+
+class Psi(Subcommand):
+
+    def __init__(self):
+        pass
+
+    def execute(self):
+        """Calculate percent spliced in (psi) of splicing events"""
+
+        logger = logging.getLogger('outrigger.psi')
+        if self.args.debug:
+            logger.setLevel(10)
+
+        try:
+            util.progress(
+                'Reading splice junction reads from {} ...'.format(
+                    self.args.splice_junction_csv))
+            dtype = {self.args.reads_col: np.float32}
+            splice_junction_reads = pd.read_csv(
+                self.args.splice_junction_csv, dtype=dtype)
+
+            try:
+                assert self.args.reads_col in splice_junction_reads
+            except AssertionError:
+                raise (AssertionError(
+                    'The column specifying reads, '
+                    '"{}", is not contained in {}'.format(
+                        self.args.reads_col), self.args.splice_junction_csv))
+            try:
+                assert self.args.sample_id_col in splice_junction_reads
+            except AssertionError:
+                raise (AssertionError('The column specifying the sample '
+                                      'ids, "{}", is not contained in '
+                                      '{}'.format(
+                    self.args.sample_id_col,
+                    self.args.splice_junction_csv)))
+            try:
+                assert self.args.junction_location_col in splice_junction_reads
+            except AssertionError:
+                raise (AssertionError(
+                    'The column specifying the junction  '
+                    'location, "{}", is not contained in '
+                    '{}'.format(
+                        self.args.junction_location_col,
+                        self.args.splice_junction_csv)))
+
+            util.done()
+        except KeyError:
+            util.progress('Creating consolidated splice junction '
+                          'file "{sj_csv}" from SJ.out.tab files '
+                          '...'.format(sj_csv=SPLICE_JUNCTIONS_CSV))
+            splice_junction_reads = self.csv()
+            util.done()
+
+        splice_junction_reads = splice_junction_reads.set_index(
+            [self.args.junction_location_col, self.args.sample_id_col])
+        splice_junction_reads.sort_index(inplace=True)
+        logger.debug('\n--- Splice Junction reads ---')
+        logger.debug(repr(splice_junction_reads.head()))
+
+        events_folder = os.path.join(self.args.index, 'events')
+        psis = []
+        for filename in glob.iglob('{}/*.csv'.format(events_folder)):
+            event_type = os.path.basename(filename).split('.csv')[0]
+            util.progress('Reading {} events from {} ...'.format(
+                event_type.upper(), filename))
+
+            isoform_junctions = psi.ISOFORM_JUNCTIONS[event_type]
+            event_annotation = pd.read_csv(filename, index_col=0)
+            util.done()
+            logger.debug('\n--- Splicing event annotation ---')
+            logger.debug(repr(event_annotation.head()))
+
+            util.progress('Calculating percent spliced-in (Psi) '
+                          'scores on {} events ...'.format(
+                event_type.upper()))
+            event_psi = psi.calculate_psi(
+                event_annotation, splice_junction_reads,
+                min_reads=self.args.min_reads, debug=self.args.debug,
+                reads_col=self.args.reads_col, **isoform_junctions)
+            event_psi.to_csv(os.path.join(self.args.index,
+                                          '{}_psi.csv'.format(event_type)))
+            psis.append(event_psi)
+            util.done()
+
+        util.progress('Concatenating all calculated psi scores '
+                      'into one big matrix...')
         splicing = pd.concat(psis, axis=1)
         util.done()
         splicing = splicing.T
