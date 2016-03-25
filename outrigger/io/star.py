@@ -5,10 +5,10 @@ import os
 
 import pandas as pd
 
-JUNCTION_ID = 'junction_id'
-JUNCTION_START = 'junction_start'
-JUNCTION_STOP = 'junction_stop'
-JUNCTION_MOTIF = 'junction_motif'
+from .common import JUNCTION_ID, JUNCTION_START, JUNCTION_STOP, \
+    JUNCTION_MOTIF
+
+READS = 'unique_junction_reads'
 
 COLUMN_NAMES = ('chrom', JUNCTION_START, JUNCTION_STOP, 'strand',
                 JUNCTION_MOTIF, 'annotated', 'unique_junction_reads',
@@ -52,13 +52,13 @@ def read_sj_out_tab(filename):
     -------
     sj : pandas.DataFrame
         Dataframe of splice junctions with the columns,
-        ('chrom', 'intron_start', 'intron_stop', 'strand',
-        'intron_motif', 'annotated', 'unique_junction_reads',
-        'multimap_junction_reads', 'max_overhang')
+        ('chrom', 'junction_start', 'junction_stop', 'strand',
+        'junction_motif', 'exon_start', 'exon_stop', 'annotated',
+        'unique_junction_reads', 'multimap_junction_reads', 'max_overhang')
 
     """
     sj = pd.read_table(filename, header=None, names=COLUMN_NAMES, sep='\s+')
-    sj[JUNCTION_MOTIF] = sj.intron_motif.map(int_to_junction_motif)
+    sj[JUNCTION_MOTIF] = sj[JUNCTION_MOTIF].map(int_to_junction_motif)
 
     # Convert integer strand to symbol
     # Use index-based replacement because it's 100x faster than map
@@ -73,7 +73,12 @@ def read_sj_out_tab(filename):
     #     lambda x: NEG_STRAND_INTRON_MOTIF[x])
     sj.annotated = sj.annotated.astype(bool)
 
-    # Add junction ID
+    # From STAR, exons start one base pair down from the end of the intron
+    sj['exon_start'] = sj[JUNCTION_STOP] + 1
+
+    # From STAR, exons stop one base pair up from the start of the intron
+    sj['exon_stop'] = sj[JUNCTION_START] - 1
+
     sj['junction_id'] = sj.chrom.astype(str) + ':' \
         + sj[JUNCTION_START].astype(str) + '-' \
         + sj[JUNCTION_STOP].astype(str) + ':' \
@@ -108,51 +113,5 @@ def read_multiple_sj_out_tab(filenames, sample_id_func=os.path.basename):
         splice_junction['sample_id'] = sample_id
         splice_junctions.append(splice_junction)
     splice_junctions = pd.concat(splice_junctions, ignore_index=True)
-    splice_junctions = splice_junctions.set_index('junction_location')
+    # splice_junctions = splice_junctions.set_index('junction_id').sort_index()
     return splice_junctions
-
-
-def sj_count_to_metadata(junction_reads):
-    """Get just the junction metadata information"""
-    metadata = junction_reads.drop(['unique_junction_reads',
-                                      'multimap_junction_reads',
-                                      'max_overhang', 'sample_id'],
-                                   axis=1)
-    metadata = metadata.drop_duplicates()
-
-    return metadata
-
-def make_metadata(spliced_reads):
-    """Get barebones junction chrom, start, stop, strand information
-
-    Parameters
-    ----------
-    spliced_reads : pandas.DataFrame
-        Concatenated SJ.out.tab files created by read_sj_out_tab
-
-    Returns
-    -------
-    junctions : pandas.DataFrame
-        A (n_junctions, 9) dataframe containing the columns:
-         - junction_id
-         - chrom
-         - intron_start
-         - intron_stop
-         - exon_start
-         - exon_stop
-         - strand
-         - intron_motif
-         - annotated
-    """
-    junctions = spliced_reads[[JUNCTION_ID, 'chrom', JUNCTION_START,
-                               JUNCTION_STOP, 'strand', JUNCTION_MOTIF,
-                               'annotated']]
-
-    junctions = junctions.drop_duplicates()
-
-    # From STAR, exons start one base pair down from the end of the intron
-    junctions['exon_start'] = junctions['intron_stop'] + 1
-
-    # From STAR, exons stop one base pair up from the start of the intron
-    junctions['exon_stop'] = junctions['intron_start'] - 1
-    return junctions
