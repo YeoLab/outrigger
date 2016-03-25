@@ -5,7 +5,7 @@ import os
 
 import pandas as pd
 
-from .common import JUNCTION_ID, JUNCTION_START, JUNCTION_STOP, \
+from .common import JUNCTION_ID, JUNCTION_START, JUNCTION_STOP, READS, \
     JUNCTION_MOTIF, EXON_START, EXON_STOP, CHROM, STRAND, ANNOTATED, SAMPLE_ID
 
 UNIQUE_READS = 'unique_junction_reads'
@@ -88,7 +88,9 @@ def read_sj_out_tab(filename):
 
     return sj
 
-def read_multiple_sj_out_tab(filenames, sample_id_func=os.path.basename):
+
+def read_multiple_sj_out_tab(filenames, use_multimapping=False,
+                             sample_id_func=os.path.basename):
     """Read the splice junction files and return a tall, tidy dataframe
 
     Adds a column called "sample_id" based on the basename of the file, minus
@@ -98,6 +100,8 @@ def read_multiple_sj_out_tab(filenames, sample_id_func=os.path.basename):
     ----------
     filenames : iterator
         A list or other iterator of filenames to read
+    use_multimapping : bool
+        If True, include the multimapped reads in total read count
     sample_id_func : function
         A function to extract the sample id from the filenames
 
@@ -115,4 +119,9 @@ def read_multiple_sj_out_tab(filenames, sample_id_func=os.path.basename):
         splice_junctions.append(splice_junction)
     splice_junctions = pd.concat(splice_junctions, ignore_index=True)
     # splice_junctions = splice_junctions.set_index('junction_id').sort_index()
+    if use_multimapping:
+        splice_junctions[READS] = splice_junctions[UNIQUE_READS] \
+                                  + splice_junctions[MULTIMAP_READS]
+    else:
+        splice_junctions[READS] = splice_junctions[UNIQUE_READS]
     return splice_junctions
