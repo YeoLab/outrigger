@@ -33,5 +33,6 @@ def create_db(gtf_filename, db_filename=None):
         transform=transform,
         force=True,
         verbose=True,
-        infer_gene_extent=False,
+        disable_infer_genes=True,
+        disable_infer_transcripts=True,
         force_merge_fields=['source'])
