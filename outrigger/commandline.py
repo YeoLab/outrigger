@@ -278,7 +278,7 @@ class Index(Subcommand):
         for splice_name, splice_abbrev in events.EVENT_TYPES:
             name_with_spaces = splice_name.replace('_', ' ')
             # Find event junctions
-            util.progress('Finding all {name} ({abbrev}) event'
+            util.progress('Finding all {name} ({abbrev}) events'
                           ' ...'.format(
                 name=name_with_spaces, abbrev=splice_abbrev.upper()))
             events_of_type = getattr(event_maker, splice_name)()
@@ -291,12 +291,15 @@ class Index(Subcommand):
             if not os.path.exists(dirname):
                 os.makedirs(dirname)
 
-            util.progress('Writing {abbrev} events to {csv} '
-                          '...'.format(abbrev=splice_abbrev.upper(), csv=csv))
+            n_events = events_of_type.shape[0]
+            util.progress('Writing {n} {abbrev} events to {csv} '
+                          '...'.format(n=n_events,
+                                       abbrev=splice_abbrev.upper(), csv=csv))
             events_of_type.to_csv(csv, index=False)
             util.done()
 
-            self.make_event_metadata(db, events_of_type, splice_abbrev)
+            if n_events > 0:
+                self.make_event_metadata(db, events_of_type, splice_abbrev)
 
     def make_event_metadata(self, db, event_df, splice_type):
         util.progress('Making metadata file of {splice_type} events, '
@@ -452,13 +455,13 @@ def main():
         traceback.print_exc()
         print(os.environ)
         try:
+            # If the PYTHONDEBUG shell environment variable exists, then
+            # launch the python debugger
             os.getenv('PYTHONDEBUG')
             pdb.post_mortem(tb)
         except KeyError:
             pass
 
 
-
 if __name__ == '__main__':
-    # try:
     main()
