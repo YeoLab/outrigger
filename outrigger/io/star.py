@@ -6,13 +6,17 @@ import os
 import pandas as pd
 
 from .common import JUNCTION_ID, JUNCTION_START, JUNCTION_STOP, \
-    JUNCTION_MOTIF
+    JUNCTION_MOTIF, EXON_START, EXON_STOP, CHROM, STRAND, ANNOTATED, SAMPLE_ID
 
-READS = 'unique_junction_reads'
+UNIQUE_READS = 'unique_junction_reads'
+MULTIMAP_READS = 'multimap_junction_reads'
+MAX_OVERHANG = 'max_overhang'
 
-COLUMN_NAMES = ('chrom', JUNCTION_START, JUNCTION_STOP, 'strand',
-                JUNCTION_MOTIF, 'annotated', 'unique_junction_reads',
-                'multimap_junction_reads', 'max_overhang')
+READS = UNIQUE_READS
+
+COLUMN_NAMES = (CHROM, JUNCTION_START, JUNCTION_STOP, STRAND,
+                JUNCTION_MOTIF, ANNOTATED, UNIQUE_READS, MULTIMAP_READS,
+                MAX_OVERHANG)
 
 NEG_STRAND_JUNCTION_MOTIF = {'CT/AC': 'GT/AG',
                            'CT/GC': 'GC/AG',
@@ -63,9 +67,9 @@ def read_sj_out_tab(filename):
     # Convert integer strand to symbol
     # Use index-based replacement because it's 100x faster than map
     rows = sj.strand == 1
-    sj.loc[rows, 'strand'] = '+'
+    sj.loc[rows, STRAND] = '+'
     rows = sj.strand == 2
-    sj.loc[rows, 'strand'] = '-'
+    sj.loc[rows, STRAND] = '-'
 
     # Translate negative strand intron motifs
     # rows = sj.strand == '-'
@@ -74,12 +78,12 @@ def read_sj_out_tab(filename):
     sj.annotated = sj.annotated.astype(bool)
 
     # From STAR, exons start one base pair down from the end of the intron
-    sj['exon_start'] = sj[JUNCTION_STOP] + 1
+    sj[EXON_START] = sj[JUNCTION_STOP] + 1
 
     # From STAR, exons stop one base pair up from the start of the intron
-    sj['exon_stop'] = sj[JUNCTION_START] - 1
+    sj[EXON_STOP] = sj[JUNCTION_START] - 1
 
-    sj['junction_id'] = sj.chrom.astype(str) + ':' \
+    sj[JUNCTION_ID] = sj.chrom.astype(str) + ':' \
         + sj[JUNCTION_START].astype(str) + '-' \
         + sj[JUNCTION_STOP].astype(str) + ':' \
         + sj.strand.astype(str)
@@ -110,7 +114,7 @@ def read_multiple_sj_out_tab(filenames, sample_id_func=os.path.basename):
         splice_junction = read_sj_out_tab(filename)
         sample_id = sample_id_func(filename)
         sample_id = sample_id.split('SJ.out.tab')[0].rstrip('.')
-        splice_junction['sample_id'] = sample_id
+        splice_junction[SAMPLE_ID] = sample_id
         splice_junctions.append(splice_junction)
     splice_junctions = pd.concat(splice_junctions, ignore_index=True)
     # splice_junctions = splice_junctions.set_index('junction_id').sort_index()
