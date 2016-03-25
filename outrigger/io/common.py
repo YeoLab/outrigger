@@ -12,6 +12,8 @@ JUNCTION_START = 'junction_start'
 JUNCTION_STOP = 'junction_stop'
 JUNCTION_MOTIF = 'junction_motif'
 
+READS = 'reads'
+
 ANNOTATED = 'annotated'
 
 SAMPLE_ID = 'sample_id'
