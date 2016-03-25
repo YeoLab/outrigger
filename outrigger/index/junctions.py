@@ -8,7 +8,7 @@ UPSTREAM = 'upstream'
 DOWNSTREAM = 'downstream'
 DIRECTIONS = UPSTREAM, DOWNSTREAM
 
-from ..io.common import JUNCTION_START, JUNCTION_STOP, JUNCTION_MOTIF, \
+from ..io.common import JUNCTION_START, JUNCTION_STOP, \
     JUNCTION_ID, EXON_START, EXON_STOP, CHROM, STRAND, ANNOTATED
 
 def make_metadata(spliced_reads):
@@ -33,12 +33,12 @@ def make_metadata(spliced_reads):
          - intron_motif
          - annotated
     """
-    junctions = spliced_reads[[JUNCTION_ID, CHROM, JUNCTION_START,
-                               JUNCTION_STOP, STRAND, JUNCTION_ID,
-                               ANNOTATED]]
-    junctions = junctions.drop_duplicates()
+    metadata = spliced_reads[[JUNCTION_ID, CHROM, JUNCTION_START,
+                              JUNCTION_STOP, STRAND, ANNOTATED, EXON_START,
+                              EXON_STOP]]
+    metadata = metadata.drop_duplicates()
 
-    return junctions
+    return metadata
 
 
 class ExonJunctionAdjacencies(object):
