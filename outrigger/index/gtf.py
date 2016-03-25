@@ -1,3 +1,8 @@
+"""
+Functions for creating GTF databases using gffutils and using those databases
+to annotate alternative events.
+"""
+
 import itertools
 
 import gffutils
