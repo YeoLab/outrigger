@@ -40,7 +40,7 @@ def gtf_filename(strand, positive_strand_gtf_filename,
 
 @pytest.fixture
 def db(gtf_filename):
-    from outrigger.index.gtf import create_db
+    from outrigger.io.gtf import create_db
     return create_db(gtf_filename)
 
 

@@ -62,6 +62,9 @@ def read_sj_out_tab(filename):
     sj = pd.read_table(filename, header=None, names=COLUMN_NAMES, sep='\s+')
     sj[JUNCTION_MOTIF] = sj[JUNCTION_MOTIF].map(int_to_junction_motif)
 
+    # Convert unknown strands to explicitly say "undefined"
+    sj[STRAND] = sj[STRAND].replace(0, 'undefined')
+
     # Convert integer strand to symbol
     # Use index-based replacement because it's 100x faster than map
     rows = sj.strand == 1
@@ -89,7 +92,7 @@ def read_sj_out_tab(filename):
     return sj
 
 
-def read_multiple_sj_out_tab(filenames, use_multimapping=False,
+def read_multiple_sj_out_tab(filenames, multimapping=False,
                              sample_id_func=os.path.basename):
     """Read the splice junction files and return a tall, tidy dataframe
 
@@ -100,7 +103,7 @@ def read_multiple_sj_out_tab(filenames, use_multimapping=False,
     ----------
     filenames : iterator
         A list or other iterator of filenames to read
-    use_multimapping : bool
+    multimapping : bool
         If True, include the multimapped reads in total read count
     sample_id_func : function
         A function to extract the sample id from the filenames
@@ -119,7 +122,7 @@ def read_multiple_sj_out_tab(filenames, use_multimapping=False,
         splice_junctions.append(splice_junction)
     splice_junctions = pd.concat(splice_junctions, ignore_index=True)
     # splice_junctions = splice_junctions.set_index('junction_id').sort_index()
-    if use_multimapping:
+    if multimapping:
         splice_junctions[READS] = splice_junctions[UNIQUE_READS] \
                                   + splice_junctions[MULTIMAP_READS]
     else:
