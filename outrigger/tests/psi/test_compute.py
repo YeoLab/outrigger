@@ -162,7 +162,7 @@ def test_filter_and_sum():
 def test_maybe_get_isoform_reads(splice_junction_reads, junction_locations,
                                  isoform_junctions, junction_to_reads,
                                  reads_col):
-    from outrigger.psi import maybe_get_isoform_reads
+    from outrigger.psi.compute import maybe_get_isoform_reads
     test = maybe_get_isoform_reads(splice_junction_reads, junction_locations,
                                    isoform_junctions, reads_col=reads_col)
     junctions = junction_locations[isoform_junctions]
@@ -181,7 +181,7 @@ def test_maybe_get_isoform_reads(splice_junction_reads, junction_locations,
 
 def test_psi_se(splice_junction_reads, junction12_reads, junction23_reads,
                 junction13_reads, exons_to_junctions):
-    from outrigger.psi import calculate_psi, MIN_READS
+    from outrigger.psi.compute import calculate_psi, MIN_READS
 
     reads12 = junction12_reads if junction12_reads >= MIN_READS else 0
     reads23 = junction23_reads if junction23_reads >= MIN_READS else 0
