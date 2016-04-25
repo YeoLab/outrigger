@@ -1,0 +1,13 @@
+chrom,junction_start,junction_stop,strand,junction_motif,annotated,unique_junction_reads,multimap_junction_reads,max_overhang,exon_start,exon_stop,junction_id
+chr1,76,299,+,GT/AG,True,0,1,39,300,75,junction:chr1:76-299:+
+chr1,201,299,+,GT/AG,True,0,1,10,300,200,junction:chr1:201-299:+
+chr1,201,249,+,GT/AG,False,0,1,22,250,200,junction:chr1:201-249:+
+chr1,201,799,+,GT/AG,True,19,20,43,800,200,junction:chr1:201-799:+
+chr1,201,799,+,GT/AG,False,8,15,41,800,200,junction:chr1:201-799:+
+chr1,155832,164262,+,GT/AG,True,61,3,46,164263,155831,junction:chr1:155832-164262:+
+chr1,156087,156200,+,GT/AG,False,1,14,44,156201,156086,junction:chr1:156087-156200:+
+chr1,329977,334128,+,GT/AG,True,0,2,14,334129,329976,junction:chr1:329977-334128:+
+chr1,569184,569583,+,GT/AG,False,0,1,17,569584,569183,junction:chr1:569184-569583:+
+chr1,655581,659737,+,GT/AG,True,0,2,14,659738,655580,junction:chr1:655581-659737:+
+chr1,661725,662046,+,GT/AG,False,0,1,22,662047,661724,junction:chr1:661725-662046:+
+chr1,668587,671992,+,GT/AG,False,0,4,28,671993,668586,junction:chr1:668587-671992:+
