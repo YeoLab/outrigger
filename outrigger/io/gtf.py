@@ -8,8 +8,8 @@ import itertools
 import gffutils
 import pandas as pd
 
-from .region import Region
-from ..io.common import STRAND
+from outrigger.index.region import Region
+from outrigger.io.common import STRAND
 
 # Annotations from:
 # ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human/release_19/gencode.v19.annotation.gtf.gz

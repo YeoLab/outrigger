@@ -12,11 +12,11 @@ import warnings
 import gffutils
 import numpy as np
 
-from outrigger.index import events, junctions, gtf
-from outrigger.psi import compute
-from outrigger.psi.compute import MIN_READS, ISOFORM_JUNCTIONS
-from outrigger.io import star
 from outrigger import util
+from outrigger.index import events, junctions
+from outrigger.io import star, gtf
+from outrigger.psi import compute
+from outrigger.psi.compute import MIN_READS
 
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
@@ -210,7 +210,7 @@ class Subcommand(object):
         util.progress('Reading SJ.out.files and creating a big splice junction'
                       ' matrix of reads spanning exon-exon junctions...')
         splice_junctions = star.read_multiple_sj_out_tab(
-            self.sj_out_tab, use_multimapping=self.use_multimapping)
+            self.sj_out_tab, multimapping=self.use_multimapping)
         # splice_junctions['reads'] = splice_junctions['unique_junction_reads']
 
         filename = JUNCTION_READS_PATH

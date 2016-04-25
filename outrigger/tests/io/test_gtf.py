@@ -1,5 +1,5 @@
 def test_create_db(gtf_filename):
-    from outrigger.index import gtf
+    from outrigger.io import gtf
 
     db = gtf.create_db(gtf_filename)
 
