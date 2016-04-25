@@ -2,7 +2,7 @@ import sys
 
 import pandas as pd
 
-from outrigger.util import done
+from outrigger.util import done, progress
 
 UPSTREAM = 'upstream'
 DOWNSTREAM = 'downstream'
@@ -42,7 +42,7 @@ def make_metadata(spliced_reads):
 
 
 class ExonJunctionAdjacencies(object):
-    """Annotate junctions with adjacent exons"""
+    """Annotate junctions with neighboring exons (upstream or downstream)"""
 
     def __init__(self, junction_metadata, db, junction_id=JUNCTION_ID,
                  exon_start=EXON_START, exon_stop=EXON_STOP,
@@ -78,7 +78,6 @@ class ExonJunctionAdjacencies(object):
         self.strand = strand
 
         self.db = db
-        done()
 
     @staticmethod
     def _single_junction_exon_triple(direction_ind, direction, exon_id):
@@ -184,14 +183,13 @@ class ExonJunctionAdjacencies(object):
 
         dfs = []
 
-        sys.stdout.write('Starting annotation of all junctions with known '
-                         'exons...\n')
+        progress('Starting annotation of all junctions with known '
+                 'neighboring exons ...')
         for i, exon in enumerate(self.db.features_of_type('exon')):
             if (i + 1) % 10000 == 0:
-                sys.stdout.write('\t{}/{} exons completed\n'.format(i + 1,
-                                                                    n_exons))
+                progress('\t{}/{} exons completed'.format(i + 1, n_exons))
             df = self._adjacent_junctions_single_exon(exon)
             dfs.append(df)
         junction_exon_triples = pd.concat(dfs, ignore_index=True)
-        sys.stdout.write('Done.\n')
+        done()
         return junction_exon_triples
