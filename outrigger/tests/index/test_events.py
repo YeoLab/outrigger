@@ -209,22 +209,22 @@ class TestEventMaker(object):
         test = junction_aggregator.skipped_exon()
 
         if strand == '+':
-            s = """exon1,exon2,exon3,junction12,junction23,junction13,event_id
-exon:chr1:150-175:+,exon:chr1:225-250:+,exon:chr1:300-350:+,junction:chr1:176-224:+,junction:chr1:251-299:+,junction:chr1:176-299:+,exon:chr1:150-175:+@exon:chr1:225-250:+@exon:chr1:300-350:+# Exon 1, 2, 3   # noqa
-exon:chr1:150-175:+,exon:chr1:225-275:+,exon:chr1:300-350:+,junction:chr1:176-224:+,junction:chr1:276-299:+,junction:chr1:176-299:+,exon:chr1:150-175:+@exon:chr1:225-275:+@exon:chr1:300-350:+# Exon 1, 2 alt 5' splice site, 3  # noqa
-exon:chr1:150-175:+,exon:chr1:300-350:+,exon:chr1:400-425:+,junction:chr1:176-299:+,junction:chr1:351-399:+,junction:chr1:176-399:+,exon:chr1:150-175:+@exon:chr1:300-350:+@exon:chr1:400-425:+# Exon 1, 3, 4  # noqa
-exon:chr1:150-175:+,exon:chr1:225-250:+,exon:chr1:400-425:+,junction:chr1:176-224:+,junction:chr1:251-399:+,junction:chr1:176-399:+,exon:chr1:150-175:+@exon:chr1:225-250:+@exon:chr1:400-425:+# Exon 1, 2, 4  # noqa
-exon:chr1:225-250:+,exon:chr1:300-350:+,exon:chr1:400-425:+,junction:chr1:251-299:+,junction:chr1:351-399:+,junction:chr1:251-399:+,exon:chr1:225-250:+@exon:chr1:300-350:+@exon:chr1:400-425:+# Exon 2, 3, 4  # noqa
-exon:chr1:150-175:+,exon:chr1:200-250:+,exon:chr1:300-350:+,junction:chr1:176-199:+,junction:chr1:251-299:+,junction:chr1:176-299:+,exon:chr1:150-175:+@exon:chr1:200-250:+@exon:chr1:300-350:+# Exon 1, 2 alt 3' splice site, 4  # noqa
+            s = """exon1,exon2,exon3,junction12,junction23,junction13,exons,junctions,strand# noqa
+exon:chr1:150-175:+,exon:chr1:200-250:+,exon:chr1:300-350:+,junction:chr1:176-199:+,junction:chr1:251-299:+,junction:chr1:176-299:+,exon:chr1:150-175:+@exon:chr1:200-250:+@exon:chr1:300-350:+,junction:chr1:176-199:+@junction:chr1:251-299:+@junction:chr1:176-299:+,+# noqa
+exon:chr1:150-175:+,exon:chr1:225-250:+,exon:chr1:300-350:+,junction:chr1:176-224:+,junction:chr1:251-299:+,junction:chr1:176-299:+,exon:chr1:150-175:+@exon:chr1:225-250:+@exon:chr1:300-350:+,junction:chr1:176-224:+@junction:chr1:251-299:+@junction:chr1:176-299:+,+# noqa
+exon:chr1:150-175:+,exon:chr1:225-250:+,exon:chr1:400-425:+,junction:chr1:176-224:+,junction:chr1:251-399:+,junction:chr1:176-399:+,exon:chr1:150-175:+@exon:chr1:225-250:+@exon:chr1:400-425:+,junction:chr1:176-224:+@junction:chr1:251-399:+@junction:chr1:176-399:+,+# noqa
+exon:chr1:150-175:+,exon:chr1:225-275:+,exon:chr1:300-350:+,junction:chr1:176-224:+,junction:chr1:276-299:+,junction:chr1:176-299:+,exon:chr1:150-175:+@exon:chr1:225-275:+@exon:chr1:300-350:+,junction:chr1:176-224:+@junction:chr1:276-299:+@junction:chr1:176-299:+,+# noqa
+exon:chr1:150-175:+,exon:chr1:300-350:+,exon:chr1:400-425:+,junction:chr1:176-299:+,junction:chr1:351-399:+,junction:chr1:176-399:+,exon:chr1:150-175:+@exon:chr1:300-350:+@exon:chr1:400-425:+,junction:chr1:176-299:+@junction:chr1:351-399:+@junction:chr1:176-399:+,+# noqa
+exon:chr1:225-250:+,exon:chr1:300-350:+,exon:chr1:400-425:+,junction:chr1:251-299:+,junction:chr1:351-399:+,junction:chr1:251-399:+,exon:chr1:225-250:+@exon:chr1:300-350:+@exon:chr1:400-425:+,junction:chr1:251-299:+@junction:chr1:351-399:+@junction:chr1:251-399:+,+# noqa
 """
         else:
-            s = """exon1,exon2,exon3,junction12,junction23,junction13,event_id
-exon:chr1:300-350:-,exon:chr1:225-250:-,exon:chr1:150-175:-,junction:chr1:251-299:-,junction:chr1:176-224:-,junction:chr1:176-299:-,exon:chr1:300-350:-@exon:chr1:225-250:-@exon:chr1:150-175:-# noqa
-exon:chr1:300-350:-,exon:chr1:225-275:-,exon:chr1:150-175:-,junction:chr1:276-299:-,junction:chr1:176-224:-,junction:chr1:176-299:-,exon:chr1:300-350:-@exon:chr1:225-275:-@exon:chr1:150-175:-# noqa
-exon:chr1:400-425:-,exon:chr1:300-350:-,exon:chr1:150-175:-,junction:chr1:351-399:-,junction:chr1:176-299:-,junction:chr1:176-399:-,exon:chr1:400-425:-@exon:chr1:300-350:-@exon:chr1:150-175:-# noqa
-exon:chr1:400-425:-,exon:chr1:300-350:-,exon:chr1:225-250:-,junction:chr1:351-399:-,junction:chr1:251-299:-,junction:chr1:251-399:-,exon:chr1:400-425:-@exon:chr1:300-350:-@exon:chr1:225-250:-# noqa
-exon:chr1:300-350:-,exon:chr1:200-250:-,exon:chr1:150-175:-,junction:chr1:251-299:-,junction:chr1:176-199:-,junction:chr1:176-299:-,exon:chr1:300-350:-@exon:chr1:200-250:-@exon:chr1:150-175:-# noqa
-exon:chr1:400-425:-,exon:chr1:225-250:-,exon:chr1:150-175:-,junction:chr1:251-399:-,junction:chr1:176-224:-,junction:chr1:176-399:-,exon:chr1:400-425:-@exon:chr1:225-250:-@exon:chr1:150-175:-# noqa
+            s = """exon1,exon2,exon3,junction12,junction23,junction13,exons,junctions,strand# noqa
+exon:chr1:300-350:-,exon:chr1:200-250:-,exon:chr1:150-175:-,junction:chr1:251-299:-,junction:chr1:176-199:-,junction:chr1:176-299:-,exon:chr1:300-350:-@exon:chr1:200-250:-@exon:chr1:150-175:-,junction:chr1:251-299:-@junction:chr1:176-199:-@junction:chr1:176-299:-,-# noqa
+exon:chr1:300-350:-,exon:chr1:225-250:-,exon:chr1:150-175:-,junction:chr1:251-299:-,junction:chr1:176-224:-,junction:chr1:176-299:-,exon:chr1:300-350:-@exon:chr1:225-250:-@exon:chr1:150-175:-,junction:chr1:251-299:-@junction:chr1:176-224:-@junction:chr1:176-299:-,-# noqa
+exon:chr1:300-350:-,exon:chr1:225-275:-,exon:chr1:150-175:-,junction:chr1:276-299:-,junction:chr1:176-224:-,junction:chr1:176-299:-,exon:chr1:300-350:-@exon:chr1:225-275:-@exon:chr1:150-175:-,junction:chr1:276-299:-@junction:chr1:176-224:-@junction:chr1:176-299:-,-# noqa
+exon:chr1:400-425:-,exon:chr1:225-250:-,exon:chr1:150-175:-,junction:chr1:251-399:-,junction:chr1:176-224:-,junction:chr1:176-399:-,exon:chr1:400-425:-@exon:chr1:225-250:-@exon:chr1:150-175:-,junction:chr1:251-399:-@junction:chr1:176-224:-@junction:chr1:176-399:-,-# noqa
+exon:chr1:400-425:-,exon:chr1:300-350:-,exon:chr1:150-175:-,junction:chr1:351-399:-,junction:chr1:176-299:-,junction:chr1:176-399:-,exon:chr1:400-425:-@exon:chr1:300-350:-@exon:chr1:150-175:-,junction:chr1:351-399:-@junction:chr1:176-299:-@junction:chr1:176-399:-,-# noqa
+exon:chr1:400-425:-,exon:chr1:300-350:-,exon:chr1:225-250:-,junction:chr1:351-399:-,junction:chr1:251-299:-,junction:chr1:251-399:-,exon:chr1:400-425:-@exon:chr1:300-350:-@exon:chr1:225-250:-,junction:chr1:351-399:-@junction:chr1:251-299:-@junction:chr1:251-399:-,-# noqa
 """
         true = pd.read_csv(six.StringIO(s), comment='#')
 
@@ -241,12 +241,12 @@ exon:chr1:400-425:-,exon:chr1:225-250:-,exon:chr1:150-175:-,junction:chr1:251-39
         test = junction_aggregator.mutually_exclusive_exon()
 
         if strand == '+':
-            s = """exon1,exon2,exon3,exon4,junction13,junction34,junction12,junction24,event_id# noqa
-exon:chr1:150-175:+,exon:chr1:225-250:+,exon:chr1:300-350:+,exon:chr1:400-425:+,junction:chr1:176-299:+,junction:chr1:351-399:+,junction:chr1:176-224:+,junction:chr1:251-399:+,exon:chr1:150-175:+@exon:chr1:225-250:+@exon:chr1:300-350:+@exon:chr1:400-425:+# noqa
+            s = """exon1,exon2,exon3,exon4,junction13,junction34,junction12,junction24,exons,junctions,strand# noqa
+exon:chr1:150-175:+,exon:chr1:225-250:+,exon:chr1:300-350:+,exon:chr1:400-425:+,junction:chr1:176-299:+,junction:chr1:351-399:+,junction:chr1:176-224:+,junction:chr1:251-399:+,exon:chr1:150-175:+@exon:chr1:225-250:+@exon:chr1:300-350:+@exon:chr1:400-425:+,junction:chr1:176-299:+@junction:chr1:351-399:+@junction:chr1:176-224:+@junction:chr1:251-399:+,+# noqa
 """
         else:
-            s = """exon1,exon2,exon3,exon4,junction13,junction34,junction12,junction24,event_id# noqa
-exon:chr1:400-425:-,exon:chr1:300-350:-,exon:chr1:225-250:-,exon:chr1:150-175:-,junction:chr1:251-399:-,junction:chr1:176-224:-,junction:chr1:351-399:-,junction:chr1:176-299:-,exon:chr1:400-425:-@exon:chr1:300-350:-@exon:chr1:225-250:-@exon:chr1:150-175:-# noqa
+            s = """exon1,exon2,exon3,exon4,junction13,junction34,junction12,junction24,exons,junctions,strand# noqa
+exon:chr1:400-425:-,exon:chr1:300-350:-,exon:chr1:225-250:-,exon:chr1:150-175:-,junction:chr1:251-399:-,junction:chr1:176-224:-,junction:chr1:351-399:-,junction:chr1:176-299:-,exon:chr1:400-425:-@exon:chr1:300-350:-@exon:chr1:225-250:-@exon:chr1:150-175:-,junction:chr1:251-399:-@junction:chr1:176-224:-@junction:chr1:351-399:-@junction:chr1:176-299:-,-# noqa
 """
         true = pd.read_csv(six.StringIO(s), comment='#')
         sort_by = ['exon1', 'exon2', 'exon3', 'exon4']
