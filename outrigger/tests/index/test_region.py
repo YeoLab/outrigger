@@ -21,6 +21,7 @@ class TestRegion(object):
         assert r.start == 100
         assert r.stop == 200
         assert r.strand == location[-1]
+        assert r.name == location
 
     def test___init_region_name(self, location_with_region_name):
         from outrigger.index.region import Region
@@ -31,6 +32,7 @@ class TestRegion(object):
         assert r.start == 100
         assert r.stop == 200
         assert r.strand == '+'
+        assert r.name == location_with_region_name
 
     @pytest.mark.xfail
     def test___init_start_larger_than_stop(self):
@@ -66,14 +68,16 @@ class TestRegion(object):
 
         r = Region(location)
 
-        assert r.name == location
+        true = 'outrigger.Region ({0})'.format(location)
+        assert str(r) == true
 
     def test___str_with_region_name(self, location_with_region_name):
         from outrigger.index.region import Region
 
         r = Region(location_with_region_name)
 
-        assert r.name == location_with_region_name
+        true = 'outrigger.Region ({0})'.format(location_with_region_name)
+        assert str(r) == true
 
     def test___eq(self, location_with_region_name):
         from outrigger.index.region import Region
@@ -83,13 +87,20 @@ class TestRegion(object):
 
         assert r1 == r2
 
+    def test___eq_not_region(self, location_with_region_name):
+        from outrigger.index.region import Region
+
+        r1 = Region(location_with_region_name)
+
+        assert not r1 == location_with_region_name
+
     def test___neq(self, location_with_region_name, location):
         from outrigger.index.region import Region
 
         r1 = Region(location_with_region_name)
         r2 = Region(location)
 
-        assert r1 != r2
+        assert r1.__neq__(r2)
 
     def test_overlaps_true(self, location_with_region_name, location):
         from outrigger.index.region import Region
