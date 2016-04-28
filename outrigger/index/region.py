@@ -24,7 +24,7 @@ class Region(object):
             chrom, startstop, strand = name.split(':')
         start, stop = map(int, startstop.split('-'))
         if start > stop:
-            raise ValueError('Start ({0}) cannot be smaller than stop'
+            raise ValueError('Start ({0}) cannot be larger than stop'
                              ' ({1})'.format(start, stop))
 
         self.region = region
@@ -82,9 +82,15 @@ class Region(object):
         else:
             return False
 
+    def __neq__(self, other):
+        return not self.__eq__(other)
+
     def overlaps(self, other):
         """Returns true if any part of other region is contained in this one"""
-        if other.start > self.stop or other.stop < self.start:
-            return False
+        if other.chrom == self.chrom:
+            if other.start > self.stop or other.stop < self.start:
+                return False
+            else:
+                return True
         else:
-            return True
+            return False
