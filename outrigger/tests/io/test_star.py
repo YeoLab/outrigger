@@ -28,12 +28,8 @@ chr1    668587  671992  1       1       0       0       4       28
 
 
 @pytest.fixture
-def treutlein_folder(data_folder):
-    return '{}/treutlein2014'.format(data_folder)
-
-@pytest.fixture
 def sj_filenames(treutlein_folder):
-    return glob.glob('{}/*SJ.out.tab'.format(treutlein_folder))
+    return glob.glob('{}/sj_out_tab/*SJ.out.tab'.format(treutlein_folder))
 
 
 @pytest.fixture

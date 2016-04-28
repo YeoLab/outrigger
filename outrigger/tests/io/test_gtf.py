@@ -6,7 +6,6 @@ def test_create_db(gtf_filename, db):
     from outrigger.io import gtf
 
     true = db
-
     test = gtf.create_db(gtf_filename)
 
     # Check that all the true db features are in the test database

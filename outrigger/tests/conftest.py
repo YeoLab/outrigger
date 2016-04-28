@@ -1,5 +1,6 @@
 import os
 
+import gffutils
 import pytest
 
 
@@ -10,9 +11,14 @@ def data_folder():
 
 
 @pytest.fixture
+def treutlein_folder(data_folder):
+    return '{}/treutlein2014'.format(data_folder)
+
+
+@pytest.fixture
 def positive_strand_gtf_filename(data_folder):
     """Gene annotation file for positive strand tests"""
-    return '{}/gencode.v19.rps24.positive.strand.gtf'
+    return '{}/gencode.v19.rps24.positive.strand.gtf'.format(data_folder)
 
 
 @pytest.fixture
@@ -30,18 +36,19 @@ def strand(request):
 
 
 @pytest.fixture
-def gtf_filename(strand, positive_strand_gtf_filename,
-                 negative_strand_gtf_filename):
-    if strand == '+':
-        return positive_strand_gtf_filename
-    elif strand == '-':
-        return negative_strand_gtf_filename
+def gtf_filename(treutlein_folder):
+    return '{}/gencode.vM2.annotation.fgfr2.gtf'.format(treutlein_folder)
 
 
 @pytest.fixture
-def db(gtf_filename):
-    from outrigger.io.gtf import create_db
-    return create_db(gtf_filename)
+def db_filename(treutlein_folder):
+    return '{}/gencode.vM2.annotation.fgfr2.gtf.db'.format(treutlein_folder)
+
+
+@pytest.fixture
+def db(db_filename):
+
+    return gffutils.FeatureDB(db_filename)
 
 
 @pytest.fixture
