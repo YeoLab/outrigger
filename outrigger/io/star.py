@@ -5,6 +5,7 @@ import os
 
 import pandas as pd
 
+
 from .common import JUNCTION_ID, JUNCTION_START, JUNCTION_STOP, READS, \
     JUNCTION_MOTIF, EXON_START, EXON_STOP, CHROM, STRAND, ANNOTATED, SAMPLE_ID
 
@@ -124,3 +125,33 @@ def read_multiple_sj_out_tab(filenames, multimapping=False,
     else:
         splice_junctions[READS] = splice_junctions[UNIQUE_READS]
     return splice_junctions
+
+
+def make_metadata(spliced_reads):
+    """Get barebones junction chrom, start, stop, strand information
+
+    Parameters
+    ----------
+    spliced_reads : pandas.DataFrame
+        Concatenated SJ.out.tab files created by read_sj_out_tab
+
+    Returns
+    -------
+    junctions : pandas.DataFrame
+        A (n_junctions, 9) dataframe containing the columns:
+         - junction_id
+         - chrom
+         - intron_start
+         - intron_stop
+         - exon_start
+         - exon_stop
+         - strand
+         - intron_motif
+         - annotated
+    """
+    metadata = spliced_reads[[JUNCTION_ID, CHROM, JUNCTION_START,
+                              JUNCTION_STOP, STRAND, ANNOTATED, EXON_START,
+                              EXON_STOP]]
+    metadata = metadata.drop_duplicates()
+
+    return metadata
