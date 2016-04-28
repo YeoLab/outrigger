@@ -1,15 +1,14 @@
-import sys
-
 import pandas as pd
 
-from outrigger.util import done, progress
+from ..io.common import JUNCTION_START, JUNCTION_STOP, \
+    JUNCTION_ID, EXON_START, EXON_STOP, CHROM, STRAND, ANNOTATED
+from ..util import done, progress
+
 
 UPSTREAM = 'upstream'
 DOWNSTREAM = 'downstream'
 DIRECTIONS = UPSTREAM, DOWNSTREAM
 
-from ..io.common import JUNCTION_START, JUNCTION_STOP, \
-    JUNCTION_ID, EXON_START, EXON_STOP, CHROM, STRAND, ANNOTATED
 
 def make_metadata(spliced_reads):
     """Get barebones junction chrom, start, stop, strand information
@@ -108,7 +107,7 @@ class ExonJunctionAdjacencies(object):
                             columns=['exon', 'direction', 'junction'])
 
     @staticmethod
-    def _convert_to_stranded_transcript_adjacency(adjacent_in_genome, strand):
+    def _to_stranded_transcript_adjacency(adjacent_in_genome, strand):
         """If negative strand, swap the upstream/downstream adjacency"""
         if strand == '+':
             return {UPSTREAM: adjacent_in_genome[UPSTREAM],
@@ -135,7 +134,7 @@ class ExonJunctionAdjacencies(object):
         """Get junctions adjacent to this exon"""
         dfs = []
         adjacent_in_genome = self._junctions_genome_adjacent_to_exon(exon)
-        adjacent_in_transcriptome = self._convert_to_stranded_transcript_adjacency(
+        adjacent_in_transcriptome = self._to_stranded_transcript_adjacency(
             adjacent_in_genome, exon.strand)
 
         exon_id = exon.id

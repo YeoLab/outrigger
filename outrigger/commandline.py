@@ -26,6 +26,7 @@ OUTPUT = './outrigger_output'
 JUNCTION_READS_PATH = '{output}/junctions/reads.csv'.format(output=OUTPUT)
 INDEX = '{output}/index'.format(output=OUTPUT)
 
+
 class CommandLine(object):
     def __init__(self, input_options=None):
         self.parser = argparse.ArgumentParser(
@@ -278,9 +279,9 @@ class Index(Subcommand):
         for splice_name, splice_abbrev in events.EVENT_TYPES:
             name_with_spaces = splice_name.replace('_', ' ')
             # Find event junctions
-            util.progress('Finding all {name} ({abbrev}) events'
-                          ' ...'.format(
-                name=name_with_spaces, abbrev=splice_abbrev.upper()))
+            util.progress(
+                'Finding all {name} ({abbrev}) events ...'.format(
+                    name=name_with_spaces, abbrev=splice_abbrev.upper()))
             events_of_type = getattr(event_maker, splice_name)()
             util.done()
 
@@ -302,9 +303,10 @@ class Index(Subcommand):
                 self.make_event_metadata(db, events_of_type, splice_abbrev)
 
     def make_event_metadata(self, db, event_df, splice_type):
-        util.progress('Making metadata file of {splice_type} events, '
-                      'annotating them with GTF attributes ...'.format(
-            splice_type=splice_type.upper()))
+        util.progress(
+            'Making metadata file of {splice_type} events, '
+            'annotating them with GTF attributes ...'.format(
+                splice_type=splice_type.upper()))
 
         sa = gtf.SplicingAnnotator(db, event_df, splice_type.upper())
         attributes = sa.attributes()
@@ -350,7 +352,6 @@ class Index(Subcommand):
         self.make_events_by_traversing_graph(event_maker, db)
 
 
-
 class Psi(Subcommand):
 
     # Instantiate empty variables here so PyCharm doens't get mad at me
@@ -387,8 +388,8 @@ class Psi(Subcommand):
                 raise ValueError(
                     "The required column name {col} does not exist in {csv}. "
                     "You can change this with the command line flag, "
-                    "{flag}".format( col=col, csv=self.junction_read_csv,
-                                     flag=flag))
+                    "{flag}".format(col=col, csv=self.junction_read_csv,
+                                    flag=flag))
 
     def execute(self):
         """Calculate percent spliced in (psi) of splicing events"""
@@ -423,8 +424,7 @@ class Psi(Subcommand):
             logger.debug(repr(event_annotation.head()))
 
             util.progress('Calculating percent spliced-in (Psi) '
-                          'scores on {} events ...'.format(
-                event_type.upper()))
+                          'scores on {} events ...'.format(event_type.upper()))
             event_psi = compute.calculate_psi(
                 event_annotation, junction_reads,
                 min_reads=self.min_reads, debug=self.debug,
@@ -444,7 +444,6 @@ class Psi(Subcommand):
                       'scores to {} ...'.format(csv))
         splicing.to_csv(csv)
         util.done()
-
 
 
 def main():

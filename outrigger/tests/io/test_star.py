@@ -1,10 +1,10 @@
 import glob
-import os
 
 import pandas as pd
 import pandas.util.testing as pdt
 import pytest
 import six
+
 
 @pytest.fixture
 def sj_out_tab(tmpdir):
@@ -57,9 +57,11 @@ def test_int_to_intron_motif():
             'AT/AC']
     assert test == true
 
+
 @pytest.fixture(params=[True, False])
 def multimapping(request):
     return request.param
+
 
 @pytest.fixture
 def splice_junction_csv(multimapping, treutlein_folder):

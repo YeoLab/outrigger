@@ -16,10 +16,6 @@ COLUMN_NAMES = (CHROM, JUNCTION_START, JUNCTION_STOP, STRAND,
                 JUNCTION_MOTIF, ANNOTATED, UNIQUE_READS, MULTIMAP_READS,
                 MAX_OVERHANG)
 
-NEG_STRAND_JUNCTION_MOTIF = {'CT/AC': 'GT/AG',
-                           'CT/GC': 'GC/AG',
-                           'GT/AT': 'AT/AC',
-                           'non-canonical': 'non-canonical'}
 
 def int_to_junction_motif(n):
     if n == 0:

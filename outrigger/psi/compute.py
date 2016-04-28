@@ -3,7 +3,7 @@ import sys
 
 import pandas as pd
 
-from outrigger.util import timestamp, done
+from outrigger.util import timestamp
 
 
 logging.basicConfig()

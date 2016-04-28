@@ -22,6 +22,7 @@ SPLICE_TYPE_ISOFORM_EXONS = {'SE': {'isoform1': ['exon1', 'exon3'],
                              'MXE': {'isoform1': ['exon1', 'exon3', 'exon4'],
                                      'isoform2': ['exon1', 'exon2', 'exon4']}}
 
+
 def transform(f):
     if f.featuretype in gene_transcript:
         return f
@@ -52,8 +53,6 @@ def create_db(gtf_filename, db_filename=None):
         disable_infer_genes=True,
         disable_infer_transcripts=True,
         force_merge_fields=['source'])
-
-
 
 
 class SplicingAnnotator(object):
@@ -106,9 +105,9 @@ class SplicingAnnotator(object):
         df = pd.DataFrame(index=self.events.index)
 
         for exon_col in self.exons:
-            df['{}_region'.format(exon_col)] = self.events[exon_col].map(Region)
-            df['{}_length'.format(exon_col)] = df['{}_region'.format(
-                exon_col)].map(len)
+            regions = '{}_region'.format(exon_col)
+            df[regions] = self.events[exon_col].map(Region)
+            df['{}_length'.format(exon_col)] = df[regions].map(len)
 
         first_exon = '{}_region'.format(self.exons[0])
         last_exon = '{}_region'.format(self.exons[-1])

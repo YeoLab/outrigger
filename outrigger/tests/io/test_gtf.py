@@ -2,6 +2,7 @@
 import gffutils
 import pytest
 
+
 def test_create_db(gtf_filename, db):
     from outrigger.io import gtf
 
