@@ -205,8 +205,12 @@ class TestEventMaker(object):
 
         assert_graph_items_equal(test.graph, test.items, graph, items)
 
-    def test_skipped_exon(self, junction_aggregator, strand):
+    def test_skipped_exon(self, junction_aggregator, strand, capsys):
         test = junction_aggregator.skipped_exon()
+        out, err = capsys.readouterr()
+        assert 'Trying out' in out
+        assert 'exons tested' in out
+        assert '%' in out
 
         if strand == '+':
             s = """exon1,exon2,exon3,junction12,junction23,junction13,exons,junctions,strand# noqa
@@ -237,8 +241,15 @@ exon:chr1:400-425:-,exon:chr1:300-350:-,exon:chr1:225-250:-,junction:chr1:351-39
 
         pdt.assert_frame_equal(test, true)
 
-    def test_mutually_exclusive_exon(self, junction_aggregator, strand):
+
+
+    def test_mutually_exclusive_exon(self, junction_aggregator, strand,
+                                     capsys):
         test = junction_aggregator.mutually_exclusive_exon()
+        out, err = capsys.readouterr()
+        assert 'Trying out' in out
+        assert 'exons tested' in out
+        assert '%' in out
 
         if strand == '+':
             s = """exon1,exon2,exon3,exon4,junction13,junction34,junction12,junction24,exons,junctions,strand# noqa

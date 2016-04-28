@@ -11,6 +11,7 @@ from .region import Region
 from .junctions import UPSTREAM, DOWNSTREAM, DIRECTIONS
 
 from ..io.common import STRAND
+from ..util import progress
 
 
 EVENT_TYPES = (('skipped_exon', 'se'), ('mutually_exclusive_exon', 'mxe'))
@@ -77,6 +78,15 @@ class EventMaker(object):
                 tr.store(getattr(V(junction_i),
                                  opposite(row.direction))(exon_i))
 
+    @property
+    def exon_progress_interval(self):
+        return int(np.ceil(self.n_exons / 100.))
+
+    def _maybe_print_exon_progress(self, i):
+        if (i + 1) % self.exon_progress_interval == 0:
+            progress('\t{0}/{1} exons tested ({2:.1}%)'.format(
+                i + 1, self.n_exons, (i + 1) / float(self.n_exons)))
+
     def event_dict_to_df(self, events, exon_names, junction_names):
         columns = list(exon_names) + list(junction_names) \
                   + ['exons', 'junctions']
@@ -94,12 +104,9 @@ class EventMaker(object):
     def skipped_exon(self):
         events = {}
 
-        sys.stdout.write('Trying out {0} exons'
-                         '...\n'.format(self.n_exons))
+        progress('Trying out {0} exons ...'.format(self.n_exons))
         for i, exon1_name in enumerate(self.exons):
-            if (i + 1) % 10000 == 0:
-                sys.stdout.write('\t{0}/{1} '
-                                 'exons tested'.format(i + 1, self.n_exons))
+            self._maybe_print_exon_progress(i)
 
             exon1_i = self.exons.index(exon1_name)
             exon23s = list(
@@ -149,7 +156,10 @@ class EventMaker(object):
     def mutually_exclusive_exon(self):
         events = {}
 
-        for exon1_name in self.exons:
+        progress('Trying out {0} exons ...'.format(self.n_exons))
+        for i, exon1_name in enumerate(self.exons):
+            self._maybe_print_exon_progress(i)
+
             exon1_i = self.items.index(exon1_name)
 
             exon23s_from1 = list(
