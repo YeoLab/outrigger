@@ -1,6 +1,8 @@
+import glob
 import os
 
 import gffutils
+import pandas as pd
 import pytest
 
 
@@ -12,7 +14,25 @@ def data_folder():
 
 @pytest.fixture
 def treutlein_folder(data_folder):
-    return '{}/treutlein2014'.format(data_folder)
+    return os.path.join(data_folder, 'treutlein2014')
+
+
+@pytest.fixture
+def sj_filenames(treutlein_folder):
+    globber = os.path.join(treutlein_folder, 'sj_out_tab', '*SJ.out.tab')
+    return glob.glob(globber)
+
+
+@pytest.fixture
+def splice_junctions(treutlein_folder):
+    filename = os.path.join(treutlein_folder,
+                            'splice_junctions_multimappingFalse.csv')
+    return pd.read_csv(filename)
+
+@pytest.fixture
+def metadata(treutlein_folder):
+    filename = os.path.join(treutlein_folder, 'junction_metadata.csv')
+    return pd.read_csv(filename)
 
 
 @pytest.fixture
@@ -50,16 +70,3 @@ def db(db_filename):
 
     return gffutils.FeatureDB(db_filename)
 
-
-@pytest.fixture
-def splice_junctions(sj_filenames):
-    from outrigger.io import star
-
-    return star.read_multiple_sj_out_tab(sj_filenames)
-
-
-@pytest.fixture
-def metadata(splice_junctions):
-    from outrigger.io import star
-
-    return star.sj_count_to_metadata(splice_junctions)

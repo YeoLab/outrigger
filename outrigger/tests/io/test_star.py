@@ -27,18 +27,6 @@ chr1    668587  671992  1       1       0       0       4       28
     return filename
 
 
-@pytest.fixture
-def sj_filenames(treutlein_folder):
-    return glob.glob('{}/sj_out_tab/*SJ.out.tab'.format(treutlein_folder))
-
-
-@pytest.fixture
-def splice_junctions(sj_filenames):
-    from outrigger.io.star import read_multiple_sj_out_tab
-
-    return read_multiple_sj_out_tab(sj_filenames)
-
-
 def test_read_sj_out_tab(sj_out_tab, data_folder):
     from outrigger.io.star import read_sj_out_tab
 
@@ -65,6 +53,7 @@ def multimapping(request):
 
 @pytest.fixture
 def splice_junction_csv(multimapping, treutlein_folder):
+    """Different file depending on whether multimapping is True"""
     template = treutlein_folder + '/splice_junctions_multimapping{}.csv'
     return template.format(str(multimapping))
 
@@ -85,5 +74,9 @@ def test_read_multiple_sj_out_tab(sj_filenames, multimapping,
     pdt.assert_frame_equal(test, true)
 
 
-def test_sj_count_to_metadata():
-    pass
+def test_make_metadata(metadata):
+    from outrigger.io.star import make_metadata
+
+    true = metadata
+    test = make_metadata(metadata)
+    pdt.assert_frame_equal(test, true)

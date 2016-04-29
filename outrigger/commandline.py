@@ -12,8 +12,9 @@ import warnings
 import gffutils
 import numpy as np
 
+import outrigger.io.star
 from outrigger import util
-from outrigger.index import events, junctions
+from outrigger.index import events, adjacencies
 from outrigger.io import star, gtf
 from outrigger.psi import compute
 from outrigger.psi.compute import MIN_READS
@@ -250,7 +251,7 @@ class Index(Subcommand):
         """Get just the juunction info from the concatenated read files"""
         util.progress('Creating splice junction metadata of merely where '
                       'junctions start and stop')
-        metadata = junctions.make_metadata(spliced_reads)
+        metadata = outrigger.io.star.make_metadata(spliced_reads)
         util.done()
         return metadata
 
@@ -259,7 +260,7 @@ class Index(Subcommand):
         """Get annotated exons next to junctions in data"""
         util.progress('Getting junction-direction-exon triples for graph '
                       'database ...')
-        exon_junction_adjacencies = junctions.ExonJunctionAdjacencies(
+        exon_junction_adjacencies = adjacencies.ExonJunctionAdjacencies(
             metadata, db)
         junction_exon_triples = exon_junction_adjacencies.find_adjacencies()
         util.done()

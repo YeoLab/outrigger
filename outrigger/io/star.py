@@ -107,7 +107,7 @@ def read_multiple_sj_out_tab(filenames, multimapping=False,
 
     Returns
     -------
-    junction_metadata : pandas.DataFrame
+    metadata : pandas.DataFrame
         A tidy dataframe, where each row has the observed reads for a sample
     """
     splice_junctions = []

@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 
 from .region import Region
-from .junctions import UPSTREAM, DOWNSTREAM, DIRECTIONS
+from .adjacencies import UPSTREAM, DOWNSTREAM, DIRECTIONS
 
 from ..io.common import STRAND
 from ..util import progress
