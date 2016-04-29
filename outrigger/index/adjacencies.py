@@ -81,7 +81,17 @@ class ExonJunctionAdjacencies(object):
 
     @staticmethod
     def _to_stranded_transcript_adjacency(adjacent_in_genome, strand):
-        """If negative strand, swap the upstream/downstream adjacency"""
+        """If negative strand, swap the upstream/downstream adjacency
+
+        Parameters
+        ----------
+        adjacent_in_genome : dict
+            dict of two keys, "upstream" and "downstream", mapping to a boolean
+            series indicating whether the junction is upstream or downstream of
+            a particular exon
+        strand : "-" | "+"
+            Positive or negative strand
+        """
         if strand == '+':
             return {UPSTREAM: adjacent_in_genome[UPSTREAM],
                     DOWNSTREAM: adjacent_in_genome[DOWNSTREAM]}

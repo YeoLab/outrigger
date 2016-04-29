@@ -18,6 +18,20 @@ class TestExonJunctionAdjacencies(object):
 
         return ExonJunctionAdjacencies(metadata, db)
 
+    @pytest.fixture
+    def adjacent_in_genome(self, treutlein_adjacencies):
+        """Dict of upstream and downstream boolean junctions"""
+        template = os.path.join(
+            treutlein_adjacencies,
+            'junctions_genome_adjacent_to_exon_{}stream.csv')
+        true_upstream = pd.read_csv(template.format('up'), squeeze=True,
+                                    index_col=0)
+
+        true_downstream = pd.read_csv(template.format('down'), squeeze=True,
+                                      index_col=0)
+
+        return {'upstream': true_upstream, 'downstream': true_downstream}
+
     def test___init(self, metadata, db):
         from outrigger.index.adjacencies import ExonJunctionAdjacencies
         from outrigger.io.common import (JUNCTION_ID, EXON_START, EXON_STOP,
@@ -51,24 +65,29 @@ class TestExonJunctionAdjacencies(object):
     def test__single_junction_exon_triple(self):
         pass
 
-    def test__to_stranded_transcript_adjacency(self):
-        pass
+    def test__to_stranded_transcript_adjacency(self, adjacencies, strand,
+                                               adjacent_in_genome):
+        test = adjacencies._to_stranded_transcript_adjacency(
+            adjacent_in_genome, strand)
+
+        if strand == '-':
+            pdt.assert_series_equal(test['upstream'],
+                                    adjacent_in_genome['downstream'])
+            pdt.assert_series_equal(test['downstream'],
+                                    adjacent_in_genome['upstream'])
+        elif strand == '+':
+            pdt.assert_series_equal(test['upstream'],
+                                    adjacent_in_genome['upstream'])
+            pdt.assert_series_equal(test['downstream'],
+                                    adjacent_in_genome['downstream'])
 
     def test__junctions_genome_adjacent_to_exon(self, adjacencies, exon,
-                                                treutlein_adjacencies):
+                                                adjacent_in_genome):
         test = adjacencies._junctions_genome_adjacent_to_exon(exon)
 
-        template = os.path.join(
-            treutlein_adjacencies,
-            'junctions_genome_adjacent_to_exon_{}stream.csv')
-        true_upstream = pd.read_csv(template.format('up'), squeeze=True,
-                                    index_col=0)
-        true_downstream = pd.read_csv(template.format('down'), squeeze=True,
-                                      index_col=0)
 
-        true = {'upstream': true_upstream, 'downstream': true_downstream}
 
-        pdt.assert_dict_equal(test, true)
+        pdt.assert_dict_equal(test, adjacent_in_genome)
 
     def test__adjacent_junctions_single_exon(self, adjacencies, exon,
                                              treutlein_adjacencies):
