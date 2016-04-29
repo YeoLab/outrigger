@@ -262,7 +262,7 @@ class Index(Subcommand):
                       'database ...')
         exon_junction_adjacencies = adjacencies.ExonJunctionAdjacencies(
             metadata, db)
-        junction_exon_triples = exon_junction_adjacencies.find_adjacencies()
+        junction_exon_triples = exon_junction_adjacencies.neighboring_exons()
         util.done()
         return junction_exon_triples
 

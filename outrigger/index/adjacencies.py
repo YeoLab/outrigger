@@ -131,8 +131,16 @@ class ExonJunctionAdjacencies(object):
         else:
             return pd.DataFrame()
 
-    def find_adjacencies(self):
+    def neighboring_exons(self):
         """Get upstream and downstream exons of each junction
+
+        The "upstream" and "downstream" is relative to the **junction**, e.g.
+
+            exonA   upstream    junctionX
+            exonB   downstream    junctionX
+
+        should be read as "exonA is upstream of juction X" and "exonB is
+        downstream of junctionX"
 
         Use junctions defined in ``sj_metadata`` and exons in ``db`` to create
         triples of (exon, direction, junction), which are read like

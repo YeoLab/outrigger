@@ -5,6 +5,7 @@ import pandas as pd
 import pandas.util.testing as pdt
 import pytest
 
+
 class TestExonJunctionAdjacencies(object):
 
     @pytest.fixture
@@ -78,12 +79,12 @@ class TestExonJunctionAdjacencies(object):
                                           adjacent_in_genome_upstream):
         test = adjacencies._single_junction_exon_triple(
             adjacent_in_genome_upstream, 'downstream', exon_id)
-        test = test.sort('junction')
+        test = test.sort_values('junction')
         test.index = np.arange(0, test.shape[0])
 
         true = pd.read_csv(os.path.join(treutlein_adjacencies,
                                         'single_junction_exon_triple.csv'))
-        true = true.sort('junction')
+        true = true.sort_values('junction')
         true.index = np.arange(0, true.shape[0])
 
         pdt.assert_frame_equal(test, true)
@@ -115,8 +116,22 @@ class TestExonJunctionAdjacencies(object):
     def test__adjacent_junctions_single_exon(self, adjacencies, exon,
                                              treutlein_adjacencies):
         test = adjacencies._adjacent_junctions_single_exon(exon)
+        test = test.sort_values('junction')
+        test.index = np.arange(test.shape[0])
 
         true = pd.read_csv(os.path.join(treutlein_adjacencies,
                                         'adjacent_junctions_single_exon.csv'))
+        true = true.sort_values('junction')
+        true.index = np.arange(true.shape[0])
         pdt.assert_frame_equal(test, true)
 
+    def test_neighboring_exons(self, adjacencies, treutlein_adjacencies):
+        test = adjacencies.neighboring_exons()
+        test = test.sort_values(['junction', 'exon'])
+        test.index = np.arange(test.shape[0])
+
+        true = pd.read_csv(os.path.join(treutlein_adjacencies,
+                                        'neighboring_exons.csv'))
+        true = true.sort_values(['junction', 'exon'])
+        true.index = np.arange(true.shape[0])
+        pdt.assert_frame_equal(test, true)
