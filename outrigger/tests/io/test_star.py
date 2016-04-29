@@ -1,3 +1,5 @@
+import os
+
 import pandas as pd
 import pandas.util.testing as pdt
 import pytest
@@ -25,11 +27,11 @@ chr1    668587  671992  1       1       0       0       4       28
     return filename
 
 
-def test_read_sj_out_tab(sj_out_tab, data_folder):
+def test_read_sj_out_tab(sj_out_tab, star_folder):
     from outrigger.io.star import read_sj_out_tab
 
     test = read_sj_out_tab(sj_out_tab)
-    true = pd.read_csv('{}/true_splice_junctions.csv'.format(data_folder))
+    true = pd.read_csv('{}/true_splice_junctions.csv'.format(star_folder))
     assert (test.junction_start < test.junction_stop).all()
     pdt.assert_frame_equal(test, true)
 
@@ -50,9 +52,9 @@ def multimapping(request):
 
 
 @pytest.fixture
-def splice_junction_csv(multimapping, treutlein_folder):
+def splice_junction_csv(multimapping, treutlein_star):
     """Different file depending on whether multimapping is True"""
-    template = treutlein_folder + '/splice_junctions_multimapping{}.csv'
+    template = treutlein_star + '/splice_junctions_multimapping{}.csv'
     return template.format(str(multimapping))
 
 

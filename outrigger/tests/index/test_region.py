@@ -1,9 +1,9 @@
 import pytest
 
 
-@pytest.fixture(params=['-', '+'])
-def location(request):
-    return 'chr1:100-200:{}'.format(request.param)
+@pytest.fixture
+def location(strand):
+    return 'chr1:100-200:{}'.format(strand)
 
 
 @pytest.fixture
