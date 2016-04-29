@@ -70,6 +70,11 @@ class TestExonJunctionAdjacencies(object):
 
         pdt.assert_dict_equal(test, true)
 
-    def test__adjacent_junctions_single_exon(self, adjacencies, exon):
+    def test__adjacent_junctions_single_exon(self, adjacencies, exon,
+                                             treutlein_adjacencies):
         test = adjacencies._adjacent_junctions_single_exon(exon)
-        assert False
+
+        true = pd.read_csv(os.path.join(treutlein_adjacencies,
+                                        'adjacent_junctions_single_exon.csv'))
+        pdt.assert_frame_equal(test, true)
+
