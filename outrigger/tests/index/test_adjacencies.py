@@ -1,5 +1,6 @@
 import os
 
+import numpy as np
 import pandas as pd
 import pandas.util.testing as pdt
 import pytest
@@ -77,9 +78,14 @@ class TestExonJunctionAdjacencies(object):
                                           adjacent_in_genome_upstream):
         test = adjacencies._single_junction_exon_triple(
             adjacent_in_genome_upstream, 'downstream', exon_id)
+        test = test.sort('junction')
+        test.index = np.arange(0, test.shape[0])
 
         true = pd.read_csv(os.path.join(treutlein_adjacencies,
                                         'single_junction_exon_triple.csv'))
+        true = true.sort('junction')
+        true.index = np.arange(0, true.shape[0])
+
         pdt.assert_frame_equal(test, true)
 
     def test__to_stranded_transcript_adjacency(self, adjacencies, strand,
