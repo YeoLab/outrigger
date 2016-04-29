@@ -241,8 +241,6 @@ exon:chr1:400-425:-,exon:chr1:300-350:-,exon:chr1:225-250:-,junction:chr1:351-39
 
         pdt.assert_frame_equal(test, true)
 
-
-
     def test_mutually_exclusive_exon(self, junction_aggregator, strand,
                                      capsys):
         test = junction_aggregator.mutually_exclusive_exon()

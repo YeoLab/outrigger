@@ -1,6 +1,5 @@
 import itertools
-import logging
-import sys
+import loggingPEP
 
 import graphlite
 from graphlite import V

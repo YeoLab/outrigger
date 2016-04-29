@@ -53,6 +53,8 @@ class TestExonJunctionAdjacencies(object):
 
     def test__junctions_genome_adjacent_to_exon(self, adjacencies, exon):
         test = adjacencies._junctions_genome_adjacent_to_exon(exon)
+        assert False
 
     def test__adjacent_junctions_single_exon(self, adjacencies, exon):
         test = adjacencies._adjacent_junctions_single_exon(exon)
+        assert False

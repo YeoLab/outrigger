@@ -1,5 +1,6 @@
 import pytest
 
+
 @pytest.fixture(params=['-', '+'])
 def location(request):
     return 'chr1:100-200:{}'.format(request.param)
@@ -8,6 +9,7 @@ def location(request):
 @pytest.fixture
 def location_with_region_name():
     return 'junction:chr1:100-200:+'
+
 
 class TestRegion(object):
 

@@ -1,5 +1,3 @@
-import glob
-
 import pandas as pd
 import pandas.util.testing as pdt
 import pytest

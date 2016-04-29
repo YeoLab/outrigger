@@ -29,6 +29,7 @@ def splice_junctions(treutlein_folder):
                             'splice_junctions_multimappingFalse.csv')
     return pd.read_csv(filename)
 
+
 @pytest.fixture
 def metadata(treutlein_folder):
     filename = os.path.join(treutlein_folder, 'junction_metadata.csv')
@@ -67,6 +68,4 @@ def db_filename(treutlein_folder):
 
 @pytest.fixture
 def db(db_filename):
-
     return gffutils.FeatureDB(db_filename)
-
