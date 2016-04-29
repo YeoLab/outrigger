@@ -96,6 +96,15 @@ def index_folder(data_folder):
     return os.path.join(data_folder, 'index')
 
 
+@pytest.fixture
+def adjacencies_folder(index_folder):
+    return os.path.join(index_folder, 'adjacencies')
+
+
+@pytest.fixture
+def treutlein_adjacencies(adjacencies_folder, treutlein):
+    return os.path.join(adjacencies_folder, treutlein)
+
 # - Outrigger psi test data folders - #
 @pytest.fixture
 def psi_folder(data_folder):

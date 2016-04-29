@@ -1,3 +1,6 @@
+import os
+
+import pandas as pd
 import pandas.util.testing as pdt
 import pytest
 
@@ -51,9 +54,21 @@ class TestExonJunctionAdjacencies(object):
     def test__to_stranded_transcript_adjacency(self):
         pass
 
-    def test__junctions_genome_adjacent_to_exon(self, adjacencies, exon):
+    def test__junctions_genome_adjacent_to_exon(self, adjacencies, exon,
+                                                treutlein_adjacencies):
         test = adjacencies._junctions_genome_adjacent_to_exon(exon)
-        assert False
+
+        template = os.path.join(
+            treutlein_adjacencies,
+            'junctions_genome_adjacent_to_exon_{}stream.csv')
+        true_upstream = pd.read_csv(template.format('up'), squeeze=True,
+                                    index_col=0)
+        true_downstream = pd.read_csv(template.format('down'), squeeze=True,
+                                      index_col=0)
+
+        true = {'upstream': true_upstream, 'downstream': true_downstream}
+
+        pdt.assert_dict_equal(test, true)
 
     def test__adjacent_junctions_single_exon(self, adjacencies, exon):
         test = adjacencies._adjacent_junctions_single_exon(exon)
