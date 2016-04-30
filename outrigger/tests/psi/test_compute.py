@@ -180,7 +180,7 @@ def test_maybe_get_isoform_reads(splice_junction_reads, junction_locations,
 
 
 def test_psi_se(splice_junction_reads, junction12_reads, junction23_reads,
-                junction13_reads, exons_to_junctions):
+                junction13_reads, exons_to_junctions, capsys):
     from outrigger.psi.compute import calculate_psi, MIN_READS
 
     reads12 = junction12_reads if junction12_reads >= MIN_READS else 0
@@ -204,6 +204,9 @@ def test_psi_se(splice_junction_reads, junction12_reads, junction23_reads,
     test = calculate_psi(exons_to_junctions, splice_junction_reads,
                          isoform1_junctions=['junction13'],
                          isoform2_junctions=['junction12', 'junction23'])
+    out, err = capsys.readouterr()
+    assert 'Iterating over' in out
+
     s = """sample_id,exon:chr1:150-175:+@exon:chr1:200-250:+@exon:chr1:300-350:+,exon:chr1:150-175:+@exon:chr1:225-250:+@exon:chr1:300-350:+,exon:chr1:150-175:+@exon:chr1:225-275:+@exon:chr1:300-350:+# noqa
 sample1,{1},{0},{1}""".format(true_psi, other_isoform1_psi)
 
