@@ -335,8 +335,9 @@ class Index(Subcommand):
                 events_of_type.to_csv(csv, index=False)
                 util.done()
             else:
-                util.progress('No {abbrev} events found in the junction and '
-                              'exon data.')
+                util.progress(
+                    'No {abbrev} events found in the junction and exon '
+                    'data.'.format(abbrev=splice_abbrev.upper()))
 
             if n_events > 0:
                 self.make_event_metadata(db, events_of_type, splice_abbrev)
