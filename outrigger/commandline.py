@@ -205,7 +205,7 @@ class CommandLine(object):
         type, value, tb = sys.exc_info()
         traceback.print_exc()
         debug = os.getenv('PYTHONDEBUG')
-        if debug:
+        if debug or self.args.debug:
             print(os.environ)
             # If the PYTHONDEBUG shell environment variable exists, then
             # launch the python debugger
