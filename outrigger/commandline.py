@@ -322,17 +322,21 @@ class Index(Subcommand):
 
             # Write to a file
             csv = os.path.join(self.output, *['index', splice_abbrev.lower(),
-                                              'junctions.csv'])
+                                              'events.csv'])
             dirname = os.path.dirname(csv)
             if not os.path.exists(dirname):
                 os.makedirs(dirname)
 
             n_events = events_of_type.shape[0]
-            util.progress('Writing {n} {abbrev} events to {csv} '
-                          '...'.format(n=n_events,
-                                       abbrev=splice_abbrev.upper(), csv=csv))
-            events_of_type.to_csv(csv, index=False)
-            util.done()
+            if n_events > 0:
+                util.progress('Writing {n} {abbrev} events to {csv} '
+                              '...'.format(n=n_events,
+                                           abbrev=splice_abbrev.upper(), csv=csv))
+                events_of_type.to_csv(csv, index=False)
+                util.done()
+            else:
+                util.progress('No {abbrev} events found in the junction and '
+                              'exon data.')
 
             if n_events > 0:
                 self.make_event_metadata(db, events_of_type, splice_abbrev)
