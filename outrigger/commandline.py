@@ -170,13 +170,15 @@ class CommandLine(object):
                                      'information to standard out')
         psi_parser.set_defaults(func=self.psi)
 
-        print(input_options)
         if input_options is None or len(input_options) == 0:
             self.parser.print_usage()
             self.args = None
         else:
             self.args = self.parser.parse_args(input_options)
-        print(self.args)
+
+        if self.args.debug:
+            print(self.args)
+            print(input_options)
 
         self.args.func()
 
@@ -482,7 +484,7 @@ class Psi(Subcommand):
 def main():
     try:
         cl = CommandLine(sys.argv[1:])
-    except Usage as err:
+    except Usage:
         cl.do_usage_and_die()
 
 
