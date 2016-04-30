@@ -188,6 +188,38 @@ class CommandLine(object):
         psi = Psi(**vars(self.args))
         psi.execute()
 
+    def do_usage_and_die(self, str):
+        '''Cleanly exit if incorrect parameters are given
+
+        If a critical error is encountered, where it is suspected that the
+        program is not being called with consistent parameters or data, this
+        method will write out an error string (str), then terminate execution
+        of the program.
+        '''
+        import sys
+
+        sys.stderr.write(str)
+        self.parser.print_usage()
+        type, value, tb = sys.exc_info()
+        traceback.print_exc()
+        debug = os.getenv('PYTHONDEBUG')
+        if debug:
+            print(os.environ)
+            # If the PYTHONDEBUG shell environment variable exists, then
+            # launch the python debugger
+            pdb.post_mortem(tb)
+
+        return 2
+
+# Class: Usage
+class Usage(Exception):
+    '''
+    Used to signal a Usage error, evoking a usage statement and eventual
+    exit when raised
+    '''
+
+    def __init__(self, msg):
+        self.msg = msg
 
 class Subcommand(object):
 
@@ -210,7 +242,7 @@ class Subcommand(object):
         """Create a csv file of compiled splice junctions"""
 
         util.progress('Reading SJ.out.files and creating a big splice junction'
-                      ' matrix of reads spanning exon-exon junctions...')
+                      ' table of reads spanning exon-exon junctions...')
         splice_junctions = star.read_multiple_sj_out_tab(
             self.sj_out_tab, multimapping=self.use_multimapping)
         # splice_junctions['reads'] = splice_junctions['unique_junction_reads']
@@ -449,18 +481,9 @@ class Psi(Subcommand):
 
 def main():
     try:
-        CommandLine(sys.argv[1:])
-    except:
-        type, value, tb = sys.exc_info()
-        traceback.print_exc()
-        print(os.environ)
-        try:
-            # If the PYTHONDEBUG shell environment variable exists, then
-            # launch the python debugger
-            os.getenv('PYTHONDEBUG')
-            pdb.post_mortem(tb)
-        except KeyError:
-            pass
+        cl = CommandLine(sys.argv[1:])
+    except Usage as err:
+        cl.do_usage_and_die()
 
 
 if __name__ == '__main__':
