@@ -32,6 +32,7 @@ class TestExonJunctionAdjacencies(object):
     def adjacent_in_genome_upstream(self, adjacent_in_genome_template):
         return pd.read_csv(adjacent_in_genome_template.format('up'),
                            squeeze=True, index_col=0)
+
     @pytest.fixture
     def adjacent_in_genome_downstream(self, adjacent_in_genome_template):
         return pd.read_csv(adjacent_in_genome_template.format('down'),
@@ -108,9 +109,6 @@ class TestExonJunctionAdjacencies(object):
     def test__junctions_genome_adjacent_to_exon(self, adjacencies, exon,
                                                 adjacent_in_genome):
         test = adjacencies._junctions_genome_adjacent_to_exon(exon)
-
-
-
         pdt.assert_dict_equal(test, adjacent_in_genome)
 
     def test__adjacent_junctions_single_exon(self, adjacencies, exon,

@@ -213,6 +213,7 @@ class CommandLine(object):
 
         return 2
 
+
 # Class: Usage
 class Usage(Exception):
     '''
@@ -222,6 +223,7 @@ class Usage(Exception):
 
     def __init__(self, msg):
         self.msg = msg
+
 
 class Subcommand(object):
 
@@ -329,9 +331,10 @@ class Index(Subcommand):
 
             n_events = events_of_type.shape[0]
             if n_events > 0:
-                util.progress('Writing {n} {abbrev} events to {csv} '
-                              '...'.format(n=n_events,
-                                           abbrev=splice_abbrev.upper(), csv=csv))
+                util.progress(
+                    'Writing {n} {abbrev} events to {csv}'
+                    ' ...'.format(n=n_events, abbrev=splice_abbrev.upper(),
+                                  csv=csv))
                 events_of_type.to_csv(csv, index=False)
                 util.done()
             else:

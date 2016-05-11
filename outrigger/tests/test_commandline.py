@@ -1,5 +1,3 @@
-import os
-import sys
 
 
 class TestCommandLine(object):

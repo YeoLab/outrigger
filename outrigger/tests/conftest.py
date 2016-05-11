@@ -12,8 +12,6 @@ def data_folder():
     return os.path.join(os.path.abspath(os.path.dirname(__file__)), 'data')
 
 
-
-
 @pytest.fixture
 def treutlein():
     """Suffix for data created from Treutlein et al, 2014 (Nature) paper"""
@@ -104,6 +102,7 @@ def adjacencies_folder(index_folder):
 @pytest.fixture
 def treutlein_adjacencies(adjacencies_folder, treutlein):
     return os.path.join(adjacencies_folder, treutlein)
+
 
 # - Outrigger psi test data folders - #
 @pytest.fixture
