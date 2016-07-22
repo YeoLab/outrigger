@@ -63,3 +63,10 @@ dist: clean
 
 install: clean
 	python setup.py install
+
+treutlein2014:
+	rm -rf treutlein2014
+	outrigger index \
+		-j outrigger/tests/data/io/star/treutlein2014/sj_out_tab/* \
+		-g outrigger/tests/data/io/gtf/treutlein2014/gencode.vM2.annotation.fgfr2.gtf \
+		-o treutlein2014
