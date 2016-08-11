@@ -1,6 +1,6 @@
-===============================
-BED annotator
-===============================
+=========
+Outrigger
+=========
 
 .. image:: https://img.shields.io/travis/olgabot/outrigger.svg
         :target: https://travis-ci.org/olgabot/outrigger
@@ -9,10 +9,11 @@ BED annotator
         :target: https://pypi.python.org/pypi/outrigger
 
 
-Exon ontology is an attempt to catalogue scripts used to annotate exons and their functions
+``outrigger`` is bioinformatics software to find *de novo*
+splicing events based off of junctions.
 
 * Free software: BSD license
-* Documentation: https://olgabot.github.io/outrigger
+* Documentation: https://yeolab.github.io/outrigger
 
 Features
 --------
