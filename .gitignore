@@ -60,3 +60,6 @@ docs/_build
 
 # Weird extra cache file
 .cache
+
+# Outrigger output
+outrigger_output/
