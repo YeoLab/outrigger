@@ -15,6 +15,16 @@ from ..util import progress
 
 EVENT_TYPES = (('skipped_exon', 'se'), ('mutually_exclusive_exon', 'mxe'))
 
+ISOFORM_ORDER = 'isoform1', 'isoform2'
+ISOFORM_COMPONENTS = {'se': {'isoform1': ('junction13',),
+                             'isoform2': ('junction12', 'exon2', 'junction23')
+                             },
+                      'mxe': {'isoform1': ('junction13', 'exon3',
+                                           'junction34'),
+                             'isoform2': ('junction12', 'exon2', 'junction24')
+                             }
+                      }
+
 
 def stringify_location(chrom, start, stop, strand, region=None):
     """"""
@@ -100,6 +110,14 @@ class EventMaker(object):
             data.loc[i, STRAND] = exons[0][-1]
         return data
 
+    def add_event_id_col(self, events, splice_type):
+        isoform_components = ISOFORM_COMPONENTS[splice_type]
+        events['event_id'] = events.apply(
+            lambda x: '|'.join('{}={}'.format(isoform,
+                                      '@'.join(isoform_components[isoform]))
+                       for isoform in ISOFORM_ORDER), axis=1)
+        return events
+
     def skipped_exon(self):
         events = {}
 
@@ -150,6 +168,7 @@ class EventMaker(object):
         events = self.event_dict_to_df(
             events, exon_names=['exon1', 'exon2', 'exon3'],
             junction_names=['junction12', 'junction23', 'junction13'])
+        events = self.add_event_id_col(events, 'se')
         return events
 
     def mutually_exclusive_exon(self):
@@ -227,4 +246,5 @@ class EventMaker(object):
                                                        'junction34',
                                                        'junction12',
                                                        'junction24'])
+        events = self.add_event_id_col(events, 'mxe')
         return events
