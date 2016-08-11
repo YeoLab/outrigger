@@ -2,7 +2,7 @@
 Outrigger
 =========
 
-.. image:: https://raw.githubusercontent.com/YeoLab/outrigger/master/logo/logo_v1.svg
+.. image:: https://raw.githubusercontent.com/YeoLab/outrigger/master/logo/logo_v1.png
 
 .. image:: https://img.shields.io/travis/olgabot/outrigger.svg
         :target: https://travis-ci.org/olgabot/outrigger
