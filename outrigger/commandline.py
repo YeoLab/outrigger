@@ -441,11 +441,7 @@ class Psi(Subcommand):
         if self.debug:
             logger.setLevel(10)
 
-        # try:
         junction_reads = self.maybe_read_junction_reads()
-
-        # except Key:
-        #     splice_junction_reads = self.csv(self.sj_out_tab)
 
         junction_reads = junction_reads.set_index(
             [self.junction_id_col, self.sample_id_col])
