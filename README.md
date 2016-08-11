@@ -1,6 +1,6 @@
 # Outrigger
 
-![Outrigger logo](logo/logo_v1.svg)
+![Outrigger logo](https://raw.githubusercontent.com/YeoLab/outrigger/master/logo/logo_v1.svg)
 
 [![Build Status](https://travis-ci.org/YeoLab/outrigger.svg?branch=master)](https://travis-ci.org/YeoLab/outrigger)[![](https://img.shields.io/pypi/v/outrigger.svg)](https://pypi.python.org/pypi/outrigger)[![Coverage Status](https://coveralls.io/repos/YeoLab/outrigger/badge.svg?branch=master&service=github)](https://coveralls.io/github/YeoLab/outrigger?branch=master)
 
