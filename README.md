@@ -105,7 +105,7 @@ optional arguments:
 Included in this repository is a subset of the 1809 cells from
 ["Adult mouse cortical cell taxonomy revealed by single cell transcriptomics."
 by Tasic et al, Nature Neuroscience (2016)](http://www.ncbi.nlm.nih.gov/pubmed/26727548).
-There splice junction output files from the STAR aligner from the 43 "`CAV_LP_Ipsi_tdTpos`" cells,
+There splice junction output files from the [STAR aligner](https://github.com/alexdobin/STAR) from the 43 "`CAV_LP_Ipsi_tdTpos`" cells,
 plus a subset of the [GENCODE M10](http://www.gencodegenes.org/mouse_releases/10.html)
 (Version M10 (January 2016 freeze, GRCm38) - Ensembl 85) mouse annotation.
 
