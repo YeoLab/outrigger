@@ -122,10 +122,9 @@ class EventMaker(object):
         events = {}
 
         progress('Trying out {0} exons ...'.format(self.n_exons))
-        for i, exon1_name in enumerate(self.exons):
-            self._maybe_print_exon_progress(i)
+        for exon1_i, exon1_name in enumerate(self.exons):
+            self._maybe_print_exon_progress(exon1_i)
 
-            exon1_i = self.exons.index(exon1_name)
             exon23s = list(
                 self.graph.find(
                     V().downstream(exon1_i)).traverse(V().upstream))
