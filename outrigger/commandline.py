@@ -24,7 +24,7 @@ with warnings.catch_warnings():
     import pandas as pd
 
 OUTPUT = './outrigger_output'
-JUNCTION_READS_PATH = '{output}/junction_reads/reads.csv'.format(output=OUTPUT)
+JUNCTION_READS_PATH = '{output}/junction_reads.csv'.format(output=OUTPUT)
 INDEX = '{output}/index'.format(output=OUTPUT)
 
 
@@ -56,7 +56,7 @@ class CommandLine(object):
             '-j', '--sj-out-tab', type=str, action='store',
             nargs='*', help='SJ.out.tab files from STAR aligner output')
         junctions.add_argument(
-            '-c', '--junction-read-csv',
+            '-c', '--junction-reads-csv',
             help="Name of the splice junction files to calculate psi scores "
                  "on. If not provided, the compiled '{sj_csv}' file with all"
                  " the samples from the SJ.out.tab files that were used "
@@ -126,7 +126,7 @@ class CommandLine(object):
         splice_junctions = psi_parser.add_mutually_exclusive_group(
             required=False)
         splice_junctions.add_argument(
-            '-c', '--junction-read-csv', required=False,
+            '-c', '--junction-reads-csv', required=False,
             help="Name of the splice junction files to calculate psi scores "
                  "on. If not provided, the compiled '{sj_csv}' file with all "
                  "the samples from the SJ.out.tab files that were used during "
@@ -251,7 +251,7 @@ class Subcommand(object):
             self.sj_out_tab, multimapping=self.use_multimapping)
         # splice_junctions['reads'] = splice_junctions['unique_junction_reads']
 
-        filename = JUNCTION_READS_PATH
+        filename = self.junction_read_csv
         dirname = os.path.dirname(filename)
         if not os.path.exists(dirname):
             os.makedirs(dirname)
