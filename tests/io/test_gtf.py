@@ -2,7 +2,7 @@ import gffutils
 import pytest
 
 
-def test_create_db(gtf_filename, db):
+def test_create_db(gtf_filename, db, snap25_exon):
     from outrigger.io import gtf
 
     true = db
@@ -25,3 +25,7 @@ def test_create_db(gtf_filename, db):
             except gffutils.FeatureNotFoundError:
                 pytest.fail('Feature in test database not found in true '
                             'database')
+
+    # SNAP25 should be in both the true and test databases
+    true[snap25_exon]
+    test[snap25_exon]

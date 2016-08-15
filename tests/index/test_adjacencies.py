@@ -45,14 +45,14 @@ class TestExonJunctionAdjacencies(object):
         return {'upstream': adjacent_in_genome_upstream,
                 'downstream': adjacent_in_genome_downstream}
 
-    def test___init(self, metadata, db):
+    def test___init(self, junction_metadata, db):
         from outrigger.index.adjacencies import ExonJunctionAdjacencies
         from outrigger.io.common import (JUNCTION_ID, EXON_START, EXON_STOP,
                                          CHROM, STRAND)
 
-        adjacencies = ExonJunctionAdjacencies(metadata, db)
+        adjacencies = ExonJunctionAdjacencies(junction_metadata, db)
 
-        true_metadata = metadata.copy()
+        true_metadata = junction_metadata.copy()
         true_metadata = true_metadata.set_index(JUNCTION_ID)
         true_metadata = true_metadata.sort_index()
 
@@ -67,11 +67,12 @@ class TestExonJunctionAdjacencies(object):
         assert adjacencies.db == db
 
     @pytest.mark.xfail
-    def test___init_missing_required_column(self, metadata, db):
+    def test___init_missing_required_column(self, junction_metadata,
+                                            db):
         from outrigger.index.adjacencies import ExonJunctionAdjacencies
         from outrigger.io.common import JUNCTION_ID
 
-        test_metadata = metadata.copy()
+        test_metadata = junction_metadata.copy()
         test_metadata = test_metadata.drop(JUNCTION_ID, axis=1)
         ExonJunctionAdjacencies(test_metadata, db)
 
