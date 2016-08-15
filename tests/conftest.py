@@ -87,12 +87,11 @@ def junction_metadata(tasic2016_outrigger_junctions):
 @pytest.fixture
 def gtf_filename(tasic2016_gtf):
     return os.path.join(tasic2016_gtf,
-                        'gencode.vM2.annotation.snap25.myl6.gtf')
-
+                        'gencode.vM10.annotation.snap25.myl6.gtf')
 
 @pytest.fixture
-def db_filename(tasic2016_gtf):
-    return os.path.join(gtf_filename + '.db')
+def db_filename(gtf_filename):
+    return gtf_filename + '.db'
 
 
 @pytest.fixture
