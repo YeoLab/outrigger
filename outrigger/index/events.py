@@ -118,6 +118,52 @@ class EventMaker(object):
                        for isoform in ISOFORM_ORDER), axis=1)
         return events
 
+    def exons_one_junction_downstream(self, exon_i):
+        """Get the exon(s) that are immediately downstream of this one
+
+        Get exons that are downstream from this one, separated by one junction
+
+        Parameters
+        ----------
+        exon_i : int
+            Integer identifier of the exon whose downstream exons you want.
+            This is the exon's index location in self.exons
+
+        Returns
+        -------
+        downstream_exons : graphlite.Query
+            Integer identfiers of exons which are one junction downstream
+            of the provided one
+        """
+        return self.graph.find(
+                V().downstream(exon_i)).traverse(V().upstream)
+
+    def exons_two_junctions_downstream(self, exon_i):
+        """Get the exon(s) that are two junction hops downstream
+
+        Go one exon downstream, then one more exon. This is all the 2nd level
+        exons
+
+        Parameters
+        ----------
+        exon_i : int
+            Integer identifier of the exon whose downstream exons you want.
+            This is the exon's index location in self.exons
+
+        Returns
+        -------
+        downstream_exons : graphlite.Query
+            Integer identfiers of exons which are separated from the original
+            exon by a junction, exon, and another junction
+        """
+        return self.graph.find(V().downstream(exon_i)).traverse(
+            V().upstream).traverse(V().upstream).traverse(V().upstream)
+
+    def junctions_between_exons(self, exon_a, exon_b):
+        return self.graph.find(
+            V(exon_a).upstream) \
+            .intersection(V(exon_b).downstream)
+
     def skipped_exon(self):
         events = {}
 
@@ -125,9 +171,7 @@ class EventMaker(object):
         for exon1_i, exon1_name in enumerate(self.exons):
             self._maybe_print_exon_progress(exon1_i)
 
-            exon23s = list(
-                self.graph.find(
-                    V().downstream(exon1_i)).traverse(V().upstream))
+            exon23s = list(self.exons_one_junction_downstream(exon1_i))
             exon23s = self.item_to_region[[self.items[i] for i in exon23s]]
 
             for exon_a, exon_b in itertools.combinations(exon23s, 2):
@@ -145,17 +189,12 @@ class EventMaker(object):
                                        set(exon23_junction_i)]
                     if len(exon23_junction) > 0:
                         # Isoform 1 - corresponds to Psi=0. Exclusion of exon2
-                        exon13_junction = self.graph.find(
-                            V(exon1_i).upstream) \
-                            .intersection(V(exon3_i).downstream)
+                        exon13_junction = self.junctions_between_exons(
+                            exon1_i, exon3_i)
 
                         # Isoform 2 - corresponds to Psi=1. Inclusion of exon2
-                        exon12_junction = self.graph.find(
-                            V(exon1_i).upstream) \
-                            .intersection(V(exon2_i).downstream)
-                        exon23_junction = self.graph.find(
-                            V(exon2_i).upstream) \
-                            .intersection(V(exon3_i).downstream)
+                        exon12_junction = self.junctions_between_exons(
+                            exon1_i, exon2_i)
 
                         junctions_i = list(itertools.chain(
                             *[exon12_junction, exon23_junction,
@@ -179,11 +218,8 @@ class EventMaker(object):
 
             exon1_i = self.items.index(exon1_name)
 
-            exon23s_from1 = list(
-                self.graph.find(V().downstream(
-                    exon1_i)).traverse(V().upstream))
-            exon4s = self.graph.find(V().downstream(exon1_i)).traverse(
-                V().upstream).traverse(V().upstream).traverse(V().upstream)
+            exon23s_from1 = self.exons_one_junction_downstream(exon1_i)
+            exon4s = self.exons_two_junctions_downstream(exon1_i)
             exon23s_from4 = exon4s.traverse(V().downstream).traverse(
                 V().downstream)
 
@@ -201,29 +237,25 @@ class EventMaker(object):
                     exon3_i = self.items.index(exon3.name)
 
                     exon4_from2 = set(
-                        self.graph.find(V(exon2_i).upstream).traverse(
-                            V().upstream))
+                        self.exons_one_junction_downstream(exon2_i))
                     exon4_from3 = set(
-                        self.graph.find(V(exon3_i).upstream).traverse(
-                            V().upstream))
+                        self.exons_one_junction_downstream(exon3_i))
+
                     try:
                         exon4_i = (exon4_from2 & exon4_from3).pop()
                         exon4_name = self.items[exon4_i]
                         # Isoform 1 - corresponds to Psi=0. Inclusion of exon3
-                        exon13_junction = self.graph.find(
-                            V(exon1_i).upstream).intersection(
-                            V(exon3_i).downstream)
-                        exon34_junction = self.graph.find(
-                            V(exon3_i).upstream) \
-                            .intersection(V(exon4_i).downstream)
+                        exon13_junction = self.self.junctions_between_exons(
+                            exon1_i, exon3_i)
+
+                        exon34_junction = self.junctions_between_exons(
+                            exon3_i, exon4_i)
 
                         # Isoform 2 - corresponds to Psi=1. Inclusion of exon2
-                        exon12_junction = self.graph.find(
-                            V(exon1_i).upstream).intersection(
-                            V(exon2_i).downstream)
-                        exon24_junction = self.graph.find(
-                            V(exon2_i).upstream) \
-                            .intersection(V(exon4_i).downstream)
+                        exon12_junction = self.junctions_between_exons(
+                            exon1_i, exon2_i)
+                        exon24_junction = self.junctions_between_exons(
+                            exon2_i, exon4_i)
 
                         exon_tuple = exon1_name, exon2.name, exon3.name, \
                             exon4_name
