@@ -18,11 +18,28 @@ def tasic2016(data_folder):
     """Suffix for data created from Tasic et al, Nat Neurosci (2016)"""
     return os.path.join(data_folder, 'tasic2016')
 
-
 @pytest.fixture
 def tasic2016_unprocessed(tasic2016):
     """Suffix for raw data created from Tasic et al, Nat Neurosci (2016)"""
     return os.path.join(tasic2016, 'unprocessed')
+
+@pytest.fixture
+def simulated(data_folder):
+    """Suffix for simulated data"""
+    return os.path.join(data_folder, 'simulated')
+
+@pytest.fixture
+def simulated_unprocessed(simulated):
+    """Suffix for raw simulated data"""
+    return os.path.join(simulated, 'unprocessed')
+
+@pytest.fixture
+def tasic2016_sj_out_tab(tasic2016_unprocessed):
+    return os.path.join(tasic2016_unprocessed, 'sj_out_tab')
+
+@pytest.fixture
+def tasic2016_gtf(tasic2016_unprocessed):
+    return os.path.join(tasic2016_unprocessed, 'gtf')
 
 @pytest.fixture
 def tasic2016_intermediate(tasic2016):
@@ -35,6 +52,10 @@ def tasic2016_outrigger_output(tasic2016):
     """Suffix for outrigger_output files from Tasic et al Nat Neurosci (2016)"""
     return os.path.join(tasic2016, 'outrigger_output')
 
+@pytest.fixture
+def tasic2016_outrigger_junctions(tasic2016_outrigger_output):
+    return os.path.join(tasic2016_outrigger_output, 'junctions')
+
 
 @pytest.fixture(params=['positive', 'negative'])
 def strand(request):
@@ -45,69 +66,39 @@ def strand(request):
 
 
 @pytest.fixture
-def sj_filenames(tasic2016_unprocessed):
-    globber = os.path.join(tasic2016_unprocessed, 'sj_out_tab', '*SJ.out.tab')
+def sj_filenames(tasic2016_sj_out_tab):
+    globber = os.path.join(tasic2016_sj_out_tab, '*SJ.out.tab')
     return glob.glob(globber)
 
 
 @pytest.fixture
-def splice_junctions(tasic2016_outrigger_output):
-    filename = os.path.join(tasic2016_outrigger_output, 'junction_reads.csv')
+def junction_reads(tasic2016_outrigger_junctions):
+    filename = os.path.join(tasic2016_outrigger_junctions, 'reads.csv')
     return pd.read_csv(filename)
 
 
 @pytest.fixture
-def metadata(treutlein_star):
-    filename = os.path.join(treutlein_star, 'junction_metadata.csv')
+def junction_metadata(tasic2016_outrigger_junctions):
+    filename = os.path.join(tasic2016_outrigger_junctions, 'metadata.csv')
     return pd.read_csv(filename)
 
 
 # -- IO: GTF input folders -- #
 @pytest.fixture
-def gtf_folder(io_folder):
-    return os.path.join(io_folder, 'gtf')
+def gtf_filename(tasic2016_gtf):
+    return os.path.join(tasic2016_gtf,
+                        'gencode.vM2.annotation.snap25.myl6.gtf')
 
 
 @pytest.fixture
-def treutlein_gtf(io_folder, treutlein):
-    return os.path.join(io_folder, 'gtf', treutlein)
-
-
-@pytest.fixture
-def gtf_filename(treutlein_gtf):
-    return os.path.join(treutlein_gtf, 'gencode.vM2.annotation.fgfr2.gtf')
-
-
-@pytest.fixture
-def db_filename(treutlein_gtf):
-    return os.path.join(treutlein_gtf, 'gencode.vM2.annotation.fgfr2.gtf.db')
+def db_filename(tasic2016_gtf):
+    return os.path.join(gtf_filename + '.db')
 
 
 @pytest.fixture
 def db(db_filename):
     return gffutils.FeatureDB(db_filename)
 
-
-# - Outrigger index test data folders - #
-@pytest.fixture
-def index_folder(data_folder):
-    return os.path.join(data_folder, 'index')
-
-
-@pytest.fixture
-def adjacencies_folder(index_folder):
-    return os.path.join(index_folder, 'adjacencies')
-
-
-@pytest.fixture
-def treutlein_adjacencies(adjacencies_folder, treutlein):
-    return os.path.join(adjacencies_folder, treutlein)
-
-
-# - Outrigger psi test data folders - #
-@pytest.fixture
-def psi_folder(data_folder):
-    return os.path.join(data_folder, 'psi')
 
 
 @pytest.fixture

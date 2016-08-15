@@ -1,3 +1,5 @@
+import os
+
 import pandas as pd
 import pandas.util.testing as pdt
 import pytest
@@ -25,11 +27,12 @@ chr1    668587  671992  1       1       0       0       4       28
     return filename
 
 
-def test_read_sj_out_tab(sj_out_tab, star_folder):
+def test_read_sj_out_tab(sj_out_tab, simulated_unprocessed):
     from outrigger.io.star import read_sj_out_tab
 
     test = read_sj_out_tab(sj_out_tab)
-    true = pd.read_csv('{}/true_splice_junctions.csv'.format(star_folder))
+    csv = os.path.join(simulated_unprocessed, 'true_splice_junctions.csv')
+    true = pd.read_csv(csv)
     assert (test.junction_start < test.junction_stop).all()
     pdt.assert_frame_equal(test, true)
 
@@ -50,9 +53,11 @@ def multimapping(request):
 
 
 @pytest.fixture
-def splice_junction_csv(multimapping, treutlein_star):
+def splice_junction_csv(multimapping, tasic2016_intermediate):
     """Different file depending on whether multimapping is True"""
-    template = treutlein_star + '/splice_junctions_multimapping{}.csv'
+    template = os.path.join(tasic2016_intermediate,
+                            'index', 'star',
+                            'splice_junctions_multimapping{}.csv')
     return template.format(str(multimapping))
 
 
@@ -72,9 +77,9 @@ def test_read_multiple_sj_out_tab(sj_filenames, multimapping,
     pdt.assert_frame_equal(test, true)
 
 
-def test_make_metadata(metadata):
+def test_make_metadata(junction_metadata, junction_reads):
     from outrigger.io.star import make_metadata
 
-    true = metadata
-    test = make_metadata(metadata)
+    true = junction_metadata
+    test = make_metadata(junction_reads)
     pdt.assert_frame_equal(test, true)

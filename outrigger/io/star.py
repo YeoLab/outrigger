@@ -3,6 +3,7 @@ Read splice junction output files from STAR aligner (SJ.out.tab)
 """
 import os
 
+import numpy as np
 import pandas as pd
 
 
@@ -153,5 +154,6 @@ def make_metadata(spliced_reads):
                               JUNCTION_STOP, STRAND, ANNOTATED, EXON_START,
                               EXON_STOP]]
     metadata = metadata.drop_duplicates()
+    metadata.index = np.arange(metadata.shape[0])
 
     return metadata
