@@ -138,6 +138,26 @@ class EventMaker(object):
         return self.graph.find(
                 V().downstream(exon_i)).traverse(V().upstream)
 
+    def exons_one_junction_upstream(self, exon_query):
+        """Get the exon(s) that are immediately upstream of this one
+
+        Get exons that are upstream from this one, separated by one junction
+
+        Parameters
+        ----------
+        exon_query : graphlite.Query
+            Integer identifier of the exon whose upstream exons you want.
+            This is the exon's index location in self.exons
+
+        Returns
+        -------
+        upstream_exons : graphlite.Query
+            Integer identfiers of exons which are one junction upstream
+            of the provided one
+        """
+        return exon_query.traverse(V().downstream).traverse(
+            V().downstream)
+
     def exons_two_junctions_downstream(self, exon_i):
         """Get the exon(s) that are two junction hops downstream
 
@@ -218,8 +238,7 @@ class EventMaker(object):
 
             exon23s_from1 = self.exons_one_junction_downstream(exon1_i)
             exon4s = self.exons_two_junctions_downstream(exon1_i)
-            exon23s_from4 = exon4s.traverse(V().downstream).traverse(
-                V().downstream)
+            exon23s_from4 = self.exons_one_junction_upstream(exon4s)
 
             exon23s = set(exon23s_from4) & set(exon23s_from1)
             exon23s = [self.items[i] for i in exon23s]
