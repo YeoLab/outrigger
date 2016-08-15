@@ -24,7 +24,7 @@ with warnings.catch_warnings():
     import pandas as pd
 
 OUTPUT = './outrigger_output'
-JUNCTION_READS_PATH = '{output}/junctions/reads.csv'.format(output=OUTPUT)
+JUNCTION_READS_PATH = '{output}/junction_reads/reads.csv'.format(output=OUTPUT)
 INDEX = '{output}/index'.format(output=OUTPUT)
 
 
@@ -118,11 +118,11 @@ class CommandLine(object):
                                 default=INDEX,
                                 help='Name of the folder where you saved the '
                                      'output from "outrigger index" (default '
-                                     'is ./outrigger_index, which is relative '
+                                     'is {}, which is relative '
                                      'to the directory where you called this '
                                      'program, assuming you have called '
                                      '"outrigger psi" in the same folder as '
-                                     'you called "outrigger index")')
+                                     'you called "outrigger index")'.format(INDEX))
         splice_junctions = psi_parser.add_mutually_exclusive_group(
             required=False)
         splice_junctions.add_argument(
@@ -155,12 +155,12 @@ class CommandLine(object):
                                      "containing reads to use. "
                                      "(default='reads')")
         psi_parser.add_argument('--sample-id-col', default='sample_id',
-                                help="Name of column in --splice-junction-csv"
+                                help="Name of column in --splice-junction-csv "
                                      "containing sample ids to use. "
                                      "(default='sample_id')")
         psi_parser.add_argument('--junction-id-col',
                                 default='junction_id',
-                                help="Name of column in --splice-junction-csv"
+                                help="Name of column in --splice-junction-csv "
                                      "containing the ID of the junction to use"
                                      ". Must match exactly with the junctions "
                                      "in the index."
@@ -284,15 +284,14 @@ class Index(Subcommand):
 
     @staticmethod
     def junction_metadata(spliced_reads):
-        """Get just the juunction info from the concatenated read files"""
+        """Get just the junction info from the concatenated read files"""
         util.progress('Creating splice junction metadata of merely where '
                       'junctions start and stop')
         metadata = outrigger.io.star.make_metadata(spliced_reads)
         util.done()
         return metadata
 
-    @staticmethod
-    def make_exon_junction_adjacencies(metadata, db):
+    def make_exon_junction_adjacencies(self, metadata, db):
         """Get annotated exons next to junctions in data"""
         util.progress('Getting junction-direction-exon triples for graph '
                       'database ...')
@@ -300,6 +299,14 @@ class Index(Subcommand):
             metadata, db)
         junction_exon_triples = exon_junction_adjacencies.neighboring_exons()
         util.done()
+
+        csv = os.path.join(self.output, 'index',
+                           'junction_exon_direction_triples.csv')
+        util.progress('Writing junction-exon-direction triples'
+                      ' to {}...'.format(csv))
+        junction_exon_triples.to_csv(csv, index=False)
+        util.done()
+
         return junction_exon_triples
 
     @staticmethod
@@ -377,8 +384,13 @@ class Index(Subcommand):
         # Must output the junction exon triples
         logger = logging.getLogger('outrigger.index')
 
+
         if not os.path.exists(self.output):
             os.mkdir(self.output)
+
+        index_folder = os.path.join(self.output, 'index')
+        if not os.path.exists(index_folder):
+            os.mkdir(index_folder)
 
         if self.debug:
             logger.setLevel(10)
