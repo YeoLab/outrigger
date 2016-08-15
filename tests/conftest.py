@@ -9,13 +9,31 @@ import pytest
 @pytest.fixture
 def data_folder():
     """Absolute path to where test data is stored"""
-    return os.path.join(os.path.abspath(os.path.dirname(__file__)), 'data')
+    return os.path.join(os.path.abspath(os.path.dirname(__file__)),
+                        '../test_data')
 
 
 @pytest.fixture
-def treutlein():
-    """Suffix for data created from Treutlein et al, 2014 (Nature) paper"""
-    return 'treutlein2014'
+def tasic2016(data_folder):
+    """Suffix for data created from Tasic et al, Nat Neurosci (2016)"""
+    return os.path.join(data_folder, 'tasic2016')
+
+
+@pytest.fixture
+def tasic2016_unprocessed(tasic2016):
+    """Suffix for raw data created from Tasic et al, Nat Neurosci (2016)"""
+    return os.path.join(tasic2016, 'unprocessed')
+
+@pytest.fixture
+def tasic2016_intermediate(tasic2016):
+    """Suffix for intermediate files from Tasic et al Nat Neurosci (2016)"""
+    return os.path.join(tasic2016, 'intermediate')
+
+
+@pytest.fixture
+def tasic2016_outrigger_output(tasic2016):
+    """Suffix for outrigger_output files from Tasic et al Nat Neurosci (2016)"""
+    return os.path.join(tasic2016, 'outrigger_output')
 
 
 @pytest.fixture(params=['positive', 'negative'])
@@ -26,33 +44,15 @@ def strand(request):
         return '-'
 
 
-# - Input/Output (IO) test data folders - #
 @pytest.fixture
-def io_folder(data_folder):
-    return os.path.join(data_folder, 'io')
-
-
-# -- IO: STAR SJ.out tab folders -- #
-@pytest.fixture
-def star_folder(io_folder):
-    return os.path.join(io_folder, 'star')
-
-
-@pytest.fixture
-def treutlein_star(star_folder, treutlein):
-    return os.path.join(star_folder, treutlein)
-
-
-@pytest.fixture
-def sj_filenames(treutlein_star):
-    globber = os.path.join(treutlein_star, 'sj_out_tab', '*SJ.out.tab')
+def sj_filenames(tasic2016_unprocessed):
+    globber = os.path.join(tasic2016_unprocessed, 'sj_out_tab', '*SJ.out.tab')
     return glob.glob(globber)
 
 
 @pytest.fixture
-def splice_junctions(treutlein_star):
-    filename = os.path.join(treutlein_star,
-                            'splice_junctions_multimappingFalse.csv')
+def splice_junctions(tasic2016_outrigger_output):
+    filename = os.path.join(tasic2016_outrigger_output, 'junction_reads.csv')
     return pd.read_csv(filename)
 
 
@@ -108,3 +108,9 @@ def treutlein_adjacencies(adjacencies_folder, treutlein):
 @pytest.fixture
 def psi_folder(data_folder):
     return os.path.join(data_folder, 'psi')
+
+
+@pytest.fixture
+def snap25_exon():
+    """Exon1 of MXE event in SNAP25. Should be in the gffutils db"""
+    return 'exon:chr2:136763573-136763621:+'
