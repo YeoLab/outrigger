@@ -24,7 +24,9 @@ with warnings.catch_warnings():
     import pandas as pd
 
 OUTPUT = './outrigger_output'
-JUNCTION_READS_PATH = '{output}/junction_reads.csv'.format(output=OUTPUT)
+JUNCTION_PATH = '{output}/junctions'.format(output=OUTPUT)
+JUNCTION_READS_PATH = '{junctions}/reads.csv'.format(junctions=JUNCTION_PATH)
+JUNCTION_METADATA_PATH = '{junctions}/metadata.csv'.format(junctions=JUNCTION_PATH)
 INDEX = '{output}/index'.format(output=OUTPUT)
 
 
@@ -229,7 +231,7 @@ class Subcommand(object):
 
     output = OUTPUT
     sj_out_tab = None
-    junction_read_csv = None
+    junction_read_csv = JUNCTION_READS_PATH
     use_multimapping = False
     min_reads = MIN_READS
     gtf_filename = None
@@ -396,7 +398,13 @@ class Index(Subcommand):
             logger.setLevel(10)
 
         spliced_reads = self.csv()
+
         metadata = self.junction_metadata(spliced_reads)
+        metadata_csv = os.path.join(self.output, 'junctions', 'metadata.csv')
+        util.progress('Writing metadata of junctions to {csv}'
+                      ' ...'.format(csv=metadata_csv))
+        metadata.to_csv(metadata_csv, index=False)
+        util.done()
 
         db = self.maybe_make_db()
 
