@@ -182,11 +182,9 @@ class EventMaker(object):
                     exon2_i = self.exons.index(exon2.name)
                     exon3_i = self.exons.index(exon3.name)
 
-                    exon23_junction_i = self.graph.find(
+                    exon23_junction = list(self.graph.find(
                         V(exon2_i).upstream).intersection(
-                        V().upstream(exon3_i))
-                    exon23_junction = [self.items[i] for i in
-                                       set(exon23_junction_i)]
+                        V().upstream(exon3_i)))
                     if len(exon23_junction) > 0:
                         # Isoform 1 - corresponds to Psi=0. Exclusion of exon2
                         exon13_junction = self.junctions_between_exons(
@@ -245,7 +243,7 @@ class EventMaker(object):
                         exon4_i = (exon4_from2 & exon4_from3).pop()
                         exon4_name = self.items[exon4_i]
                         # Isoform 1 - corresponds to Psi=0. Inclusion of exon3
-                        exon13_junction = self.self.junctions_between_exons(
+                        exon13_junction = self.junctions_between_exons(
                             exon1_i, exon3_i)
 
                         exon34_junction = self.junctions_between_exons(
@@ -260,15 +258,15 @@ class EventMaker(object):
                         exon_tuple = exon1_name, exon2.name, exon3.name, \
                             exon4_name
                         #             print exon12_junction.next()
-                        junctions = list(
+                        junctions_i = list(
                             itertools.chain(*[exon13_junction,
                                               exon34_junction,
                                               exon12_junction,
                                               exon24_junction]))
-                        junctions = [self.items[i] for i in junctions]
+                        junctions = [self.items[i] for i in junctions_i]
 
                         events[exon_tuple] = junctions
-                    except:
+                    except KeyError:
                         pass
         events = self.event_dict_to_df(events,
                                        exon_names=['exon1', 'exon2', 'exon3',
