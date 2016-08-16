@@ -2,7 +2,7 @@ import gffutils
 import pytest
 
 
-def test_create_db(gtf_filename, db, snap25_exon):
+def test_create_db(gtf_filename, db, snap25_exon_id):
     from outrigger.io import gtf
 
     true = db
@@ -27,5 +27,5 @@ def test_create_db(gtf_filename, db, snap25_exon):
                             'database')
 
     # SNAP25 should be in both the true and test databases
-    true[snap25_exon]
-    test[snap25_exon]
+    assert true[snap25_exon_id] is not None
+    assert test[snap25_exon_id] is not None

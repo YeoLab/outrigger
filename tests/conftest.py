@@ -101,6 +101,6 @@ def db(db_filename):
 
 
 @pytest.fixture
-def snap25_exon():
+def snap25_exon_id():
     """Exon1 of MXE event in SNAP25. Should be in the gffutils db"""
     return 'exon:chr2:136763573-136763621:+'

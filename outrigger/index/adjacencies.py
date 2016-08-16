@@ -114,7 +114,14 @@ class ExonJunctionAdjacencies(object):
         return {UPSTREAM: upstream_in_genome, DOWNSTREAM: downstream_in_genome}
 
     def _adjacent_junctions_single_exon(self, exon):
-        """Get junctions adjacent to this exon"""
+        """Get junctions adjacent to this exon
+
+        Parameters
+        ----------
+        exon : gffutils.Feature
+            An item in
+
+        """
         dfs = []
         adjacent_in_genome = self._junctions_genome_adjacent_to_exon(exon)
         adjacent_in_transcriptome = self._to_stranded_transcript_adjacency(
