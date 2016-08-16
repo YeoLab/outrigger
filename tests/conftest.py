@@ -1,3 +1,4 @@
+
 import glob
 import os
 
@@ -32,6 +33,26 @@ def simulated(data_folder):
 def simulated_unprocessed(simulated):
     """Suffix for raw simulated data"""
     return os.path.join(simulated, 'unprocessed')
+
+@pytest.fixture
+def simulated_outrigger_output(simulated):
+    """Suffix for simulated data outrigger output"""
+    return os.path.join(simulated, 'outrigger_output')
+
+@pytest.fixture
+def simulated_outrigger_index(simulated_outrigger_output):
+    """Suffix for simulated data splicing events"""
+    return os.path.join(simulated_outrigger_output, 'index')
+
+@pytest.fixture
+def simulated_outrigger_se(simulated_outrigger_index):
+    """Suffix for simulated data splicing events"""
+    return os.path.join(simulated_outrigger_index, 'se')
+
+@pytest.fixture
+def simulated_outrigger_mxe(simulated_outrigger_index):
+    """Suffix for simulated data splicing events"""
+    return os.path.join(simulated_outrigger_index, 'mxe')
 
 @pytest.fixture
 def tasic2016_sj_out_tab(tasic2016_unprocessed):

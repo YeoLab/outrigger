@@ -1,4 +1,6 @@
 import logging
+import os
+import re
 
 import pandas as pd
 import pandas.util.testing as pdt
@@ -8,6 +10,7 @@ from graphlite import connect, V
 
 logging.basicConfig(level=logging.DEBUG)
 
+from outrigger.index.events import EVENT_TYPES
 
 @pytest.fixture()
 def chrom():
@@ -205,60 +208,40 @@ class TestEventMaker(object):
 
         assert_graph_items_equal(test.graph, test.items, graph, items)
 
-    def test_skipped_exon(self, junction_aggregator, strand, capsys):
-        test = junction_aggregator.skipped_exon()
+    @pytest.fixture
+    def strand_name(self, strand):
+        if strand == '+':
+            return "positive"
+        else:
+            return "negative"
+
+    @pytest.fixture(params=EVENT_TYPES)
+    def splice_type(self, request):
+        """Possible splice types, returned with both long names and abbrevs"""
+        longname, abbrev = request.param
+        return longname, abbrev
+
+    @pytest.fixture
+    def events(self, strand_name, splice_type, simulated_outrigger_index):
+        longname, abbrev = splice_type
+        template = os.path.join(simulated_outrigger_index,
+                                abbrev, 'events_{}_strand.csv')
+        csv = template.format(strand_name)
+        return pd.read_csv(csv, index_col=0)
+
+    def test_finding_events(self, junction_aggregator, capsys, events,
+                           splice_type):
+        """Test finding SE and MXE events in one function"""
+        longname, abbrev = splice_type
+        test = getattr(junction_aggregator, longname)()
         out, err = capsys.readouterr()
         assert 'Trying out' in out
         assert 'exons tested' in out
         assert '%' in out
 
-        if strand == '+':
-            s = """exon1,exon2,exon3,junction12,junction23,junction13,exons,junctions,strand# noqa
-exon:chr1:150-175:+,exon:chr1:200-250:+,exon:chr1:300-350:+,junction:chr1:176-199:+,junction:chr1:251-299:+,junction:chr1:176-299:+,exon:chr1:150-175:+@exon:chr1:200-250:+@exon:chr1:300-350:+,junction:chr1:176-199:+@junction:chr1:251-299:+@junction:chr1:176-299:+,+# noqa
-exon:chr1:150-175:+,exon:chr1:225-250:+,exon:chr1:300-350:+,junction:chr1:176-224:+,junction:chr1:251-299:+,junction:chr1:176-299:+,exon:chr1:150-175:+@exon:chr1:225-250:+@exon:chr1:300-350:+,junction:chr1:176-224:+@junction:chr1:251-299:+@junction:chr1:176-299:+,+# noqa
-exon:chr1:150-175:+,exon:chr1:225-250:+,exon:chr1:400-425:+,junction:chr1:176-224:+,junction:chr1:251-399:+,junction:chr1:176-399:+,exon:chr1:150-175:+@exon:chr1:225-250:+@exon:chr1:400-425:+,junction:chr1:176-224:+@junction:chr1:251-399:+@junction:chr1:176-399:+,+# noqa
-exon:chr1:150-175:+,exon:chr1:225-275:+,exon:chr1:300-350:+,junction:chr1:176-224:+,junction:chr1:276-299:+,junction:chr1:176-299:+,exon:chr1:150-175:+@exon:chr1:225-275:+@exon:chr1:300-350:+,junction:chr1:176-224:+@junction:chr1:276-299:+@junction:chr1:176-299:+,+# noqa
-exon:chr1:150-175:+,exon:chr1:300-350:+,exon:chr1:400-425:+,junction:chr1:176-299:+,junction:chr1:351-399:+,junction:chr1:176-399:+,exon:chr1:150-175:+@exon:chr1:300-350:+@exon:chr1:400-425:+,junction:chr1:176-299:+@junction:chr1:351-399:+@junction:chr1:176-399:+,+# noqa
-exon:chr1:225-250:+,exon:chr1:300-350:+,exon:chr1:400-425:+,junction:chr1:251-299:+,junction:chr1:351-399:+,junction:chr1:251-399:+,exon:chr1:225-250:+@exon:chr1:300-350:+@exon:chr1:400-425:+,junction:chr1:251-299:+@junction:chr1:351-399:+@junction:chr1:251-399:+,+# noqa
-"""
-        else:
-            s = """exon1,exon2,exon3,junction12,junction23,junction13,exons,junctions,strand# noqa
-exon:chr1:300-350:-,exon:chr1:200-250:-,exon:chr1:150-175:-,junction:chr1:251-299:-,junction:chr1:176-199:-,junction:chr1:176-299:-,exon:chr1:300-350:-@exon:chr1:200-250:-@exon:chr1:150-175:-,junction:chr1:251-299:-@junction:chr1:176-199:-@junction:chr1:176-299:-,-# noqa
-exon:chr1:300-350:-,exon:chr1:225-250:-,exon:chr1:150-175:-,junction:chr1:251-299:-,junction:chr1:176-224:-,junction:chr1:176-299:-,exon:chr1:300-350:-@exon:chr1:225-250:-@exon:chr1:150-175:-,junction:chr1:251-299:-@junction:chr1:176-224:-@junction:chr1:176-299:-,-# noqa
-exon:chr1:300-350:-,exon:chr1:225-275:-,exon:chr1:150-175:-,junction:chr1:276-299:-,junction:chr1:176-224:-,junction:chr1:176-299:-,exon:chr1:300-350:-@exon:chr1:225-275:-@exon:chr1:150-175:-,junction:chr1:276-299:-@junction:chr1:176-224:-@junction:chr1:176-299:-,-# noqa
-exon:chr1:400-425:-,exon:chr1:225-250:-,exon:chr1:150-175:-,junction:chr1:251-399:-,junction:chr1:176-224:-,junction:chr1:176-399:-,exon:chr1:400-425:-@exon:chr1:225-250:-@exon:chr1:150-175:-,junction:chr1:251-399:-@junction:chr1:176-224:-@junction:chr1:176-399:-,-# noqa
-exon:chr1:400-425:-,exon:chr1:300-350:-,exon:chr1:150-175:-,junction:chr1:351-399:-,junction:chr1:176-299:-,junction:chr1:176-399:-,exon:chr1:400-425:-@exon:chr1:300-350:-@exon:chr1:150-175:-,junction:chr1:351-399:-@junction:chr1:176-299:-@junction:chr1:176-399:-,-# noqa
-exon:chr1:400-425:-,exon:chr1:300-350:-,exon:chr1:225-250:-,junction:chr1:351-399:-,junction:chr1:251-299:-,junction:chr1:251-399:-,exon:chr1:400-425:-@exon:chr1:300-350:-@exon:chr1:225-250:-,junction:chr1:351-399:-@junction:chr1:251-299:-@junction:chr1:251-399:-,-# noqa
-"""
-        true = pd.read_csv(six.StringIO(s), comment='#')
+        true = events.copy()
 
-        sort_by = ['exon1', 'exon2', 'exon3']
-        test = test.sort_values(by=sort_by)
-        true = true.sort_values(by=sort_by)
-
-        test.index = range(len(test))
-        true.index = range(len(true))
-
-        pdt.assert_frame_equal(test, true)
-
-    def test_mutually_exclusive_exon(self, junction_aggregator, strand,
-                                     capsys):
-        test = junction_aggregator.mutually_exclusive_exon()
-        out, err = capsys.readouterr()
-        assert 'Trying out' in out
-        assert 'exons tested' in out
-        assert '%' in out
-
-        if strand == '+':
-            s = """exon1,exon2,exon3,exon4,junction13,junction34,junction12,junction24,exons,junctions,strand# noqa
-exon:chr1:150-175:+,exon:chr1:225-250:+,exon:chr1:300-350:+,exon:chr1:400-425:+,junction:chr1:176-299:+,junction:chr1:351-399:+,junction:chr1:176-224:+,junction:chr1:251-399:+,exon:chr1:150-175:+@exon:chr1:225-250:+@exon:chr1:300-350:+@exon:chr1:400-425:+,junction:chr1:176-299:+@junction:chr1:351-399:+@junction:chr1:176-224:+@junction:chr1:251-399:+,+# noqa
-"""
-        else:
-            s = """exon1,exon2,exon3,exon4,junction13,junction34,junction12,junction24,exons,junctions,strand# noqa
-exon:chr1:400-425:-,exon:chr1:300-350:-,exon:chr1:225-250:-,exon:chr1:150-175:-,junction:chr1:251-399:-,junction:chr1:176-224:-,junction:chr1:351-399:-,junction:chr1:176-299:-,exon:chr1:400-425:-@exon:chr1:300-350:-@exon:chr1:225-250:-@exon:chr1:150-175:-,junction:chr1:251-399:-@junction:chr1:176-224:-@junction:chr1:351-399:-@junction:chr1:176-299:-,-# noqa
-"""
-        true = pd.read_csv(six.StringIO(s), comment='#')
-        sort_by = ['exon1', 'exon2', 'exon3', 'exon4']
+        sort_by = [x for x in true.columns if re.match('exon\d', x)]
         test = test.sort_values(by=sort_by)
         true = true.sort_values(by=sort_by)
 
@@ -360,38 +343,3 @@ def graph_items(exon_start_stop, transcripts, chrom, strand):
                         continue
     items = tuple(items)
     return graph, items
-
-
-class TestEventConsolidator(object):
-
-    @pytest.fixture
-    def se_events(self):
-        pass
-
-    @pytest.fixture
-    def mxe_events(self):
-        pass
-
-    def test_init(self):
-        pass
-
-    def test_get_isoform_transcripts(self):
-        pass
-
-    def test_get_attribute(self):
-        pass
-
-    def test_get_feature_attribute_with_value(self):
-        pass
-
-    def test_get_feature_attribute_startswith_value(self):
-        pass
-
-    def test_consolidated_series_to_dataframe(self):
-        pass
-
-    def test_consolidate_junction_events(self):
-        pass
-
-    def consolidate(self):
-        pass
