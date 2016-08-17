@@ -8,6 +8,7 @@ import itertools
 import gffutils
 import pandas as pd
 
+from outrigger.index.events import EVENT_ID_COLUMN
 from outrigger.index.region import Region
 from outrigger.io.common import STRAND
 
@@ -95,7 +96,7 @@ class SplicingAnnotator(object):
                     intersection = set(value) & other_values
                     if len(intersection) > 0:
                         attributes[key] = ','.join(sorted(list(intersection)))
-                attributes = pd.Series(attributes, name=row['exons'])
+                attributes = pd.Series(attributes, name=row[EVENT_ID_COLUMN])
                 attributes.index = isoform + '_' + attributes.index
                 lines.append(attributes)
         return pd.concat(lines, axis=1).T
@@ -121,5 +122,5 @@ class SplicingAnnotator(object):
 
         regions = [x for x in df if x.endswith('_region')]
         df = df.drop(regions, axis=1)
-        df.index = self.events['exons']
+        df.index = self.events[EVENT_ID_COLUMN]
         return df

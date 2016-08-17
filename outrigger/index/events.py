@@ -24,7 +24,7 @@ ISOFORM_COMPONENTS = {'se': {'isoform1': ('junction13',),
                              'isoform2': ('junction12', 'exon2', 'junction24')
                              }
                       }
-
+EVENT_ID_COLUMN = 'event_id'
 
 def stringify_location(chrom, start, stop, strand, region=None):
     """"""
@@ -112,7 +112,7 @@ class EventMaker(object):
 
     def add_event_id_col(self, events, splice_type):
         isoform_components = ISOFORM_COMPONENTS[splice_type]
-        events['event_id'] = events.apply(
+        events[EVENT_ID_COLUMN] = events.apply(
             lambda x: '|'.join('{}={}'.format(isoform,
                                       '@'.join(isoform_components[isoform]))
                        for isoform in ISOFORM_ORDER), axis=1)
