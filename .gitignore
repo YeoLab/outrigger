@@ -8,6 +8,9 @@
 # IPython
 .ipynb_checkpoints
 
+# Force ignore all notebooks unless explcitly added
+.ipynb
+
 *.py[cod]
 
 # C extensions
