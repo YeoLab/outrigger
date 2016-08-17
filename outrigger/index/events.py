@@ -2,16 +2,14 @@ import itertools
 import logging
 
 import graphlite
-from graphlite import V
 import numpy as np
 import pandas as pd
+from graphlite import V
 
-from .region import Region
+from outrigger.region import Region
 from .adjacencies import UPSTREAM, DOWNSTREAM, DIRECTIONS
-
 from ..io.common import STRAND
 from ..util import progress
-
 
 EVENT_TYPES = (('skipped_exon', 'se'), ('mutually_exclusive_exon', 'mxe'))
 
@@ -52,7 +50,7 @@ class EventMaker(object):
             exon1, upstream, junction12
 
         db : gffutils.FeatureDB
-            Gffutils Database of gene, transcript, and exon features. The exons
+            Gffutils Database of gene, transcript, and exon features. The exon_cols
             must be accessible by the id provided on the `exon_col`
             columns. If not provided, certain splice types which require
             information about the transcript (AFE, ALE) cannot be annotated.
@@ -93,19 +91,19 @@ class EventMaker(object):
 
     def _maybe_print_exon_progress(self, i):
         if (i + 1) % self.exon_progress_interval == 0:
-            progress('\t{0}/{1} exons tested ({2:.1f}%)'.format(
+            progress('\t{0}/{1} exon_cols tested ({2:.1f}%)'.format(
                 i + 1, self.n_exons, 100 * (i + 1) / float(self.n_exons)))
 
     def event_dict_to_df(self, events, exon_names, junction_names):
         columns = list(exon_names) + list(junction_names) \
-                  + ['exons', 'junctions']
+                  + ['exon_cols', 'junctions']
         data = pd.DataFrame(index=np.arange(len(events)), columns=columns)
         for i, (exons, junctions) in enumerate(events.items()):
             exon_ids = '@'.join(exons)
             junction_ids = '@'.join(junctions)
             data.loc[i, exon_names] = list(exons)
             data.loc[i, junction_names] = list(junctions)
-            data.loc[i, 'exons'] = exon_ids
+            data.loc[i, 'exon_cols'] = exon_ids
             data.loc[i, 'junctions'] = junction_ids
             data.loc[i, STRAND] = exons[0][-1]
         return data
@@ -116,23 +114,24 @@ class EventMaker(object):
             lambda x: '|'.join('{}={}'.format(isoform,
                                       '@'.join(isoform_components[isoform]))
                        for isoform in ISOFORM_ORDER), axis=1)
+        events = events.set_index(EVENT_ID_COLUMN)
         return events
 
     def exons_one_junction_downstream(self, exon_i):
         """Get the exon(s) that are immediately downstream of this one
 
-        Get exons that are downstream from this one, separated by one junction
+        Get exon_cols that are downstream from this one, separated by one junction
 
         Parameters
         ----------
         exon_i : int
-            Integer identifier of the exon whose downstream exons you want.
-            This is the exon's index location in self.exons
+            Integer identifier of the exon whose downstream exon_cols you want.
+            This is the exon's index location in self.exon_cols
 
         Returns
         -------
         downstream_exons : graphlite.Query
-            Integer identfiers of exons which are one junction downstream
+            Integer identfiers of exon_cols which are one junction downstream
             of the provided one
         """
         return self.graph.find(
@@ -141,18 +140,18 @@ class EventMaker(object):
     def exons_one_junction_upstream(self, exon_query):
         """Get the exon(s) that are immediately upstream of this one
 
-        Get exons that are upstream from this one, separated by one junction
+        Get exon_cols that are upstream from this one, separated by one junction
 
         Parameters
         ----------
         exon_query : graphlite.Query
-            Integer identifier of the exon whose upstream exons you want.
-            This is the exon's index location in self.exons
+            Integer identifier of the exon whose upstream exon_cols you want.
+            This is the exon's index location in self.exon_cols
 
         Returns
         -------
         upstream_exons : graphlite.Query
-            Integer identfiers of exons which are one junction upstream
+            Integer identfiers of exon_cols which are one junction upstream
             of the provided one
         """
         return exon_query.traverse(V().downstream).traverse(
@@ -162,24 +161,25 @@ class EventMaker(object):
         """Get the exon(s) that are two junction hops downstream
 
         Go one exon downstream, then one more exon. This is all the 2nd level
-        exons
+        exon_cols
 
         Parameters
         ----------
         exon_i : int
-            Integer identifier of the exon whose downstream exons you want.
-            This is the exon's index location in self.exons
+            Integer identifier of the exon whose downstream exon_cols you want.
+            This is the exon's index location in self.exon_cols
 
         Returns
         -------
         downstream_exons : graphlite.Query
-            Integer identfiers of exons which are separated from the original
+            Integer identfiers of exon_cols which are separated from the original
             exon by a junction, exon, and another junction
         """
         return self.graph.find(V().downstream(exon_i)).traverse(
             V().upstream).traverse(V().upstream).traverse(V().upstream)
 
     def junctions_between_exons(self, exon_a, exon_b):
+        """Get the junctions between exonA and exonB"""
         return self.graph.find(
             V(exon_a).upstream) \
             .intersection(V(exon_b).downstream)
@@ -187,7 +187,7 @@ class EventMaker(object):
     def skipped_exon(self):
         events = {}
 
-        progress('Trying out {0} exons ...'.format(self.n_exons))
+        progress('Trying out {0} exon_cols ...'.format(self.n_exons))
         for exon1_i, exon1_name in enumerate(self.exons):
             self._maybe_print_exon_progress(exon1_i)
 
@@ -230,7 +230,7 @@ class EventMaker(object):
     def mutually_exclusive_exon(self):
         events = {}
 
-        progress('Trying out {0} exons ...'.format(self.n_exons))
+        progress('Trying out {0} exon_cols ...'.format(self.n_exons))
         for i, exon1_name in enumerate(self.exons):
             self._maybe_print_exon_progress(i)
 

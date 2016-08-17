@@ -4,13 +4,14 @@ to annotate alternative events.
 """
 
 import itertools
+import os
 
 import gffutils
 import pandas as pd
 
 from outrigger.index.events import EVENT_ID_COLUMN
-from outrigger.index.region import Region
 from outrigger.io.common import STRAND
+from outrigger.region import Region
 
 # Annotations from:
 # ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human/release_19/gencode.v19.annotation.gtf.gz
@@ -64,15 +65,21 @@ class SplicingAnnotator(object):
         self.events = events
         self.splice_type = splice_type
         self.isoform_exons = SPLICE_TYPE_ISOFORM_EXONS[self.splice_type]
-        self.exons = list(set(itertools.chain(*self.isoform_exons.values())))
-        self.exons.sort()
+        self.exon_cols = list(set(itertools.chain(*self.isoform_exons.values())))
+        self.exon_cols.sort()
+
+        # Make a dataframe with outrigger.Region objects
+        self.exon_regions = pd.DataFrame(index=self.events.index)
+        self.region_cols = ['{}_region'.format(x) for x in self.exon_cols]
+        for exon_col, region_col in zip(self.exon_cols, self.region_cols):
+            self.exon_regions[region_col] = self.events[exon_col].map(Region)
 
     def attributes(self):
         """Retrieve all GTF attributes for each isoform's event"""
 
         lines = []
 
-        for row_index, row in self.events.iterrows():
+        for event_id, row in self.events.iterrows():
             for isoform, exons in self.isoform_exons.items():
                 attributes = {}
 
@@ -96,22 +103,38 @@ class SplicingAnnotator(object):
                     intersection = set(value) & other_values
                     if len(intersection) > 0:
                         attributes[key] = ','.join(sorted(list(intersection)))
-                attributes = pd.Series(attributes, name=row[EVENT_ID_COLUMN])
+                attributes = pd.Series(attributes, name=event_id)
                 attributes.index = isoform + '_' + attributes.index
                 lines.append(attributes)
         return pd.concat(lines, axis=1).T
 
+    def exon_bedfiles(self, folder):
+        zero_based = self.exon_regions[self.region_cols].applymap(
+            lambda x: x.to_zero_based())
+        print(zero_based.head())
+
+        for region_col in self.region_cols:
+            column = zero_based[region_col]
+            lines = (region.to_bed_format(event_id)
+                     for event_id, region  in column.iteritems())
+
+            exon_name = region_col.split('_')[0]
+            basename = exon_name + '.bed'
+            filename = os.path.join(folder, basename)
+            with open(filename, 'w') as f:
+                f.write('\n'.join(lines))
+
     def lengths(self):
         """Retrieve exon and intron lengths for an event"""
-        df = pd.DataFrame(index=self.events.index)
+        df = self.exon_regions.copy()
 
-        for exon_col in self.exons:
-            regions = '{}_region'.format(exon_col)
-            df[regions] = self.events[exon_col].map(Region)
-            df['{}_length'.format(exon_col)] = df[regions].map(len)
+        for exon_col in self.exon_cols:
+            region = '{}_region'.format(exon_col)
+            df['{}_length'.format(exon_col)] = \
+                df[region].map(len)
 
-        first_exon = '{}_region'.format(self.exons[0])
-        last_exon = '{}_region'.format(self.exons[-1])
+        first_exon = '{}_region'.format(self.exon_cols[0])
+        last_exon = '{}_region'.format(self.exon_cols[-1])
         positive = self.events[STRAND] == '+'
         df.loc[positive, 'intron_length'] = \
             df.loc[positive].apply(
@@ -122,5 +145,4 @@ class SplicingAnnotator(object):
 
         regions = [x for x in df if x.endswith('_region')]
         df = df.drop(regions, axis=1)
-        df.index = self.events[EVENT_ID_COLUMN]
         return df

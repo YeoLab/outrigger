@@ -94,3 +94,29 @@ class Region(object):
                 return True
         else:
             return False
+
+    def to_zero_based(self):
+        """Convert genome coordinates to 0-based
+
+        Assumes that this event is one-based.
+        """
+        region = self.region
+        chrom = self.chrom
+        start = self.start - 1
+        stop = self.stop
+        strand = self.strand
+
+        base = '{chrom}:{start}-{stop}:{strand}'.format(
+            chrom=chrom, start=start, stop=stop, strand=strand)
+
+        if region is not None:
+            base = '{region}:{base}'.format(region=region, base=base)
+        return Region(base)
+
+    def to_bed_format(self, name=None):
+        name = self.__repr__() if name is None else name
+
+        s = '{chrom}\t{start}\t{stop}\t{name}\t{score}\t{strand}'.format(
+            chrom=self.chrom, start=self.start, stop=self.stop, name=name,
+            score='.', strand=self.strand)
+        return s

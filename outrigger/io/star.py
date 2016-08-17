@@ -76,10 +76,10 @@ def read_sj_out_tab(filename):
     #     lambda x: NEG_STRAND_INTRON_MOTIF[x])
     sj.annotated = sj.annotated.astype(bool)
 
-    # From STAR, exons start one base pair down from the end of the intron
+    # From STAR, exon_cols start one base pair down from the end of the intron
     sj[EXON_START] = sj[JUNCTION_STOP] + 1
 
-    # From STAR, exons stop one base pair up from the start of the intron
+    # From STAR, exon_cols stop one base pair up from the start of the intron
     sj[EXON_STOP] = sj[JUNCTION_START] - 1
 
     sj[JUNCTION_ID] = 'junction:' + sj.chrom.astype(str) + ':' \

@@ -56,19 +56,19 @@ def exons_to_junctions():
 
 @pytest.fixture
 def junction12():
-    """Junction between exons 1 and 2"""
+    """Junction between exon_cols 1 and 2"""
     return "junction:chr1:176-224:+"
 
 
 @pytest.fixture
 def junction23():
-    """Junction between exons 2 and 3"""
+    """Junction between exon_cols 2 and 3"""
     return 'junction:chr1:251-299:+'
 
 
 @pytest.fixture
 def junction13():
-    """Junction between exons 1 and 3"""
+    """Junction between exon_cols 1 and 3"""
     return 'junction:chr1:176-299:+'
 
 

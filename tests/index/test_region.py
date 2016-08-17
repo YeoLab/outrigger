@@ -14,7 +14,7 @@ def location_with_region_name():
 class TestRegion(object):
 
     def test___init(self, location):
-        from outrigger.index.region import Region
+        from outrigger.region import Region
 
         r = Region(location)
 
@@ -26,7 +26,7 @@ class TestRegion(object):
         assert r.name == location
 
     def test___init_region_name(self, location_with_region_name):
-        from outrigger.index.region import Region
+        from outrigger.region import Region
 
         r = Region(location_with_region_name)
         assert r.region == 'junction'
@@ -38,12 +38,12 @@ class TestRegion(object):
 
     @pytest.mark.xfail
     def test___init_start_larger_than_stop(self):
-        from outrigger.index.region import Region
+        from outrigger.region import Region
 
         Region('chr1:200-100:+')
 
     def test__start(self, location):
-        from outrigger.index.region import Region
+        from outrigger.region import Region
 
         r = Region(location)
 
@@ -51,7 +51,7 @@ class TestRegion(object):
         assert r._start == true__start
 
     def test__stop(self, location):
-        from outrigger.index.region import Region
+        from outrigger.region import Region
 
         r = Region(location)
 
@@ -59,14 +59,14 @@ class TestRegion(object):
         assert r._stop == true__stop
 
     def test___len(self, location):
-        from outrigger.index.region import Region
+        from outrigger.region import Region
 
         r = Region(location)
 
         assert len(r) == 101
 
     def test___str(self, location):
-        from outrigger.index.region import Region
+        from outrigger.region import Region
 
         r = Region(location)
 
@@ -74,7 +74,7 @@ class TestRegion(object):
         assert str(r) == true
 
     def test___str_with_region_name(self, location_with_region_name):
-        from outrigger.index.region import Region
+        from outrigger.region import Region
 
         r = Region(location_with_region_name)
 
@@ -82,7 +82,7 @@ class TestRegion(object):
         assert str(r) == true
 
     def test___eq(self, location_with_region_name):
-        from outrigger.index.region import Region
+        from outrigger.region import Region
 
         r1 = Region(location_with_region_name)
         r2 = Region(location_with_region_name)
@@ -90,14 +90,14 @@ class TestRegion(object):
         assert r1 == r2
 
     def test___eq_not_region(self, location_with_region_name):
-        from outrigger.index.region import Region
+        from outrigger.region import Region
 
         r1 = Region(location_with_region_name)
 
         assert not r1 == location_with_region_name
 
     def test___neq(self, location_with_region_name, location):
-        from outrigger.index.region import Region
+        from outrigger.region import Region
 
         r1 = Region(location_with_region_name)
         r2 = Region(location)
@@ -105,7 +105,7 @@ class TestRegion(object):
         assert r1.__neq__(r2)
 
     def test_overlaps_true(self, location_with_region_name, location):
-        from outrigger.index.region import Region
+        from outrigger.region import Region
 
         r1 = Region(location_with_region_name)
         r2 = Region(location)
@@ -114,7 +114,7 @@ class TestRegion(object):
         assert r2.overlaps(r1)
 
     def test_overlaps_false_same_chrom(self, location):
-        from outrigger.index.region import Region
+        from outrigger.region import Region
 
         r1 = Region(location)
         r2 = Region('chr1:400-500:-')
@@ -123,7 +123,7 @@ class TestRegion(object):
         assert not r2.overlaps(r1)
 
     def test_overlaps_false_different_chrom(self, location):
-        from outrigger.index.region import Region
+        from outrigger.region import Region
 
         r1 = Region(location)
         r2 = Region('chr2:400-500:-')

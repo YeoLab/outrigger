@@ -14,12 +14,12 @@ DIRECTIONS = UPSTREAM, DOWNSTREAM
 
 
 class ExonJunctionAdjacencies(object):
-    """Annotate junctions with neighboring exons (upstream or downstream)"""
+    """Annotate junctions with neighboring exon_cols (upstream or downstream)"""
 
     def __init__(self, metadata, db, junction_id=JUNCTION_ID,
                  exon_start=EXON_START, exon_stop=EXON_STOP,
                  chrom=CHROM, strand=STRAND):
-        """Initialize class to get upstream/downstream exons of junctions
+        """Initialize class to get upstream/downstream exon_cols of junctions
 
         Parameters
         ----------
@@ -139,7 +139,7 @@ class ExonJunctionAdjacencies(object):
             return pd.DataFrame()
 
     def neighboring_exons(self):
-        """Get upstream and downstream exons of each junction
+        """Get upstream and downstream exon_cols of each junction
 
         The "upstream" and "downstream" is relative to the **junction**, e.g.
 
@@ -149,7 +149,7 @@ class ExonJunctionAdjacencies(object):
         should be read as "exonA is upstream of juction X" and "exonB is
         downstream of junctionX"
 
-        Use junctions defined in ``sj_metadata`` and exons in ``db`` to create
+        Use junctions defined in ``sj_metadata`` and exon_cols in ``db`` to create
         triples of (exon, direction, junction), which are read like
         (subject, object, verb) e.g. ('exon1', 'upstream', 'junction12'), for
         creation of a graph database.
@@ -181,10 +181,10 @@ class ExonJunctionAdjacencies(object):
         dfs = []
 
         progress('Starting annotation of all junctions with known '
-                 'neighboring exons ...')
+                 'neighboring exon_cols ...')
         for i, exon in enumerate(self.db.features_of_type('exon')):
             if (i + 1) % 10000 == 0:
-                progress('\t{}/{} exons completed'.format(i + 1, n_exons))
+                progress('\t{}/{} exon_cols completed'.format(i + 1, n_exons))
             df = self._adjacent_junctions_single_exon(exon)
             dfs.append(df)
         junction_exon_triples = pd.concat(dfs, ignore_index=True)

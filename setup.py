@@ -25,7 +25,7 @@ setup(
     name='outrigger',
     version='0.1.0',
     description="Outrigger is a tool to de novo annotate splice sites "
-                "and exons",
+                "and exon_cols",
     long_description=readme + '\n\n' + history,
     author="Olga Botvinnik",
     author_email='olga.botvinnik@gmail.com',

@@ -57,14 +57,14 @@ class CommandLine(object):
         junctions.add_argument(
             '-j', '--sj-out-tab', type=str, action='store',
             nargs='*', help='SJ.out.tab files from STAR aligner output')
-        junctions.add_argument(
-            '-c', '--junction-reads-csv',
-            help="Name of the splice junction files to calculate psi scores "
-                 "on. If not provided, the compiled '{sj_csv}' file with all"
-                 " the samples from the SJ.out.tab files that were used "
-                 "during 'outrigger index' will be used. Not required if you "
-                 "specify SJ.out.tab file with '--sj-out-tab'".format(
-                        sj_csv=JUNCTION_READS_PATH))
+        # junctions.add_argument(
+        #     '-c', '--junction-reads-csv',
+        #     help="Name of the splice junction files to calculate psi scores "
+        #          "on. If not provided, the compiled '{sj_csv}' file with all"
+        #          " the samples from the SJ.out.tab files that were used "
+        #          "during 'outrigger index' will be used. Not required if you "
+        #          "specify SJ.out.tab file with '--sj-out-tab'".format(
+        #                 sj_csv=JUNCTION_READS_PATH))
         index_parser.add_argument('-m', '--min-reads', type=int,
                                   action='store',
                                   required=False, default=10,
@@ -127,14 +127,14 @@ class CommandLine(object):
                                      'you called "outrigger index")'.format(INDEX))
         splice_junctions = psi_parser.add_mutually_exclusive_group(
             required=False)
-        splice_junctions.add_argument(
-            '-c', '--junction-reads-csv', required=False,
-            help="Name of the splice junction files to calculate psi scores "
-                 "on. If not provided, the compiled '{sj_csv}' file with all "
-                 "the samples from the SJ.out.tab files that were used during "
-                 "'outrigger index' will be used. Not required if you specify "
-                 "SJ.out.tab file with '--sj-out-tab'".format(
-                        sj_csv=JUNCTION_READS_PATH))
+        # splice_junctions.add_argument(
+        #     '-c', '--junction-reads-csv', required=False,
+        #     help="Name of the splice junction files to calculate psi scores "
+        #          "on. If not provided, the compiled '{sj_csv}' file with all "
+        #          "the samples from the SJ.out.tab files that were used during "
+        #          "'outrigger index' will be used. Not required if you specify "
+        #          "SJ.out.tab file with '--sj-out-tab'".format(
+        #                 sj_csv=JUNCTION_READS_PATH))
         splice_junctions.add_argument(
             '-j', '--sj-out-tab', required=False,
             type=str, action='store', nargs='*',
@@ -244,6 +244,10 @@ class Subcommand(object):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
+    @property
+    def index(self):
+        self.index = os.path.join(self.output, 'index')
+
     def csv(self):
         """Create a csv file of compiled splice junctions"""
 
@@ -294,7 +298,7 @@ class Index(Subcommand):
         return metadata
 
     def make_exon_junction_adjacencies(self, metadata, db):
-        """Get annotated exons next to junctions in data"""
+        """Get annotated exon_cols next to junctions in data"""
         util.progress('Getting junction-direction-exon triples for graph '
                       'database ...')
         exon_junction_adjacencies = adjacencies.ExonJunctionAdjacencies(
@@ -361,6 +365,13 @@ class Index(Subcommand):
                 splice_type=splice_type.upper()))
 
         sa = gtf.SplicingAnnotator(db, event_df, splice_type.upper())
+        util.progress('Making ".bed" files for exons in each event ...')
+        folder = os.path.join(self.output, 'index', splice_type)
+        if not os.path.exists(folder):
+            os.mkdir(folder)
+        sa.exon_bedfiles(folder=folder)
+        util.done()
+
         attributes = sa.attributes()
         util.done()
         util.progress('Getting exon and intron lengths of alternative '
