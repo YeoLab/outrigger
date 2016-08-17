@@ -390,7 +390,7 @@ class Index(Subcommand):
                            *['index', splice_type, 'metadata.csv'])
         util.progress('Writing {splice_type} metadata to {csv} '
                       '...'.format(splice_type=splice_type.upper(), csv=csv))
-        metadata.to_csv(csv, index=False)
+        metadata.to_csv(csv, index=True, index_label=events.EVENT_ID_COLUMN)
         util.done()
 
     def execute(self):
