@@ -200,8 +200,6 @@ class CommandLine(object):
         method will write out an error string (str), then terminate execution
         of the program.
         '''
-        import sys
-
         sys.stderr.write(str)
         self.parser.print_usage()
         type, value, tb = sys.exc_info()
@@ -299,10 +297,16 @@ class Index(Subcommand):
 
     def make_exon_junction_adjacencies(self, metadata, db):
         """Get annotated exon_cols next to junctions in data"""
-        util.progress('Getting junction-direction-exon triples for graph '
-                      'database ...')
         exon_junction_adjacencies = adjacencies.ExonJunctionAdjacencies(
             metadata, db)
+
+        util.progress('Detecting de novo exons based on gaps between '
+                      'junctions ...')
+        exon_junction_adjacencies.detect_exons_from_junctions()
+        util.done()
+
+        util.progress('Getting junction-direction-exon triples for graph '
+                      'database ...')
         junction_exon_triples = exon_junction_adjacencies.neighboring_exons()
         util.done()
 
@@ -424,6 +428,7 @@ class Index(Subcommand):
 
         event_maker = self.make_graph(junction_exon_triples, db=db)
         self.make_events_by_traversing_graph(event_maker, db)
+        import pdb; pdb.set_trace()
 
 
 class Psi(Subcommand):

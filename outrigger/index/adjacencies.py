@@ -1,10 +1,15 @@
 """
 Find exons adjacent to junctions
 """
+import itertools
+import sqlite3
+import sys
 
+import gffutils
 import pandas as pd
 
 from ..io.common import JUNCTION_ID, EXON_START, EXON_STOP, CHROM, STRAND
+from ..region import Region, STRANDS
 from ..util import done, progress
 
 
@@ -18,7 +23,7 @@ class ExonJunctionAdjacencies(object):
 
     def __init__(self, metadata, db, junction_id=JUNCTION_ID,
                  exon_start=EXON_START, exon_stop=EXON_STOP,
-                 chrom=CHROM, strand=STRAND):
+                 chrom=CHROM, strand=STRAND, max_de_novo_exon_nt=100):
         """Initialize class to get upstream/downstream exon_cols of junctions
 
         Parameters
@@ -50,6 +55,107 @@ class ExonJunctionAdjacencies(object):
         self.strand = strand
 
         self.db = db
+
+        self.max_de_novo_exon_nt = max_de_novo_exon_nt
+
+    def detect_exons_from_junctions(self):
+        """Find exons based on gaps in junctions"""
+        # import pdb; pdb.set_trace()
+        junctions = pd.Series(self.metadata.index.map(Region),
+                              name='region', index=self.metadata.index)
+        junctions = junctions.to_frame()
+        junctions['chrom'] = junctions['region'].map(lambda x: x.chrom)
+
+        for chrom, df in junctions.groupby('chrom'):
+            junction_pairs = itertools.combinations(df.iterrows(), 2)
+            for (name1, row1), (name2, row2) in junction_pairs:
+                junction1 = row1['region']
+                junction2 = row2['region']
+
+                start1, stop1 = junction1.start, junction1.stop
+                start2, stop2 = junction2.start, junction2.stop
+                strand1, strand2 = junction1.strand, junction2.strand
+
+
+                if strand1 != strand2:
+                    strand = None
+                else:
+                    strand = strand1
+
+                start, stop = self.is_there_an_exon_here(junction1, junction2)
+                if start:
+                    progress('Found new exon between '
+                             '{} and {}'.format(str(junction1),
+                                                str(junction2)))
+                    self.add_exon_to_db(chrom, start=start, stop=stop,
+                                        strand=strand)
+
+    def is_there_an_exon_here(self, junction1, junction2):
+        """Check if there could be an exon between these two junctions
+
+        Parameters
+        ----------
+        junction{1,2} : outrigger.Region
+            Outrigger.Region objects
+        """
+        if junction1.overlaps(junction2):
+            return False, False
+        #
+        # if junction1.chrom == 'chr10':
+        #     import pdb;
+        #     pdb.set_trace()
+
+
+        myl6_junction = 'junction:chr10:128491033-128491719:-'
+        if junction1 == myl6_junction or junction2 == myl6_junction:
+            import pdb;
+            pdb.set_trace()
+
+        # These are junction start/stops, not exon start/stops
+        # Move one nt upstream of starts for exon stops,
+        # and one nt downstream of stops for exon starts.
+        if abs(junction1.stop - junction2.start) < self.max_de_novo_exon_nt:
+            return junction1.stop + 1, junction2.start - 1
+        elif abs(junction2.stop - junction1.start) < self.max_de_novo_exon_nt:
+            return junction2.stop + 1, junction1.start - 1
+        return False, False
+
+
+    def add_exon_to_db(self, chrom, start, stop, strand):
+        if strand not in STRANDS:
+            strand = None
+        overlapping_genes = list(self.db.region(seqid=chrom, start=start,
+                                                end=stop, strand=strand,
+                                                featuretype='gene'))
+        if len(overlapping_genes) == 0:
+            return
+
+        exon_id = 'exon:{chrom}:{start}-{stop}:'.format(
+            chrom=chrom, start=start, stop=stop)
+        progress('\tFound novel exon at {}'.format(exon_id))
+
+        de_novo_exons = [gffutils.Feature(chrom, source='outrigger_de_novo',
+                                     featuretype='exon', start=start, end=stop,
+                                     strand=g.strand, id=exon_id + g.strand,
+                                     attributes=dict(g.attributes.items()))
+                         for g in overlapping_genes]
+
+        # Add all exons that aren't already there
+        # import pdb; pdb.set_trace()
+        for exon in de_novo_exons:
+            try:
+                self.db.update([exon])
+            except sqlite3.IntegrityError:
+                continue
+
+        exon_gene_pairs = itertools.product(de_novo_exons, overlapping_genes)
+        for exon, gene in exon_gene_pairs:
+            # Add the exon as a grandchild of the gene, since there's supposed
+            # to be a transcript as a level 1 child
+            progress('\tFound a novel exon ({}) in the gene {} '
+                     '({})'.format(exon.id, gene.id,
+                                   ','.join(gene.attributes['gene_name'])))
+            self.db.add_relation(parent=gene, child=exon, level=2)
 
     @staticmethod
     def _single_junction_exon_triple(direction_ind, direction, exon_id):

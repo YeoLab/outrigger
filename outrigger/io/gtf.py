@@ -111,7 +111,6 @@ class SplicingAnnotator(object):
     def exon_bedfiles(self, folder):
         zero_based = self.exon_regions[self.region_cols].applymap(
             lambda x: x.to_zero_based())
-        print(zero_based.head())
 
         for region_col in self.region_cols:
             column = zero_based[region_col]

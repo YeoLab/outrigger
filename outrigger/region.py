@@ -1,11 +1,14 @@
 """Define locations in the genome"""
 
 
+STRANDS = '+', '-'
+
 class Region(object):
 
     __slots__ = ('region', 'chrom', 'start', 'stop', 'strand')
 
-    def __init__(self, name):
+    def __init__(self, name=None, region=None, chrom=None, start=None,
+                 stop=None, strand=None):
         """A location in the genome
 
         Parameters
@@ -16,17 +19,17 @@ class Region(object):
                 - region:chrom:start-stop:strand, e.g. "exon:chr1:100-200:+"
             Start must always be smaller than stop.
         """
-        region = None
-        try:
-            region, chrom, startstop, strand = name.split(':')
-        except ValueError:
-            # There is no "region"
-            chrom, startstop, strand = name.split(':')
-        start, stop = map(int, startstop.split('-'))
-        if start > stop:
-            raise ValueError('Start ({0}) cannot be larger than stop'
-                             ' ({1})'.format(start, stop))
-
+        if name is not None:
+            region = None
+            try:
+                region, chrom, startstop, strand = name.split(':')
+            except ValueError:
+                # There is no "region"
+                chrom, startstop, strand = name.split(':')
+            start, stop = map(int, startstop.split('-'))
+            if start > stop:
+                raise ValueError('Start ({0}) cannot be larger than stop'
+                                 ' ({1})'.format(start, stop))
         self.region = region
         self.chrom = chrom
 
