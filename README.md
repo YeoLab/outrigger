@@ -337,3 +337,17 @@ outrigger/
 ├── psi.csv
 └── junction_reads.csv
 ```
+
+## For Developers
+
+How to run the code with the Python debugger. To run the command line functions
+such that when they break, you jump into the `pdb` (Python debugger), here is the code:
+
+```
+python -m pdb outrigger/commandline.py index \
+--sj-out-tab test_data/tasic2016/unprocessed/sj_out_tab/* \
+    --gtf test_data/tasic2016/unprocessed/gtf/gencode.vM10.annotation.snap25.myl6.gtf
+```
+
+Notice that you replace `outrigger` with `python -m pdb outrigger/commandline.py`,
+which is relative to this github directory.

@@ -72,10 +72,7 @@ class ExonJunctionAdjacencies(object):
                 junction1 = row1['region']
                 junction2 = row2['region']
 
-                start1, stop1 = junction1.start, junction1.stop
-                start2, stop2 = junction2.start, junction2.stop
                 strand1, strand2 = junction1.strand, junction2.strand
-
 
                 if strand1 != strand2:
                     strand = None
@@ -106,10 +103,10 @@ class ExonJunctionAdjacencies(object):
         #     pdb.set_trace()
 
 
-        myl6_junction = 'junction:chr10:128491033-128491719:-'
-        if junction1 == myl6_junction or junction2 == myl6_junction:
-            import pdb;
-            pdb.set_trace()
+        # myl6_junction = 'junction:chr10:128491033-128491719:-'
+        # if junction1 == myl6_junction or junction2 == myl6_junction:
+        #     import pdb;
+        #     pdb.set_trace()
 
         # These are junction start/stops, not exon start/stops
         # Move one nt upstream of starts for exon stops,
