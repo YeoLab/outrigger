@@ -111,8 +111,9 @@ class EventMaker(object):
     def add_event_id_col(self, events, splice_type):
         isoform_components = ISOFORM_COMPONENTS[splice_type]
         events[EVENT_ID_COLUMN] = events.apply(
-            lambda x: '|'.join('{}={}'.format(isoform,
-                                      '@'.join(isoform_components[isoform]))
+            lambda x: '|'.join(
+                '{}={}'.format(isoform, '@'.join(
+                    x[list(isoform_components[isoform])]))
                        for isoform in ISOFORM_ORDER), axis=1)
         events = events.set_index(EVENT_ID_COLUMN)
         return events

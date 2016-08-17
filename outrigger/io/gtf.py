@@ -121,8 +121,9 @@ class SplicingAnnotator(object):
             exon_name = region_col.split('_')[0]
             basename = exon_name + '.bed'
             filename = os.path.join(folder, basename)
+
             with open(filename, 'w') as f:
-                f.write('\n'.join(lines))
+                f.write('\n'.join(lines) + '\n')
 
     def lengths(self):
         """Retrieve exon and intron lengths for an event"""
