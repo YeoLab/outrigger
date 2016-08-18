@@ -120,6 +120,6 @@ class Region(object):
         name = self.__repr__() if name is None else name
 
         s = '{chrom}\t{start}\t{stop}\t{name}\t{score}\t{strand}'.format(
-            chrom=self.chrom, start=self.start, stop=self.stop, name=name,
+            chrom=self.chrom, start=self.start-1, stop=self.stop, name=name,
             score='.', strand=self.strand)
         return s

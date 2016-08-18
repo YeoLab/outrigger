@@ -5,6 +5,7 @@ import glob
 import logging
 import os
 import pdb
+import shutil
 import sys
 import traceback
 import warnings
@@ -57,14 +58,6 @@ class CommandLine(object):
         junctions.add_argument(
             '-j', '--sj-out-tab', type=str, action='store',
             nargs='*', help='SJ.out.tab files from STAR aligner output')
-        # junctions.add_argument(
-        #     '-c', '--junction-reads-csv',
-        #     help="Name of the splice junction files to calculate psi scores "
-        #          "on. If not provided, the compiled '{sj_csv}' file with all"
-        #          " the samples from the SJ.out.tab files that were used "
-        #          "during 'outrigger index' will be used. Not required if you "
-        #          "specify SJ.out.tab file with '--sj-out-tab'".format(
-        #                 sj_csv=JUNCTION_READS_PATH))
         index_parser.add_argument('-m', '--min-reads', type=int,
                                   action='store',
                                   required=False, default=10,
@@ -127,14 +120,6 @@ class CommandLine(object):
                                      'you called "outrigger index")'.format(INDEX))
         splice_junctions = psi_parser.add_mutually_exclusive_group(
             required=False)
-        # splice_junctions.add_argument(
-        #     '-c', '--junction-reads-csv', required=False,
-        #     help="Name of the splice junction files to calculate psi scores "
-        #          "on. If not provided, the compiled '{sj_csv}' file with all "
-        #          "the samples from the SJ.out.tab files that were used during "
-        #          "'outrigger index' will be used. Not required if you specify "
-        #          "SJ.out.tab file with '--sj-out-tab'".format(
-        #                 sj_csv=JUNCTION_READS_PATH))
         splice_junctions.add_argument(
             '-j', '--sj-out-tab', required=False,
             type=str, action='store', nargs='*',
@@ -244,7 +229,7 @@ class Subcommand(object):
 
     @property
     def index(self):
-        self.index = os.path.join(self.output, 'index')
+        return os.path.join(self.output, 'index')
 
     def csv(self):
         """Create a csv file of compiled splice junctions"""
@@ -267,18 +252,30 @@ class Subcommand(object):
     def maybe_make_db(self):
         """Get GFFutils database from file or create from a gtf"""
         if self.gffutils_db is not None:
-            util.progress('Reading gffutils database from {} ...\n'.format(
-                self.gffutils_db))
-            db = gffutils.FeatureDB(self.gffutils_db)
+            copied_db = os.path.join(self.index,
+                                     os.path.basename(self.gffutils_db))
+            util.progress('Copying gffutils database from {} to {} '
+                          '...'.format(self.gffutils_db, copied_db))
+            shutil.copyfile(self.gffutils_db, copied_db)
+            util.done()
+
+            util.progress('Reading gffutils database from {} ...'.format(
+                copied_db))
+            db = gffutils.FeatureDB(copied_db)
             util.done()
         else:
-            db_filename = '{}.db'.format(self.gtf_filename)
+            basename = os.path.basename(self.gtf_filename)
+            db_filename = os.path.join(self.index,  '{}.db'.format(basename))
+            util.progress("Found GTF file in {} ...".format(self.gtf_filename))
             try:
                 db = gffutils.FeatureDB(db_filename)
+                util.progress(
+                    "Found existing built outrigger-built gffutils database "
+                    "file in {}".format(self.gtf_filename))
             except ValueError:
                 util.progress(
                     'Creating a "gffutils" '
-                    'database {} ...\n'.format(db_filename))
+                    'database {}'.format(db_filename))
                 db = gtf.create_db(self.gtf_filename, db_filename)
                 util.done()
         return db

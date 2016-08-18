@@ -1,9 +1,9 @@
 """
 Find exons adjacent to junctions
 """
+import pprint
 import itertools
 import sqlite3
-import sys
 
 import gffutils
 import pandas as pd
@@ -94,14 +94,14 @@ class ExonJunctionAdjacencies(object):
         ----------
         junction{1,2} : outrigger.Region
             Outrigger.Region objects
+
+        Returns
+        -------
+        start, stop : (int, int) or (False, False)
+            Start and stop of the new exon if it exists, else False, False
         """
         if junction1.overlaps(junction2):
             return False, False
-        #
-        # if junction1.chrom == 'chr10':
-        #     import pdb;
-        #     pdb.set_trace()
-
 
         # myl6_junction = 'junction:chr10:128491033-128491719:-'
         # if junction1 == myl6_junction or junction2 == myl6_junction:
@@ -141,18 +141,19 @@ class ExonJunctionAdjacencies(object):
         # import pdb; pdb.set_trace()
         for exon in de_novo_exons:
             try:
-                self.db.update([exon])
+                pprint.pprint(dict(exon.attributes.items()))
+                try:
+                    gene_name = ','.join(exon.attributes['gene_name'])
+                except KeyError:
+                    gene_name = 'gene_name'
+                progress('\tFound a novel exon ({}) in the gene {} '
+                         '({})'.format(exon.id, exon.attributes['gene_id'],
+                                       gene_name))
+                self.db.update([exon], id_spec={'exon': 'location_id'},
+                               dbfn=':memory:')
             except sqlite3.IntegrityError:
                 continue
-
-        exon_gene_pairs = itertools.product(de_novo_exons, overlapping_genes)
-        for exon, gene in exon_gene_pairs:
-            # Add the exon as a grandchild of the gene, since there's supposed
-            # to be a transcript as a level 1 child
-            progress('\tFound a novel exon ({}) in the gene {} '
-                     '({})'.format(exon.id, gene.id,
-                                   ','.join(gene.attributes['gene_name'])))
-            self.db.add_relation(parent=gene, child=exon, level=2)
+        import pdb; pdb.set_trace()
 
     @staticmethod
     def _single_junction_exon_triple(direction_ind, direction, exon_id):
