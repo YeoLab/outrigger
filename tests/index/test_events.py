@@ -10,7 +10,7 @@ from graphlite import connect, V
 
 logging.basicConfig(level=logging.DEBUG)
 
-from outrigger.index.events import EVENT_TYPES
+from outrigger.index.events import SPLICE_TYPES
 
 @pytest.fixture()
 def chrom():
@@ -215,7 +215,7 @@ class TestEventMaker(object):
         else:
             return "negative"
 
-    @pytest.fixture(params=EVENT_TYPES)
+    @pytest.fixture(params=SPLICE_TYPES)
     def splice_type(self, request):
         """Possible splice types, returned with both long names and abbrevs"""
         longname, abbrev = request.param

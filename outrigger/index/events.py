@@ -11,7 +11,7 @@ from .adjacencies import UPSTREAM, DOWNSTREAM, DIRECTIONS
 from ..io.common import STRAND
 from ..util import progress
 
-EVENT_TYPES = (('skipped_exon', 'se'), ('mutually_exclusive_exon', 'mxe'))
+SPLICE_TYPES = (('skipped_exon', 'se'), ('mutually_exclusive_exon', 'mxe'))
 
 ISOFORM_ORDER = 'isoform1', 'isoform2'
 ISOFORM_COMPONENTS = {'se': {'isoform1': ('junction13',),
