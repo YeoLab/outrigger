@@ -3,8 +3,7 @@ import sys
 
 import pandas as pd
 
-from outrigger.util import timestamp
-
+from ..util import timestamp
 
 logging.basicConfig()
 
@@ -82,7 +81,7 @@ def maybe_get_isoform_reads(splice_junction_reads, junction_locations,
 
 def calculate_psi(event_annotation, splice_junction_reads,
                   isoform1_junctions, isoform2_junctions, reads_col='reads',
-                  min_reads=10, event_col='event_id', debug=False):
+                  min_reads=10, debug=False):
     """Compute percent-spliced-in of events based on junction reads
 
     Parameters
@@ -129,17 +128,35 @@ def calculate_psi(event_annotation, splice_junction_reads,
 
     sys.stdout.write('{}\t\tIterating over {} events ...\n'.format(
         timestamp(), event_annotation.shape[0]))
-    for i, row in event_annotation.iterrows():
+
+    # There are multiple rows with the same event id because the junctions
+    # are the same, but the flanking exons may be a little wider or shorter,
+    # but ultimately the event Psi is calculated only on the junctions so the
+    # flanking exons don't matter for this. But, because I'm really nice, all
+    # the exons are in exon\d.bed in the index! And you, the lovely user, can
+    # decide what you want to do with them!
+    grouped = event_annotation.groupby(level=0, axis=0)
+
+    n_events = len(grouped.size())
+
+    sys.stdout.write('{}\t\tIterating over {} events ...\n'.format(
+        timestamp(), n_events))
+
+    for i, (event_id, event_df) in enumerate(grouped):
         if (i+1) % 1000 == 0:
             sys.stdout.write('{}\t\t\t{} events completed\n'.format(
                 timestamp(), i))
-        isoform1 = maybe_get_isoform_reads(splice_junction_reads, row,
+        junction_locations = event_df.iloc[0]
+
+        isoform1 = maybe_get_isoform_reads(splice_junction_reads,
+                                           junction_locations,
                                            isoform1_junctions, reads_col)
-        isoform2 = maybe_get_isoform_reads(splice_junction_reads, row,
+        isoform2 = maybe_get_isoform_reads(splice_junction_reads,
+                                           junction_locations,
                                            isoform2_junctions, reads_col)
 
-        log.debug('--- junction columns of row ---\n%s',
-                  repr(row[junction_cols]))
+        log.debug('--- junction columns of event ---\n%s',
+                  repr(junction_locations[junction_cols]))
         log.debug('--- isoform1 ---\n%s', repr(isoform1))
         log.debug('--- isoform2 ---\n%s', repr(isoform2))
 
@@ -164,7 +181,7 @@ def calculate_psi(event_annotation, splice_junction_reads,
         multiplier = float(len(isoform2_junctions))/len(isoform1_junctions)
         psi = (isoform2)/(isoform2 + multiplier * isoform1)
         log.debug('--- Psi ---\n%s', repr(psi))
-        psi.name = row[event_col]
+        psi.name = event_id
         psis.append(psi)
     sys.stdout.write('{}\t\t\tDone.\n'.format(timestamp()))
 
