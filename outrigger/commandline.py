@@ -24,11 +24,11 @@ with warnings.catch_warnings():
     warnings.simplefilter("ignore")
     import pandas as pd
 
-OUTPUT = './outrigger_output'
-JUNCTION_PATH = '{output}/junctions'.format(output=OUTPUT)
-JUNCTION_READS_PATH = '{junctions}/reads.csv'.format(junctions=JUNCTION_PATH)
-JUNCTION_METADATA_PATH = '{junctions}/metadata.csv'.format(junctions=JUNCTION_PATH)
-INDEX = '{output}/index'.format(output=OUTPUT)
+OUTPUT = os.path.join('.', 'outrigger_output')
+JUNCTION_PATH = os.path.join(OUTPUT, 'junctions')
+JUNCTION_READS_PATH = os.path.join(JUNCTION_PATH, 'reads.csv')
+JUNCTION_METADATA_PATH = os.path.join(JUNCTION_PATH, 'metadata.csv')
+INDEX = os.path.join(OUTPUT, 'index')
 
 
 class CommandLine(object):
@@ -212,7 +212,7 @@ class Usage(Exception):
 
 class Subcommand(object):
 
-    output = OUTPUT
+    output_folder = OUTPUT
     sj_out_tab = None
     junction_read_csv = JUNCTION_READS_PATH
     use_multimapping = False
@@ -227,9 +227,29 @@ class Subcommand(object):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
+        self.folders = self.output_folder, self.index_folder, \
+                       self.gtf_folder, self.junctions_folder,
+
+        for folder in self.folders:
+            self.maybe_make_folder(folder)
+
+    def maybe_make_folder(self, folder):
+        util.progress("Creating folder {} ...".format(folder))
+        if not os.path.exists(folder):
+            os.mkdir(folder)
+        util.done()
+
     @property
-    def index(self):
-        return os.path.join(self.output, 'index')
+    def index_folder(self):
+        return os.path.join(self.output_folder, 'index')
+
+    @property
+    def gtf_folder(self):
+        return os.path.join(self.index_folder, 'gtf')
+
+    @property
+    def junctions_folder(self):
+        return os.path.join(self.index_folder, 'junctions')
 
     def csv(self):
         """Create a csv file of compiled splice junctions"""
@@ -252,7 +272,7 @@ class Subcommand(object):
     def maybe_make_db(self):
         """Get GFFutils database from file or create from a gtf"""
         if self.gffutils_db is not None:
-            copied_db = os.path.join(self.index,
+            copied_db = os.path.join(self.gtf_folder,
                                      os.path.basename(self.gffutils_db))
             util.progress('Copying gffutils database from {} to {} '
                           '...'.format(self.gffutils_db, copied_db))
@@ -265,7 +285,7 @@ class Subcommand(object):
             util.done()
         else:
             basename = os.path.basename(self.gtf_filename)
-            db_filename = os.path.join(self.index,  '{}.db'.format(basename))
+            db_filename = os.path.join(self.gtf_folder,  '{}.db'.format(basename))
             util.progress("Found GTF file in {} ...".format(self.gtf_filename))
             try:
                 db = gffutils.FeatureDB(db_filename)
@@ -302,12 +322,17 @@ class Index(Subcommand):
         exon_junction_adjacencies.detect_exons_from_junctions()
         util.done()
 
+        novel_exons_gtf = os.path.join(self.gtf_folder, 'novel_exons.gtf')
+        util.progress('Writing novel exons to {} ...'.format(novel_exons_gtf))
+        exon_junction_adjacencies.write_de_novo_exons(novel_exons_gtf)
+        util.done()
+
         util.progress('Getting junction-direction-exon triples for graph '
                       'database ...')
         junction_exon_triples = exon_junction_adjacencies.neighboring_exons()
         util.done()
 
-        csv = os.path.join(self.output, 'index',
+        csv = os.path.join(self.index_folder,
                            'junction_exon_direction_triples.csv')
         util.progress('Writing junction-exon-direction triples'
                       ' to {}...'.format(csv))
@@ -337,7 +362,7 @@ class Index(Subcommand):
             util.done()
 
             # Write to a file
-            csv = os.path.join(self.output, *['index', splice_abbrev.lower(),
+            csv = os.path.join(self.index_folder, *['index', splice_abbrev.lower(),
                                               'events.csv'])
             dirname = os.path.dirname(csv)
             if not os.path.exists(dirname):
@@ -367,7 +392,7 @@ class Index(Subcommand):
 
         sa = gtf.SplicingAnnotator(db, event_df, splice_type.upper())
         util.progress('Making ".bed" files for exons in each event ...')
-        folder = os.path.join(self.output, 'index', splice_type)
+        folder = os.path.join(self.index_folder, splice_type)
         if not os.path.exists(folder):
             os.mkdir(folder)
         sa.exon_bedfiles(folder=folder)
@@ -387,7 +412,7 @@ class Index(Subcommand):
         util.done()
 
         # Write to a file
-        csv = os.path.join(self.output,
+        csv = os.path.join(self.index_folder,
                            *['index', splice_type, 'metadata.csv'])
         util.progress('Writing {splice_type} metadata to {csv} '
                       '...'.format(splice_type=splice_type.upper(), csv=csv))
@@ -398,21 +423,13 @@ class Index(Subcommand):
         # Must output the junction exon triples
         logger = logging.getLogger('outrigger.index')
 
-
-        if not os.path.exists(self.output):
-            os.mkdir(self.output)
-
-        index_folder = os.path.join(self.output, 'index')
-        if not os.path.exists(index_folder):
-            os.mkdir(index_folder)
-
         if self.debug:
             logger.setLevel(10)
 
         spliced_reads = self.csv()
 
         metadata = self.junction_metadata(spliced_reads)
-        metadata_csv = os.path.join(self.output, 'junctions', 'metadata.csv')
+        metadata_csv = os.path.join(self.output_folder, 'junctions', 'metadata.csv')
         util.progress('Writing metadata of junctions to {csv}'
                       ' ...'.format(csv=metadata_csv))
         metadata.to_csv(metadata_csv, index=False)
@@ -425,7 +442,6 @@ class Index(Subcommand):
 
         event_maker = self.make_graph(junction_exon_triples, db=db)
         self.make_events_by_traversing_graph(event_maker, db)
-        import pdb; pdb.set_trace()
 
 
 class Psi(Subcommand):
@@ -482,7 +498,7 @@ class Psi(Subcommand):
         logger.debug('\n--- Splice Junction reads ---')
         logger.debug(repr(junction_reads.head()))
 
-        events_folder = os.path.join(self.index, 'events')
+        events_folder = os.path.join(self.index_folder, 'events')
         psis = []
         for filename in glob.iglob('{}/*.csv'.format(events_folder)):
             event_type = os.path.basename(filename).split('.csv')[0]
@@ -501,7 +517,7 @@ class Psi(Subcommand):
                 event_annotation, junction_reads,
                 min_reads=self.min_reads, debug=self.debug,
                 reads_col=self.reads_col, **isoform_junctions)
-            event_psi.to_csv(os.path.join(self.index,
+            event_psi.to_csv(os.path.join(self.index_folder,
                                           '{}_psi.csv'.format(event_type)))
             psis.append(event_psi)
             util.done()
@@ -511,7 +527,7 @@ class Psi(Subcommand):
         splicing = pd.concat(psis, axis=1)
         util.done()
         splicing = splicing.T
-        csv = os.path.join(self.index, 'psi.csv')
+        csv = os.path.join(self.index_folder, 'psi.csv')
         util.progress('Writing a samples x features matrix of Psi '
                       'scores to {} ...'.format(csv))
         splicing.to_csv(csv)

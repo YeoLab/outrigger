@@ -9,7 +9,6 @@ import os
 import gffutils
 import pandas as pd
 
-from outrigger.index.events import EVENT_ID_COLUMN
 from outrigger.io.common import STRAND
 from outrigger.region import Region
 

@@ -3,11 +3,13 @@ Find exons adjacent to junctions
 """
 import pprint
 import itertools
+import os
 import sqlite3
 
 import gffutils
 import pandas as pd
 
+from ..io.gtf import transform
 from ..io.common import JUNCTION_ID, EXON_START, EXON_STOP, CHROM, STRAND
 from ..region import Region, STRANDS
 from ..util import done, progress
@@ -16,10 +18,14 @@ from ..util import done, progress
 UPSTREAM = 'upstream'
 DOWNSTREAM = 'downstream'
 DIRECTIONS = UPSTREAM, DOWNSTREAM
+NOVEL_EXON = 'novel_exon'
+OUTRIGGER_DE_NOVO = 'outrigger_de_novo'
 
 
 class ExonJunctionAdjacencies(object):
     """Annotate junctions with neighboring exon_cols (upstream or downstream)"""
+
+    exon_types = 'exon', NOVEL_EXON
 
     def __init__(self, metadata, db, junction_id=JUNCTION_ID,
                  exon_start=EXON_START, exon_stop=EXON_STOP,
@@ -60,7 +66,6 @@ class ExonJunctionAdjacencies(object):
 
     def detect_exons_from_junctions(self):
         """Find exons based on gaps in junctions"""
-        # import pdb; pdb.set_trace()
         junctions = pd.Series(self.metadata.index.map(Region),
                               name='region', index=self.metadata.index)
         junctions = junctions.to_frame()
@@ -87,6 +92,12 @@ class ExonJunctionAdjacencies(object):
                     self.add_exon_to_db(chrom, start=start, stop=stop,
                                         strand=strand)
 
+    def write_de_novo_exons(self, filename='novel_exons.gtf'):
+        """Write all de novo exons to a gtf"""
+        with open(filename, 'w') as f:
+            for noveL_exon in self.db.features_of_type(NOVEL_EXON):
+                f.write(str(noveL_exon) + '\n')
+
     def is_there_an_exon_here(self, junction1, junction2):
         """Check if there could be an exon between these two junctions
 
@@ -102,11 +113,6 @@ class ExonJunctionAdjacencies(object):
         """
         if junction1.overlaps(junction2):
             return False, False
-
-        # myl6_junction = 'junction:chr10:128491033-128491719:-'
-        # if junction1 == myl6_junction or junction2 == myl6_junction:
-        #     import pdb;
-        #     pdb.set_trace()
 
         # These are junction start/stops, not exon start/stops
         # Move one nt upstream of starts for exon stops,
@@ -129,31 +135,27 @@ class ExonJunctionAdjacencies(object):
 
         exon_id = 'exon:{chrom}:{start}-{stop}:'.format(
             chrom=chrom, start=start, stop=stop)
-        progress('\tFound novel exon at {}'.format(exon_id))
 
-        de_novo_exons = [gffutils.Feature(chrom, source='outrigger_de_novo',
-                                     featuretype='exon', start=start, end=stop,
+        de_novo_exons = [gffutils.Feature(chrom, source=OUTRIGGER_DE_NOVO,
+                                     featuretype=NOVEL_EXON, start=start, end=stop,
                                      strand=g.strand, id=exon_id + g.strand,
                                      attributes=dict(g.attributes.items()))
                          for g in overlapping_genes]
 
         # Add all exons that aren't already there
-        # import pdb; pdb.set_trace()
         for exon in de_novo_exons:
             try:
-                pprint.pprint(dict(exon.attributes.items()))
                 try:
                     gene_name = ','.join(exon.attributes['gene_name'])
                 except KeyError:
-                    gene_name = 'gene_name'
+                    gene_name = 'unknown_gene'
                 progress('\tFound a novel exon ({}) in the gene {} '
                          '({})'.format(exon.id, exon.attributes['gene_id'],
                                        gene_name))
-                self.db.update([exon], id_spec={'exon': 'location_id'},
-                               dbfn=':memory:')
+                self.db.update([exon], id_spec={'novel_exon': 'location_id'},
+                               transform=transform)
             except sqlite3.IntegrityError:
                 continue
-        import pdb; pdb.set_trace()
 
     @staticmethod
     def _single_junction_exon_triple(direction_ind, direction, exon_id):
@@ -280,15 +282,15 @@ class ExonJunctionAdjacencies(object):
             A three-column dataframe describing the relationship of where an
             exon is relative to junctions
         """
-        n_exons = sum(1 for _ in self.db.features_of_type('exon'))
+        n_exons = sum(1 for _ in self.db.features_of_type(self.exon_types))
 
         dfs = []
 
         progress('Starting annotation of all junctions with known '
                  'neighboring exon_cols ...')
-        for i, exon in enumerate(self.db.features_of_type('exon')):
+        for i, exon in enumerate(self.db.features_of_type(self.exon_types)):
             if (i + 1) % 10000 == 0:
-                progress('\t{}/{} exon_cols completed'.format(i + 1, n_exons))
+                progress('\t{}/{} exons completed'.format(i + 1, n_exons))
             df = self._adjacent_junctions_single_exon(exon)
             dfs.append(df)
         junction_exon_triples = pd.concat(dfs, ignore_index=True)
