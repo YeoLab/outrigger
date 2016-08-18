@@ -29,7 +29,8 @@ JUNCTION_PATH = os.path.join(OUTPUT, 'junctions')
 JUNCTION_READS_PATH = os.path.join(JUNCTION_PATH, 'reads.csv')
 JUNCTION_METADATA_PATH = os.path.join(JUNCTION_PATH, 'metadata.csv')
 INDEX = os.path.join(OUTPUT, 'index')
-
+EVENTS_CSV = 'events.csv'
+METADATA_CSV = 'metadata.csv'
 
 class CommandLine(object):
     def __init__(self, input_options=None):
@@ -120,6 +121,14 @@ class CommandLine(object):
                                      'you called "outrigger index")'.format(INDEX))
         splice_junctions = psi_parser.add_mutually_exclusive_group(
             required=False)
+        splice_junctions.add_argument(
+            '-c', '--junction-reads-csv', required=False,
+            help="Name of the splice junction files to calculate psi scores "
+                 "on. If not provided, the compiled '{sj_csv}' file with all "
+                 "the samples from the SJ.out.tab files that were used during "
+                 "'outrigger index' will be used. Not required if you specify "
+                 "SJ.out.tab file with '--sj-out-tab'".format(
+                        sj_csv=JUNCTION_READS_PATH))
         splice_junctions.add_argument(
             '-j', '--sj-out-tab', required=False,
             type=str, action='store', nargs='*',
@@ -227,9 +236,6 @@ class Subcommand(object):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-        self.folders = self.output_folder, self.index_folder, \
-                       self.gtf_folder, self.junctions_folder,
-
         for folder in self.folders:
             self.maybe_make_folder(folder)
 
@@ -238,6 +244,11 @@ class Subcommand(object):
         if not os.path.exists(folder):
             os.mkdir(folder)
         util.done()
+
+    @property
+    def folders(self):
+        return self.output_folder, self.index_folder, self.gtf_folder, \
+               self.junctions_folder
 
     @property
     def index_folder(self):
@@ -352,7 +363,7 @@ class Index(Subcommand):
         return event_maker
 
     def make_events_by_traversing_graph(self, event_maker, db):
-        for splice_name, splice_abbrev in events.EVENT_TYPES:
+        for splice_name, splice_abbrev in events.SPLICE_TYPES:
             name_with_spaces = splice_name.replace('_', ' ')
             # Find event junctions
             util.progress(
@@ -363,7 +374,7 @@ class Index(Subcommand):
 
             # Write to a file
             csv = os.path.join(self.index_folder, splice_abbrev.lower(),
-                               'events.csv')
+                               EVENTS_CSV)
             dirname = os.path.dirname(csv)
             if not os.path.exists(dirname):
                 os.makedirs(dirname)
@@ -410,7 +421,7 @@ class Index(Subcommand):
         util.done()
 
         # Write to a file
-        csv = os.path.join(self.index_folder, splice_type, 'metadata.csv')
+        csv = os.path.join(self.index_folder, splice_type, METADATA_CSV)
         util.progress('Writing {splice_type} metadata to {csv} '
                       '...'.format(splice_type=splice_type.upper(), csv=csv))
         metadata.to_csv(csv, index=True, index_label=events.EVENT_ID_COLUMN)
@@ -435,7 +446,7 @@ class Index(Subcommand):
         spliced_reads = self.csv()
 
         metadata = self.junction_metadata(spliced_reads)
-        metadata_csv = os.path.join(self.junctions_folder, 'metadata.csv')
+        metadata_csv = os.path.join(self.junctions_folder, METADATA_CSV)
         util.progress('Writing metadata of junctions to {csv}'
                       ' ...'.format(csv=metadata_csv))
         metadata.to_csv(metadata_csv, index=False)
@@ -463,6 +474,52 @@ class Psi(Subcommand):
     required_cols = {'--reads-col': reads_col,
                      '--sample-id-col': sample_id_col,
                      '--junction-id-col': junction_id_col}
+
+    def __init__(self, **kwargs):
+        # Read all arguments and set as attributes of this class
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+
+        if not os.path.exists(self.index_folder):
+            raise OSError("The index folder ({}) doesn't exist! Cowardly "
+                          "exiting because I don't know what events to "
+                          "calcaulate psi on :(".format(self.index_folder))
+
+        for splice_name, splice_folder in self.splice_type_folders.items():
+            if not os.path.exists(splice_folder):
+                raise OSError("The splicing index of {} ({}) splice types "
+                              "doesn't exist! Cowardly existing because I "
+                              "don't know how to define events :(".format(
+                    splice_name, splice_folder))
+
+        if not os.path.exists(self.junction_read_csv):
+            raise OSError("The junction reads csv file ({}) doesn't exist! "
+                          "Cowardly exiting because I don't have the junction "
+                          "counts calcaulate psi on :(".format(
+                self.junction_read_csv))
+
+        for folder in self.folders:
+            self.maybe_make_folder(folder)
+
+    @property
+    def psi_folder(self):
+        return os.path.join(self.output_folder, 'psi')
+
+    @property
+    def index_folder(self):
+        if not hasattr(self, 'index'):
+            return os.path.join(self.output_folder, 'index')
+        else:
+            return self.index
+
+    @property
+    def splice_type_folders(self):
+        return dict(os.path.join(self.index_folder, splice_abbrev)
+                    for splice_name, splice_abbrev in events.SPLICE_TYPES)
+
+    @property
+    def folders(self):
+        return self.output_folder, self.psi_folder
 
     def maybe_read_junction_reads(self):
         try:
@@ -506,27 +563,32 @@ class Psi(Subcommand):
         logger.debug('\n--- Splice Junction reads ---')
         logger.debug(repr(junction_reads.head()))
 
-        events_folder = os.path.join(self.index_folder, 'events')
         psis = []
-        for filename in glob.iglob('{}/*.csv'.format(events_folder)):
-            event_type = os.path.basename(filename).split('.csv')[0]
-            util.progress('Reading {} events from {} ...'.format(
-                event_type.upper(), filename))
+        for splice_name, splice_abbrev in events.SPLICE_TYPES:
+            filename = os.path.join(self.index_folder, splice_abbrev,
+                                    EVENTS_CSV)
+            # event_type = os.path.basename(filename).split('.csv')[0]
+            util.progress('Reading {name} ({abbrev}) events from {filename}'
+                          ' ...'.format(name=splice_name, abbrev=splice_abbrev,
+                                        filename=filename))
 
-            isoform_junctions = compute.ISOFORM_JUNCTIONS[event_type]
+            isoform_junctions = compute.ISOFORM_JUNCTIONS[splice_abbrev]
             event_annotation = pd.read_csv(filename, index_col=0)
             util.done()
             logger.debug('\n--- Splicing event annotation ---')
             logger.debug(repr(event_annotation.head()))
 
-            util.progress('Calculating percent spliced-in (Psi) '
-                          'scores on {} events ...'.format(event_type.upper()))
+            util.progress('Calculating percent spliced-in (Psi) scores on '
+                          '{name} ({abbrev}) events ...'.format(
+                name=splice_name, abbrev=splice_abbrev))
             event_psi = compute.calculate_psi(
                 event_annotation, junction_reads,
                 min_reads=self.min_reads, debug=self.debug,
                 reads_col=self.reads_col, **isoform_junctions)
-            event_psi.to_csv(os.path.join(self.index_folder,
-                                          '{}_psi.csv'.format(event_type)))
+            csv = os.path.join(self.psi_folder, splice_abbrev,
+                               'psi.csv'.format(splice_abbrev))
+            self.maybe_make_folder(os.path.dirname(csv))
+            event_psi.to_csv(csv)
             psis.append(event_psi)
             util.done()
 
@@ -535,7 +597,7 @@ class Psi(Subcommand):
         splicing = pd.concat(psis, axis=1)
         util.done()
         splicing = splicing.T
-        csv = os.path.join(self.index_folder, 'psi.csv')
+        csv = os.path.join(self.psi_folder, 'outrigger_psi.csv')
         util.progress('Writing a samples x features matrix of Psi '
                       'scores to {} ...'.format(csv))
         splicing.to_csv(csv)
