@@ -125,3 +125,9 @@ def db(db_filename):
 def snap25_exon_id():
     """Exon1 of MXE event in SNAP25. Should be in the gffutils db"""
     return 'exon:chr2:136763573-136763621:+'
+
+
+@pytest.fixture
+def myl6_novel_exon_junction():
+    """Junction downstream of a novel exon in MYL6 test set"""
+    return 'junction:chr10:128491033-128491719:-'
