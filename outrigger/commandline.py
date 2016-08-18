@@ -249,7 +249,7 @@ class Subcommand(object):
 
     @property
     def junctions_folder(self):
-        return os.path.join(self.index_folder, 'junctions')
+        return os.path.join(self.output_folder, 'junctions')
 
     def csv(self):
         """Create a csv file of compiled splice junctions"""
@@ -362,8 +362,8 @@ class Index(Subcommand):
             util.done()
 
             # Write to a file
-            csv = os.path.join(self.index_folder, *['index', splice_abbrev.lower(),
-                                              'events.csv'])
+            csv = os.path.join(self.index_folder, splice_abbrev.lower(),
+                               'events.csv')
             dirname = os.path.dirname(csv)
             if not os.path.exists(dirname):
                 os.makedirs(dirname)
@@ -393,8 +393,6 @@ class Index(Subcommand):
         sa = gtf.SplicingAnnotator(db, event_df, splice_type.upper())
         util.progress('Making ".bed" files for exons in each event ...')
         folder = os.path.join(self.index_folder, splice_type)
-        if not os.path.exists(folder):
-            os.mkdir(folder)
         sa.exon_bedfiles(folder=folder)
         util.done()
 
@@ -412,11 +410,19 @@ class Index(Subcommand):
         util.done()
 
         # Write to a file
-        csv = os.path.join(self.index_folder,
-                           *['index', splice_type, 'metadata.csv'])
+        csv = os.path.join(self.index_folder, splice_type, 'metadata.csv')
         util.progress('Writing {splice_type} metadata to {csv} '
                       '...'.format(splice_type=splice_type.upper(), csv=csv))
         metadata.to_csv(csv, index=True, index_label=events.EVENT_ID_COLUMN)
+        util.done()
+
+    def write_new_gtf(self, db):
+        gtf = os.path.join(self.gtf_folder,
+                           os.path.basename(self.gtf_filename))
+        util.progress('Write new GTF to {} ...'.format(gtf))
+        with open(gtf, 'w') as f:
+            for feature in db.all_features():
+                f.write(str(feature) + '\n')
         util.done()
 
     def execute(self):
@@ -429,7 +435,7 @@ class Index(Subcommand):
         spliced_reads = self.csv()
 
         metadata = self.junction_metadata(spliced_reads)
-        metadata_csv = os.path.join(self.output_folder, 'junctions', 'metadata.csv')
+        metadata_csv = os.path.join(self.junctions_folder, 'metadata.csv')
         util.progress('Writing metadata of junctions to {csv}'
                       ' ...'.format(csv=metadata_csv))
         metadata.to_csv(metadata_csv, index=False)
@@ -442,6 +448,8 @@ class Index(Subcommand):
 
         event_maker = self.make_graph(junction_exon_triples, db=db)
         self.make_events_by_traversing_graph(event_maker, db)
+
+        self.write_new_gtf(db)
 
 
 class Psi(Subcommand):

@@ -149,11 +149,12 @@ class ExonJunctionAdjacencies(object):
                     gene_name = ','.join(exon.attributes['gene_name'])
                 except KeyError:
                     gene_name = 'unknown_gene'
-                progress('\tFound a novel exon ({}) in the gene {} '
-                         '({})'.format(exon.id, exon.attributes['gene_id'],
-                                       gene_name))
                 self.db.update([exon], id_spec={'novel_exon': 'location_id'},
                                transform=transform)
+                progress('\tAdded a novel exon ({}) in the gene {} '
+                         '({})'.format(exon.id,
+                                       ','.join(exon.attributes['gene_id']),
+                                       gene_name))
             except sqlite3.IntegrityError:
                 continue
 
