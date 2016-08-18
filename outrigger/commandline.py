@@ -374,7 +374,7 @@ class Index(Subcommand):
                     'Writing {n} {abbrev} events to {csv}'
                     ' ...'.format(n=n_events, abbrev=splice_abbrev.upper(),
                                   csv=csv))
-                events_of_type.to_csv(csv, index=False)
+                events_of_type.to_csv(csv, index=True)
                 util.done()
             else:
                 util.progress(
