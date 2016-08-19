@@ -264,20 +264,21 @@ class Subcommand(object):
 
     def csv(self):
         """Create a csv file of compiled splice junctions"""
+        if not os.path.exists(self.junction_read_csv):
+            util.progress('Reading SJ.out.files and creating a big splice junction'
+                          ' table of reads spanning exon-exon junctions...')
+            splice_junctions = star.read_multiple_sj_out_tab(
+                self.sj_out_tab, multimapping=self.use_multimapping)
+            # splice_junctions['reads'] = splice_junctions['unique_junction_reads']
 
-        util.progress('Reading SJ.out.files and creating a big splice junction'
-                      ' table of reads spanning exon-exon junctions...')
-        splice_junctions = star.read_multiple_sj_out_tab(
-            self.sj_out_tab, multimapping=self.use_multimapping)
-        # splice_junctions['reads'] = splice_junctions['unique_junction_reads']
-
-        filename = self.junction_read_csv
-        dirname = os.path.dirname(filename)
-        if not os.path.exists(dirname):
-            os.makedirs(dirname)
-        util.progress('Writing {} ...\n'.format(filename))
-        splice_junctions.to_csv(filename, index=False)
-        util.done()
+            dirname = os.path.dirname(self.junction_read_csv)
+            if not os.path.exists(dirname):
+                os.makedirs(dirname)
+            util.progress('Writing {} ...\n'.format(self.junction_read_csv))
+            splice_junctions.to_csv(self.junction_read_csv, index=False)
+            util.done()
+        else:
+            splice_junctions = pd.read_csv(self.junction_read_csv)
         return splice_junctions
 
     def maybe_make_db(self):
