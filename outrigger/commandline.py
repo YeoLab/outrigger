@@ -278,7 +278,10 @@ class Subcommand(object):
             splice_junctions.to_csv(self.junction_read_csv, index=False)
             util.done()
         else:
+            util.progress('Reads compiled junction reads file in {} '
+                          '...'.format(self.junction_read_csv))
             splice_junctions = pd.read_csv(self.junction_read_csv)
+            util.done()
         return splice_junctions
 
     def maybe_make_db(self):
