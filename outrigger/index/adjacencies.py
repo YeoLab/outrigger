@@ -148,13 +148,21 @@ class ExonJunctionAdjacencies(object):
                 try:
                     gene_name = ','.join(exon.attributes['gene_name'])
                 except KeyError:
-                    gene_name = 'unknown_gene'
-                self.db.update([exon], id_spec={'novel_exon': 'location_id'},
-                               transform=transform)
-                progress('\tAdded a novel exon ({}) in the gene {} '
-                         '({})'.format(exon.id,
-                                       ','.join(exon.attributes['gene_id']),
-                                       gene_name))
+                    try:
+                        gene_name = ','.join(exon.attributes['gene_id'])
+                    except KeyError:
+                        gene_name = 'unknown_gene'
+                try:
+                    # Check that the non-novel exon doesn't exist already
+                    self.db[exon_id + exon.strand]
+                except gffutils.FeatureNotFoundError:
+                    # print([dict(g.attributes.items()) for g in overlapping_genes])
+                    self.db.update([exon], id_spec={'novel_exon': 'location_id'},
+                                   transform=transform)
+                    progress('\tAdded a novel exon ({}) in the gene {} '
+                             '({})'.format(exon.id,
+                                           ','.join(exon.attributes['gene_id']),
+                                           gene_name))
             except sqlite3.IntegrityError:
                 continue
 
