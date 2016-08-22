@@ -108,11 +108,8 @@ class SplicingAnnotator(object):
         return pd.concat(lines, axis=1).T
 
     def exon_bedfiles(self, folder):
-        zero_based = self.exon_regions[self.region_cols].applymap(
-            lambda x: x.to_zero_based())
-
         for region_col in self.region_cols:
-            column = zero_based[region_col]
+            column = self.exon_regions[region_col]
             lines = (region.to_bed_format(event_id)
                      for event_id, region  in column.iteritems())
 
