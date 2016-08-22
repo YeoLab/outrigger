@@ -115,8 +115,8 @@ is relative to that directory), run this command:
 
 ```
 outrigger index \
-    --sj-out-tab test_data/tasic2016/unprocessed/sj_out_tab/* \
-    --gtf test_data/tasic2016/unprocessed/gtf/gencode.vM10.annotation.snap25.myl6.gtf
+    --sj-out-tab outrigger/test_data/tasic2016/unprocessed/sj_out_tab/* \
+    --gtf outrigger/test_data/tasic2016/unprocessed/gtf/gencode.vM10.annotation.snap25.myl6.gtf
 ```
 
 *Note: the backslashes (`\`, like a tree that's falling backwards relative to
@@ -126,7 +126,7 @@ little more human-readable. The above code is read by the computer exactly the
 same as the one-liner below, but is easier for us humans to read.*
 
 ```
-outrigger index --sj-out-tab test_data/tasic2016/unprocessed/sj_out_tab/* --gtf test_data/tasic2016/unprocessed/gtf/gencode.vM10.annotation.snap25.myl6.gtf
+outrigger index --sj-out-tab outrigger/test_data/tasic2016/unprocessed/sj_out_tab/* --gtf outrigger/test_data/tasic2016/unprocessed/gtf/gencode.vM10.annotation.snap25.myl6.gtf
 ```
 
 This is equivalent to the below command, which specifies all the other arguments
@@ -134,8 +134,8 @@ with the default values.
 
 ```
 outrigger index \
-    --sj-out-tab test_data/tasic2016/unprocessed/sj_out_tab/* \
-    --gtf test_data/tasic2016/unprocessed/gtf/gencode.vM10.annotation.snap25.myl6.gtf \
+    --sj-out-tab outrigger/test_data/tasic2016/unprocessed/sj_out_tab/* \
+    --gtf outrigger/test_data/tasic2016/unprocessed/gtf/gencode.vM10.annotation.snap25.myl6.gtf \
     --output ./outrigger_output --min-reads 10
 ```
 
