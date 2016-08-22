@@ -301,7 +301,7 @@ class Subcommand(object):
         else:
             basename = os.path.basename(self.gtf_filename)
             db_filename = os.path.join(self.gtf_folder,  '{}.db'.format(basename))
-            util.progress("Found GTF file in {} ...".format(self.gtf_filename))
+            util.progress("Found GTF file in {}".format(self.gtf_filename))
             try:
                 db = gffutils.FeatureDB(db_filename)
                 util.progress(
@@ -310,7 +310,7 @@ class Subcommand(object):
             except ValueError:
                 util.progress(
                     'Creating a "gffutils" '
-                    'database {}'.format(db_filename))
+                    'database {} ...'.format(db_filename))
                 db = gtf.create_db(self.gtf_filename, db_filename)
                 util.done()
         return db
