@@ -91,7 +91,7 @@ class EventMaker(object):
 
     def _maybe_print_exon_progress(self, i):
         if (i + 1) % self.exon_progress_interval == 0:
-            progress('\t{0}/{1} exon_cols tested ({2:.1f}%)'.format(
+            progress('\t{0}/{1} exons tested ({2:.1f}%)'.format(
                 i + 1, self.n_exons, 100 * (i + 1) / float(self.n_exons)))
 
     def event_dict_to_df(self, events, exon_names, junction_names):
