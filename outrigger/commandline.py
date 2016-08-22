@@ -518,7 +518,7 @@ class Psi(Subcommand):
 
     @property
     def splice_type_folders(self):
-        return dict(os.path.join(self.index_folder, splice_abbrev)
+        return dict((splice_name, os.path.join(self.index_folder, splice_abbrev))
                     for splice_name, splice_abbrev in events.SPLICE_TYPES)
 
     @property
