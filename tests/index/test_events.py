@@ -186,7 +186,7 @@ def assert_graph_items_equal(graph1, items1, graph2, items2):
 
 class TestEventMaker(object):
     @pytest.fixture
-    def junction_aggregator(self, junction_exon_triples):
+    def event_maker(self, junction_exon_triples):
         from outrigger.index.events import EventMaker
         return EventMaker(junction_exon_triples)
 
@@ -229,11 +229,11 @@ class TestEventMaker(object):
         csv = template.format(strand_name)
         return pd.read_csv(csv, index_col=0)
 
-    def test_finding_events(self, junction_aggregator, capsys, events,
+    def test_finding_events(self, event_maker, capsys, events,
                            splice_type):
         """Test finding SE and MXE events in one function"""
         longname, abbrev = splice_type
-        test = getattr(junction_aggregator, longname)()
+        test = getattr(event_maker, longname)()
         out, err = capsys.readouterr()
         assert 'Trying out' in out
         assert 'exon_cols tested' in out
@@ -245,12 +245,9 @@ class TestEventMaker(object):
         test = test.sort_values(by=sort_by)
         true = true.sort_values(by=sort_by)
 
-        test.index = range(len(test))
-        true.index = range(len(true))
-
         pdt.assert_frame_equal(test, true)
 
-    def test_a5ss(self, junction_aggregator, strand):
+    def test_a5ss(self, event_maker, strand):
         true = {('exon:chr1:225-250:+',  # Exon 2
                  'exon:chr1:225-275:+',  # Exon 2, Alt 5' splice site
                  'exon:chr1:300-350:+'):  # Exon 3
@@ -258,7 +255,7 @@ class TestEventMaker(object):
                  'junction:chr1:276-299:+')}  # Exon2a5ss-Exon3 junction
         return true
 
-    def test_a3ss(self, junction_aggregator, strand):
+    def test_a3ss(self, event_maker, strand):
         true = {('exon:chr1:150-175:+',  # Exon 1
                  'exon:chr1:200-250:+',  # Exon 2, Alt 3' splice site
                  'exon:chr1:225-250:+'):  # Exon 2
@@ -266,7 +263,7 @@ class TestEventMaker(object):
                  'junction:chr1:176-224:+')}  # Exon1-Exon2 junction
         return true
 
-    def test_afe(self, junction_aggregator, strand):
+    def test_afe(self, event_maker, strand):
         true = {('exon:chr1:100-125:+',  # Exon 1 alt
                  'exon:chr1:150-175:+',  # Exon 1
                  'exon:chr1:225-250:+'):  # Exon 2
@@ -274,7 +271,7 @@ class TestEventMaker(object):
                  'junction:chr1:176-224:+')}  # Exon1-Exon2 junction
         return true
 
-    def test_ale(self, junction_aggregator, strand):
+    def test_ale(self, event_maker, strand):
         true = {('exon:chr1:300-350:+',  # Exon 3
                  'exon:chr1:400-425:+',  # Exon 4
                  'exon:chr1:475-500:+'):  # Exon 4 alt
