@@ -66,14 +66,14 @@ class CommandLine(object):
                                        'for that junction to count in creating'
                                        ' the index of splicing events '
                                        '(default=10)')
-        index_parser.add_argument('--use-multimapping', action='store_true',
+        index_parser.add_argument('--ignore-multimapping', action='store_true',
                                   help='Applies to STAR SJ.out.tab files only.'
-                                       ' If this flag is used, then include '
-                                       'reads that mapped to multiple '
+                                       ' If this flag is used, then do not '
+                                       'include reads that mapped to multiple '
                                        'locations in the genome, not uniquely '
                                        'to a locus, in the read count for a '
                                        'junction. By default, this is off, and'
-                                       ' only uniquely mapped reads are used.')
+                                       ' all reads are used.')
 
         gtf_parser = index_parser.add_mutually_exclusive_group(required=True)
         gtf_parser.add_argument('-g', '--gtf-filename', type=str,
@@ -138,14 +138,14 @@ class CommandLine(object):
                                 required=False, default=10,
                                 help='Minimum number of reads per junction for'
                                      ' calculating Psi (default=10)')
-        psi_parser.add_argument('--use-multimapping', action='store_true',
-                                help='Applies to STAR SJ.out.tab files only.'
-                                     ' If this flag is used, then include '
-                                     'reads that mapped to multiple '
-                                     'locations in the genome, not uniquely '
-                                     'to a locus, in the read count for a '
-                                     'junction. By default, this is off, and'
-                                     ' only uniquely mapped reads are used.')
+        psi_parser.add_argument('--ignore-multimapping', action='store_true',
+                                  help='Applies to STAR SJ.out.tab files only.'
+                                       ' If this flag is used, then do not '
+                                       'include reads that mapped to multiple '
+                                       'locations in the genome, not uniquely '
+                                       'to a locus, in the read count for a '
+                                       'junction. By default, this is off, and'
+                                       ' all reads are used.')
         psi_parser.add_argument('--reads-col', default='reads',
                                 help="Name of column in --splice-junction-csv "
                                      "containing reads to use. "
@@ -224,7 +224,7 @@ class Subcommand(object):
     output_folder = OUTPUT
     sj_out_tab = None
     junction_read_csv = JUNCTION_READS_PATH
-    use_multimapping = False
+    ignore_multimapping = False
     min_reads = MIN_READS
     gtf_filename = None
     gffutils_db = None
@@ -268,7 +268,7 @@ class Subcommand(object):
             util.progress('Reading SJ.out.files and creating a big splice junction'
                           ' table of reads spanning exon-exon junctions...')
             splice_junctions = star.read_multiple_sj_out_tab(
-                self.sj_out_tab, multimapping=self.use_multimapping)
+                self.sj_out_tab, ignore_multimapping=self.ignore_multimapping)
             # splice_junctions['reads'] = splice_junctions['unique_junction_reads']
 
             dirname = os.path.dirname(self.junction_read_csv)
