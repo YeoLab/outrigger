@@ -6,7 +6,7 @@ def test_create_db(gtf_filename, db, snap25_exon_id):
     from outrigger.io import gtf
 
     true = db
-    test = gtf.create_db(gtf_filename)
+    test = gtf.create_db(gtf_filename, 'test.gtf.db')
 
     # Check that all the true db features are in the test database
     for featuretype in true.featuretypes():

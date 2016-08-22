@@ -66,3 +66,6 @@ docs/_build
 
 # Outrigger output
 outrigger_output/
+
+# Outrigger tests
+test.gtf.db
