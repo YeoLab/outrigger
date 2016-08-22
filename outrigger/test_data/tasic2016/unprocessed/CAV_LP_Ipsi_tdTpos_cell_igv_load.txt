@@ -44,3 +44,4 @@ load https://s3-us-west-2.amazonaws.com/external-singlecell-data/tasic2016/CAV_L
 load https://s3-us-west-2.amazonaws.com/external-singlecell-data/tasic2016/CAV_LP_Ipsi_tdTpos_cell_8-SRR2140363-GSM1840951_R1.polyATrim.adapterTrim.rmRep.sorted.rg.bam
 load https://s3-us-west-2.amazonaws.com/external-singlecell-data/tasic2016/CAV_LP_Ipsi_tdTpos_cell_9-SRR2140364-GSM1840952_R1.polyATrim.adapterTrim.rmRep.sorted.rg.bam
 goto Myl6
+expand all
