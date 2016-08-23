@@ -1,8 +1,5 @@
 pytest
 pandas>=0.17.0
-biopython
 flake8
 coverage
-bedtools
-pybedtools
 gffutils>=0.8.7.1
