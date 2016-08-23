@@ -3,6 +3,7 @@ import sys
 
 import pandas as pd
 
+from ..index.events import ILLEGAL_JUNCTIONS
 from ..util import timestamp
 
 logging.basicConfig()
@@ -73,8 +74,25 @@ def maybe_get_isoform_reads(splice_junction_reads, junction_locations,
         Number of reads at each junction for this isoform
     """
     junctions = junction_locations[isoform_junctions]
-    if splice_junction_reads.index.levels[0].isin(junctions).sum() > 0:
-        return splice_junction_reads.loc[idx[junctions, :], reads_col]
+    junction_names = splice_junction_reads.index.levels[0]
+
+    # Get junctions that can't exist for this to be a valid event
+    illegal_junctions = junction_locations[ILLEGAL_JUNCTIONS]
+    illegal_samples = []
+    if isinstance(illegal_junctions, str):
+        illegal_junctions = illegal_junctions.split('|')
+
+        # Get samples that have illegal junctions
+        if junction_names.isin(illegal_junctions).sum() > 0:
+            illegal_reads = splice_junction_reads.loc[
+                idx[illegal_junctions, :], reads_col]
+            illegal_samples = illegal_reads.index.get_level_values('sample_id')
+
+    if junction_names.isin(junctions).sum() > 0:
+        reads_subset = splice_junction_reads.loc[idx[junctions, :], reads_col]
+        legal_samples = reads_subset.index.get_level_values('sample_id')
+        legal_samples = legal_samples.difference(illegal_samples)
+        return reads_subset.loc[idx[:, legal_samples]]
     else:
         return pd.Series()
 
@@ -132,9 +150,9 @@ def calculate_psi(event_annotation, splice_junction_reads,
     # There are multiple rows with the same event id because the junctions
     # are the same, but the flanking exons may be a little wider or shorter,
     # but ultimately the event Psi is calculated only on the junctions so the
-    # flanking exons don't matter for this. But, because I'm really nice, all
-    # the exons are in exon\d.bed in the index! And you, the lovely user, can
-    # decide what you want to do with them!
+    # flanking exons don't matter for this. But, all the exons are in
+    # exon\d.bed in the index! And you, the lovely user, can decide what you
+    # want to do with them!
     grouped = event_annotation.groupby(level=0, axis=0)
 
     n_events = len(grouped.size())
