@@ -177,8 +177,8 @@ class EventMaker(object):
             junction14 = junction12_34.apply(self._get_junction14, axis=1)
             junction23 = junction13_24.apply(self._get_junction23, axis=1)
 
-            junction14 = junction14.apply(str)
-            junction23 = junction23.apply(str)
+            junction14 = junction14.apply(lambda x: x.name)
+            junction23 = junction23.apply(lambda x: x.name)
             illegal_junctions = junction14 + '|' + junction23
             events[ILLEGAL_JUNCTIONS] = illegal_junctions
         return events

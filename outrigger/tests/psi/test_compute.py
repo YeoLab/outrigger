@@ -1,3 +1,5 @@
+import os
+
 import numpy as np
 import pytest
 import pandas as pd
@@ -5,53 +7,6 @@ import pandas.util.testing as pdt
 import six
 
 idx = pd.IndexSlice
-
-
-@pytest.fixture
-def exons_to_junctions():
-    exons_to_junctions = {
-        ('exon:chr1:150-175:+',  # Exon 1
-         'exon:chr1:225-250:+',  # Exon 2
-         'exon:chr1:300-350:+'):  # Exon 3
-        ('junction:chr1:176-224:+', 'junction:chr1:251-299:+',
-         'junction:chr1:176-299:+'),
-        ('exon:chr1:150-175:+',  # Exon 1
-         'exon:chr1:225-275:+',  # Exon 2, alt 5' splice site
-         'exon:chr1:300-350:+'):  # Exon 3
-        ('junction:chr1:176-224:+', 'junction:chr1:276-299:+',
-         'junction:chr1:176-299:+'),
-        ('exon:chr1:150-175:+',  # Exon 1
-         'exon:chr1:300-350:+',  # Exon 3
-         'exon:chr1:400-425:+'):  # Exon 4
-        ('junction:chr1:176-299:+', 'junction:chr1:351-399:+',
-         'junction:chr1:176-399:+'),
-        ('exon:chr1:150-175:+',  # Exon 1
-         'exon:chr1:225-250:+',  # Exon 2
-         'exon:chr1:400-425:+'):  # Exon 4
-        ('junction:chr1:176-224:+', 'junction:chr1:251-399:+',
-         'junction:chr1:176-399:+'),
-        ('exon:chr1:225-250:+',  # Exon 2
-         'exon:chr1:300-350:+',  # Exon 3
-         'exon:chr1:400-425:+'):  # Exon 4
-        ('junction:chr1:251-299:+', 'junction:chr1:351-399:+',
-         'junction:chr1:251-399:+'),
-        ('exon:chr1:150-175:+',  # Exon 1
-         'exon:chr1:200-250:+',  # Exon 2, alt 3' splice site
-         'exon:chr1:300-350:+'):  # Exon 4
-        ('junction:chr1:176-199:+', 'junction:chr1:251-299:+',
-         'junction:chr1:176-299:+')}
-
-    n_exons_se = 3
-    exons_to_junctions = pd.DataFrame(exons_to_junctions).T.reset_index()
-    exons_to_junctions = exons_to_junctions.rename(
-        columns=dict(('level_{}'.format(i), 'exon{}'.format(i + 1)) for i in
-                     range(n_exons_se)))
-    exons_to_junctions = exons_to_junctions.rename(
-        columns={0: 'junction12', 1: 'junction23', 2: 'junction13'})
-    exons_to_junctions['event_id'] = exons_to_junctions.exon1 + '@' \
-        + exons_to_junctions.exon2 + '@' \
-        + exons_to_junctions.exon3
-    return exons_to_junctions
 
 
 @pytest.fixture
@@ -142,7 +97,7 @@ sample1,{4},{5}""".format(junction12, junction12_reads,
 @pytest.fixture
 def junction_locations(junction12, junction23, junction13):
     return pd.Series({'junction12': junction12, 'junction23': junction23,
-                      'junction13': junction13})
+                      'junction13': junction13, 'illegal_junctions': np.nan})
 
 
 @pytest.fixture
@@ -178,42 +133,69 @@ def test_maybe_get_isoform_reads(splice_junction_reads, junction_locations,
             names=['junction', 'sample_id'])
     pdt.assert_series_equal(test, true)
 
+@pytest.fixture
+def exons_to_junctions(splice_type, simulated_outrigger_index):
+    # strand_str = 'positive' if strand == "+" else 'negative'
 
-def test_psi_se(splice_junction_reads, junction12_reads, junction23_reads,
-                junction13_reads, exons_to_junctions, capsys):
-    from outrigger.psi.compute import calculate_psi, MIN_READS
+    folder = os.path.join(simulated_outrigger_index, splice_type)
+    basename = 'events_positive_strand.csv'
+    filename = os.path.join(folder, basename)
+    return pd.read_csv(filename, index_col=0)
 
-    reads12 = junction12_reads if junction12_reads >= MIN_READS else 0
-    reads23 = junction23_reads if junction23_reads >= MIN_READS else 0
-    reads13 = junction13_reads if junction13_reads >= MIN_READS else 0
+@pytest.fixture
+def events(splice_type):
+    if splice_type == 'se':
+        # if strand == '+':
+        return ['isoform1=junction:chr1:176-299:+|isoform2=junction:chr1:176-199:+@exon:chr1:200-250:+@junction:chr1:251-299:+',
+                'isoform1=junction:chr1:176-299:+|isoform2=junction:chr1:176-224:+@exon:chr1:225-250:+@junction:chr1:251-299:+',
+                'isoform1=junction:chr1:176-299:+|isoform2=junction:chr1:176-224:+@exon:chr1:225-275:+@junction:chr1:276-299:+']
+    if splice_type == 'mxe':
+        # if strand == '+':
+        return ['isoform1=junction:chr1:176-299:+@exon:chr1:300-350:+@junction:chr1:351-399:+|isoform2=junction:chr1:176-224:+@exon:chr1:225-250:+@junction:chr1:251-399:+']
 
-    if reads12 == 0 or reads23 == 0:
-        isoform2_reads = 0
-    else:
-        isoform2_reads = reads12 + reads23
-    isoform1_reads = reads13
+@pytest.fixture
+def illegal_junctions(splice_type):
+    if splice_type == 'se':
+        return None
+    if splice_type == 'mxe':
+        return 'junction23'
 
-    # This tests whether both are greater than zero
-    if isoform1_reads or isoform2_reads:
-        true_psi = isoform2_reads/(isoform2_reads + 2.*isoform1_reads)
-    else:
-        true_psi = np.nan
 
-    other_isoform1_psi = 0. if isoform1_reads > 0 else np.nan
-
-    test = calculate_psi(exons_to_junctions, splice_junction_reads,
-                         isoform1_junctions=['junction13'],
-                         isoform2_junctions=['junction12', 'junction23'])
-    out, err = capsys.readouterr()
-    assert 'Iterating over' in out
-
-    s = """sample_id,exon:chr1:150-175:+@exon:chr1:200-250:+@exon:chr1:300-350:+,exon:chr1:150-175:+@exon:chr1:225-250:+@exon:chr1:300-350:+,exon:chr1:150-175:+@exon:chr1:225-275:+@exon:chr1:300-350:+# noqa
-sample1,{1},{0},{1}""".format(true_psi, other_isoform1_psi)
-
-    true = pd.read_csv(six.StringIO(s), index_col=0, comment='#')
-    true = true.dropna(axis=1)
-
-    if true.empty:
-        true = pd.DataFrame(index=splice_junction_reads.index.levels[1])
-
-    pdt.assert_frame_equal(test, true)
+# def test_psi(splice_junction_reads, junction12_reads, junction23_reads,
+#              junction13_reads, exons_to_junctions, capsys, events):
+#     from outrigger.psi.compute import calculate_psi, MIN_READS
+#
+#     reads12 = junction12_reads if junction12_reads >= MIN_READS else 0
+#     reads23 = junction23_reads if junction23_reads >= MIN_READS else 0
+#     reads13 = junction13_reads if junction13_reads >= MIN_READS else 0
+#
+#     if reads12 == 0 or reads23 == 0:
+#         isoform2_reads = 0
+#     else:
+#         isoform2_reads = reads12 + reads23
+#     isoform1_reads = reads13
+#
+#     # This tests whether both are greater than zero
+#     if isoform1_reads or isoform2_reads:
+#         true_psi = isoform2_reads/(isoform2_reads + 2.*isoform1_reads)
+#     else:
+#         true_psi = np.nan
+#
+#     other_isoform1_psi = 0. if isoform1_reads > 0 else np.nan
+#
+#     test = calculate_psi(exons_to_junctions, splice_junction_reads,
+#                          isoform1_junctions=['junction13'],
+#                          isoform2_junctions=['junction12', 'junction23'])
+#     out, err = capsys.readouterr()
+#     assert 'Iterating over' in out
+#
+#     s = """sample_id,{0}# noqa
+# sample1,{2},{1},{2}""".format(','.join(events), true_psi, other_isoform1_psi)
+#
+#     true = pd.read_csv(six.StringIO(s), index_col=0, comment='#')
+#     true = true.dropna(axis=1)
+#
+#     if true.empty:
+#         true = pd.DataFrame(index=splice_junction_reads.index.levels[1])
+#
+#     pdt.assert_frame_equal(test, true)

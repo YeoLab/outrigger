@@ -55,6 +55,11 @@ def simulated_outrigger_mxe(simulated_outrigger_index):
     return os.path.join(simulated_outrigger_index, 'mxe')
 
 @pytest.fixture
+def simulated_outrigger_psi(simulated_outrigger_output):
+    """Suffix for simulated data splicing events"""
+    return os.path.join(simulated_outrigger_output, 'psi')
+
+@pytest.fixture
 def tasic2016_sj_out_tab(tasic2016_unprocessed):
     return os.path.join(tasic2016_unprocessed, 'sj_out_tab')
 
@@ -76,6 +81,11 @@ def tasic2016_outrigger_output(tasic2016):
 @pytest.fixture
 def tasic2016_outrigger_junctions(tasic2016_outrigger_output):
     return os.path.join(tasic2016_outrigger_output, 'junctions')
+
+
+@pytest.fixture(params=['se', 'mxe'])
+def splice_type(request):
+    return request.param
 
 
 @pytest.fixture(params=['positive', 'negative'])

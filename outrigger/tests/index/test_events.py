@@ -229,8 +229,7 @@ class TestEventMaker(object):
         csv = template.format(strand_name)
         return pd.read_csv(csv, index_col=0)
 
-    def test_finding_events(self, event_maker, capsys, events,
-                           splice_type):
+    def test_finding_events(self, event_maker, capsys, events, splice_type):
         """Test finding SE and MXE events in one function"""
         longname, abbrev = splice_type
         test = getattr(event_maker, longname)()
