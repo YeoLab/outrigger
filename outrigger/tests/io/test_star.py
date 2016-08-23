@@ -53,12 +53,12 @@ def ignore_multimapping(request):
 
 
 @pytest.fixture
-def splice_junction_csv(multimapping, tasic2016_intermediate):
+def splice_junction_csv(ignore_multimapping, tasic2016_intermediate):
     """Different file depending on whether multimapping is True"""
     template = os.path.join(tasic2016_intermediate,
                             'index', 'star',
                             'splice_junctions_ignore_multimapping{}.csv')
-    return template.format(str(multimapping))
+    return template.format(str(ignore_multimapping))
 
 
 def test_read_multiple_sj_out_tab(sj_filenames, ignore_multimapping,
