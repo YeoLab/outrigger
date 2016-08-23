@@ -140,6 +140,7 @@ class EventMaker(object):
             return Region(region='junction', chrom=junction12.chrom,
                           start=junction34.start, stop=junction12.stop,
                           strand=junction12.strand)
+
     @staticmethod
     def _get_junction23(row):
         """Make illegal junction between exons2 and 3 for MXE
@@ -158,7 +159,7 @@ class EventMaker(object):
                           strand=junction13.strand)
         if junction13.strand == "-":
             return Region(region='junction', chrom=junction13.chrom,
-                          start=junction13.stop, stop=junction24.start,
+                          start=junction13.start, stop=junction24.stop,
                           strand=junction13.strand)
 
     def add_illegal_junctions(self, events, splice_type):
@@ -173,11 +174,8 @@ class EventMaker(object):
 
             junction12_34 = pd.concat([junction12s, junction34s], axis=1)
             junction13_24 = pd.concat([junction13s, junction24s], axis=1)
-
-            junction14 = junction12_34.apply(lambda x: self._get_junction14,
-                                             axis=1)
-            junction23 = junction13_24.apply(lambda x: self._get_junction23,
-                                             axis=1)
+            junction14 = junction12_34.apply(self._get_junction14, axis=1)
+            junction23 = junction13_24.apply(self._get_junction23, axis=1)
 
             junction14 = junction14.apply(str)
             junction23 = junction23.apply(str)
