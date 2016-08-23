@@ -24,6 +24,8 @@ ISOFORM_COMPONENTS = {'se': {'isoform1': ('junction13',),
                       }
 EVENT_ID_COLUMN = 'event_id'
 
+ILLEGAL_JUNCTIONS = 'illegal_junctions'
+
 def stringify_location(chrom, start, stop, strand, region=None):
     """"""
     if region is not None:
@@ -116,6 +118,71 @@ class EventMaker(object):
                     x[list(isoform_components[isoform])]))
                        for isoform in ISOFORM_ORDER), axis=1)
         events = events.set_index(EVENT_ID_COLUMN)
+        return events
+
+    @staticmethod
+    def _get_junction14(row):
+        """Make illegal junction between exons1 and 4 for MXE
+
+        Parameters
+        ----------
+        row : pandas.Series
+            A row containing "junction12" and "junction34" names in the index,
+            which contain outrigger.Region values
+        """
+        junction12 = row['junction12']
+        junction34 = row['junction34']
+        if junction12.strand == "+":
+            return Region(region='junction', chrom=junction12.chrom,
+                          start=junction12.start, stop=junction34.stop,
+                          strand=junction12.strand)
+        if junction12.strand == "-":
+            return Region(region='junction', chrom=junction12.chrom,
+                          start=junction34.start, stop=junction12.stop,
+                          strand=junction12.strand)
+    @staticmethod
+    def _get_junction23(row):
+        """Make illegal junction between exons2 and 3 for MXE
+
+        Parameters
+        ----------
+        row : pandas.Series
+            A row containing "junction13" and "junction24" names in the index,
+            which contain outrigger.Region values
+        """
+        junction13 = row['junction13']
+        junction24 = row['junction24']
+        if junction13.strand == "+":
+            return Region(region='junction', chrom=junction13.chrom,
+                          start=junction24.start, stop=junction13.stop,
+                          strand=junction13.strand)
+        if junction13.strand == "-":
+            return Region(region='junction', chrom=junction13.chrom,
+                          start=junction13.stop, stop=junction24.start,
+                          strand=junction13.strand)
+
+    def add_illegal_junctions(self, events, splice_type):
+        """Add junctions that are incompatible with splice type definition"""
+        if splice_type == 'se':
+            events[ILLEGAL_JUNCTIONS] = np.nan
+        elif splice_type == 'mxe':
+            junction12s = events['junction12'].map(self.item_to_region)
+            junction13s = events['junction13'].map(self.item_to_region)
+            junction24s = events['junction24'].map(self.item_to_region)
+            junction34s = events['junction34'].map(self.item_to_region)
+
+            junction12_34 = pd.concat([junction12s, junction34s], axis=1)
+            junction13_24 = pd.concat([junction13s, junction24s], axis=1)
+
+            junction14 = junction12_34.apply(lambda x: self._get_junction14,
+                                             axis=1)
+            junction23 = junction13_24.apply(lambda x: self._get_junction23,
+                                             axis=1)
+
+            junction14 = junction14.apply(str)
+            junction23 = junction23.apply(str)
+            illegal_junctions = junction14 + '|' + junction23
+            events[ILLEGAL_JUNCTIONS] = illegal_junctions
         return events
 
     def exons_one_junction_downstream(self, exon_i):
@@ -226,6 +293,7 @@ class EventMaker(object):
             events, exon_names=['exon1', 'exon2', 'exon3'],
             junction_names=['junction12', 'junction23', 'junction13'])
         events = self.add_event_id_col(events, 'se')
+        events = self.add_illegal_junctions(events, 'se')
         return events
 
     def mutually_exclusive_exon(self):
@@ -296,4 +364,5 @@ class EventMaker(object):
                                                        'junction12',
                                                        'junction24'])
         events = self.add_event_id_col(events, 'mxe')
+        events = self.add_illegal_junctions(events, 'mxe')
         return events
