@@ -69,3 +69,6 @@ outrigger_output/
 
 # Outrigger tests
 test.gtf.db
+
+# OS X
+.DS_Store
