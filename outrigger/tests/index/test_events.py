@@ -236,7 +236,7 @@ class TestEventMaker(object):
         test = getattr(event_maker, longname)()
         out, err = capsys.readouterr()
         assert 'Trying out' in out
-        assert 'exon_cols tested' in out
+        assert 'exons tested' in out
         assert '%' in out
 
         true = events.copy()
