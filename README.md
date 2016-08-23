@@ -245,17 +245,30 @@ The above commands will create a folder called `outrigger_index` in the folder y
 $ tree outrigger_output
 outrigger_output
 ├── index
+│   ├── gtf
+│   │   ├── gencode.vM10.annotation.snap25.myl6.gtf
+│   │   ├── gencode.vM10.annotation.snap25.myl6.gtf.db
+│   │   ├── gencode.vM10.annotation.snap25.myl6.gtf.db.bak
+│   │   └── novel_exons.gtf
 │   ├── junction_exon_direction_triples.csv
 │   ├── mxe
 │   │   ├── events.csv
+│   │   ├── exon1.bed
+│   │   ├── exon2.bed
+│   │   ├── exon3.bed
+│   │   ├── exon4.bed
 │   │   └── metadata.csv
 │   └── se
 │       ├── events.csv
+│       ├── exon1.bed
+│       ├── exon2.bed
+│       ├── exon3.bed
 │       └── metadata.csv
-└── junction_reads
+└── junctions
+    ├── metadata.csv
     └── reads.csv
 
-4 directories, 6 files
+5 directories, 18 files
 ```
 
 
@@ -325,17 +338,44 @@ outrigger psi --index ./outrigger_index --min-reads 10
 
 ## Outputs
 
+Now the `outrigger_output` folder has `psi` subfolder, with the MXE and SE
+events separate.
+
+
 ```
-outrigger/
+$ tree outrigger_output
+outrigger_output
 ├── index
-│   └── mxe
-│       ├── junctions.csv
-│       └── metadata.csv
+│   ├── gtf
+│   │   ├── gencode.vM10.annotation.snap25.myl6.gtf
+│   │   ├── gencode.vM10.annotation.snap25.myl6.gtf.db
+│   │   ├── gencode.vM10.annotation.snap25.myl6.gtf.db.bak
+│   │   └── novel_exons.gtf
+│   ├── junction_exon_direction_triples.csv
+│   ├── mxe
+│   │   ├── events.csv
+│   │   ├── exon1.bed
+│   │   ├── exon2.bed
+│   │   ├── exon3.bed
+│   │   ├── exon4.bed
+│   │   └── metadata.csv
 │   └── se
-│       ├── junctions.csv
-│       └── metadata.csv
-├── psi.csv
-└── junction_reads.csv
+│       ├── events.csv
+│       ├── exon1.bed
+│       ├── exon2.bed
+│       ├── exon3.bed
+│       └── metadata.csv
+├── junctions
+│   ├── metadata.csv
+│   └── reads.csv
+└── psi
+    ├── mxe
+    │   └── psi.csv
+    ├── outrigger_psi.csv
+    └── se
+        └── psi.csv
+
+8 directories, 21 files
 ```
 
 ## Check that the found exons are real
@@ -463,8 +503,8 @@ such that when they break, you jump into the `pdb` (Python debugger), here is th
 
 ```
 python -m pdb outrigger/commandline.py index \
---sj-out-tab test_data/tasic2016/unprocessed/sj_out_tab/* \
-    --gtf test_data/tasic2016/unprocessed/gtf/gencode.vM10.annotation.snap25.myl6.gtf
+--sj-out-tab outrigger/test_data/tasic2016/unprocessed/sj_out_tab/* \
+    --gtf outrigger/test_data/tasic2016/unprocessed/gtf/gencode.vM10.annotation.snap25.myl6.gtf
 ```
 
 Notice that you replace `outrigger` with `python -m pdb outrigger/commandline.py`,
