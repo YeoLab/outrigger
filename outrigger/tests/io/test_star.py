@@ -48,7 +48,7 @@ def test_int_to_intron_motif():
 
 
 @pytest.fixture(params=[True, False])
-def multimapping(request):
+def ignore_multimapping(request):
     return request.param
 
 
@@ -57,11 +57,11 @@ def splice_junction_csv(multimapping, tasic2016_intermediate):
     """Different file depending on whether multimapping is True"""
     template = os.path.join(tasic2016_intermediate,
                             'index', 'star',
-                            'splice_junctions_multimapping{}.csv')
+                            'splice_junctions_ignore_multimapping{}.csv')
     return template.format(str(multimapping))
 
 
-def test_read_multiple_sj_out_tab(sj_filenames, multimapping,
+def test_read_multiple_sj_out_tab(sj_filenames, ignore_multimapping,
                                   splice_junction_csv):
     from outrigger.io.star import read_multiple_sj_out_tab
     from outrigger.io.common import READS
@@ -71,7 +71,7 @@ def test_read_multiple_sj_out_tab(sj_filenames, multimapping,
     true = true.convert_objects()
 
     test = read_multiple_sj_out_tab(
-        sj_filenames, multimapping=multimapping)
+        sj_filenames, ignore_multimapping=ignore_multimapping)
 
     assert READS in test
     pdt.assert_frame_equal(test, true)
