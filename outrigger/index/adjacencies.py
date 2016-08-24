@@ -130,16 +130,25 @@ class ExonJunctionAdjacencies(object):
         overlapping_genes = list(self.db.region(seqid=chrom, start=start,
                                                 end=stop, strand=strand,
                                                 featuretype='gene'))
+
+        exon_id = 'exon:{chrom}:{start}-{stop}:{strand}'.format(
+            chrom=chrom, start=start, stop=stop, strand=strand)
+
         if len(overlapping_genes) == 0:
+            exon = gffutils.Feature(chrom, source=OUTRIGGER_DE_NOVO,
+                                    featuretype=NOVEL_EXON, start=start,
+                                    end=stop, strand=strand, id=exon_id,
+                                    attributes=dict(g.attributes.items()))
+            progress('\tAdded a novel exon ({}), located in an unannotated'
+                     ' gene'.format(exon.id))
+            self.db.update([exon], id_spec={'novel_exon': 'location_id'},
+                           transform=transform)
             return
 
-        exon_id = 'exon:{chrom}:{start}-{stop}:'.format(
-            chrom=chrom, start=start, stop=stop)
-
-        de_novo_exons = [gffutils.Feature(chrom, source=OUTRIGGER_DE_NOVO,
-                                     featuretype=NOVEL_EXON, start=start, end=stop,
-                                     strand=g.strand, id=exon_id + g.strand,
-                                     attributes=dict(g.attributes.items()))
+        de_novo_exons = [gffutils.Feature(
+            chrom, source=OUTRIGGER_DE_NOVO, featuretype=NOVEL_EXON,
+            start=start, end=stop, strand=g.strand, id=exon_id + g.strand,
+            attributes=dict(g.attributes.items()))
                          for g in overlapping_genes]
 
         # Add all exons that aren't already there
