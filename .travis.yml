@@ -18,7 +18,6 @@ before_install:
 install:
 - conda create -n testenv --yes python=$TRAVIS_PYTHON_VERSION pip
 - source activate testenv
-- conda update -q conda
 - conda install --yes --file conda_requirements.txt --channel bioconda
 - pip install -r requirements.txt
 - pip install .
