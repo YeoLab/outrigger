@@ -137,8 +137,7 @@ class ExonJunctionAdjacencies(object):
         if len(overlapping_genes) == 0:
             exon = gffutils.Feature(chrom, source=OUTRIGGER_DE_NOVO,
                                     featuretype=NOVEL_EXON, start=start,
-                                    end=stop, strand=strand, id=exon_id,
-                                    attributes=dict(g.attributes.items()))
+                                    end=stop, strand=strand, id=exon_id)
             progress('\tAdded a novel exon ({}), located in an unannotated'
                      ' gene'.format(exon.id))
             self.db.update([exon], id_spec={'novel_exon': 'location_id'},
