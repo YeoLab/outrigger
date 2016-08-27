@@ -130,7 +130,7 @@ class CommandLine(object):
         splice_junctions = psi_parser.add_mutually_exclusive_group(
             required=False)
         splice_junctions.add_argument(
-            '-c', '--junction-reads-csv', required=False,
+            '-c', '--junction-read-csv', required=False,
             help="Name of the splice junction files to calculate psi scores "
                  "on. If not provided, the compiled '{sj_csv}' file with all "
                  "the samples from the SJ.out.tab files that were used during "
