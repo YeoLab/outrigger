@@ -244,6 +244,8 @@ class Subcommand(object):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
+        sys.stdout.write('self.junction_read_csv: {}\n'.format(self.junction_read_csv))
+
         for folder in self.folders:
             self.maybe_make_folder(folder)
 
