@@ -60,7 +60,7 @@ class CommandLine(object):
             '-j', '--sj-out-tab', type=str, action='store',
             nargs='*', help='SJ.out.tab files from STAR aligner output')
         junctions.add_argument(
-            '-c', '--junction-reads-csv', required=False,
+            '-c', '--junction-read-csv', required=False,
             help="Name of the splice junction files to calculate psi scores "
                  "on. If not provided, the compiled '{sj_csv}' file with all "
                  "the samples from the SJ.out.tab files that were used during "
@@ -244,7 +244,8 @@ class Subcommand(object):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-        sys.stdout.write('self.junction_read_csv: {}\n'.format(self.junction_read_csv))
+        sys.stdout.write('self.junction_read_csv: {}\n'.format(
+            self.junction_read_csv))
 
         for folder in self.folders:
             self.maybe_make_folder(folder)
