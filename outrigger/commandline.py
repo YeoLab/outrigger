@@ -59,6 +59,14 @@ class CommandLine(object):
         junctions.add_argument(
             '-j', '--sj-out-tab', type=str, action='store',
             nargs='*', help='SJ.out.tab files from STAR aligner output')
+        junctions.add_argument(
+            '-c', '--junction-reads-csv', required=False,
+            help="Name of the splice junction files to calculate psi scores "
+                 "on. If not provided, the compiled '{sj_csv}' file with all "
+                 "the samples from the SJ.out.tab files that were used during "
+                 "'outrigger index' will be used. Not required if you specify "
+                 "SJ.out.tab file with '--sj-out-tab'".format(
+                        sj_csv=JUNCTION_READS_PATH))
         index_parser.add_argument('-m', '--min-reads', type=int,
                                   action='store',
                                   required=False, default=10,
