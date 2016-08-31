@@ -495,6 +495,11 @@ class Psi(Subcommand):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
+        # If no junction reads csv was specified, use the default one in
+        # The outrigger output folder
+        if self.junction_reads_csv is None:
+            self.junction_reads_csv = JUNCTION_READS_PATH
+
         if not os.path.exists(self.index_folder):
             raise OSError("The index folder ({}) doesn't exist! Cowardly "
                           "exiting because I don't know what events to "
