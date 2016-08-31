@@ -60,7 +60,7 @@ class CommandLine(object):
             '-j', '--sj-out-tab', type=str, action='store',
             nargs='*', help='SJ.out.tab files from STAR aligner output')
         junctions.add_argument(
-            '-c', '--junction-read-csv', required=False,
+            '-c', '--junction-reads-csv', required=False,
             help="Name of the splice junction files to calculate psi scores "
                  "on. If not provided, the compiled '{sj_csv}' file with all "
                  "the samples from the SJ.out.tab files that were used during "
@@ -130,7 +130,7 @@ class CommandLine(object):
         splice_junctions = psi_parser.add_mutually_exclusive_group(
             required=False)
         splice_junctions.add_argument(
-            '-c', '--junction-read-csv', required=False,
+            '-c', '--junction-reads-csv', required=False,
             help="Name of the splice junction files to calculate psi scores "
                  "on. If not provided, the compiled '{sj_csv}' file with all "
                  "the samples from the SJ.out.tab files that were used during "
@@ -141,7 +141,7 @@ class CommandLine(object):
             '-j', '--sj-out-tab', required=False,
             type=str, action='store', nargs='*',
             help='SJ.out.tab files from STAR aligner output. Not required if '
-                 'you specify a file with "--junction-read-csv"')
+                 'you specify a file with "--junction-reads-csv"')
         psi_parser.add_argument('-m', '--min-reads', type=int, action='store',
                                 required=False, default=10,
                                 help='Minimum number of reads per junction for'
@@ -231,7 +231,7 @@ class Subcommand(object):
 
     output_folder = OUTPUT
     sj_out_tab = None
-    junction_read_csv = JUNCTION_READS_PATH
+    junction_reads_csv = JUNCTION_READS_PATH
     ignore_multimapping = False
     min_reads = MIN_READS
     gtf_filename = None
@@ -244,8 +244,8 @@ class Subcommand(object):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-        sys.stdout.write('self.junction_read_csv: {}\n'.format(
-            self.junction_read_csv))
+        sys.stdout.write('self.junction_reads_csv: {}\n'.format(
+            self.junction_reads_csv))
 
         for folder in self.folders:
             self.maybe_make_folder(folder)
@@ -275,23 +275,23 @@ class Subcommand(object):
 
     def csv(self):
         """Create a csv file of compiled splice junctions"""
-        if not os.path.exists(self.junction_read_csv):
+        if not os.path.exists(self.junction_reads_csv):
             util.progress('Reading SJ.out.files and creating a big splice junction'
                           ' table of reads spanning exon-exon junctions...')
             splice_junctions = star.read_multiple_sj_out_tab(
                 self.sj_out_tab, ignore_multimapping=self.ignore_multimapping)
             # splice_junctions['reads'] = splice_junctions['unique_junction_reads']
 
-            dirname = os.path.dirname(self.junction_read_csv)
+            dirname = os.path.dirname(self.junction_reads_csv)
             if not os.path.exists(dirname):
                 os.makedirs(dirname)
-            util.progress('Writing {} ...\n'.format(self.junction_read_csv))
-            splice_junctions.to_csv(self.junction_read_csv, index=False)
+            util.progress('Writing {} ...\n'.format(self.junction_reads_csv))
+            splice_junctions.to_csv(self.junction_reads_csv, index=False)
             util.done()
         else:
             util.progress('Found compiled junction reads file in {} and '
-                          'reading it in ...'.format(self.junction_read_csv))
-            splice_junctions = pd.read_csv(self.junction_read_csv)
+                          'reading it in ...'.format(self.junction_reads_csv))
+            splice_junctions = pd.read_csv(self.junction_reads_csv)
             util.done()
         return splice_junctions
 
@@ -507,11 +507,11 @@ class Psi(Subcommand):
                               "don't know how to define events :(".format(
                     splice_name, splice_folder))
 
-        if not os.path.exists(self.junction_read_csv):
+        if not os.path.exists(self.junction_reads_csv):
             raise OSError("The junction reads csv file ({}) doesn't exist! "
                           "Cowardly exiting because I don't have the junction "
                           "counts calcaulate psi on :(".format(
-                self.junction_read_csv))
+                self.junction_reads_csv))
 
         for folder in self.folders:
             self.maybe_make_folder(folder)
@@ -539,19 +539,19 @@ class Psi(Subcommand):
     def maybe_read_junction_reads(self):
         try:
             dtype = {self.reads_col: np.float32}
-            if self.junction_read_csv is None:
-                self.junction_read_csv = JUNCTION_READS_PATH
+            if self.junction_reads_csv is None:
+                self.junction_reads_csv = JUNCTION_READS_PATH
             util.progress(
                 'Reading splice junction reads from {} ...'.format(
-                    self.junction_read_csv))
+                    self.junction_reads_csv))
             junction_reads = pd.read_csv(
-                self.junction_read_csv, dtype=dtype)
+                self.junction_reads_csv, dtype=dtype)
             util.done()
         except OSError:
             raise IOError(
                 "There is no junction reads file at the expected location"
                 " ({csv}). Are you in the correct directory?".format(
-                    csv=self.junction_read_csv))
+                    csv=self.junction_reads_csv))
         return junction_reads
 
     def validate_junction_reads_data(self, junction_reads):
@@ -560,7 +560,7 @@ class Psi(Subcommand):
                 raise ValueError(
                     "The required column name {col} does not exist in {csv}. "
                     "You can change this with the command line flag, "
-                    "{flag}".format(col=col, csv=self.junction_read_csv,
+                    "{flag}".format(col=col, csv=self.junction_reads_csv,
                                     flag=flag))
 
     def execute(self):
