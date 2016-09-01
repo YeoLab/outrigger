@@ -256,6 +256,11 @@ class Subcommand(object):
         sys.stdout.write('self.junction_reads_csv: {}\n'.format(
             self.junction_reads_csv))
 
+        # Since you can specify either junction reads csv or sj out tab,
+        # the other one might get overwritten as None
+        if self.junction_reads_csv is None:
+            self.junction_reads_csv = JUNCTION_READS_PATH
+
         for folder in self.folders:
             self.maybe_make_folder(folder)
 
