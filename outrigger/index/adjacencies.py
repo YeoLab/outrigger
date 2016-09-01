@@ -118,9 +118,14 @@ class ExonJunctionAdjacencies(object):
         # These are junction start/stops, not exon start/stops
         # Move one nt upstream of starts for exon stops,
         # and one nt downstream of stops for exon starts.
-        if abs(junction1.stop - junction2.start) < self.max_de_novo_exon_length:
+        option1 = abs(junction1.stop - junction2.start) \
+                  < self.max_de_novo_exon_length
+        option2 = abs(junction2.stop - junction1.start) \
+                  < self.max_de_novo_exon_length
+
+        if option1:
             return junction1.stop + 1, junction2.start - 1
-        elif abs(junction2.stop - junction1.start) < self.max_de_novo_exon_length:
+        elif option2:
             return junction2.stop + 1, junction1.start - 1
         return False, False
 
