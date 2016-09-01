@@ -121,7 +121,7 @@ outrigger index \
 
 *Note: the backslashes (`\`, like a tree that's falling backwards relative to
 right-to-left reading) to tell the computer that you're not
-done tellingn it what to do, so the line continues, and to help the code be a
+done telling it what to do, so the line continues, and to help the code be a
 little more human-readable. The above code is read by the computer exactly the
 same as the one-liner below, but is easier for us humans to read.*
 
