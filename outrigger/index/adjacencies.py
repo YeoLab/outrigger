@@ -1,12 +1,10 @@
 """
 Find exons adjacent to junctions
 """
-import pprint
-import itertools
-import os
 import sqlite3
 
 import gffutils
+import joblib
 import pandas as pd
 
 from ..io.gtf import transform
@@ -21,6 +19,115 @@ DIRECTIONS = UPSTREAM, DOWNSTREAM
 NOVEL_EXON = 'novel_exon'
 OUTRIGGER_DE_NOVO = 'outrigger_de_novo'
 MAX_DE_NOVO_EXON_LENGTH = 100
+
+
+def is_feature_in_db(feature_id, db):
+    try:
+        db[feature_id]
+        return True
+    except gffutils.FeatureNotFoundError:
+        return False
+
+
+def _unify_strand(strand1, strand2):
+    """If strands are equal, return the strand, otherwise return None"""
+    if strand1 != strand2:
+        strand = None
+    else:
+        strand = strand1
+    return strand
+
+
+def _exons_from_neighboring_junctions(junction, neighbors, side='left'):
+    """Returns (chrom, start, stop, strand) of neighboring exons from junctions
+
+    Parameters
+    ----------
+    junction : outrigger.Region
+        A single junction whose neighboring exons you want
+    neighbors : pandas.DataFrame
+        All junctions which are within
+
+    Returns
+    -------
+    exons : pandas.Series
+        A column containing (chrom, start, stop, strand) for each detected exon
+    """
+    if side == 'left':
+        return neighbors.apply(lambda x: (
+            x.chrom, x.stop + 1, junction.start - 1,
+            _unify_strand(x.strand, junction.strand)), axis=1)
+    elif side == 'right':
+        return neighbors.apply(lambda x: (
+            x.chrom, junction.stop + 1, x.start - 1,
+            _unify_strand(x.strand, junction.strand)), axis=1)
+
+def _neighboring_exons(junction, df, side='left',
+                       max_de_novo_exon_length=MAX_DE_NOVO_EXON_LENGTH):
+    """Get either the left or right neighbors of a particular junction
+
+    Used to find novel exons between junctions. Not part of the
+    ExonJunctionAdjacencies object so it can be parallelized with joblib.
+    Internal function
+
+    Parameters
+    ----------
+    junction : outrigger.Region
+        A Region object with .start and .stop
+    df : pandas.DataFrame
+        A data table with "start" and "stop" columns of all junctions
+    side : 'left' | 'right'
+        Specifies whether you want the left or right side neighbors of a
+        junction (not strand-specific)
+
+    Returns
+    -------
+    neighboring_exon_locations : pandas.Series
+        A column containing (chrom, start, stop, strand) for each detected exon
+    """
+    if side == 'left':
+        rows = junction.start - df.stop
+    elif side == 'right':
+        rows = df.start - junction.stop
+    rows = rows[rows > 0]
+    rows = rows[rows <= max_de_novo_exon_length]
+    neighboring_junctions = df.loc[rows]
+
+    neighboring_exon_locations = _exons_from_neighboring_junctions(
+        junction, neighboring_junctions, side=side)
+
+    return neighboring_exon_locations
+
+
+def is_there_an_exon_here(self, junction1, junction2):
+    """Check if there could be an exon between these two junctions
+
+    Parameters
+    ----------
+    junction{1,2} : outrigger.Region
+        Outrigger.Region objects
+
+    Returns
+    -------
+    start, stop : (int, int) or (False, False)
+        Start and stop of the new exon if it exists, else False, False
+    """
+    if junction1.overlaps(junction2):
+        return False, False
+
+    # These are junction start/stops, not exon start/stops
+    # Move one nt upstream of starts for exon stops,
+    # and one nt downstream of stops for exon starts.
+    option1 = abs(junction1.stop - junction2.start) \
+              < self.max_de_novo_exon_length
+    option2 = abs(junction2.stop - junction1.start) \
+              < self.max_de_novo_exon_length
+
+    if option1:
+        return junction1.stop + 1, junction2.start - 1
+    elif option2:
+        return junction2.stop + 1, junction1.start - 1
+    return False, False
 
 class ExonJunctionAdjacencies(object):
     """Annotate junctions with neighboring exon_cols (upstream or downstream)"""
@@ -65,70 +172,73 @@ class ExonJunctionAdjacencies(object):
 
         self.max_de_novo_exon_length = max_de_novo_exon_length
 
+
     def detect_exons_from_junctions(self):
         """Find exons based on gaps in junctions"""
         junctions = pd.Series(self.metadata.index.map(Region),
                               name='region', index=self.metadata.index)
         junctions = junctions.to_frame()
         junctions['chrom'] = junctions['region'].map(lambda x: x.chrom)
+        junctions['start'] = junctions['region'].map(lambda x: x.start)
+        junctions['stop'] = junctions['region'].map(lambda x: x.stop)
 
         for chrom, df in junctions.groupby('chrom'):
-            junction_pairs = itertools.combinations(df.iterrows(), 2)
-            for (name1, row1), (name2, row2) in junction_pairs:
-                junction1 = row1['region']
-                junction2 = row2['region']
+            # Only get left-adjacent novel exons since there has to be a
+            # junction on both sides, and since we iterate over ALL junctions,
+            # if we get all left and right exons for all junctions, we're
+            # double-counting exons
+            progress('\tFinding all exons on chromosome {chrom} '
+                     '...'.format(chrom=chrom))
+            exon_locations = joblib.Parallel(
+                joblib.delayed(_neighboring_exons)(junction, df, 'left')
+                for junction in df.region)
+            done()
 
-                strand1, strand2 = junction1.strand, junction2.strand
+            progress('\tFiltering for only novel exons on chromosome {chrom} '
+                     '...'.format(chrom=chrom))
+            novel_exons = filter(
+                lambda x: is_feature_in_db(
+                    'exon:{}:{}-{}:{}'.format(exon_locations), self.db))
+            done()
 
-                if strand1 != strand2:
-                    strand = None
-                else:
-                    strand = strand1
+            progress('\tCreating gffutils.Feature objects for each novel exon,'
+                     ' plus potentially its overlapping gene')
+            exon_features = (self.exon_location_to_feature(*x)
+                             for x in novel_exons)
+            done()
 
-                start, stop = self.is_there_an_exon_here(junction1, junction2)
-                if start:
-                    progress('Found new exon between '
-                             '{} and {}'.format(str(junction1),
-                                                str(junction2)))
-                    self.add_exon_to_db(chrom, start=start, stop=stop,
-                                        strand=strand)
+            progress('\tUpdating gffutils database with novel exons on '
+                     'chromosome {chrom} ...'.format(chrom=chrom))
+            self.db.update(exon_features, make_backup=False)
+            done()
+
+    def exon_location_to_feature(self, chrom, start, stop, strand):
+        if strand not in STRANDS:
+            strand = None
+        overlapping_genes = list(self.db.region(seqid=chrom, start=start,
+                                                end=stop, strand=strand,
+                                                featuretype='gene'))
+
+        exon_id = 'exon:{chrom}:{start}-{stop}:{strand}'.format(
+            chrom=chrom, start=start, stop=stop, strand=strand)
+
+        if len(overlapping_genes) == 0:
+            exons = [gffutils.Feature(chrom, source=OUTRIGGER_DE_NOVO,
+                                    featuretype=NOVEL_EXON, start=start,
+                                    end=stop, strand=strand, id=exon_id)]
+        else:
+            exons = [gffutils.Feature(
+                chrom, source=OUTRIGGER_DE_NOVO, featuretype=NOVEL_EXON,
+                start=start, end=stop, strand=g.strand, id=exon_id + g.strand,
+                attributes=dict(g.attributes.items()))
+                         for g in overlapping_genes]
+        return exons
 
     def write_de_novo_exons(self, filename='novel_exons.gtf'):
         """Write all de novo exons to a gtf"""
         with open(filename, 'w') as f:
             for noveL_exon in self.db.features_of_type(NOVEL_EXON):
                 f.write(str(noveL_exon) + '\n')
-
-    def is_there_an_exon_here(self, junction1, junction2):
-        """Check if there could be an exon between these two junctions
-
-        Parameters
-        ----------
-        junction{1,2} : outrigger.Region
-            Outrigger.Region objects
-
-        Returns
-        -------
-        start, stop : (int, int) or (False, False)
-            Start and stop of the new exon if it exists, else False, False
-        """
-        if junction1.overlaps(junction2):
-            return False, False
-
-        # These are junction start/stops, not exon start/stops
-        # Move one nt upstream of starts for exon stops,
-        # and one nt downstream of stops for exon starts.
-        option1 = abs(junction1.stop - junction2.start) \
-                  < self.max_de_novo_exon_length
-        option2 = abs(junction2.stop - junction1.start) \
-                  < self.max_de_novo_exon_length
-
-        if option1:
-            return junction1.stop + 1, junction2.start - 1
-        elif option2:
-            return junction2.stop + 1, junction1.start - 1
-        return False, False
-
 
     def add_exon_to_db(self, chrom, start, stop, strand):
         if strand not in STRANDS:
