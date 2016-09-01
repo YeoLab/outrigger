@@ -357,7 +357,7 @@ class Index(Subcommand):
     def make_exon_junction_adjacencies(self, metadata, db):
         """Get annotated exon_cols next to junctions in data"""
         exon_junction_adjacencies = adjacencies.ExonJunctionAdjacencies(
-            metadata, db, self.max_de_novo_exon_length)
+            metadata, db, max_de_novo_exon_length=self.max_de_novo_exon_length)
 
         util.progress('Detecting de novo exons based on gaps between '
                       'junctions ...')
