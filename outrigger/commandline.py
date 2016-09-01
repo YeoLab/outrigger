@@ -82,6 +82,15 @@ class CommandLine(object):
                                        'to a locus, in the read count for a '
                                        'junction. By default, this is off, and'
                                        ' all reads are used.')
+        index_parser.add_argument('-l', '--max-de-novo-exon-length',
+                                  default=adjacencies.MAX_DE_NOVO_EXON_LENGTH,
+                                  action='store',
+                                  help='Maximum length of an exon detected '
+                                       '*de novo* from the dataset. This is to'
+                                       ' prevent multiple kilobase long exons '
+                                       'from being accidentally created. '
+                                       '(default={})'.format(
+                                      adjacencies.MAX_DE_NOVO_EXON_LENGTH))
 
         gtf_parser = index_parser.add_mutually_exclusive_group(required=True)
         gtf_parser.add_argument('-g', '--gtf-filename', type=str,
@@ -329,6 +338,8 @@ class Subcommand(object):
 
 class Index(Subcommand):
 
+    max_de_novo_exon_length = adjacencies.MAX_DE_NOVO_EXON_LENGTH
+
     @staticmethod
     def junction_metadata(spliced_reads):
         """Get just the junction info from the concatenated read files"""
@@ -341,7 +352,7 @@ class Index(Subcommand):
     def make_exon_junction_adjacencies(self, metadata, db):
         """Get annotated exon_cols next to junctions in data"""
         exon_junction_adjacencies = adjacencies.ExonJunctionAdjacencies(
-            metadata, db)
+            metadata, db, self.max_de_novo_exon_length)
 
         util.progress('Detecting de novo exons based on gaps between '
                       'junctions ...')

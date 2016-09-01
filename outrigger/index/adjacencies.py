@@ -20,7 +20,7 @@ DOWNSTREAM = 'downstream'
 DIRECTIONS = UPSTREAM, DOWNSTREAM
 NOVEL_EXON = 'novel_exon'
 OUTRIGGER_DE_NOVO = 'outrigger_de_novo'
-
+MAX_DE_NOVO_EXON_LENGTH = 100
 
 class ExonJunctionAdjacencies(object):
     """Annotate junctions with neighboring exon_cols (upstream or downstream)"""
@@ -29,7 +29,8 @@ class ExonJunctionAdjacencies(object):
 
     def __init__(self, metadata, db, junction_id=JUNCTION_ID,
                  exon_start=EXON_START, exon_stop=EXON_STOP,
-                 chrom=CHROM, strand=STRAND, max_de_novo_exon_nt=100):
+                 chrom=CHROM, strand=STRAND,
+                 max_de_novo_exon_length=MAX_DE_NOVO_EXON_LENGTH):
         """Initialize class to get upstream/downstream exon_cols of junctions
 
         Parameters
@@ -62,7 +63,7 @@ class ExonJunctionAdjacencies(object):
 
         self.db = db
 
-        self.max_de_novo_exon_nt = max_de_novo_exon_nt
+        self.max_de_novo_exon_length = max_de_novo_exon_length
 
     def detect_exons_from_junctions(self):
         """Find exons based on gaps in junctions"""
@@ -117,9 +118,9 @@ class ExonJunctionAdjacencies(object):
         # These are junction start/stops, not exon start/stops
         # Move one nt upstream of starts for exon stops,
         # and one nt downstream of stops for exon starts.
-        if abs(junction1.stop - junction2.start) < self.max_de_novo_exon_nt:
+        if abs(junction1.stop - junction2.start) < self.max_de_novo_exon_length:
             return junction1.stop + 1, junction2.start - 1
-        elif abs(junction2.stop - junction1.start) < self.max_de_novo_exon_nt:
+        elif abs(junction2.stop - junction1.start) < self.max_de_novo_exon_length:
             return junction2.stop + 1, junction1.start - 1
         return False, False
 
