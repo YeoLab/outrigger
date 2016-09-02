@@ -1,0 +1,23 @@
+v0.2.0 (...)
+------------
+
+This is the second release of `outrigger`
+
+New features
+~~~~~~~~~~~~
+
+- Parallelized exon finding for novel exons
+
+Plotting functions
+~~~~~~~~~~~~~~~~~~
+
+API changes
+~~~~~~~~~~~
+
+
+Bug fixes
+~~~~~~~~~
+
+Miscellaneous
+~~~~~~~~~~~~~
+
