@@ -219,7 +219,9 @@ class ExonJunctionAdjacencies(object):
 
             progress('\tUpdating gffutils database with novel exons on '
                      'chromosome {chrom} ...'.format(chrom=chrom))
-            self.db.update(itertools.chain(*exon_features), make_backup=False)
+            self.db.update(itertools.chain(*exon_features), make_backup=False,
+                           id_spec={'novel_exon': 'location_id'},
+                           transform=transform)
             done()
 
     def exon_location_to_feature(self, chrom, start, stop, strand):
