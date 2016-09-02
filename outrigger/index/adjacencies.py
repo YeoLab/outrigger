@@ -370,7 +370,7 @@ class ExonJunctionAdjacencies(object):
         Parameters
         ----------
         exon : gffutils.Feature
-            An item in
+            An item in a gffutils database
 
         """
         dfs = []

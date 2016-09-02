@@ -73,24 +73,27 @@ class TestExonJunctionAdjacencies(object):
 
     def test__junctions_genome_adjacent_to_exon(self, adjacencies, snap25_exon,
                                                     adjacent_in_genome):
+        true = adjacent_in_genome
         test = adjacencies._junctions_genome_adjacent_to_exon(snap25_exon)
-        pdt.assert_dict_equal(test, adjacent_in_genome)
+
+        pdt.assert_dict_equal(test, true)
 
     def test__to_stranded_transcript_adjacency(self, adjacencies, strand,
                                                adjacent_in_genome):
+        true = adjacent_in_genome.copy()
         test = adjacencies._to_stranded_transcript_adjacency(
             adjacent_in_genome, strand)
 
         if strand == '-':
             pdt.assert_series_equal(test['upstream'],
-                                    adjacent_in_genome['downstream'])
+                                    true['downstream'])
             pdt.assert_series_equal(test['downstream'],
-                                    adjacent_in_genome['upstream'])
+                                    true['upstream'])
         elif strand == '+':
             pdt.assert_series_equal(test['upstream'],
-                                    adjacent_in_genome['upstream'])
+                                    true['upstream'])
             pdt.assert_series_equal(test['downstream'],
-                                    adjacent_in_genome['downstream'])
+                                    true['downstream'])
 
     def test__single_junction_exon_triple(self, adjacencies,
                                           snap25_exon_id,
