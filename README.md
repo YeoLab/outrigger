@@ -417,7 +417,7 @@ bedtools flank -l 2 -r 0 -i exon2_sorted.bed -s -g ~/genomes/mm10/mm10.chrom.siz
 
 Do the same thing for downstream splice sites, but swap the `-l` and `-r`:
 
-``
+```
 bedtools flank -r 2 -l 0 -i exon_sorted2.bed -s -g ~/genomes/mm10/mm10.chrom.sizes > exon2_sorted_2nt_downstream.bed
 ```
 
