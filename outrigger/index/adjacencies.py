@@ -2,9 +2,9 @@
 Find exons adjacent to junctions
 """
 import sqlite3
+import itertools
 
 import gffutils
-import joblib
 import pandas as pd
 
 from ..io.gtf import transform
@@ -53,6 +53,8 @@ def _exons_from_neighboring_junctions(junction, neighbors, side='left'):
     exons : pandas.Series
         A column containing (chrom, start, stop, strand) for each detected exon
     """
+    if neighbors.empty:
+        return pd.Series()
     if side == 'left':
         return neighbors.apply(lambda x: (
             x.chrom, x.stop + 1, junction.start - 1,
@@ -61,6 +63,7 @@ def _exons_from_neighboring_junctions(junction, neighbors, side='left'):
         return neighbors.apply(lambda x: (
             x.chrom, junction.stop + 1, x.start - 1,
             _unify_strand(x.strand, junction.strand)), axis=1)
+
 
 def _neighboring_exons(junction, df, side='left',
                        max_de_novo_exon_length=MAX_DE_NOVO_EXON_LENGTH):
@@ -91,7 +94,7 @@ def _neighboring_exons(junction, df, side='left',
         rows = df.start - junction.stop
     rows = rows[rows > 0]
     rows = rows[rows <= max_de_novo_exon_length]
-    neighboring_junctions = df.loc[rows]
+    neighboring_junctions = df.loc[rows.index]
 
     neighboring_exon_locations = _exons_from_neighboring_junctions(
         junction, neighboring_junctions, side=side)
@@ -137,7 +140,8 @@ class ExonJunctionAdjacencies(object):
     def __init__(self, metadata, db, junction_id=JUNCTION_ID,
                  exon_start=EXON_START, exon_stop=EXON_STOP,
                  chrom=CHROM, strand=STRAND,
-                 max_de_novo_exon_length=MAX_DE_NOVO_EXON_LENGTH):
+                 max_de_novo_exon_length=MAX_DE_NOVO_EXON_LENGTH,
+                 n_jobs=-1):
         """Initialize class to get upstream/downstream exon_cols of junctions
 
         Parameters
@@ -172,6 +176,8 @@ class ExonJunctionAdjacencies(object):
 
         self.max_de_novo_exon_length = max_de_novo_exon_length
 
+        self.n_jobs = n_jobs
+
 
     def detect_exons_from_junctions(self):
         """Find exons based on gaps in junctions"""
@@ -181,6 +187,7 @@ class ExonJunctionAdjacencies(object):
         junctions['chrom'] = junctions['region'].map(lambda x: x.chrom)
         junctions['start'] = junctions['region'].map(lambda x: x.start)
         junctions['stop'] = junctions['region'].map(lambda x: x.stop)
+        junctions['strand'] = junctions['region'].map(lambda x: x.strand)
 
         for chrom, df in junctions.groupby('chrom'):
             # Only get left-adjacent novel exons since there has to be a
@@ -189,16 +196,19 @@ class ExonJunctionAdjacencies(object):
             # double-counting exons
             progress('\tFinding all exons on chromosome {chrom} '
                      '...'.format(chrom=chrom))
-            exon_locations = joblib.Parallel(
-                joblib.delayed(_neighboring_exons)(junction, df, 'left')
-                for junction in df.region)
+            # exon_locations = joblib.Parallel(n_jobs=self.n_jobs)(
+            #     joblib.delayed(_neighboring_exons)(junction, df, 'left')
+            #     for junction in df.region)
+            exon_locations = []
+            for junction in df.region:
+                exon_locations.append(_neighboring_exons(junction, df, 'left'))
+            exon_locations = pd.concat(exon_locations, ignore_index=True)
             done()
 
             progress('\tFiltering for only novel exons on chromosome {chrom} '
                      '...'.format(chrom=chrom))
-            novel_exons = filter(
-                lambda x: is_feature_in_db(
-                    'exon:{}:{}-{}:{}'.format(exon_locations), self.db))
+            novel_exons = (x for x in exon_locations if is_feature_in_db(
+                'exon:{}:{}-{}:{}'.format(*x), self.db))
             done()
 
             progress('\tCreating gffutils.Feature objects for each novel exon,'
@@ -209,7 +219,7 @@ class ExonJunctionAdjacencies(object):
 
             progress('\tUpdating gffutils database with novel exons on '
                      'chromosome {chrom} ...'.format(chrom=chrom))
-            self.db.update(exon_features, make_backup=False)
+            self.db.update(itertools.chain(*exon_features), make_backup=False)
             done()
 
     def exon_location_to_feature(self, chrom, start, stop, strand):
