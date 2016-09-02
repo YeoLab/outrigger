@@ -207,7 +207,7 @@ class ExonJunctionAdjacencies(object):
 
             progress('\tFiltering for only novel exons on chromosome {chrom} '
                      '...'.format(chrom=chrom))
-            novel_exons = (x for x in exon_locations if is_feature_in_db(
+            novel_exons = set(x for x in exon_locations if is_feature_in_db(
                 'exon:{}:{}-{}:{}'.format(*x), self.db))
             done()
 
