@@ -332,7 +332,7 @@ class Subcommand(object):
                 db = gffutils.FeatureDB(db_filename)
                 util.progress(
                     "Found existing built outrigger-built gffutils database "
-                    "file in {}".format(self.gtf_filename))
+                    "file in {}".format(db_filename))
             except (ValueError, TypeError):
                 util.progress(
                     'Creating a "gffutils" '
