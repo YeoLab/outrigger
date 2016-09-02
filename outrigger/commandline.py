@@ -333,7 +333,7 @@ class Subcommand(object):
                 util.progress(
                     "Found existing built outrigger-built gffutils database "
                     "file in {}".format(self.gtf_filename))
-            except ValueError:
+            except (ValueError, TypeError):
                 util.progress(
                     'Creating a "gffutils" '
                     'database {} ...'.format(db_filename))
