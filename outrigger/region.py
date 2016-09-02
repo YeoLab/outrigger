@@ -3,6 +3,7 @@
 
 STRANDS = '+', '-'
 
+
 class Region(object):
 
     __slots__ = ('region', 'chrom', 'start', 'stop', 'strand')

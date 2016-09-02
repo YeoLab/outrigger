@@ -110,10 +110,6 @@ def junction_to_reads(junction12, junction12_reads,
                       junction13: junction13_reads})
 
 
-def test_filter_and_sum():
-    pass
-
-
 def test_maybe_get_isoform_reads(splice_junction_reads, junction_locations,
                                  isoform_junctions, junction_to_reads,
                                  reads_col):
@@ -133,6 +129,7 @@ def test_maybe_get_isoform_reads(splice_junction_reads, junction_locations,
             names=['junction', 'sample_id'])
     pdt.assert_series_equal(test, true)
 
+
 @pytest.fixture
 def exons_to_junctions(splice_type, simulated_outrigger_index):
     # strand_str = 'positive' if strand == "+" else 'negative'
@@ -142,16 +139,18 @@ def exons_to_junctions(splice_type, simulated_outrigger_index):
     filename = os.path.join(folder, basename)
     return pd.read_csv(filename, index_col=0)
 
+
 @pytest.fixture
 def events(splice_type):
     if splice_type == 'se':
         # if strand == '+':
-        return ['isoform1=junction:chr1:176-299:+|isoform2=junction:chr1:176-199:+@exon:chr1:200-250:+@junction:chr1:251-299:+',
-                'isoform1=junction:chr1:176-299:+|isoform2=junction:chr1:176-224:+@exon:chr1:225-250:+@junction:chr1:251-299:+',
-                'isoform1=junction:chr1:176-299:+|isoform2=junction:chr1:176-224:+@exon:chr1:225-275:+@junction:chr1:276-299:+']
+        return ['isoform1=junction:chr1:176-299:+|isoform2=junction:chr1:176-199:+@exon:chr1:200-250:+@junction:chr1:251-299:+',  # noqa
+                'isoform1=junction:chr1:176-299:+|isoform2=junction:chr1:176-224:+@exon:chr1:225-250:+@junction:chr1:251-299:+',  # noqa
+                'isoform1=junction:chr1:176-299:+|isoform2=junction:chr1:176-224:+@exon:chr1:225-275:+@junction:chr1:276-299:+']  # noqa
     if splice_type == 'mxe':
         # if strand == '+':
-        return ['isoform1=junction:chr1:176-299:+@exon:chr1:300-350:+@junction:chr1:351-399:+|isoform2=junction:chr1:176-224:+@exon:chr1:225-250:+@junction:chr1:251-399:+']
+        return ['isoform1=junction:chr1:176-299:+@exon:chr1:300-350:+@junction:chr1:351-399:+|isoform2=junction:chr1:176-224:+@exon:chr1:225-250:+@junction:chr1:251-399:+']  # noqa
+
 
 @pytest.fixture
 def illegal_junctions(splice_type):

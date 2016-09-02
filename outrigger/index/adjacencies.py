@@ -122,9 +122,9 @@ def is_there_an_exon_here(self, junction1, junction2):
     # Move one nt upstream of starts for exon stops,
     # and one nt downstream of stops for exon starts.
     option1 = abs(junction1.stop - junction2.start) \
-              < self.max_de_novo_exon_length
+        < self.max_de_novo_exon_length
     option2 = abs(junction2.stop - junction1.start) \
-              < self.max_de_novo_exon_length
+        < self.max_de_novo_exon_length
 
     if option1:
         return junction1.stop + 1, junction2.start - 1
@@ -132,8 +132,9 @@ def is_there_an_exon_here(self, junction1, junction2):
         return junction2.stop + 1, junction1.start - 1
     return False, False
 
+
 class ExonJunctionAdjacencies(object):
-    """Annotate junctions with neighboring exon_cols (upstream or downstream)"""
+    """Annotate junctions with neighboring exons (upstream or downstream)"""
 
     exon_types = 'exon', NOVEL_EXON
 
@@ -177,7 +178,6 @@ class ExonJunctionAdjacencies(object):
         self.max_de_novo_exon_length = max_de_novo_exon_length
 
         self.n_jobs = n_jobs
-
 
     def detect_exons_from_junctions(self):
         """Find exons based on gaps in junctions"""
@@ -236,8 +236,8 @@ class ExonJunctionAdjacencies(object):
 
         if len(overlapping_genes) == 0:
             exons = [gffutils.Feature(chrom, source=OUTRIGGER_DE_NOVO,
-                                    featuretype=NOVEL_EXON, start=start,
-                                    end=stop, strand=strand, id=exon_id)]
+                                      featuretype=NOVEL_EXON, start=start,
+                                      end=stop, strand=strand, id=exon_id)]
         else:
             exons = [gffutils.Feature(
                 chrom, source=OUTRIGGER_DE_NOVO, featuretype=NOVEL_EXON,
@@ -292,13 +292,14 @@ class ExonJunctionAdjacencies(object):
                     # Check that the non-novel exon doesn't exist already
                     self.db[exon_id + exon.strand]
                 except gffutils.FeatureNotFoundError:
-                    # print([dict(g.attributes.items()) for g in overlapping_genes])
-                    self.db.update([exon], id_spec={'novel_exon': 'location_id'},
+                    self.db.update([exon],
+                                   id_spec={'novel_exon': 'location_id'},
                                    transform=transform)
-                    progress('\tAdded a novel exon ({}) in the gene {} '
-                             '({})'.format(exon.id,
-                                           ','.join(exon.attributes['gene_id']),
-                                           gene_name))
+                    progress(
+                        '\tAdded a novel exon ({}) in the gene {} '
+                        '({})'.format(
+                            exon.id, ','.join(exon.attributes['gene_id']),
+                            gene_name))
             except sqlite3.IntegrityError:
                 continue
 
@@ -400,8 +401,8 @@ class ExonJunctionAdjacencies(object):
         should be read as "exonA is upstream of juction X" and "exonB is
         downstream of junctionX"
 
-        Use junctions defined in ``sj_metadata`` and exon_cols in ``db`` to create
-        triples of (exon, direction, junction), which are read like
+        Use junctions defined in ``sj_metadata`` and exon_cols in ``db`` to
+        create triples of (exon, direction, junction), which are read like
         (subject, object, verb) e.g. ('exon1', 'upstream', 'junction12'), for
         creation of a graph database.
 

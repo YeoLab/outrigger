@@ -5,12 +5,13 @@ import re
 import pandas as pd
 import pandas.util.testing as pdt
 import pytest
-import six
 from graphlite import connect, V
+
+from outrigger.index.events import SPLICE_TYPES
+
 
 logging.basicConfig(level=logging.DEBUG)
 
-from outrigger.index.events import SPLICE_TYPES
 
 @pytest.fixture()
 def chrom():

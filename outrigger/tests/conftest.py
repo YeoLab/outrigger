@@ -19,53 +19,64 @@ def tasic2016(data_folder):
     """Suffix for data created from Tasic et al, Nat Neurosci (2016)"""
     return os.path.join(data_folder, 'tasic2016')
 
+
 @pytest.fixture
 def tasic2016_unprocessed(tasic2016):
     """Suffix for raw data created from Tasic et al, Nat Neurosci (2016)"""
     return os.path.join(tasic2016, 'unprocessed')
+
 
 @pytest.fixture
 def simulated(data_folder):
     """Suffix for simulated data"""
     return os.path.join(data_folder, 'simulated')
 
+
 @pytest.fixture
 def simulated_unprocessed(simulated):
     """Suffix for raw simulated data"""
     return os.path.join(simulated, 'unprocessed')
+
 
 @pytest.fixture
 def simulated_outrigger_output(simulated):
     """Suffix for simulated data outrigger output"""
     return os.path.join(simulated, 'outrigger_output')
 
+
 @pytest.fixture
 def simulated_outrigger_index(simulated_outrigger_output):
     """Suffix for simulated data splicing events"""
     return os.path.join(simulated_outrigger_output, 'index')
+
 
 @pytest.fixture
 def simulated_outrigger_se(simulated_outrigger_index):
     """Suffix for simulated data splicing events"""
     return os.path.join(simulated_outrigger_index, 'se')
 
+
 @pytest.fixture
 def simulated_outrigger_mxe(simulated_outrigger_index):
     """Suffix for simulated data splicing events"""
     return os.path.join(simulated_outrigger_index, 'mxe')
+
 
 @pytest.fixture
 def simulated_outrigger_psi(simulated_outrigger_output):
     """Suffix for simulated data splicing events"""
     return os.path.join(simulated_outrigger_output, 'psi')
 
+
 @pytest.fixture
 def tasic2016_sj_out_tab(tasic2016_unprocessed):
     return os.path.join(tasic2016_unprocessed, 'sj_out_tab')
 
+
 @pytest.fixture
 def tasic2016_gtf(tasic2016_unprocessed):
     return os.path.join(tasic2016_unprocessed, 'gtf')
+
 
 @pytest.fixture
 def tasic2016_intermediate(tasic2016):
@@ -75,8 +86,9 @@ def tasic2016_intermediate(tasic2016):
 
 @pytest.fixture
 def tasic2016_outrigger_output(tasic2016):
-    """Suffix for outrigger_output files from Tasic et al Nat Neurosci (2016)"""
+    """Suffix for outrigger_output files from Tasic Nat Neurosci (2016)"""
     return os.path.join(tasic2016, 'outrigger_output')
+
 
 @pytest.fixture
 def tasic2016_outrigger_junctions(tasic2016_outrigger_output):
@@ -120,6 +132,7 @@ def gtf_filename(tasic2016_gtf):
     return os.path.join(tasic2016_gtf,
                         'gencode.vM10.annotation.snap25.myl6.gtf')
 
+
 @pytest.fixture
 def db_filename(gtf_filename):
     return gtf_filename + '.db'
@@ -128,7 +141,6 @@ def db_filename(gtf_filename):
 @pytest.fixture
 def db(db_filename):
     return gffutils.FeatureDB(db_filename)
-
 
 
 @pytest.fixture

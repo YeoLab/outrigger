@@ -11,20 +11,17 @@ from .adjacencies import UPSTREAM, DOWNSTREAM, DIRECTIONS
 from ..io.common import STRAND
 from ..util import progress
 
+# Define constants so they can be accessed in other sub-modules
 SPLICE_TYPES = (('skipped_exon', 'se'), ('mutually_exclusive_exon', 'mxe'))
-
 ISOFORM_ORDER = 'isoform1', 'isoform2'
-ISOFORM_COMPONENTS = {'se': {'isoform1': ('junction13',),
-                             'isoform2': ('junction12', 'exon2', 'junction23')
-                             },
-                      'mxe': {'isoform1': ('junction13', 'exon3',
-                                           'junction34'),
-                             'isoform2': ('junction12', 'exon2', 'junction24')
-                             }
-                      }
+ISOFORM_COMPONENTS = {
+    'se': {'isoform1': ('junction13',),
+           'isoform2': ('junction12', 'exon2', 'junction23')},
+    'mxe': {'isoform1': ('junction13', 'exon3', 'junction34'),
+            'isoform2': ('junction12', 'exon2', 'junction24')}}
 EVENT_ID_COLUMN = 'event_id'
-
 ILLEGAL_JUNCTIONS = 'illegal_junctions'
+
 
 def stringify_location(chrom, start, stop, strand, region=None):
     """"""
@@ -52,7 +49,7 @@ class EventMaker(object):
             exon1, upstream, junction12
 
         db : gffutils.FeatureDB
-            Gffutils Database of gene, transcript, and exon features. The exon_cols
+            Gffutils Database of gene, transcript, and exon features. The exons
             must be accessible by the id provided on the `exon_col`
             columns. If not provided, certain splice types which require
             information about the transcript (AFE, ALE) cannot be annotated.
@@ -116,7 +113,7 @@ class EventMaker(object):
             lambda x: '|'.join(
                 '{}={}'.format(isoform, '@'.join(
                     x[list(isoform_components[isoform])]))
-                       for isoform in ISOFORM_ORDER), axis=1)
+                for isoform in ISOFORM_ORDER), axis=1)
         events = events.set_index(EVENT_ID_COLUMN)
         return events
 
@@ -186,7 +183,8 @@ class EventMaker(object):
     def exons_one_junction_downstream(self, exon_i):
         """Get the exon(s) that are immediately downstream of this one
 
-        Get exon_cols that are downstream from this one, separated by one junction
+        Get exon_cols that are downstream from this one, separated by one
+        junction
 
         Parameters
         ----------
@@ -206,7 +204,8 @@ class EventMaker(object):
     def exons_one_junction_upstream(self, exon_query):
         """Get the exon(s) that are immediately upstream of this one
 
-        Get exon_cols that are upstream from this one, separated by one junction
+        Get exon_cols that are upstream from this one, separated by one
+        junction
 
         Parameters
         ----------
@@ -238,8 +237,8 @@ class EventMaker(object):
         Returns
         -------
         downstream_exons : graphlite.Query
-            Integer identfiers of exon_cols which are separated from the original
-            exon by a junction, exon, and another junction
+            Integer identfiers of exon_cols which are separated from the
+            original exon by a junction, exon, and another junction
         """
         return self.graph.find(V().downstream(exon_i)).traverse(
             V().upstream).traverse(V().upstream).traverse(V().upstream)

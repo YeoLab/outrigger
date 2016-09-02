@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import argparse
-import glob
 import logging
 import os
 import pdb
@@ -31,6 +30,7 @@ JUNCTION_METADATA_PATH = os.path.join(JUNCTION_PATH, 'metadata.csv')
 INDEX = os.path.join(OUTPUT, 'index')
 EVENTS_CSV = 'events.csv'
 METADATA_CSV = 'metadata.csv'
+
 
 class CommandLine(object):
     def __init__(self, input_options=None):
@@ -82,15 +82,14 @@ class CommandLine(object):
                                        'to a locus, in the read count for a '
                                        'junction. By default, this is off, and'
                                        ' all reads are used.')
-        index_parser.add_argument('-l', '--max-de-novo-exon-length',
-                                  default=adjacencies.MAX_DE_NOVO_EXON_LENGTH,
-                                  action='store',
-                                  help='Maximum length of an exon detected '
-                                       '*de novo* from the dataset. This is to'
-                                       ' prevent multiple kilobase long exons '
-                                       'from being accidentally created. '
-                                       '(default={})'.format(
-                                      adjacencies.MAX_DE_NOVO_EXON_LENGTH))
+        index_parser.add_argument(
+            '-l', '--max-de-novo-exon-length',
+            default=adjacencies.MAX_DE_NOVO_EXON_LENGTH, action='store',
+            help='Maximum length of an exon detected '
+                 '*de novo* from the dataset. This is to'
+                 ' prevent multiple kilobase long exons '
+                 'from being accidentally created. '
+                 '(default={})'.format(adjacencies.MAX_DE_NOVO_EXON_LENGTH))
 
         gtf_parser = index_parser.add_mutually_exclusive_group(required=True)
         gtf_parser.add_argument('-g', '--gtf-filename', type=str,
@@ -135,7 +134,8 @@ class CommandLine(object):
                                      'to the directory where you called this '
                                      'program, assuming you have called '
                                      '"outrigger psi" in the same folder as '
-                                     'you called "outrigger index")'.format(INDEX))
+                                     'you called "outrigger '
+                                     'index")'.format(INDEX))
         splice_junctions = psi_parser.add_mutually_exclusive_group(
             required=False)
         splice_junctions.add_argument(
@@ -156,13 +156,13 @@ class CommandLine(object):
                                 help='Minimum number of reads per junction for'
                                      ' calculating Psi (default=10)')
         psi_parser.add_argument('--ignore-multimapping', action='store_true',
-                                  help='Applies to STAR SJ.out.tab files only.'
-                                       ' If this flag is used, then do not '
-                                       'include reads that mapped to multiple '
-                                       'locations in the genome, not uniquely '
-                                       'to a locus, in the read count for a '
-                                       'junction. By default, this is off, and'
-                                       ' all reads are used.')
+                                help='Applies to STAR SJ.out.tab files only.'
+                                     ' If this flag is used, then do not '
+                                     'include reads that mapped to multiple '
+                                     'locations in the genome, not uniquely '
+                                     'to a locus, in the read count for a '
+                                     'junction. By default, this is off, and'
+                                     ' all reads are used.')
         psi_parser.add_argument('--reads-col', default='reads',
                                 help="Name of column in --splice-junction-csv "
                                      "containing reads to use. "
@@ -290,11 +290,11 @@ class Subcommand(object):
     def csv(self):
         """Create a csv file of compiled splice junctions"""
         if not os.path.exists(self.junction_reads_csv):
-            util.progress('Reading SJ.out.files and creating a big splice junction'
-                          ' table of reads spanning exon-exon junctions...')
+            util.progress(
+                'Reading SJ.out.files and creating a big splice junction'
+                ' table of reads spanning exon-exon junctions...')
             splice_junctions = star.read_multiple_sj_out_tab(
                 self.sj_out_tab, ignore_multimapping=self.ignore_multimapping)
-            # splice_junctions['reads'] = splice_junctions['unique_junction_reads']
 
             dirname = os.path.dirname(self.junction_reads_csv)
             if not os.path.exists(dirname):
@@ -325,7 +325,8 @@ class Subcommand(object):
             util.done()
         else:
             basename = os.path.basename(self.gtf_filename)
-            db_filename = os.path.join(self.gtf_folder,  '{}.db'.format(basename))
+            db_filename = os.path.join(self.gtf_folder,
+                                       '{}.db'.format(basename))
             util.progress("Found GTF file in {}".format(self.gtf_filename))
             try:
                 db = gffutils.FeatureDB(db_filename)
@@ -524,16 +525,18 @@ class Psi(Subcommand):
 
         for splice_name, splice_folder in self.splice_type_folders.items():
             if not os.path.exists(splice_folder):
-                raise OSError("The splicing index of {} ({}) splice types "
-                              "doesn't exist! Cowardly existing because I "
-                              "don't know how to define events :(".format(
-                    splice_name, splice_folder))
+                raise OSError(
+                    "The splicing index of {} ({}) splice types "
+                    "doesn't exist! Cowardly existing because I "
+                    "don't know how to define events :(".format(
+                        splice_name, splice_folder))
 
         if not os.path.exists(self.junction_reads_csv):
-            raise OSError("The junction reads csv file ({}) doesn't exist! "
-                          "Cowardly exiting because I don't have the junction "
-                          "counts calcaulate psi on :(".format(
-                self.junction_reads_csv))
+            raise OSError(
+                "The junction reads csv file ({}) doesn't exist! "
+                "Cowardly exiting because I don't have the junction "
+                "counts calcaulate psi on :(".format(
+                    self.junction_reads_csv))
 
         for folder in self.folders:
             self.maybe_make_folder(folder)
@@ -551,7 +554,8 @@ class Psi(Subcommand):
 
     @property
     def splice_type_folders(self):
-        return dict((splice_name, os.path.join(self.index_folder, splice_abbrev))
+        return dict((splice_name, os.path.join(self.index_folder,
+                                               splice_abbrev))
                     for splice_name, splice_abbrev in events.SPLICE_TYPES)
 
     @property
@@ -615,9 +619,10 @@ class Psi(Subcommand):
             logger.debug('\n--- Splicing event annotation ---')
             logger.debug(repr(event_annotation.head()))
 
-            util.progress('Calculating percent spliced-in (Psi) scores on '
-                          '{name} ({abbrev}) events ...'.format(
-                name=splice_name, abbrev=splice_abbrev))
+            util.progress(
+                'Calculating percent spliced-in (Psi) scores on '
+                '{name} ({abbrev}) events ...'.format(
+                    name=splice_name, abbrev=splice_abbrev))
             event_psi = compute.calculate_psi(
                 event_annotation, junction_reads,
                 min_reads=self.min_reads, debug=self.debug,

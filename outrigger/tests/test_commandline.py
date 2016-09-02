@@ -1,7 +1,7 @@
 
-import filecmp
-import glob
-import os
+# import filecmp
+# import glob
+# import os
 
 
 class TestSubcommand(object):
@@ -20,9 +20,9 @@ class TestSubcommand(object):
 # def test_main_index(tmpdir):
 #     from outrigger.commandline import CommandLine
 #
-#     sj_out_tab = ' '.join(glob.iglob('outrigger/test_data/tasic2016/unprocessed/sj_out_tab/*'))
-#     gtf = ' outrigger/test_data/tasic2016/unprocessed/gtf/gencode.vM10.annotation.snap25.myl6.gtf'
-#     args = 'index --sj-out-tab {splice_junctions} --gtf {gtf} --output {output}'.format(
+#     sj_out_tab = ' '.join(glob.iglob('outrigger/test_data/tasic2016/unprocessed/sj_out_tab/*'))  # noqa
+#     gtf = ' outrigger/test_data/tasic2016/unprocessed/gtf/gencode.vM10.annotation.snap25.myl6.gtf'  # noqa
+#     args = 'index --sj-out-tab {splice_junctions} --gtf {gtf} --output {output}'.format(  # noqa
 #         splice_junctions=sj_out_tab, gtf=gtf, output=tmpdir.strpath).split()
 #     # import pdb; pdb.set_trace()
 #     CommandLine(args)
@@ -39,7 +39,7 @@ class TestSubcommand(object):
 # def test_main_psi(tmpdir):
 #     from outrigger.commandline import CommandLine
 #
-#     args = 'index --sj-out-tab outrigger/test_data/tasic2016/unprocessed/sj_out_tab/* --gtf outrigger/test_data/tasic2016/unprocessed/gtf/gencode.vM10.annotation.snap25.myl6.gtf'.split()
+#     args = 'index --sj-out-tab outrigger/test_data/tasic2016/unprocessed/sj_out_tab/* --gtf outrigger/test_data/tasic2016/unprocessed/gtf/gencode.vM10.annotation.snap25.myl6.gtf'.split()  # noqa
 #     CommandLine(args)
 #
 #     args = ['psi']

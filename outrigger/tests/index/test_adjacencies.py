@@ -72,7 +72,7 @@ class TestExonJunctionAdjacencies(object):
         ExonJunctionAdjacencies(test_metadata, db)
 
     def test__junctions_genome_adjacent_to_exon(self, adjacencies, snap25_exon,
-                                                    adjacent_in_genome):
+                                                adjacent_in_genome):
         true = adjacent_in_genome
         test = adjacencies._junctions_genome_adjacent_to_exon(snap25_exon)
 
@@ -114,7 +114,7 @@ class TestExonJunctionAdjacencies(object):
         pdt.assert_frame_equal(test, true)
 
     def test__adjacent_junctions_single_exon(self, adjacencies, snap25_exon,
-                                                 tasic2016_intermediate):
+                                             tasic2016_intermediate):
 
         test = adjacencies._adjacent_junctions_single_exon(snap25_exon)
         test = test.sort_values('junction')

@@ -64,7 +64,8 @@ class SplicingAnnotator(object):
         self.events = events
         self.splice_type = splice_type
         self.isoform_exons = SPLICE_TYPE_ISOFORM_EXONS[self.splice_type]
-        self.exon_cols = list(set(itertools.chain(*self.isoform_exons.values())))
+        self.exon_cols = list(set(itertools.chain(
+            *self.isoform_exons.values())))
         self.exon_cols.sort()
 
         # Make a dataframe with outrigger.Region objects
@@ -111,7 +112,7 @@ class SplicingAnnotator(object):
         for region_col in self.region_cols:
             column = self.exon_regions[region_col]
             lines = (region.to_bed_format(event_id)
-                     for event_id, region  in column.iteritems())
+                     for event_id, region in column.iteritems())
 
             exon_name = region_col.split('_')[0]
             basename = exon_name + '.bed'
