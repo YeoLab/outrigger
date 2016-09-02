@@ -126,7 +126,7 @@ class TestExonJunctionAdjacencies(object):
         pdt.assert_frame_equal(test, true)
 
     def test_neighboring_exons(self, adjacencies, tasic2016_intermediate):
-        test = adjacencies.neighboring_exons()
+        test = adjacencies.upstream_downstream_exons()
         test = test.sort_values(['junction', 'exon'])
         test.index = np.arange(test.shape[0])
 

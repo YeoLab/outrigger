@@ -389,7 +389,7 @@ class ExonJunctionAdjacencies(object):
         else:
             return pd.DataFrame()
 
-    def neighboring_exons(self):
+    def upstream_downstream_exons(self):
         """Get upstream and downstream exon_cols of each junction
 
         The "upstream" and "downstream" is relative to the **junction**, e.g.

@@ -371,7 +371,8 @@ class Index(Subcommand):
 
         util.progress('Getting junction-direction-exon triples for graph '
                       'database ...')
-        junction_exon_triples = exon_junction_adjacencies.neighboring_exons()
+        junction_exon_triples = \
+            exon_junction_adjacencies.upstream_downstream_exons()
         util.done()
 
         csv = os.path.join(self.index_folder,
