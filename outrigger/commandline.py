@@ -405,6 +405,8 @@ class Index(Subcommand):
             events_of_type = getattr(event_maker, splice_name)()
             util.done()
 
+            event_db = event_maker.event_df_to_gff(events_of_type)
+
             # Write to a file
             csv = os.path.join(self.index_folder, splice_abbrev.lower(),
                                EVENTS_CSV)
