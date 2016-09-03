@@ -9,6 +9,7 @@ import os
 import gffutils
 import pandas as pd
 
+from outrigger.index.events import SPLICE_TYPE_ISOFORM_EXONS
 from outrigger.io.common import STRAND
 from outrigger.region import Region
 
@@ -16,12 +17,6 @@ from outrigger.region import Region
 # ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human/release_19/gencode.v19.annotation.gtf.gz
 
 gene_transcript = set(('gene', 'transcript'))
-
-
-SPLICE_TYPE_ISOFORM_EXONS = {'SE': {'isoform1': ['exon1', 'exon3'],
-                                    'isoform2': ['exon1', 'exon2', 'exon3']},
-                             'MXE': {'isoform1': ['exon1', 'exon3', 'exon4'],
-                                     'isoform2': ['exon1', 'exon2', 'exon4']}}
 
 
 def transform(f):
