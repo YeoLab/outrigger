@@ -1,7 +1,7 @@
 """Define locations in the genome"""
 
 
-STRANDS = '+', '-'
+STRANDS = '+', '-', '.'
 
 
 class Region(object):
