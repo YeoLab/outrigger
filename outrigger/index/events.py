@@ -138,7 +138,7 @@ class EventMaker(object):
 
             for child in children:
                 event_db.add_relation(isoform, child, level=1)
-        return gff
+        return event_db
 
     @staticmethod
     def _get_junction14(row):
