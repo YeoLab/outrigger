@@ -3,6 +3,7 @@ import logging
 import re
 
 import gffutils
+from gffutils.helpers import merge_attributes
 import graphlite
 from graphlite import V
 import numpy as np
@@ -21,6 +22,11 @@ ISOFORM_COMPONENTS = {
            'isoform2': ('junction12', 'exon2', 'junction23')},
     'mxe': {'isoform1': ('junction13', 'exon3', 'junction34'),
             'isoform2': ('junction12', 'exon2', 'junction24')}}
+ISOFORM_EXONS = {
+    'se': {'isoform1': ('exon1', 'exon3'),
+           'isoform2': ('exon1', 'exon2', 'exon3')},
+    'mxe': {'isoform1': ('exon1', 'exon3', 'exon4'),
+            'isoform2': ('exon1', 'exon2', 'exon4')}}
 EVENT_ID_COLUMN = 'event_id'
 ILLEGAL_JUNCTIONS = 'illegal_junctions'
 
@@ -119,26 +125,36 @@ class EventMaker(object):
         events = events.set_index(EVENT_ID_COLUMN)
         return events
 
-    def event_df_to_gff(self, events):
+    def event_df_to_gff(self, events, db, event_type):
         """Convert event dataframe to gff with hierarchy"""
-        event_db = gffutils.FeatureDB(dbfn=':memory:')
-        exon_cols = [x for x in events if re.match('exon\d+$', x)]
-        junction_cols = [x for x in events if re.match('junction\d+$', x)]
+        event_type = event_type.lower()
+        isoform_exons = ISOFORM_EXONS[event_type.lower()]
+        featuretype = '{}_event'.format(event_type)
 
-        for i, row in events.iterrows():
-            isoform = gffutils.Feature(id=row['exons'],
-                                       attributes={'event_id':
-                                                       row['event_id']})
+        # exon_cols = [x for x in events if re.match('exon\d+$', x)]
+        # junction_cols = [x for x in events if re.match('junction\d+$', x)]
 
-            exons = (gffutils.Feature(id=exon, featuretype='exon')
-                     for exon in row[exon_cols])
-            junctions = (gffutils.Feature(id=junction, featuretype='junction')
-                         for junction in row[junction_cols])
-            children = itertools.chain(exons, junctions)
+        for event_id, row in events.iterrows():
+            for isoform_name, exon_cols in isoform_exons.items():
+                exons = [db[exon] for exon in row[list(exon_cols)]]
+                exon_attributes = [exon.attributes.items() for exon in exons]
 
-            for child in children:
-                event_db.add_relation(isoform, child, level=1)
-        return event_db
+                # isoform_attributes = dict(itertools.accumulate(exon_attributes, merge_attributes))
+                isoform_attributes = {}
+                isoform_attributes[EVENT_ID_COLUMN] = event_id
+                isoform_id = '{}_{}'.format(row['exons'], isoform_name)
+                isoform = gffutils.Feature(id=isoform_id,
+                                           featuretype=featuretype,
+                                           attributes=isoform_attributes,)
+
+
+            for exon in exons:
+                db.add_relation(isoform, exon, level=1)
+
+            import pdb; pdb.set_trace()
+        event_features = list(db.features_of_type(featuretype))
+        event_exons = (db.children(x) for x in event_features)
+
 
     @staticmethod
     def _get_junction14(row):

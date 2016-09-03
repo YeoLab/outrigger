@@ -357,6 +357,7 @@ class Index(Subcommand):
 
     def make_exon_junction_adjacencies(self, metadata, db):
         """Get annotated exon_cols next to junctions in data"""
+        import pdb; pdb.set_trace()
         exon_junction_adjacencies = adjacencies.ExonJunctionAdjacencies(
             metadata, db, max_de_novo_exon_length=self.max_de_novo_exon_length)
 
@@ -405,7 +406,8 @@ class Index(Subcommand):
             events_of_type = getattr(event_maker, splice_name)()
             util.done()
 
-            event_db = event_maker.event_df_to_gff(events_of_type)
+            event_db = event_maker.event_df_to_gff(events_of_type, db,
+                                                   splice_abbrev.lower())
 
             # Write to a file
             csv = os.path.join(self.index_folder, splice_abbrev.lower(),
