@@ -3,4 +3,4 @@ pandas>=0.17.0
 flake8
 coverage
 graphlite
-gffutils>=0.8.7.1
+gffutils>=0.8.7.2
