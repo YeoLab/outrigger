@@ -21,14 +21,6 @@ OUTRIGGER_DE_NOVO = 'outrigger_de_novo'
 MAX_DE_NOVO_EXON_LENGTH = 100
 
 
-def is_feature_in_db(feature_id, db):
-    try:
-        db[feature_id]
-        return True
-    except gffutils.FeatureNotFoundError:
-        return False
-
-
 def _unify_strand(strand1, strand2):
     """If strands are equal, return the strand, otherwise return None"""
     if strand1 != strand2:
@@ -174,6 +166,9 @@ class ExonJunctionAdjacencies(object):
         self.strand = strand
 
         self.db = db
+        self.existing_exons = set(
+            i['id'] for i in self.db.execute(
+                'select id from features where featuretype = "exon"'))
 
         self.max_de_novo_exon_length = max_de_novo_exon_length
 
@@ -207,8 +202,8 @@ class ExonJunctionAdjacencies(object):
 
             progress('\tFiltering for only novel exons on chromosome {chrom} '
                      '...'.format(chrom=chrom))
-            novel_exons = set(x for x in exon_locations if is_feature_in_db(
-                'exon:{}:{}-{}:{}'.format(*x), self.db))
+            novel_exons = set(x for x in exon_locations if
+                'exon:{}:{}-{}:{}'.format(*x) not in self.existing_exons)
             done()
 
             progress('\tCreating gffutils.Feature objects for each novel exon,'
