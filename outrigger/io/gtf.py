@@ -9,15 +9,18 @@ import os
 import gffutils
 import pandas as pd
 
-from outrigger.index.events import SPLICE_TYPE_ISOFORM_EXONS
-from outrigger.io.common import STRAND
-from outrigger.region import Region
+from ..io.common import STRAND
+from ..region import Region
 
 # Annotations from:
 # ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human/release_19/gencode.v19.annotation.gtf.gz
 
 gene_transcript = set(('gene', 'transcript'))
 
+SPLICE_TYPE_ISOFORM_EXONS = {'SE': {'isoform1': ['exon1', 'exon3'],
+                                    'isoform2': ['exon1', 'exon2', 'exon3']},
+                             'MXE': {'isoform1': ['exon1', 'exon3', 'exon4'],
+                                     'isoform2': ['exon1', 'exon2', 'exon4']}}
 
 def transform(f):
     if f.featuretype in gene_transcript:
@@ -101,7 +104,9 @@ class SplicingAnnotator(object):
                 attributes = pd.Series(attributes, name=event_id)
                 attributes.index = isoform + '_' + attributes.index
                 lines.append(attributes)
-        return pd.concat(lines, axis=1).T
+        event_attributes = pd.concat(lines, axis=1).T
+        event_attributes = self.events.join(event_attributes)
+        return event_attributes
 
     def exon_bedfiles(self, folder):
         for region_col in self.region_cols:
