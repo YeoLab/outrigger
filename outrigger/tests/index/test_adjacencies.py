@@ -116,7 +116,7 @@ class TestExonJunctionAdjacencies(object):
     def test__adjacent_junctions_single_exon(self, adjacencies, snap25_exon,
                                              tasic2016_intermediate):
 
-        test = adjacencies._adjacent_junctions_single_exon(snap25_exon)
+        test = adjacencies.junctions_adjacent_to_this_exon(snap25_exon)
         test = test.sort_values('junction')
         test.index = np.arange(test.shape[0])
 

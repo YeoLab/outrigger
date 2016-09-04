@@ -2,9 +2,10 @@
 Find exons adjacent to junctions
 """
 import sqlite3
-import itertools
+from itertools import accumulate
 
 import gffutils
+from gffutils.helpers import merge_attributes
 import pandas as pd
 
 from ..io.gtf import transform
@@ -24,7 +25,7 @@ MAX_DE_NOVO_EXON_LENGTH = 100
 def _unify_strand(strand1, strand2):
     """If strands are equal, return the strand, otherwise return None"""
     if strand1 != strand2:
-        strand = None
+        strand = '.'
     else:
         strand = strand1
     return strand
@@ -198,53 +199,52 @@ class ExonJunctionAdjacencies(object):
             for junction in df.region:
                 exon_locations.append(_neighboring_exons(junction, df, 'left'))
             exon_locations = pd.concat(exon_locations, ignore_index=True)
-            done()
+            done(n_tabs=3)
 
             progress('\tFiltering for only novel exons on chromosome {chrom} '
                      '...'.format(chrom=chrom))
             novel_exons = set(x for x in exon_locations if
                 'exon:{}:{}-{}:{}'.format(*x) not in self.existing_exons)
-            done()
+            done(n_tabs=3)
 
             progress('\tCreating gffutils.Feature objects for each novel exon,'
                      ' plus potentially its overlapping gene')
             exon_features = (self.exon_location_to_feature(*x)
                              for x in novel_exons)
-            done()
+            done(n_tabs=3)
 
-            progress('\tUpdating gffutils database with novel exons on '
-                     'chromosome {chrom} ...'.format(chrom=chrom))
+            progress('\tUpdating gffutils database with {n} novel exons on '
+                     'chromosome {chrom} ...'.format(chrom=chrom,
+                                                     n=len(novel_exons)))
             try:
-                self.db.update(itertools.chain(*exon_features),
+                self.db.update(exon_features,
                                make_backup=False,
                                id_spec={'novel_exon': 'location_id'},
                                transform=transform)
             except ValueError:
-                progress('\tNo exons found on chromosome '
+                progress('\tNo novel exons found on chromosome '
                          '{chrom}'.format(chrom=chrom))
-            done()
+            done(n_tabs=3)
 
     def exon_location_to_feature(self, chrom, start, stop, strand):
         if strand not in STRANDS:
-            strand = None
+            strand = '.'
         overlapping_genes = list(self.db.region(seqid=chrom, start=start,
-                                                end=stop, strand=strand,
-                                                featuretype='gene'))
+                                           end=stop, strand=strand,
+                                           featuretype='gene'))
 
         exon_id = 'exon:{chrom}:{start}-{stop}:{strand}'.format(
             chrom=chrom, start=start, stop=stop, strand=strand)
 
-        if len(overlapping_genes) == 0:
-            exons = [gffutils.Feature(chrom, source=OUTRIGGER_DE_NOVO,
-                                      featuretype=NOVEL_EXON, start=start,
-                                      end=stop, strand=strand, id=exon_id)]
-        else:
-            exons = [gffutils.Feature(
-                chrom, source=OUTRIGGER_DE_NOVO, featuretype=NOVEL_EXON,
-                start=start, end=stop, strand=g.strand, id=exon_id + g.strand,
-                attributes=dict(g.attributes.items()))
-                         for g in overlapping_genes]
-        return exons
+        attributes = {}
+        for g in overlapping_genes:
+            attributes = merge_attributes(attributes, g.attributes)
+
+        exon = gffutils.Feature(chrom, source=OUTRIGGER_DE_NOVO,
+                                featuretype=NOVEL_EXON, start=start,
+                                end=stop, strand=strand, id=exon_id,
+                                attributes=attributes)
+        return exon
 
     def write_de_novo_exons(self, filename='novel_exons.gtf'):
         """Write all de novo exons to a gtf"""
@@ -350,22 +350,26 @@ class ExonJunctionAdjacencies(object):
         elif strand == '-':
             return {UPSTREAM: adjacent_in_genome[DOWNSTREAM],
                     DOWNSTREAM: adjacent_in_genome[UPSTREAM]}
+        else:
+            # If strand is unknown, put both upstream and downstream for each
+            # side
+            adjacent = pd.concat(adjacent_in_genome.values())
+            return {UPSTREAM: adjacent, DOWNSTREAM: adjacent}
 
     def _junctions_genome_adjacent_to_exon(self, exon):
         """Get indices of junctions next to an exon, in genome coordinates"""
         chrom_ind = self.metadata[self.chrom] == exon.chrom
 
         strand_ind = self.metadata[self.strand] == exon.strand
+        common_ind = chrom_ind & strand_ind
 
         upstream_in_genome = \
-            chrom_ind & strand_ind \
-            & (self.metadata[self.exon_stop] == exon.stop)
+            common_ind & (self.metadata[self.exon_stop] == exon.stop)
         downstream_in_genome = \
-            chrom_ind & strand_ind & \
-            (self.metadata[self.exon_start] == exon.start)
+            common_ind & (self.metadata[self.exon_start] == exon.start)
         return {UPSTREAM: upstream_in_genome, DOWNSTREAM: downstream_in_genome}
 
-    def _adjacent_junctions_single_exon(self, exon):
+    def junctions_adjacent_to_this_exon(self, exon):
         """Get junctions adjacent to this exon
 
         Parameters
@@ -433,11 +437,11 @@ class ExonJunctionAdjacencies(object):
         dfs = []
 
         progress('Starting annotation of all junctions with known '
-                 'neighboring exon_cols ...')
+                 'neighboring exons ...')
         for i, exon in enumerate(self.db.features_of_type(self.exon_types)):
             if (i + 1) % 10000 == 0:
                 progress('\t{}/{} exons completed'.format(i + 1, n_exons))
-            df = self._adjacent_junctions_single_exon(exon)
+            df = self.junctions_adjacent_to_this_exon(exon)
             dfs.append(df)
         junction_exon_triples = pd.concat(dfs, ignore_index=True)
         done()
