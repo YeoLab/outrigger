@@ -127,12 +127,14 @@ class CommandLine(object):
         validate_parser = self.subparser.add_parser(
             'validate', help='Ensure that the splicing events found all have '
                              'the correct splice sites')
-        validate_parser.add_argument('-f', '--genome-fasta', required=True,
+        validate_parser.add_argument('-f', '--fasta', required=True,
                                      help='Location of the genome fasta file '
                                           'for which to get the splice site '
                                           'sequences from')
-        validate_parser.add_argument('-g', '--genome-chrom-sizes', required=True,
-                                     help='Location of the genome chromosome '
+        validate_parser.add_argument('-g', '--genome', required=True,
+                                     help='Either the genome name (e.g. '
+                                          '"mm10" or "hg19") or location of '
+                                          'the genome chromosome '
                                           'sizes file for "bedtools flank" to '
                                           'make sure we do not accidentally '
                                           'ask for genome positions that are '
@@ -151,6 +153,7 @@ class CommandLine(object):
                                      action='store_true',
                                      help='If given, print debugging logging '
                                           'information to standard out')
+        validate_parser.set_defaults(func=self.validate)
 
         # --- Subcommand to calculate psi on the built index --- #
         psi_parser = self.subparser.add_parser(
@@ -535,7 +538,7 @@ class Validate(Subcommand):
             beds = os.path.join(self.index_folder, splice_abbrev, '*.bed')
             for bed in glob.glob(beds):
                 splice_sites = check_splice_sites.read_splice_sites(
-                    bed, self.genome_chrom_sizes, self.genome_fasta)
+                    bed, self.genome, self.fasta)
                 import pdb; pdb.set_trace()
 
 class Psi(Subcommand):
