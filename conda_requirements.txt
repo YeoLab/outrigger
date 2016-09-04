@@ -3,3 +3,4 @@ pandas>=0.17.0
 flake8
 coverage
 gffutils>=0.8.7.2
+pybedtools

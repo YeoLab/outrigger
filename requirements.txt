@@ -4,3 +4,4 @@ flake8
 coverage
 graphlite
 gffutils>=0.8.7.2
+pybedtools
