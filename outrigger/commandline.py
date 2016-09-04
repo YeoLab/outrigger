@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import argparse
+import glob
 import logging
 import os
 import pdb
@@ -18,6 +19,7 @@ from outrigger.index import events, adjacencies
 from outrigger.io import star, gtf
 from outrigger.psi import compute
 from outrigger.psi.compute import MIN_READS
+from outrigger.validate import check_splice_sites
 
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
@@ -121,6 +123,35 @@ class CommandLine(object):
                                        'wrong)')
         index_parser.set_defaults(func=self.index)
 
+        # -- Subcommand to validate exons of built index --- #
+        validate_parser = self.subparser.add_parser(
+            'validate', help='Ensure that the splicing events found all have '
+                             'the correct splice sites')
+        validate_parser.add_argument('-f', '--genome-fasta', required=True,
+                                     help='Location of the genome fasta file '
+                                          'for which to get the splice site '
+                                          'sequences from')
+        validate_parser.add_argument('-g', '--genome-chrom-sizes', required=True,
+                                     help='Location of the genome chromosome '
+                                          'sizes file for "bedtools flank" to '
+                                          'make sure we do not accidentally '
+                                          'ask for genome positions that are '
+                                          'outside of the defined range')
+        validate_parser.add_argument('-i', '--index', required=False,
+                                     default=INDEX,
+                                     help='Name of the folder where you saved '
+                                          'the output from "outrigger index" '
+                                          '(default is {}, which is relative '
+                                          'to the directory where you called '
+                                          'this program, assuming you have '
+                                          'called "outrigger psi" in the same '
+                                          'folder as you called "outrigger '
+                                          'index")'.format(INDEX))
+        validate_parser.add_argument('--debug', required=False,
+                                     action='store_true',
+                                     help='If given, print debugging logging '
+                                          'information to standard out')
+
         # --- Subcommand to calculate psi on the built index --- #
         psi_parser = self.subparser.add_parser(
             'psi', help='Calculate "percent spliced-in" (Psi) values using '
@@ -198,6 +229,10 @@ class CommandLine(object):
     def index(self):
         index = Index(**vars(self.args))
         index.execute()
+
+    def validate(self):
+        validate = Validate(**vars(self.args))
+        validate.execute()
 
     def psi(self):
         psi = Psi(**vars(self.args))
@@ -493,9 +528,19 @@ class Index(Subcommand):
         self.write_new_gtf(db)
 
 
+class Validate(Subcommand):
+
+    def execute(self):
+        for splice_name, splice_abbrev in events.SPLICE_TYPES:
+            beds = os.path.join(self.index_folder, splice_abbrev, '*.bed')
+            for bed in glob.glob(beds):
+                splice_sites = check_splice_sites.read_splice_sites(
+                    bed, self.genome_chrom_sizes, self.genome_fasta)
+                import pdb; pdb.set_trace()
+
 class Psi(Subcommand):
 
-    # Instantiate empty variables here so PyCharm doens't get mad at me
+    # Instantiate empty variables here so PyCharm doesn't get mad at me
     index = INDEX
     reads_col = None
     sample_id_col = None
