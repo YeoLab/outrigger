@@ -22,6 +22,7 @@ SPLICE_TYPE_ISOFORM_EXONS = {'SE': {'isoform1': ['exon1', 'exon3'],
                              'MXE': {'isoform1': ['exon1', 'exon3', 'exon4'],
                                      'isoform2': ['exon1', 'exon2', 'exon4']}}
 
+
 def transform(f):
     if f.featuretype in gene_transcript:
         return f

@@ -2,7 +2,6 @@
 Find exons adjacent to junctions
 """
 import sqlite3
-from itertools import accumulate
 
 import gffutils
 from gffutils.helpers import merge_attributes
@@ -204,7 +203,8 @@ class ExonJunctionAdjacencies(object):
             progress('\tFiltering for only novel exons on chromosome {chrom} '
                      '...'.format(chrom=chrom))
             novel_exons = set(x for x in exon_locations if
-                'exon:{}:{}-{}:{}'.format(*x) not in self.existing_exons)
+                              'exon:{}:{}-{}:{}'.format(*x)
+                              not in self.existing_exons)
             done(n_tabs=3)
 
             progress('\tCreating gffutils.Feature objects for each novel exon,'
@@ -229,9 +229,9 @@ class ExonJunctionAdjacencies(object):
     def exon_location_to_feature(self, chrom, start, stop, strand):
         if strand not in STRANDS:
             strand = '.'
-        overlapping_genes = list(self.db.region(seqid=chrom, start=start,
+        overlapping_genes = self.db.region(seqid=chrom, start=start,
                                            end=stop, strand=strand,
-                                           featuretype='gene'))
+                                           featuretype='gene')
 
         exon_id = 'exon:{chrom}:{start}-{stop}:{strand}'.format(
             chrom=chrom, start=start, stop=stop, strand=strand)
