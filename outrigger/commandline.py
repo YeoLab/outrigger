@@ -415,20 +415,15 @@ class Index(Subcommand):
             n_events = events_of_type.shape[0]
             if n_events > 0:
                 util.progress(
-                    'Writing {n} {abbrev} events to {csv}'
-                    ' ...'.format(n=n_events, abbrev=splice_abbrev.upper(),
-                                  csv=csv))
-                events_of_type.to_csv(csv, index=True)
-                util.done()
+                    'Found {n} {abbrev} events.'.format(
+                        n=n_events, abbrev=splice_abbrev.upper(), csv=csv))
+                self.get_event_attributes(db, events_of_type, splice_abbrev)
             else:
                 util.progress(
                     'No {abbrev} events found in the junction and exon '
                     'data.'.format(abbrev=splice_abbrev.upper()))
 
-            if n_events > 0:
-                self.make_event_metadata(db, events_of_type, splice_abbrev)
-
-    def make_event_metadata(self, db, event_df, splice_type):
+    def get_event_attributes(self, db, event_df, splice_type):
         util.progress(
             'Making metadata file of {splice_type} events, '
             'annotating them with GTF attributes ...'.format(
@@ -450,14 +445,16 @@ class Index(Subcommand):
                       'dataframe ...')
         lengths, attributes = lengths.align(attributes, axis=0, join='outer')
 
-        metadata = pd.concat([lengths, attributes], axis=1)
+        event_attributes = pd.concat([attributes, lengths], axis=1)
+        event_attributes = event_attributes.drop_duplicates()
         util.done()
 
         # Write to a file
-        csv = os.path.join(self.index_folder, splice_type, METADATA_CSV)
-        util.progress('Writing {splice_type} metadata to {csv} '
+        csv = os.path.join(self.index_folder, splice_type, EVENTS_CSV)
+        util.progress('Writing {splice_type} events to {csv} '
                       '...'.format(splice_type=splice_type.upper(), csv=csv))
-        metadata.to_csv(csv, index=True, index_label=events.EVENT_ID_COLUMN)
+        event_attributes.to_csv(csv, index=True,
+                                index_label=events.EVENT_ID_COLUMN)
         util.done()
 
     def write_new_gtf(self, db):
