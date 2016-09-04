@@ -363,9 +363,3 @@ class EventMaker(object):
         events = self.add_event_id_col(events, 'mxe')
         events = self.add_illegal_junctions(events, 'mxe')
         return events
-
-
-SPLICE_TYPE_ISOFORM_EXONS = {'SE': {'isoform1': ['exon1', 'exon3'],
-                                    'isoform2': ['exon1', 'exon2', 'exon3']},
-                             'MXE': {'isoform1': ['exon1', 'exon3', 'exon4'],
-                                     'isoform2': ['exon1', 'exon2', 'exon4']}}
