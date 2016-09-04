@@ -11,6 +11,7 @@ import pandas as pd
 
 from outrigger.region import Region
 from .adjacencies import UPSTREAM, DOWNSTREAM, DIRECTIONS
+from ..io.gtf import create_db
 from ..io.common import STRAND
 from ..util import progress
 
@@ -125,7 +126,7 @@ class EventMaker(object):
         events = events.set_index(EVENT_ID_COLUMN)
         return events
 
-    def event_df_to_gff(self, events, db, event_type):
+    def event_df_to_gff(self, events, db, event_type, event_db_filename):
         """Convert event dataframe to gff with hierarchy"""
         event_type = event_type.lower()
         isoform_exons = ISOFORM_EXONS[event_type.lower()]
@@ -137,23 +138,38 @@ class EventMaker(object):
         for event_id, row in events.iterrows():
             for isoform_name, exon_cols in isoform_exons.items():
                 exons = [db[exon] for exon in row[list(exon_cols)]]
-                exon_attributes = [exon.attributes.items() for exon in exons]
+                chrom = set(exon.chrom for exon in exons).pop()
+                start = min(exon.start for exon in exons)
+                stop = max(exon.stop for exon in exons)
+                strand = set(exon.strand for exon in exons).pop()
+
+                # exon_attributes = [exon.attributes for exon in exons]
+                event_id = '{}_{}'.format(row['exons'], isoform_name)
+                print(event_id)
 
                 # isoform_attributes = dict(itertools.accumulate(exon_attributes, merge_attributes))
-                isoform_attributes = {}
-                isoform_attributes[EVENT_ID_COLUMN] = event_id
-                isoform_id = '{}_{}'.format(row['exons'], isoform_name)
-                isoform = gffutils.Feature(id=isoform_id,
-                                           featuretype=featuretype,
-                                           attributes=isoform_attributes,)
+                event_attributes = {}
+                event_attributes[EVENT_ID_COLUMN] = event_id
+                event_attributes['isoform_id'] = event_id
+                for exon in exons:
+                    event_attributes = merge_attributes(event_attributes,
+                                                          exon.attributes)
+                event = gffutils.Feature(chrom, start=start, end=stop,
+                                         id=event_id, strand=strand,
+                                         featuretype=featuretype,
+                                         attributes=event_attributes,)
 
+                # import pdb; pdb.set_trace()
+                for exon in exons:
+                    db.add_relation(event, exon, level=1)
+                    for transcript_id in exon.attributes['transcript_id']:
+                        db.add_relation(transcript_id, event, level=1)
 
-            for exon in exons:
-                db.add_relation(isoform, exon, level=1)
-
-            import pdb; pdb.set_trace()
         event_features = list(db.features_of_type(featuretype))
         event_exons = (db.children(x) for x in event_features)
+        event_db = create_db(
+            itertools.chain(event_features, event_exons), event_db_filename)
+        return event_db
 
 
     @staticmethod

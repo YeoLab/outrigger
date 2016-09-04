@@ -29,6 +29,7 @@ JUNCTION_READS_PATH = os.path.join(JUNCTION_PATH, 'reads.csv')
 JUNCTION_METADATA_PATH = os.path.join(JUNCTION_PATH, 'metadata.csv')
 INDEX = os.path.join(OUTPUT, 'index')
 EVENTS_CSV = 'events.csv'
+EVENTS_GFF = 'events.gff'
 METADATA_CSV = 'metadata.csv'
 
 
@@ -357,7 +358,6 @@ class Index(Subcommand):
 
     def make_exon_junction_adjacencies(self, metadata, db):
         """Get annotated exon_cols next to junctions in data"""
-        import pdb; pdb.set_trace()
         exon_junction_adjacencies = adjacencies.ExonJunctionAdjacencies(
             metadata, db, max_de_novo_exon_length=self.max_de_novo_exon_length)
 
@@ -406,8 +406,11 @@ class Index(Subcommand):
             events_of_type = getattr(event_maker, splice_name)()
             util.done()
 
-            event_db = event_maker.event_df_to_gff(events_of_type, db,
-                                                   splice_abbrev.lower())
+            event_db_filename = os.path.join(self.index_folder,
+                                             splice_abbrev.lower(), EVENTS_GFF)
+            event_db = event_maker.event_df_to_gff(
+                events_of_type, db, splice_abbrev.lower(), event_db_filename)
+
 
             # Write to a file
             csv = os.path.join(self.index_folder, splice_abbrev.lower(),
