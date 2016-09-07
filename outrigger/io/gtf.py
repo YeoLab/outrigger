@@ -9,18 +9,13 @@ import os
 import gffutils
 import pandas as pd
 
-from ..io.common import STRAND
+from outrigger.common import STRAND, SPLICE_TYPE_ISOFORM_EXONS
 from ..region import Region
 
 # Annotations from:
 # ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human/release_19/gencode.v19.annotation.gtf.gz
 
 gene_transcript = set(('gene', 'transcript'))
-
-SPLICE_TYPE_ISOFORM_EXONS = {'SE': {'isoform1': ['exon1', 'exon3'],
-                                    'isoform2': ['exon1', 'exon2', 'exon3']},
-                             'MXE': {'isoform1': ['exon1', 'exon3', 'exon4'],
-                                     'isoform2': ['exon1', 'exon2', 'exon4']}}
 
 
 def transform(f):
@@ -62,7 +57,8 @@ class SplicingAnnotator(object):
         self.db = db
         self.events = events
         self.splice_type = splice_type
-        self.isoform_exons = SPLICE_TYPE_ISOFORM_EXONS[self.splice_type]
+        self.isoform_exons = SPLICE_TYPE_ISOFORM_EXONS[
+            self.splice_type.lower()]
         self.exon_cols = list(set(itertools.chain(
             *self.isoform_exons.values())))
         self.exon_cols.sort()
