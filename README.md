@@ -271,6 +271,12 @@ outrigger_output
 5 directories, 18 files
 ```
 
+### `validate`: Check that the found exons are real
+
+```
+outrigger validate -f ~/genomes/mm10/gencode/m10/GRCm38.primary_assembly.genome.fa -g ~/genomes/mm10/mm10.chrom.sizes
+```
+
 
 ### `psi`: Calculate percent spliced-in (Psi/Ψ) scores for your data from the splicing events you created
 
