@@ -13,12 +13,12 @@ import warnings
 import gffutils
 import numpy as np
 
-import outrigger.io.star
-from outrigger import util
+import outrigger.common
+from outrigger import util, common
 from outrigger.index import events, adjacencies
 from outrigger.io import star, gtf
 from outrigger.psi import compute
-from outrigger.psi.compute import MIN_READS
+from outrigger.common import MIN_READS
 from outrigger.validate import check_splice_sites
 
 with warnings.catch_warnings():
@@ -149,6 +149,15 @@ class CommandLine(object):
                                           'called "outrigger psi" in the same '
                                           'folder as you called "outrigger '
                                           'index")'.format(INDEX))
+        validate_parser.add_argument(
+            '-s', '--valid-splice-sites', required=False,
+            default=check_splice_sites.MAMMALIAN_SPLICE_SITES,
+            help="The intron-definition based splice sites that are allowed in"
+                 " the data, which is in the format 5'/3' of the intron, and "
+                 "separated by commas for different types. Default is {}, "
+                 "which are the major and minor spliceosome splice sites in "
+                 "mammalian "
+                 "systems.".format(check_splice_sites.MAMMALIAN_SPLICE_SITES))
         validate_parser.add_argument('--debug', required=False,
                                      action='store_true',
                                      help='If given, print debugging logging '
@@ -389,7 +398,7 @@ class Index(Subcommand):
         """Get just the junction info from the concatenated read files"""
         util.progress('Creating splice junction metadata of merely where '
                       'junctions start and stop')
-        metadata = outrigger.io.star.make_metadata(spliced_reads)
+        metadata = star.make_metadata(spliced_reads)
         util.done()
         return metadata
 
@@ -434,7 +443,7 @@ class Index(Subcommand):
         return event_maker
 
     def make_events_by_traversing_graph(self, event_maker, db):
-        for splice_name, splice_abbrev in events.SPLICE_TYPES:
+        for splice_name, splice_abbrev in common.SPLICE_TYPES:
             name_with_spaces = splice_name.replace('_', ' ')
             # Find event junctions
             util.progress(
@@ -492,7 +501,7 @@ class Index(Subcommand):
         util.progress('Writing {splice_type} events to {csv} '
                       '...'.format(splice_type=splice_type.upper(), csv=csv))
         event_attributes.to_csv(csv, index=True,
-                                index_label=events.EVENT_ID_COLUMN)
+                                index_label=outrigger.common.EVENT_ID_COLUMN)
         util.done()
 
     def write_new_gtf(self, db):
@@ -534,12 +543,62 @@ class Index(Subcommand):
 class Validate(Subcommand):
 
     def execute(self):
-        for splice_name, splice_abbrev in events.SPLICE_TYPES:
-            beds = os.path.join(self.index_folder, splice_abbrev, '*.bed')
-            for bed in glob.glob(beds):
-                splice_sites = check_splice_sites.read_splice_sites(
-                    bed, self.genome, self.fasta)
-                import pdb; pdb.set_trace()
+        valid_splice_sites = check_splice_sites.splice_site_str_to_tuple(
+            self.valid_splice_sites)
+        junction_metadata = pd.read_csv(os.path.join(self.junctions_folder,
+                                                     METADATA_CSV))
+
+        for splice_name, splice_abbrev in common.SPLICE_TYPES:
+            util.progress('Finding valid splice sites in {} ({}) '
+                          'splice type ...'.format(splice_name, splice_abbrev))
+            isoform_exons = common.SPLICE_TYPE_ISOFORM_EXONS[splice_abbrev]
+            splice_type_events = pd.read_csv(
+                os.path.join(self.index_folder, splice_abbrev,
+                             EVENTS_CSV), index_col=0)
+            validated_folder = os.path.join(self.index_folder, splice_abbrev,
+                                            'validated')
+            util.progress('Creating folder {} ...'.format(validated_folder))
+            if not os.path.exists(validated_folder):
+                os.mkdir(validated_folder)
+            util.done()
+
+            splice_site_names = []
+
+            for isoform, exons in isoform_exons.items():
+                exon_pairs = zip(exons, exons[1:])
+                for exonA, exonB in exon_pairs:
+                    name = '{exonA}-{exonB}_splice_site'.format(
+                        exonA=exonA, exonB=exonB)
+                    splice_site_names.append(name)
+                    exonA_bed = os.path.join(self.index_folder, splice_abbrev,
+                                             '{}.bed'.format(exonA))
+                    exonB_bed = os.path.join(self.index_folder, splice_abbrev,
+                                             '{}.bed'.format(exonB))
+                    exonA_splice_sites = check_splice_sites.read_splice_sites(
+                        exonA_bed, self.genome, self.fasta, 'downstream')
+                    exonB_splice_sites = check_splice_sites.read_splice_sites(
+                        exonB_bed, self.genome, self.fasta, 'upstream')
+
+                    intron_splice_site = exonA_splice_sites + '/' \
+                        + exonB_splice_sites
+                    intron_splice_site.name = name
+                    splice_type_events = splice_type_events.join(intron_splice_site)
+
+            valid_events_rows = splice_type_events[
+                splice_site_names].applymap(lambda x: x in valid_splice_sites).all(axis=1)
+            validated_events = splice_type_events.loc[valid_events_rows]
+
+            csv = os.path.join(validated_folder, EVENTS_CSV)
+            util.progress("Found {valid}/{total} {splice_abbrev} events. "
+                          "Writing to {csv} ...".format(
+                valid=validated_events.shape[0],
+                total=splice_type_events.shape[0], csv=csv))
+            import pdb ; pdb.set_trace()
+            validated_events.to_csv(csv)
+            util.done()
+
+            import pdb; pdb.set_trace()
+
 
 class Psi(Subcommand):
 
@@ -601,7 +660,8 @@ class Psi(Subcommand):
     def splice_type_folders(self):
         return dict((splice_name, os.path.join(self.index_folder,
                                                splice_abbrev))
-                    for splice_name, splice_abbrev in events.SPLICE_TYPES)
+                    for splice_name, splice_abbrev in
+                    outrigger.common.SPLICE_TYPES)
 
     @property
     def folders(self):
@@ -650,7 +710,7 @@ class Psi(Subcommand):
         logger.debug(repr(junction_reads.head()))
 
         psis = []
-        for splice_name, splice_abbrev in events.SPLICE_TYPES:
+        for splice_name, splice_abbrev in outrigger.common.SPLICE_TYPES:
             filename = os.path.join(self.index_folder, splice_abbrev,
                                     EVENTS_CSV)
             # event_type = os.path.basename(filename).split('.csv')[0]
@@ -658,7 +718,7 @@ class Psi(Subcommand):
                           ' ...'.format(name=splice_name, abbrev=splice_abbrev,
                                         filename=filename))
 
-            isoform_junctions = compute.ISOFORM_JUNCTIONS[splice_abbrev]
+            isoform_junctions = outrigger.common.ISOFORM_JUNCTIONS[splice_abbrev]
             event_annotation = pd.read_csv(filename, index_col=0)
             util.done()
             logger.debug('\n--- Splicing event annotation ---')

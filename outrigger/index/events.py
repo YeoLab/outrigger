@@ -6,21 +6,13 @@ import numpy as np
 import pandas as pd
 from graphlite import V
 
+from ..common import STRAND, ISOFORM_ORDER, ISOFORM_COMPONENTS, \
+    EVENT_ID_COLUMN, ILLEGAL_JUNCTIONS
 from outrigger.region import Region
 from .adjacencies import UPSTREAM, DOWNSTREAM, DIRECTIONS
-from ..io.common import STRAND
 from ..util import progress
 
-# Define constants so they can be accessed in other sub-modules
-SPLICE_TYPES = (('skipped_exon', 'se'), ('mutually_exclusive_exon', 'mxe'))
-ISOFORM_ORDER = 'isoform1', 'isoform2'
-ISOFORM_COMPONENTS = {
-    'se': {'isoform1': ('junction13',),
-           'isoform2': ('junction12', 'exon2', 'junction23')},
-    'mxe': {'isoform1': ('junction13', 'exon3', 'junction34'),
-            'isoform2': ('junction12', 'exon2', 'junction24')}}
-EVENT_ID_COLUMN = 'event_id'
-ILLEGAL_JUNCTIONS = 'illegal_junctions'
+
 
 
 def stringify_location(chrom, start, stop, strand, region=None):

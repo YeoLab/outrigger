@@ -6,8 +6,7 @@ import os
 import numpy as np
 import pandas as pd
 
-
-from .common import JUNCTION_ID, JUNCTION_START, JUNCTION_STOP, READS, \
+from ..common import JUNCTION_ID, JUNCTION_START, JUNCTION_STOP, READS, \
     JUNCTION_MOTIF, EXON_START, EXON_STOP, CHROM, STRAND, ANNOTATED, SAMPLE_ID
 
 UNIQUE_READS = 'unique_junction_reads'

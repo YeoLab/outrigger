@@ -7,8 +7,7 @@ import pandas.util.testing as pdt
 import pytest
 from graphlite import connect, V
 
-from outrigger.index.events import SPLICE_TYPES
-
+from outrigger.common import SPLICE_TYPES
 
 logging.basicConfig(level=logging.DEBUG)
 

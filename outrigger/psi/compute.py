@@ -3,25 +3,12 @@ import sys
 
 import pandas as pd
 
-from ..index.events import ILLEGAL_JUNCTIONS
+from ..common import ILLEGAL_JUNCTIONS
 from ..util import timestamp
 
 logging.basicConfig()
 
 idx = pd.IndexSlice
-MIN_READS = 10
-
-SE_ISOFORM1_JUNCTIONS = ['junction13']
-SE_ISOFORM2_JUNCTIONS = ['junction12', 'junction23']
-
-MXE_ISOFORM1_JUNCTIONS = ['junction13', 'junction34']
-MXE_ISOFORM2_JUNCTIONS = ['junction12', 'junction24']
-
-ISOFORM_JUNCTIONS = {
-    'se': {'isoform1_junctions': SE_ISOFORM1_JUNCTIONS,
-           'isoform2_junctions': SE_ISOFORM2_JUNCTIONS},
-    'mxe': {'isoform1_junctions': MXE_ISOFORM1_JUNCTIONS,
-            'isoform2_junctions': MXE_ISOFORM2_JUNCTIONS}}
 
 
 def filter_and_sum(reads, min_reads, junctions, debug=False):

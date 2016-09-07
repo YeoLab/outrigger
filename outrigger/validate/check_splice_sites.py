@@ -7,6 +7,13 @@ import pybedtools
 
 NT = 2
 
+MAMMALIAN_SPLICE_SITES = 'GT/AG,AT/AC'
+
+
+def splice_site_str_to_tuple(splice_site):
+    pairs = splice_site.split(',')
+    return tuple(pairs)
+
 
 def maybe_read_chromsizes(genome):
     try:

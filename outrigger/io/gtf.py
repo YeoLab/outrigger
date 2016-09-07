@@ -9,7 +9,7 @@ import os
 import gffutils
 import pandas as pd
 
-from outrigger.common import STRAND, SPLICE_TYPE_ISOFORM_EXONS
+from ..common import STRAND, SPLICE_TYPE_ISOFORM_EXONS
 from ..region import Region
 
 # Annotations from:

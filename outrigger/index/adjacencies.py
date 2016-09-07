@@ -4,11 +4,11 @@ Find exons adjacent to junctions
 import sqlite3
 
 import gffutils
-from gffutils.helpers import merge_attributes
 import pandas as pd
+from gffutils.helpers import merge_attributes
 
+from ..common import JUNCTION_ID, EXON_START, EXON_STOP, CHROM, STRAND
 from ..io.gtf import transform
-from ..io.common import JUNCTION_ID, EXON_START, EXON_STOP, CHROM, STRAND
 from ..region import Region, STRANDS
 from ..util import done, progress
 
