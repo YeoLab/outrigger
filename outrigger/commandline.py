@@ -13,6 +13,10 @@ import warnings
 import gffutils
 import numpy as np
 
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore")
+    import pandas as pd
+
 import outrigger.common
 from outrigger import util, common
 from outrigger.index import events, adjacencies
@@ -21,9 +25,6 @@ from outrigger.psi import compute
 from outrigger.common import MIN_READS
 from outrigger.validate import check_splice_sites
 
-with warnings.catch_warnings():
-    warnings.simplefilter("ignore")
-    import pandas as pd
 
 OUTPUT = os.path.join('.', 'outrigger_output')
 JUNCTION_PATH = os.path.join(OUTPUT, 'junctions')
@@ -289,7 +290,8 @@ class Subcommand(object):
     sj_out_tab = None
     junction_reads_csv = JUNCTION_READS_PATH
     ignore_multimapping = False
-    min_reads = MIN_READS
+    min_reads = common.MIN_READS
+    reads_col = common.READS
     gtf_filename = None
     gffutils_db = None
     debug = False
@@ -393,11 +395,29 @@ class Index(Subcommand):
 
     max_de_novo_exon_length = adjacencies.MAX_DE_NOVO_EXON_LENGTH
 
+    def filter_junctions_on_reads(self, spliced_reads):
+        # Filter junction metadata to only get junctions with minimum reads
+        util.progress('Filtering for only junctions with minimum {} reads '
+                      '...'.format(self.min_reads))
+        original = len(spliced_reads.groupby(common.JUNCTION_ID))
+        enough_reads_rows = spliced_reads[self.reads_col] >= self.min_reads
+        spliced_reads = spliced_reads.loc[enough_reads_rows]
+        enough_reads = len(spliced_reads.groupby(common.JUNCTION_ID))
+        filtered = original - enough_reads
+        util.progress('\t{enough}/{original} junctions remain after '
+                      'filtering out {filtered} junctions with < '
+                      '{min_reads} reads.'.format(
+            filtered=filtered, enough=enough_reads, original=original,
+            min_reads=self.min_reads))
+        util.done(2)
+        return spliced_reads
+
     @staticmethod
     def junction_metadata(spliced_reads):
         """Get just the junction info from the concatenated read files"""
         util.progress('Creating splice junction metadata of merely where '
                       'junctions start and stop')
+
         metadata = star.make_metadata(spliced_reads)
         util.done()
         return metadata
@@ -521,6 +541,7 @@ class Index(Subcommand):
             logger.setLevel(10)
 
         spliced_reads = self.csv()
+        spliced_reads = self.filter_junctions_on_reads(spliced_reads)
 
         metadata = self.junction_metadata(spliced_reads)
         metadata_csv = os.path.join(self.junctions_folder, METADATA_CSV)
@@ -542,62 +563,78 @@ class Index(Subcommand):
 
 class Validate(Subcommand):
 
+    def exon_pair_splice_sites(self, exonA, exonB, splice_abbrev):
+        name = '{exonA}-{exonB}_splice_site'.format(
+            exonA=exonA, exonB=exonB)
+
+        exonA_splice_sites = self.individual_exon_splice_sites(
+            exonA, splice_abbrev, 'downstream')
+        exonB_splice_sites = self.individual_exon_splice_sites(
+            exonB, splice_abbrev, 'upstream')
+
+        intron_splice_site = exonA_splice_sites + '/' \
+                             + exonB_splice_sites
+        intron_splice_site.name = name
+        return intron_splice_site
+
+    def individual_exon_splice_sites(self, exon, splice_abbrev, direction):
+        exon_bed = os.path.join(self.index_folder, splice_abbrev,
+                                '{}.bed'.format(exon))
+        splice_sites = check_splice_sites.read_splice_sites(
+            exon_bed, self.genome, self.fasta, direction)
+        return splice_sites
+
     def execute(self):
         valid_splice_sites = check_splice_sites.splice_site_str_to_tuple(
             self.valid_splice_sites)
-        junction_metadata = pd.read_csv(os.path.join(self.junctions_folder,
-                                                     METADATA_CSV))
 
         for splice_name, splice_abbrev in common.SPLICE_TYPES:
+            splice_name_spaces = splice_name.replace('_', ' ').capitalize()
             util.progress('Finding valid splice sites in {} ({}) '
-                          'splice type ...'.format(splice_name, splice_abbrev))
+                          'splice type ...'.format(splice_name_spaces, splice_abbrev))
             isoform_exons = common.SPLICE_TYPE_ISOFORM_EXONS[splice_abbrev]
-            splice_type_events = pd.read_csv(
-                os.path.join(self.index_folder, splice_abbrev,
-                             EVENTS_CSV), index_col=0)
+
+
             validated_folder = os.path.join(self.index_folder, splice_abbrev,
                                             'validated')
-            util.progress('Creating folder {} ...'.format(validated_folder))
-            if not os.path.exists(validated_folder):
-                os.mkdir(validated_folder)
-            util.done()
+            self.maybe_make_folder(validated_folder)
 
-            splice_site_names = []
+            splice_sites_seriess = []
 
             for isoform, exons in isoform_exons.items():
+                util.progress('\tFinding valid splice sites for {isoform} of'
+                              ' {splice_name} events ...'.format
+                              (isoform=isoform, splice_name=splice_name_spaces))
                 exon_pairs = zip(exons, exons[1:])
                 for exonA, exonB in exon_pairs:
-                    name = '{exonA}-{exonB}_splice_site'.format(
-                        exonA=exonA, exonB=exonB)
-                    splice_site_names.append(name)
-                    exonA_bed = os.path.join(self.index_folder, splice_abbrev,
-                                             '{}.bed'.format(exonA))
-                    exonB_bed = os.path.join(self.index_folder, splice_abbrev,
-                                             '{}.bed'.format(exonB))
-                    exonA_splice_sites = check_splice_sites.read_splice_sites(
-                        exonA_bed, self.genome, self.fasta, 'downstream')
-                    exonB_splice_sites = check_splice_sites.read_splice_sites(
-                        exonB_bed, self.genome, self.fasta, 'upstream')
+                    intron_splice_site = self.exon_pair_splice_sites(
+                        exonA, exonB, splice_abbrev)
+                    splice_sites_seriess.append(intron_splice_site)
+                util.done(3)
+            splice_sites = pd.concat(splice_sites_seriess, axis=1)
 
-                    intron_splice_site = exonA_splice_sites + '/' \
-                        + exonB_splice_sites
-                    intron_splice_site.name = name
-                    splice_type_events = splice_type_events.join(intron_splice_site)
+            csv = os.path.join(self.index_folder, splice_abbrev,
+                               'splice_sites.csv')
+            util.progress('\tWriting splice sites to {csv} ...'.format(csv=csv))
+            splice_sites.to_csv(csv)
+            util.done(2)
 
-            valid_events_rows = splice_type_events[
-                splice_site_names].applymap(lambda x: x in valid_splice_sites).all(axis=1)
-            validated_events = splice_type_events.loc[valid_events_rows]
+            n_total = len(splice_sites.groupby(level=0, axis=0))
+            import pdb; pdb.set_trace()
+            splice_sites_valid = splice_sites.isin(valid_splice_sites)
+            valid_events_rows = splice_sites_valid.all(axis=1)
+            validated_events = splice_sites.loc[valid_events_rows]
+            n_valid = len(validated_events.groupby(level=0, axis=0))
 
             csv = os.path.join(validated_folder, EVENTS_CSV)
-            util.progress("Found {valid}/{total} {splice_abbrev} events. "
+            util.progress("Validated {valid}/{total} {splice_name} "
+                          "({splice_abbrev}) events. "
                           "Writing to {csv} ...".format(
-                valid=validated_events.shape[0],
-                total=splice_type_events.shape[0], csv=csv))
-            import pdb ; pdb.set_trace()
+                valid=n_valid, total=n_total, csv=csv,
+                splice_name=splice_name_spaces, splice_abbrev=splice_abbrev))
+
             validated_events.to_csv(csv)
             util.done()
-
-            import pdb; pdb.set_trace()
 
 
 class Psi(Subcommand):
