@@ -1,6 +1,7 @@
 import collections
 import os
 
+import pandas as pd
 import pandas.util.testing as pdt
 import pytest
 
@@ -8,9 +9,11 @@ import pytest
 def negative_control_folder(data_folder):
     return os.path.join(data_folder, 'simulated', 'validate_negative_control')
 
+
 @pytest.fixture
 def exon2_bed(negative_control_folder):
-    return os.path.join(negative_control_folder, 'exon2.bed')
+    return os.path.join(negative_control_folder, 'outrigger_output', 'index',
+                        'se', 'exon2.bed')
 
 
 @pytest.fixture
@@ -21,18 +24,34 @@ def do_not_have_mysql():
                 return True
     return False
 
+
 @pytest.fixture
 def genome_name():
     return 'mm10'
 
+
+@pytest.fixture(params=['upstream', 'downstream'])
+def direction(request):
+    return request.param
+
+@pytest.fixture
+def simulated_chromsizes(negative_control_folder):
+    return os.path.join(negative_control_folder, 'chromsizes')
+
+
+@pytest.fixture
+def simulated_fasta(negative_control_folder):
+    return os.path.join(negative_control_folder, 'genome.fasta')
+
+
 @pytest.fixture(params=[
     pytest.mark.skipif('do_not_have_mysql')('genome_name'),
     'filename'])
-def maybe_chromsizes(request, negative_control_folder, genome_name):
+def maybe_chromsizes(request, simulated_chromsizes, genome_name):
     if request.param == 'genome_name':
         return genome_name
     elif request.param == 'filename':
-        return os.path.join(negative_control_folder, 'chromsizes')
+        return simulated_chromsizes
 
 
 def test_splice_site_str_to_tuple():
@@ -121,3 +140,19 @@ chr4_JH584295_random	1976'''.split('\n')
         true = collections.OrderedDict(
             [(chrom, (0, int(length))) for chrom, length in chromsizes])
     pdt.assert_dict_equal(test, true)
+
+
+def test_read_splice_sites(exon2_bed, direction, simulated_fasta,
+                           simulated_chromsizes, negative_control_folder):
+    from outrigger.validate.check_splice_sites import read_splice_sites
+
+    test = read_splice_sites(exon2_bed, simulated_chromsizes, simulated_fasta,
+                             direction)
+
+    csv = os.path.join(negative_control_folder,
+                       'exon2_{}_splice_sites.csv'.format(direction))
+    true = pd.read_csv(csv, index_col=0, squeeze=True, header=None, names=None)
+    true.name = None
+    true.index.name = None
+
+    pdt.assert_series_equal(test, true)
