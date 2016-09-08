@@ -59,6 +59,7 @@ def read_splice_sites(bed, genome, fasta, direction='upstream'):
 
     with open(seqs.seqfn) as f:
         records = SeqIO.parse(f, 'fasta')
-        records = pd.Series([str(x.seq) for x in records],
-                            index=[x.name for x in bed])
+        records = pd.Series([str(r.seq) for r in records],
+                            index=[b.name for b in bed])
+    # import pdb; pdb.set_trace()
     return records

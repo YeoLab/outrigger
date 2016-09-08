@@ -479,7 +479,7 @@ class Index(Subcommand):
             if not os.path.exists(dirname):
                 os.makedirs(dirname)
 
-            n_events = events_of_type.shape[0]
+            n_events = len(events_of_type.groupby(level=0, axis=0))
             if n_events > 0:
                 util.progress(
                     'Found {n} {abbrev} events.'.format(
@@ -572,9 +572,11 @@ class Validate(Subcommand):
         exonB_splice_sites = self.individual_exon_splice_sites(
             exonB, splice_abbrev, 'upstream')
 
+
         intron_splice_site = exonA_splice_sites + '/' \
                              + exonB_splice_sites
         intron_splice_site.name = name
+        # import pdb; pdb.set_trace()
         return intron_splice_site
 
     def individual_exon_splice_sites(self, exon, splice_abbrev, direction):
@@ -589,9 +591,10 @@ class Validate(Subcommand):
             self.valid_splice_sites)
 
         for splice_name, splice_abbrev in common.SPLICE_TYPES:
-            splice_name_spaces = splice_name.replace('_', ' ').capitalize()
+            splice_name_spaces = splice_name.replace('_', ' ').title()
             util.progress('Finding valid splice sites in {} ({}) '
-                          'splice type ...'.format(splice_name_spaces, splice_abbrev))
+                          'splice type ...'.format(splice_name_spaces,
+                                                   splice_abbrev.upper()))
             isoform_exons = common.SPLICE_TYPE_ISOFORM_EXONS[splice_abbrev]
 
 
@@ -604,37 +607,52 @@ class Validate(Subcommand):
             for isoform, exons in isoform_exons.items():
                 util.progress('\tFinding valid splice sites for {isoform} of'
                               ' {splice_name} events ...'.format
-                              (isoform=isoform, splice_name=splice_name_spaces))
+                              (isoform=isoform,
+                               splice_name=splice_name_spaces))
                 exon_pairs = zip(exons, exons[1:])
                 for exonA, exonB in exon_pairs:
+                    util.progress('\t\tFinding splice sites for {exonA} and '
+                                  '{exonB} ...'.format(exonA=exonA,
+                                                       exonB=exonB))
                     intron_splice_site = self.exon_pair_splice_sites(
                         exonA, exonB, splice_abbrev)
                     splice_sites_seriess.append(intron_splice_site)
+                    util.done(4)
                 util.done(3)
             splice_sites = pd.concat(splice_sites_seriess, axis=1)
 
             csv = os.path.join(self.index_folder, splice_abbrev,
                                'splice_sites.csv')
-            util.progress('\tWriting splice sites to {csv} ...'.format(csv=csv))
+            util.progress('\tWriting splice sites to {csv} ...'.format(
+                csv=csv))
             splice_sites.to_csv(csv)
-            util.done(2)
+            util.done(3)
 
             n_total = len(splice_sites.groupby(level=0, axis=0))
-            import pdb; pdb.set_trace()
-            splice_sites_valid = splice_sites.isin(valid_splice_sites)
-            valid_events_rows = splice_sites_valid.all(axis=1)
-            validated_events = splice_sites.loc[valid_events_rows]
-            n_valid = len(validated_events.groupby(level=0, axis=0))
+            # import pdb; pdb.set_trace()
+            splice_sites_is_valid = splice_sites.isin(valid_splice_sites)
+            valid_events_rows = splice_sites_is_valid.all(axis=1)
+            splice_sites_validated = splice_sites.loc[valid_events_rows]
+            n_valid = len(splice_sites_validated.groupby(level=0, axis=0))
 
-            csv = os.path.join(validated_folder, EVENTS_CSV)
-            util.progress("Validated {valid}/{total} {splice_name} "
-                          "({splice_abbrev}) events. "
-                          "Writing to {csv} ...".format(
-                valid=n_valid, total=n_total, csv=csv,
-                splice_name=splice_name_spaces, splice_abbrev=splice_abbrev))
+            util.progress("\tValidated {valid}/{total} {splice_name} "
+                          "({splice_abbrev}) events. ".format(
+                valid=n_valid, total=n_total,
+                splice_name=splice_name_spaces,
+                splice_abbrev=splice_abbrev.upper()))
 
-            validated_events.to_csv(csv)
-            util.done()
+            original_events_csv = os.path.join(self.index_folder,
+                                               splice_abbrev, EVENTS_CSV)
+            validated_events_csv = os.path.join(validated_folder, EVENTS_CSV)
+            util.progress('\tWriting validated events to {csv} ...'.format(
+                csv=validated_events_csv))
+
+            with open(validated_events_csv, 'w') as f_validated:
+                with open(original_events_csv) as f_original:
+                    for line in f_original:
+                        if line.split(',')[0] in splice_sites_validated.index:
+                            f_validated.write(line)
+            util.done(3)
 
 
 class Psi(Subcommand):
