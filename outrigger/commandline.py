@@ -628,7 +628,6 @@ class Validate(Subcommand):
             util.done(3)
 
             n_total = len(splice_sites.groupby(level=0, axis=0))
-            # import pdb; pdb.set_trace()
             splice_sites_is_valid = splice_sites.isin(valid_splice_sites)
             valid_events_rows = splice_sites_is_valid.all(axis=1)
             splice_sites_validated = splice_sites.loc[valid_events_rows]
@@ -748,6 +747,15 @@ class Psi(Subcommand):
                     "{flag}".format(col=col, csv=self.junction_reads_csv,
                                     flag=flag))
 
+    def maybe_get_validated_events(self, splice_abbrev):
+        splice_folder = os.path.join(self.index_folder, splice_abbrev)
+        events = os.path.join(splice_folder, EVENTS_CSV)
+        validated_events = os.path.join(splice_folder, 'validated', EVENTS_CSV)
+        if os.path.exists(validated_events):
+            return validated_events
+        else:
+            return events
+
     def execute(self):
         """Calculate percent spliced in (psi) of splicing events"""
 
@@ -765,17 +773,17 @@ class Psi(Subcommand):
 
         psis = []
         for splice_name, splice_abbrev in outrigger.common.SPLICE_TYPES:
-            filename = os.path.join(self.index_folder, splice_abbrev,
-                                    EVENTS_CSV)
+            filename = self.maybe_get_validated_events(splice_abbrev)
             # event_type = os.path.basename(filename).split('.csv')[0]
             util.progress('Reading {name} ({abbrev}) events from {filename}'
                           ' ...'.format(name=splice_name, abbrev=splice_abbrev,
                                         filename=filename))
 
-            isoform_junctions = outrigger.common.ISOFORM_JUNCTIONS[
-                splice_abbrev]
             event_annotation = pd.read_csv(filename, index_col=0)
             util.done()
+
+            isoform_junctions = outrigger.common.ISOFORM_JUNCTIONS[
+                splice_abbrev]
             logger.debug('\n--- Splicing event annotation ---')
             logger.debug(repr(event_annotation.head()))
 
