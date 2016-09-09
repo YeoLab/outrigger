@@ -5,3 +5,4 @@ coverage
 gffutils
 pybedtools
 biopython
+bedtools
