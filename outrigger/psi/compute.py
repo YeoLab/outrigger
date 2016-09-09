@@ -148,6 +148,9 @@ def calculate_psi(event_annotation, splice_junction_reads,
     sys.stdout.write('{}\t\tIterating over {} events ...\n'.format(
         timestamp(), n_events))
 
+    psi_df = pd.DataFrame(index=splice_junction_reads.index.levels[1],
+                          columns=sorted(grouped.groups.keys()))
+
     for i, (event_id, event_df) in enumerate(grouped):
         if (i+1) % 1000 == 0:
             sys.stdout.write('{}\t\t\t{} events completed\n'.format(
@@ -187,13 +190,9 @@ def calculate_psi(event_annotation, splice_junction_reads,
         multiplier = float(len(isoform2_junctions))/len(isoform1_junctions)
         psi = isoform2/(isoform2 + multiplier * isoform1)
         log.debug('--- Psi ---\n%s', repr(psi))
-        psi.name = event_id
-        psis.append(psi)
+        if not psi.empty:
+            psi.name = event_id
+            psi_df[event_id] = psi
     sys.stdout.write('{}\t\t\tDone.\n'.format(timestamp()))
 
-    import pdb; pdb.set_trace()
-    if len(psis) > 0:
-        psi_df = pd.concat(psis, axis=1)
-    else:
-        psi_df = pd.DataFrame(index=splice_junction_reads.index.levels[1])
     return psi_df
