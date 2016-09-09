@@ -52,3 +52,21 @@ class TestSubcommand(object):
 #                                           ignore=['.DS_Store'])
 #     assert len(directory_comparison.left_only) == 0
 #     assert len(directory_comparison.right_only) == 0
+
+#
+# def test_main_validate(tmpdir, negative_control_folder):
+#     from outrigger.commandline import CommandLine
+#
+#     args =['validate', '--genome',
+#            '{folder}/chromsizes'.format(folder=negative_control_folder),
+#            '--fasta',
+#            '{folder}/genome.fasta'.format(folder=negative_control_folder)]
+#     CommandLine(args)
+#
+#     dir1 = tmpdir.strpath
+#     dir2 = os.path.join('outrigger', 'test_data', 'tasic2016',
+#                         'outrigger_output')
+#     directory_comparison = filecmp.dircmp(dir1, dir2,
+#                                           ignore=['.DS_Store'])
+#     assert len(directory_comparison.left_only) == 0
+#     assert len(directory_comparison.right_only) == 0

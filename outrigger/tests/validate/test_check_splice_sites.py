@@ -6,10 +6,6 @@ import pandas.util.testing as pdt
 import pytest
 
 
-@pytest.fixture
-def negative_control_folder(data_folder):
-    return os.path.join(data_folder, 'simulated', 'validate_negative_control')
-
 
 @pytest.fixture
 def exon2_bed(negative_control_folder):

@@ -69,6 +69,12 @@ def simulated_outrigger_psi(simulated_outrigger_output):
 
 
 @pytest.fixture
+def negative_control_folder(data_folder):
+    return os.path.join(data_folder, 'simulated', 'validate_negative_control')
+
+
+
+@pytest.fixture
 def tasic2016_sj_out_tab(tasic2016_unprocessed):
     return os.path.join(tasic2016_unprocessed, 'sj_out_tab')
 
