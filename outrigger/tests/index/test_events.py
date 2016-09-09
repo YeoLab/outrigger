@@ -221,15 +221,8 @@ class TestEventMaker(object):
         longname, abbrev = request.param
         return longname, abbrev
 
-    @pytest.fixture
-    def events(self, strand_name, splice_type, simulated_outrigger_index):
-        longname, abbrev = splice_type
-        template = os.path.join(simulated_outrigger_index,
-                                abbrev, 'events_{}_strand.csv')
-        csv = template.format(strand_name)
-        return pd.read_csv(csv, index_col=0)
-
-    def test_finding_events(self, event_maker, capsys, events, splice_type):
+    def test_finding_events(self, event_maker, capsys, strand_name,
+                            splice_type, simulated_outrigger_index):
         """Test finding SE and MXE events in one function"""
         longname, abbrev = splice_type
         test = getattr(event_maker, longname)()
@@ -238,7 +231,12 @@ class TestEventMaker(object):
         assert 'exons tested' in out
         assert '%' in out
 
-        true = events.copy()
+        longname, abbrev = splice_type
+        template = os.path.join(simulated_outrigger_index,
+                                abbrev, 'events_{}_strand.csv')
+        csv = template.format(strand_name)
+
+        true = pd.read_csv(csv, index_col=0)
 
         sort_by = [x for x in true.columns if re.match('exon\d', x)]
         test = test.sort_values(by=sort_by)
