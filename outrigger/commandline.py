@@ -647,7 +647,10 @@ class Validate(Subcommand):
 
             with open(validated_events_csv, 'w') as f_validated:
                 with open(original_events_csv) as f_original:
-                    for line in f_original:
+                    for i, line in enumerate(f_original):
+                        if i == 0:
+                            f_validated.write(line)
+                            continue
                         if line.split(',')[0] in splice_sites_validated.index:
                             f_validated.write(line)
             util.done(3)
