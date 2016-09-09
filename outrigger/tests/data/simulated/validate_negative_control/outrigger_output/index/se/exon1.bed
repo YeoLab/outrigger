@@ -1,0 +1,2 @@
+simulated	100	150	isoform1=junction:simulated:150-500:+|isoform2=junction:simulated:150-300:+@exon:simulated:300-400:+@junction:simulated:400-500:+	.	+
+simulated	500	600	isoform1=junction:simulated:100-600:-|isoform2=junction:simulated:300-600:-@exon:simulated:300-400:-@junction:simulated:100-400:-	.	-
