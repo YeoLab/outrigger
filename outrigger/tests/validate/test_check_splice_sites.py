@@ -5,6 +5,7 @@ import pandas as pd
 import pandas.util.testing as pdt
 import pytest
 
+
 @pytest.fixture
 def negative_control_folder(data_folder):
     return os.path.join(data_folder, 'simulated', 'validate_negative_control')
@@ -33,6 +34,7 @@ def genome_name():
 @pytest.fixture(params=['upstream', 'downstream'])
 def direction(request):
     return request.param
+
 
 @pytest.fixture
 def simulated_chromsizes(negative_control_folder):

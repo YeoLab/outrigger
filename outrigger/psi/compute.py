@@ -1,10 +1,14 @@
 import logging
 import sys
-
-import pandas as pd
+import warnings
 
 from ..common import ILLEGAL_JUNCTIONS
 from ..util import timestamp
+
+
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore")
+    import pandas as pd
 
 logging.basicConfig()
 

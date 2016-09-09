@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import argparse
-import glob
 import logging
 import os
 import pdb
@@ -13,17 +12,16 @@ import warnings
 import gffutils
 import numpy as np
 
-with warnings.catch_warnings():
-    warnings.simplefilter("ignore")
-    import pandas as pd
-
 import outrigger.common
 from outrigger import util, common
 from outrigger.index import events, adjacencies
 from outrigger.io import star, gtf
 from outrigger.psi import compute
-from outrigger.common import MIN_READS
 from outrigger.validate import check_splice_sites
+
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore")
+    import pandas as pd
 
 
 OUTPUT = os.path.join('.', 'outrigger_output')
@@ -406,9 +404,10 @@ class Index(Subcommand):
         filtered = original - enough_reads
         util.progress('\t{enough}/{original} junctions remain after '
                       'filtering out {filtered} junctions with < '
-                      '{min_reads} reads.'.format(
-            filtered=filtered, enough=enough_reads, original=original,
-            min_reads=self.min_reads))
+                      '{min_reads} '
+                      'reads.'.format(filtered=filtered, enough=enough_reads,
+                                      original=original,
+                                      min_reads=self.min_reads))
         util.done(2)
         return spliced_reads
 
@@ -572,11 +571,9 @@ class Validate(Subcommand):
         exonB_splice_sites = self.individual_exon_splice_sites(
             exonB, splice_abbrev, 'upstream')
 
-
         intron_splice_site = exonA_splice_sites + '/' \
-                             + exonB_splice_sites
+            + exonB_splice_sites
         intron_splice_site.name = name
-        # import pdb; pdb.set_trace()
         return intron_splice_site
 
     def individual_exon_splice_sites(self, exon, splice_abbrev, direction):
@@ -597,7 +594,6 @@ class Validate(Subcommand):
                                                    splice_abbrev.upper()))
             isoform_exons = common.SPLICE_TYPE_ISOFORM_EXONS[splice_abbrev]
 
-
             validated_folder = os.path.join(self.index_folder, splice_abbrev,
                                             'validated')
             self.maybe_make_folder(validated_folder)
@@ -605,11 +601,13 @@ class Validate(Subcommand):
             splice_sites_seriess = []
 
             for isoform, exons in isoform_exons.items():
+                valid_str = ' or '.join(valid_splice_sites)
                 util.progress('\tFinding valid splice sites for {isoform} of'
                               ' {splice_name} events which match '
-                              '{valid_splice_sites}...'.format(
-                    isoform=isoform, splice_name=splice_name_spaces,
-                    valid_splice_sites=' or '.join(valid_splice_sites)))
+                              '{valid_splice_sites}'
+                              '...'.format(isoform=isoform,
+                                           splice_name=splice_name_spaces,
+                                           valid_splice_sites=valid_str))
                 exon_pairs = zip(exons, exons[1:])
                 for exonA, exonB in exon_pairs:
                     util.progress('\t\tFinding splice sites for {exonA} and '
@@ -637,10 +635,10 @@ class Validate(Subcommand):
             n_valid = len(splice_sites_validated.groupby(level=0, axis=0))
 
             util.progress("\tValidated {valid}/{total} {splice_name} "
-                          "({splice_abbrev}) events. ".format(
-                valid=n_valid, total=n_total,
-                splice_name=splice_name_spaces,
-                splice_abbrev=splice_abbrev.upper()))
+                          "({splice_abbrev}) events. "
+                          "".format(valid=n_valid, total=n_total,
+                                    splice_name=splice_name_spaces,
+                                    splice_abbrev=splice_abbrev.upper()))
 
             original_events_csv = os.path.join(self.index_folder,
                                                splice_abbrev, EVENTS_CSV)
@@ -774,7 +772,8 @@ class Psi(Subcommand):
                           ' ...'.format(name=splice_name, abbrev=splice_abbrev,
                                         filename=filename))
 
-            isoform_junctions = outrigger.common.ISOFORM_JUNCTIONS[splice_abbrev]
+            isoform_junctions = outrigger.common.ISOFORM_JUNCTIONS[
+                splice_abbrev]
             event_annotation = pd.read_csv(filename, index_col=0)
             util.done()
             logger.debug('\n--- Splicing event annotation ---')
