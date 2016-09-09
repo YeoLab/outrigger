@@ -135,9 +135,6 @@ def calculate_psi(event_annotation, splice_junction_reads,
 
     junction_cols = isoform1_junctions + isoform2_junctions
 
-    sys.stdout.write('{}\t\tIterating over {} events ...\n'.format(
-        timestamp(), event_annotation.shape[0]))
-
     # There are multiple rows with the same event id because the junctions
     # are the same, but the flanking exons may be a little wider or shorter,
     # but ultimately the event Psi is calculated only on the junctions so the
@@ -188,12 +185,13 @@ def calculate_psi(event_annotation, splice_junction_reads,
         isoform2 = isoform2.fillna(0)
 
         multiplier = float(len(isoform2_junctions))/len(isoform1_junctions)
-        psi = (isoform2)/(isoform2 + multiplier * isoform1)
+        psi = isoform2/(isoform2 + multiplier * isoform1)
         log.debug('--- Psi ---\n%s', repr(psi))
         psi.name = event_id
         psis.append(psi)
     sys.stdout.write('{}\t\t\tDone.\n'.format(timestamp()))
 
+    import pdb; pdb.set_trace()
     if len(psis) > 0:
         psi_df = pd.concat(psis, axis=1)
     else:
