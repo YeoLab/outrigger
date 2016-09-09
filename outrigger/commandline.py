@@ -606,9 +606,10 @@ class Validate(Subcommand):
 
             for isoform, exons in isoform_exons.items():
                 util.progress('\tFinding valid splice sites for {isoform} of'
-                              ' {splice_name} events ...'.format
-                              (isoform=isoform,
-                               splice_name=splice_name_spaces))
+                              ' {splice_name} events which match '
+                              '{valid_splice_sites}...'.format(
+                    isoform=isoform, splice_name=splice_name_spaces,
+                    valid_splice_sites=' or '.join(valid_splice_sites)))
                 exon_pairs = zip(exons, exons[1:])
                 for exonA, exonB in exon_pairs:
                     util.progress('\t\tFinding splice sites for {exonA} and '
