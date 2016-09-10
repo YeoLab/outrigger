@@ -6,7 +6,6 @@ import pandas.util.testing as pdt
 import pytest
 
 
-
 @pytest.fixture
 def exon2_bed(negative_control_folder):
     return os.path.join(negative_control_folder, 'outrigger_output', 'index',

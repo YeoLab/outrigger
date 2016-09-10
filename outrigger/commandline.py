@@ -20,7 +20,6 @@ from outrigger.psi import compute
 from outrigger.validate import check_splice_sites
 
 
-
 OUTPUT = os.path.join('.', 'outrigger_output')
 JUNCTION_PATH = os.path.join(OUTPUT, 'junctions')
 JUNCTION_READS_PATH = os.path.join(JUNCTION_PATH, 'reads.csv')

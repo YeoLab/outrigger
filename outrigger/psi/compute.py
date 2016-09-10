@@ -131,8 +131,6 @@ def calculate_psi(event_annotation, splice_junction_reads,
     if debug:
         log.setLevel(10)
 
-    psis = []
-
     junction_cols = isoform1_junctions + isoform2_junctions
 
     # There are multiple rows with the same event id because the junctions
