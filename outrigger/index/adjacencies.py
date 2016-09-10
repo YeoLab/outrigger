@@ -2,15 +2,20 @@
 Find exons adjacent to junctions
 """
 import sqlite3
+import warnings
 
 import gffutils
 from gffutils.helpers import merge_attributes
-import pandas as pd
 
+from ..common import JUNCTION_ID, EXON_START, EXON_STOP, CHROM, STRAND
 from ..io.gtf import transform
-from ..io.common import JUNCTION_ID, EXON_START, EXON_STOP, CHROM, STRAND
 from ..region import Region, STRANDS
 from ..util import done, progress
+
+
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore")
+    import pandas as pd
 
 
 UPSTREAM = 'upstream'
@@ -135,7 +140,7 @@ class ExonJunctionAdjacencies(object):
                  chrom=CHROM, strand=STRAND,
                  max_de_novo_exon_length=MAX_DE_NOVO_EXON_LENGTH,
                  n_jobs=-1):
-        """Initialize class to get upstream/downstream exon_cols of junctions
+        """Initialize class to get upstream/downstream exons of junctions
 
         Parameters
         ----------
@@ -395,7 +400,7 @@ class ExonJunctionAdjacencies(object):
             return pd.DataFrame()
 
     def upstream_downstream_exons(self):
-        """Get upstream and downstream exon_cols of each junction
+        """Get upstream and downstream exons of each junction
 
         The "upstream" and "downstream" is relative to the **junction**, e.g.
 
@@ -405,7 +410,7 @@ class ExonJunctionAdjacencies(object):
         should be read as "exonA is upstream of juction X" and "exonB is
         downstream of junctionX"
 
-        Use junctions defined in ``sj_metadata`` and exon_cols in ``db`` to
+        Use junctions defined in ``sj_metadata`` and exons in ``db`` to
         create triples of (exon, direction, junction), which are read like
         (subject, object, verb) e.g. ('exon1', 'upstream', 'junction12'), for
         creation of a graph database.

@@ -23,9 +23,9 @@ test_requirements = [
 
 setup(
     name='outrigger',
-    version='0.1.0',
+    version='0.2.0',
     description="Outrigger is a tool to de novo annotate splice sites "
-                "and exon_cols",
+                "and exons",
     long_description=readme + '\n\n' + history,
     author="Olga Botvinnik",
     author_email='olga.botvinnik@gmail.com',

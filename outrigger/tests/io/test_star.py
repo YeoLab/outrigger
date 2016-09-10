@@ -64,7 +64,7 @@ def splice_junction_csv(ignore_multimapping, tasic2016_intermediate):
 def test_read_multiple_sj_out_tab(sj_filenames, ignore_multimapping,
                                   splice_junction_csv):
     from outrigger.io.star import read_multiple_sj_out_tab
-    from outrigger.io.common import READS
+    from outrigger.common import READS
 
     # Read csv file and convert to numeric
     true = pd.read_csv(splice_junction_csv)
@@ -72,7 +72,6 @@ def test_read_multiple_sj_out_tab(sj_filenames, ignore_multimapping,
 
     test = read_multiple_sj_out_tab(
         sj_filenames, ignore_multimapping=ignore_multimapping)
-
     assert READS in test
     pdt.assert_frame_equal(test, true)
 

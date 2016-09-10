@@ -6,21 +6,11 @@ import numpy as np
 import pandas as pd
 from graphlite import V
 
+from ..common import STRAND, ISOFORM_ORDER, ISOFORM_COMPONENTS, \
+    EVENT_ID_COLUMN, ILLEGAL_JUNCTIONS
 from outrigger.region import Region
 from .adjacencies import UPSTREAM, DOWNSTREAM, DIRECTIONS
-from ..io.common import STRAND
 from ..util import progress
-
-# Define constants so they can be accessed in other sub-modules
-SPLICE_TYPES = (('skipped_exon', 'se'), ('mutually_exclusive_exon', 'mxe'))
-ISOFORM_ORDER = 'isoform1', 'isoform2'
-ISOFORM_COMPONENTS = {
-    'se': {'isoform1': ('junction13',),
-           'isoform2': ('junction12', 'exon2', 'junction23')},
-    'mxe': {'isoform1': ('junction13', 'exon3', 'junction34'),
-            'isoform2': ('junction12', 'exon2', 'junction24')}}
-EVENT_ID_COLUMN = 'event_id'
-ILLEGAL_JUNCTIONS = 'illegal_junctions'
 
 
 def stringify_location(chrom, start, stop, strand, region=None):
@@ -95,14 +85,14 @@ class EventMaker(object):
 
     def event_dict_to_df(self, events, exon_names, junction_names):
         columns = list(exon_names) + list(junction_names) \
-                  + ['exon_cols', 'junctions']
+                  + ['exons', 'junctions']
         data = pd.DataFrame(index=np.arange(len(events)), columns=columns)
         for i, (exons, junctions) in enumerate(events.items()):
             exon_ids = '@'.join(exons)
             junction_ids = '@'.join(junctions)
             data.loc[i, exon_names] = list(exons)
             data.loc[i, junction_names] = list(junctions)
-            data.loc[i, 'exon_cols'] = exon_ids
+            data.loc[i, 'exons'] = exon_ids
             data.loc[i, 'junctions'] = junction_ids
             data.loc[i, STRAND] = exons[0][-1]
         return data
@@ -183,19 +173,19 @@ class EventMaker(object):
     def exons_one_junction_downstream(self, exon_i):
         """Get the exon(s) that are immediately downstream of this one
 
-        Get exon_cols that are downstream from this one, separated by one
+        Get exons that are downstream from this one, separated by one
         junction
 
         Parameters
         ----------
         exon_i : int
-            Integer identifier of the exon whose downstream exon_cols you want.
+            Integer identifier of the exon whose downstream exons you want.
             This is the exon's index location in self.exon_cols
 
         Returns
         -------
         downstream_exons : graphlite.Query
-            Integer identfiers of exon_cols which are one junction downstream
+            Integer identfiers of exons which are one junction downstream
             of the provided one
         """
         return self.graph.find(
@@ -204,14 +194,14 @@ class EventMaker(object):
     def exons_one_junction_upstream(self, exon_query):
         """Get the exon(s) that are immediately upstream of this one
 
-        Get exon_cols that are upstream from this one, separated by one
+        Get exons that are upstream from this one, separated by one
         junction
 
         Parameters
         ----------
         exon_query : graphlite.Query
-            Integer identifier of the exon whose upstream exon_cols you want.
-            This is the exon's index location in self.exon_cols
+            Integer identifier of the exon whose upstream exons you want.
+            This is the exon's index location in self.exons
 
         Returns
         -------
@@ -252,7 +242,7 @@ class EventMaker(object):
     def skipped_exon(self):
         events = {}
 
-        progress('Trying out {0} exon_cols ...'.format(self.n_exons))
+        progress('Trying out {0} exons ...'.format(self.n_exons))
         for exon1_i, exon1_name in enumerate(self.exons):
             self._maybe_print_exon_progress(exon1_i)
 
@@ -296,7 +286,7 @@ class EventMaker(object):
     def mutually_exclusive_exon(self):
         events = {}
 
-        progress('Trying out {0} exon_cols ...'.format(self.n_exons))
+        progress('Trying out {0} exons ...'.format(self.n_exons))
         for i, exon1_name in enumerate(self.exons):
             self._maybe_print_exon_progress(i)
 

@@ -2,13 +2,18 @@
 Read splice junction output files from STAR aligner (SJ.out.tab)
 """
 import os
+import warnings
 
 import numpy as np
-import pandas as pd
 
-
-from .common import JUNCTION_ID, JUNCTION_START, JUNCTION_STOP, READS, \
+from ..common import JUNCTION_ID, JUNCTION_START, JUNCTION_STOP, READS, \
     JUNCTION_MOTIF, EXON_START, EXON_STOP, CHROM, STRAND, ANNOTATED, SAMPLE_ID
+
+
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore")
+    import pandas as pd
+
 
 UNIQUE_READS = 'unique_junction_reads'
 MULTIMAP_READS = 'multimap_junction_reads'
@@ -125,6 +130,9 @@ def read_multiple_sj_out_tab(filenames, ignore_multimapping=False,
                                   + splice_junctions[MULTIMAP_READS]
     else:
         splice_junctions[READS] = splice_junctions[UNIQUE_READS]
+    splice_junctions = splice_junctions.sort_values(
+        by=[SAMPLE_ID, CHROM, JUNCTION_START, JUNCTION_STOP])
+    splice_junctions.index = np.arange(splice_junctions.shape[0])
     return splice_junctions
 
 

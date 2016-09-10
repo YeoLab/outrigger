@@ -11,7 +11,7 @@ import pytest
 def data_folder():
     """Absolute path to where test data is stored"""
     return os.path.join(os.path.abspath(os.path.dirname(__file__)),
-                        '../test_data')
+                        './data')
 
 
 @pytest.fixture
@@ -66,6 +66,11 @@ def simulated_outrigger_mxe(simulated_outrigger_index):
 def simulated_outrigger_psi(simulated_outrigger_output):
     """Suffix for simulated data splicing events"""
     return os.path.join(simulated_outrigger_output, 'psi')
+
+
+@pytest.fixture
+def negative_control_folder(data_folder):
+    return os.path.join(data_folder, 'simulated', 'validate_negative_control')
 
 
 @pytest.fixture

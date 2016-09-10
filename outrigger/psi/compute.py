@@ -1,27 +1,18 @@
 import logging
 import sys
+import warnings
 
-import pandas as pd
-
-from ..index.events import ILLEGAL_JUNCTIONS
+from ..common import ILLEGAL_JUNCTIONS
 from ..util import timestamp
+
+
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore")
+    import pandas as pd
 
 logging.basicConfig()
 
 idx = pd.IndexSlice
-MIN_READS = 10
-
-SE_ISOFORM1_JUNCTIONS = ['junction13']
-SE_ISOFORM2_JUNCTIONS = ['junction12', 'junction23']
-
-MXE_ISOFORM1_JUNCTIONS = ['junction13', 'junction34']
-MXE_ISOFORM2_JUNCTIONS = ['junction12', 'junction24']
-
-ISOFORM_JUNCTIONS = {
-    'se': {'isoform1_junctions': SE_ISOFORM1_JUNCTIONS,
-           'isoform2_junctions': SE_ISOFORM2_JUNCTIONS},
-    'mxe': {'isoform1_junctions': MXE_ISOFORM1_JUNCTIONS,
-            'isoform2_junctions': MXE_ISOFORM2_JUNCTIONS}}
 
 
 def filter_and_sum(reads, min_reads, junctions, debug=False):
@@ -140,12 +131,7 @@ def calculate_psi(event_annotation, splice_junction_reads,
     if debug:
         log.setLevel(10)
 
-    psis = []
-
     junction_cols = isoform1_junctions + isoform2_junctions
-
-    sys.stdout.write('{}\t\tIterating over {} events ...\n'.format(
-        timestamp(), event_annotation.shape[0]))
 
     # There are multiple rows with the same event id because the junctions
     # are the same, but the flanking exons may be a little wider or shorter,
@@ -159,6 +145,9 @@ def calculate_psi(event_annotation, splice_junction_reads,
 
     sys.stdout.write('{}\t\tIterating over {} events ...\n'.format(
         timestamp(), n_events))
+
+    psi_df = pd.DataFrame(index=splice_junction_reads.index.levels[1],
+                          columns=sorted(grouped.groups.keys()))
 
     for i, (event_id, event_df) in enumerate(grouped):
         if (i+1) % 1000 == 0:
@@ -197,14 +186,11 @@ def calculate_psi(event_annotation, splice_junction_reads,
         isoform2 = isoform2.fillna(0)
 
         multiplier = float(len(isoform2_junctions))/len(isoform1_junctions)
-        psi = (isoform2)/(isoform2 + multiplier * isoform1)
+        psi = isoform2/(isoform2 + multiplier * isoform1)
         log.debug('--- Psi ---\n%s', repr(psi))
-        psi.name = event_id
-        psis.append(psi)
+        if not psi.empty:
+            psi.name = event_id
+            psi_df[event_id] = psi
     sys.stdout.write('{}\t\t\tDone.\n'.format(timestamp()))
 
-    if len(psis) > 0:
-        psi_df = pd.concat(psis, axis=1)
-    else:
-        psi_df = pd.DataFrame(index=splice_junction_reads.index.levels[1])
     return psi_df

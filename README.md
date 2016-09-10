@@ -17,6 +17,57 @@ Outrigger is a program to calculate splicing scores of RNA-Seq data based on jun
 
 ## Installation
 
+To install `outrigger`, we recommend using the
+[Anaconda Python Distribution](http://anaconda.org/) and creating an environment.
+
+You'll want to add the [`bioconda`](https://bioconda.github.io/) channel to
+make installing [`bedtools`](bedtools.readthedocs.io) and its Python wrapper,
+[`pybedtools`](https://daler.github.io/pybedtools/) easy.
+
+```
+conda config --add channels r
+conda config --add channels bioconda
+
+```
+
+Create an environment called `outrigger-env`. Python 2.7, Python 3.4, and
+Python 3.5 are supported.
+
+```
+conda create -n outrigger-env pandas pybedtools gffutils biopython
+```
+
+Now activate that environment and install `outrigger` from PyPI:
+
+```
+source activate outrigger-env
+pip install outrigger
+```
+
+To check that it installed properly, try the command with the help option (`-h`), `outrigger -h`. The output
+should look like this:
+
+```
+$ outrigger -h
+usage: outrigger [-h] {index,validate,psi} ...
+
+Calculate "percent-spliced in" (Psi) scores of alternative splicing on a *de
+novo*, custom-built splicing index
+
+positional arguments:
+  {index,validate,psi}  Sub-commands
+    index               Build an index of splicing events using a graph
+                        database on your junction reads and an annotation
+    validate            Ensure that the splicing events found all have the
+                        correct splice sites
+    psi                 Calculate "percent spliced-in" (Psi) values using the
+                        splicing event index built with "outrigger index"
+
+optional arguments:
+  -h, --help            show this help message and exit
+```
+
+
 ### Bleeding edge code from Github (here)
 
 For advanced users, if you have [git](https://git-scm.com/) and [Anaconda Python](https://www.continuum.io/downloads) installed, you can:
@@ -38,6 +89,70 @@ source activate outrigger
 pip install -r requirements.txt
 pip install .
 ```
+
+## Quick start
+
+If you just want to know how to run this on your data with the default
+parameters, start here. Let's say you performed your alignment in the folder
+called `~/projects/tasic2016/analysis/tasic2016_v1`, and that's where your
+`SJ.out.tab` files from the STAR aligner are (they're output into the same
+folder as the `.bam` files). First you'll need to change directories to that
+folder with `cd`.
+
+```
+cd ~/projects/tasic2016/analysis/tasic2016_v1
+```
+
+Then you need find all alternative splicing events, which you do by running
+`outrigger index` on the splice junction files and the gtf. Here is an example
+command:
+
+```
+outrigger index --sj-out-tab *SJ.out.tab \
+    --gtf /projects/ps-yeolab/genomes/mm10/gencode/m10/gencode.vM10.annotation.gtf
+```
+
+Next, you'll want to validate that the splicing events you found follow
+biological rules, such as being containing GT/AG (mammalian major spliceosome)
+or AT/AC (mammalian minor splicesome) sequences. To do that, you'll need to
+provide the genome name (e.g. `mm10`) and the genome sequences. An example
+command is below:
+
+```
+outrigger validate --genome mm10 \
+    --fasta /projects/ps-yeolab/genomes/mm10/GRCm38.primary_assembly.genome.fa
+```
+
+
+Finally, you can calculate percent spliced in (Psi) of your splicing events!
+Thankfully this is very easy:
+
+```
+outrigger psi
+```
+
+It should be noted that ALL of these commands should be performed in the same
+directory, so no moving.
+
+### Quick start summary
+
+
+
+
+```
+cd ~/projects/tasic2016/analysis/tasic2016_v1
+outrigger index --sj-out-tab *SJ.out.tab \
+    --gtf /projects/ps-yeolab/genomes/mm10/gencode/m10/gencode.vM10.annotation.gtf
+outrigger validate --genome mm10 \
+    --fasta /projects/ps-yeolab/genomes/mm10/GRCm38.primary_assembly.genome.fa
+outrigger psi
+```
+
+This will create a folder called `outrigger_output`, which at the end should
+look like this:
+
+
+
 
 
 ## Features
@@ -269,6 +384,12 @@ outrigger_output
     └── reads.csv
 
 5 directories, 18 files
+```
+
+### `validate`: Check that the found exons are real
+
+```
+outrigger validate -f ~/genomes/mm10/gencode/m10/GRCm38.primary_assembly.genome.fa -g ~/genomes/mm10/mm10.chrom.sizes
 ```
 
 

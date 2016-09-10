@@ -43,8 +43,8 @@ class TestExonJunctionAdjacencies(object):
 
     def test___init(self, junction_metadata, db):
         from outrigger.index.adjacencies import ExonJunctionAdjacencies
-        from outrigger.io.common import (JUNCTION_ID, EXON_START, EXON_STOP,
-                                         CHROM, STRAND)
+        from outrigger.common import (JUNCTION_ID, EXON_START, EXON_STOP,
+                                      CHROM, STRAND)
 
         adjacencies = ExonJunctionAdjacencies(junction_metadata, db)
 
@@ -65,7 +65,7 @@ class TestExonJunctionAdjacencies(object):
     @pytest.mark.xfail
     def test___init_missing_required_column(self, junction_metadata, db):
         from outrigger.index.adjacencies import ExonJunctionAdjacencies
-        from outrigger.io.common import JUNCTION_ID
+        from outrigger.common import JUNCTION_ID
 
         test_metadata = junction_metadata.copy()
         test_metadata = test_metadata.drop(JUNCTION_ID, axis=1)
