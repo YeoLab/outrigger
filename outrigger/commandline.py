@@ -7,10 +7,10 @@ import pdb
 import shutil
 import sys
 import traceback
-import warnings
 
 import gffutils
 import numpy as np
+import pandas as pd
 
 import outrigger.common
 from outrigger import util, common
@@ -19,9 +19,6 @@ from outrigger.io import star, gtf
 from outrigger.psi import compute
 from outrigger.validate import check_splice_sites
 
-with warnings.catch_warnings():
-    warnings.simplefilter("ignore")
-    import pandas as pd
 
 
 OUTPUT = os.path.join('.', 'outrigger_output')
@@ -231,11 +228,11 @@ class CommandLine(object):
         else:
             self.args = self.parser.parse_args(input_options)
 
-        if self.args.debug:
+        if self.args is not None and self.args.debug:
             print(self.args)
             print(input_options)
 
-        self.args.func()
+            self.args.func()
 
     def index(self):
         index = Index(**vars(self.args))
