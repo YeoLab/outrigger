@@ -70,7 +70,6 @@ def test_read_multiple_sj_out_tab(sj_filenames, ignore_multimapping,
     true = pd.read_csv(splice_junction_csv)
     true = true.convert_objects()
 
-    assert False
     test = read_multiple_sj_out_tab(
         sj_filenames, ignore_multimapping=ignore_multimapping)
     assert READS in test
