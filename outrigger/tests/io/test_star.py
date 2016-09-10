@@ -69,11 +69,10 @@ def test_read_multiple_sj_out_tab(sj_filenames, ignore_multimapping,
     # Read csv file and convert to numeric
     true = pd.read_csv(splice_junction_csv)
     true = true.convert_objects()
-    true = true.sort_values()
 
+    assert False
     test = read_multiple_sj_out_tab(
         sj_filenames, ignore_multimapping=ignore_multimapping)
-    test = test.sort_values()
     assert READS in test
     pdt.assert_frame_equal(test, true)
 

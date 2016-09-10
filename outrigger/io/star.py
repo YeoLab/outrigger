@@ -130,6 +130,9 @@ def read_multiple_sj_out_tab(filenames, ignore_multimapping=False,
                                   + splice_junctions[MULTIMAP_READS]
     else:
         splice_junctions[READS] = splice_junctions[UNIQUE_READS]
+    splice_junctions = splice_junctions.sort_values(
+        by=[SAMPLE_ID, CHROM, JUNCTION_START, JUNCTION_STOP])
+    splice_junctions.index = np.arange(splice_junctions.shape[0])
     return splice_junctions
 
 
