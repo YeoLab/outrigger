@@ -471,9 +471,8 @@ $ tree outrigger_output
 outrigger_output
 ├── index
 │   ├── gtf
-│   │   ├── gencode.vM10.annotation.snap25.myl6.gtf
-│   │   ├── gencode.vM10.annotation.snap25.myl6.gtf.db
-│   │   ├── gencode.vM10.annotation.snap25.myl6.gtf.db.bak
+│   │   ├── gencode.vM10.annotation.subset.gtf
+│   │   ├── gencode.vM10.annotation.subset.gtf.db
 │   │   └── novel_exons.gtf
 │   ├── junction_exon_direction_triples.csv
 │   ├── mxe
@@ -482,13 +481,17 @@ outrigger_output
 │   │   ├── exon2.bed
 │   │   ├── exon3.bed
 │   │   ├── exon4.bed
-│   │   └── metadata.csv
+│   │   ├── splice_sites.csv
+│   │   └── validated
+│   │       └── events.csv
 │   └── se
 │       ├── events.csv
 │       ├── exon1.bed
 │       ├── exon2.bed
 │       ├── exon3.bed
-│       └── metadata.csv
+│       ├── splice_sites.csv
+│       └── validated
+│           └── events.csv
 ├── junctions
 │   ├── metadata.csv
 │   └── reads.csv
@@ -499,126 +502,8 @@ outrigger_output
     └── se
         └── psi.csv
 
-8 directories, 21 files
+10 directories, 22 files
 ```
-
-## Check that the found exons are real
-
-Because `outrigger` trusts you, the user, to provide high-quality data, it uses
-all available data, including multimapping reads. As a result, many false
-positives are expected when detecting novel exons. The best method
-for detecting these exons is checking the splice sites using `bedtools` to get
-the splice site sequences.
-
-The reason that this step is separate from `outrigger`
-is because I want `outrigger` to do one thing (find novel splicing events),
-and do that one thing well, rather than doing everything, but doing it poorly.
-Plus this requires input of several other files, and IMHO complicates the inputs
-to `outrigger`, as it was my goal to make a very simple program.
-
-You'll first want to sort the  `.bed` files. Here's
-an example of all the steps you would take for the SE events. The MXE events
-are the same, except the folder is `mxe` and you would look at both `exon2` and
-`exon3`.
-
-```
-cd outrigger_output/index/se/
-bedtools sort -i exon2.bed > exon2_sorted.bed
-```
-
-Get the upstream flanking sites using `bedtools flank` two nucleotides upstream
-(aka to the "left" of the exon) using `-l 2` and `-s` for strand specificity.
-You'll want to use `-r 0` to specify no nucleotides to the right.
-
-I obtained the file `~/genomes/mm10/mm10.chrom.sizes`
-using the program [`fetchChromSizes`](http://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64/fetchChromSizes)
-from [`kentUtils`](http://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64/), with
-the command `fetchChromSizes mm10 > mm10.chrom.sizes`.
-
-```
-bedtools flank -l 2 -r 0 -i exon2_sorted.bed -s -g ~/genomes/mm10/mm10.chrom.sizes > exon2_sorted_2nt_upstream.bed
-```
-
-Do the same thing for downstream splice sites, but swap the `-l` and `-r`:
-
-```
-bedtools flank -r 2 -l 0 -i exon_sorted2.bed -s -g ~/genomes/mm10/mm10.chrom.sizes > exon2_sorted_2nt_downstream.bed
-```
-
-Now you can get the sequence of the splice sites. You'll need a fasta file of the genome sequence.
-
-```
-bedtools getfasta -s -tab -fi ~/genomes/mm10/gencode/m10/GRCm38.primary_assembly.genome.fa -bed exon2_sorted_2nt_upstream.bed -fo exon2_sorted_2nt_upstream_sequences.txt
-bedtools getfasta -s -tab -fi ~/genomes/mm10/gencode/m10/GRCm38.primary_assembly.genome.fa -bed exon2_sorted_2nt_downstream.bed -fo exon2_sorted_2nt_downstream_sequences.txt
-```
-
-You'll get a file like this:
-
-```
-$ head exon2_sorted*txt
-==> exon2_sorted_2nt_downstream_sequences.txt <==
-chr10:128491287-128491289(-)    GT
-chr10:128491717-128491719(-)    GT
-chr10:128493331-128493333(-)    GT
-chr10:128493331-128493333(-)    GT
-chr2:136734661-136734663(+) GT
-chr2:136734661-136734663(+) GT
-chr2:136734661-136734663(+) GT
-chr2:136772690-136772692(+) GT
-chr2:136772690-136772692(+) GT
-chr2:136772690-136772692(+) GT
-
-==> exon2_sorted_2nt_upstream_sequences.txt <==
-chr10:128491347-128491349(-)    AG
-chr10:128491764-128491766(-)    AG
-chr10:128493353-128493355(-)    AG
-chr10:128493353-128493355(-)    AG
-chr2:136734581-136734583(+) AG
-chr2:136734581-136734583(+) AG
-chr2:136734581-136734583(+) AG
-chr2:136772654-136772656(+) AG
-chr2:136772654-136772656(+) AG
-chr2:136772654-136772656(+) AG
-```
-
-### Filter on only "real" exons
-
-Since the sequences are in the same order as the bed file, you can glue on
-these sequences as columns to the original bed file using `cut` and `paste`
-and filter for only GT/AG events (or AT/AC for the minor spliceosome).
-
-Here's a one-liner that will get the
-
-```
-paste exon2_sorted.bed \
-    <(cut -f 2 exon2_sorted_2nt_upstream_sequences.txt) \
-    <(cut -f 2 exon2_sorted_2nt_downstream_sequences.txt) \
-    > exon2_sorted_with_splice_sites.txt
-```
-
-Then the file `exon2_sorted_with_splice_sites.txt` looks like this:
-
-```
-chr10	128491289	128491347	isoform1=junction:chr10:128491034-128492058:-|isoform2=junction:chr10:128491348-128492058:-@novel_exon:chr10:128491290-128491347:-@junction:chr10:128491034-128491289:-	.	-	GT	AG
-chr10	128491719	128491764	isoform1=junction:chr10:128491034-128492058:-|isoform2=junction:chr10:128491765-128492058:-@novel_exon:chr10:128491720-128491764:-@junction:chr10:128491034-128491719:-	.	-	GT	AG
-chr10	128493333	128493353	isoform1=junction:chr10:128492746-128493538:-|isoform2=junction:chr10:128493354-128493538:-@novel_exon:chr10:128493334-128493353:-@junction:chr10:128492746-128493333:-	.	-	GT	AG
-chr10	128493333	128493353	isoform1=junction:chr10:128492746-128493538:-|isoform2=junction:chr10:128493354-128493538:-@novel_exon:chr10:128493334-128493353:-@junction:chr10:128492746-128493333:-	.	-	GT	AG
-chr2	136734583	136734661	isoform1=junction:chr2:136713601-136756067:+|isoform2=junction:chr2:136713601-136734583:+@novel_exon:chr2:136734584-136734661:+@junction:chr2:136734662-136756067:+	.	+	GT	AG
-chr2	136734583	136734661	isoform1=junction:chr2:136713601-136756067:+|isoform2=junction:chr2:136713601-136734583:+@novel_exon:chr2:136734584-136734661:+@junction:chr2:136734662-136756067:+	.	+	GT	AG
-chr2	136734583	136734661	isoform1=junction:chr2:136713601-136756067:+|isoform2=junction:chr2:136713601-136734583:+@novel_exon:chr2:136734584-136734661:+@junction:chr2:136734662-136756067:+	.	+	GT	AG
-chr2	136772656	136772690	isoform1=junction:chr2:136770175-136773894:+|isoform2=junction:chr2:136770175-136772656:+@novel_exon:chr2:136772657-136772690:+@junction:chr2:136772691-136773894:+	.	+	GT	AG
-chr2	136772656	136772690	isoform1=junction:chr2:136770175-136773894:+|isoform2=junction:chr2:136770175-136772656:+@novel_exon:chr2:136772657-136772690:+@junction:chr2:136772691-136773894:+	.	+	GT	AG
-chr2	136772656	136772690	isoform1=junction:chr2:136770175-136773894:+|isoform2=junction:chr2:136770175-136772656:+@novel_exon:chr2:136772657-136772690:+@junction:chr2:136772691-136773894:+	.	+	GT	AG
-chr2	136773894	136774020	isoform1=junction:chr2:136770175-136777335:+|isoform2=junction:chr2:136770175-136773894:+@exon:chr2:136773895-136774020:+@junction:chr2:136774021-136777335:+	.	+	GT	AG
-```
-
-And you can filter for only GT/AG and AT/AC events with:
-
-```
-grep -E '(GT\tAG)|(AT\tAC)' exon2_sorted_with_splice_sites.txt
-```
-
-This is a relatively boring example because all of the exons would be retained.
 
 ## For Developers
 
