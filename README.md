@@ -173,7 +173,9 @@ outrigger_output
 ```
 
 
-## Features
+## Commands
+
+Here's an in-depth look at the commands of `outrigger.
 
 ### `index`: Build a *de novo* splicing annotation index of events custom to *your* data
 
@@ -231,7 +233,7 @@ optional arguments:
                         unless you think something is going wrong)
 ```
 
-#### Example command
+#### Example `outrigger index` command
 
 Included in this repository is a subset of the 1809 cells from ["Adult mouse cortical cell taxonomy revealed by single cell transcriptomics." by Tasic et al, Nature Neuroscience (2016)](http://www.ncbi.nlm.nih.gov/pubmed/26727548). There splice junction output files from the [STAR aligner](https://github.com/alexdobin/STAR) from the 43 "`CAV_LP_Ipsi_tdTpos`" cells, plus a subset of the [GENCODE M10](http://www.gencodegenes.org/mouse_releases/10.html) (Version M10 (January 2016 freeze, GRCm38) - Ensembl 85) mouse annotation.
 
@@ -239,22 +241,22 @@ To run this program with the included example data, from the `outrigger` directo
 
 ```
 outrigger index \
-    --sj-out-tab outrigger/test_data/tasic2016/unprocessed/sj_out_tab/* \
-    --gtf outrigger/test_data/tasic2016/unprocessed/gtf/gencode.vM10.annotation.snap25.myl6.gtf
+    --sj-out-tab outrigger/tests/data/tasic2016/unprocessed/sj_out_tab/* \
+    --gtf outrigger/tests/data/tasic2016/unprocessed/gtf/gencode.vM10.annotation.snap25.myl6.gtf
 ```
 
 *Note: the backslashes (`\`, like a tree that's falling backwards relative to right-to-left reading) to tell the computer that you're not done telling it what to do, so the line continues, and to help the code be a little more human-readable. The above code is read by the computer exactly the same as the one-liner below, but is easier for us humans to read.*
 
 ```
-outrigger index --sj-out-tab outrigger/test_data/tasic2016/unprocessed/sj_out_tab/* --gtf outrigger/test_data/tasic2016/unprocessed/gtf/gencode.vM10.annotation.snap25.myl6.gtf
+outrigger index --sj-out-tab outrigger/tests/data/tasic2016/unprocessed/sj_out_tab/* --gtf outrigger/tests/data/tasic2016/unprocessed/gtf/gencode.vM10.annotation.snap25.myl6.gtf
 ```
 
 This is equivalent to the below command, which specifies all the other arguments with the default values.
 
 ```
 outrigger index \
-    --sj-out-tab outrigger/test_data/tasic2016/unprocessed/sj_out_tab/* \
-    --gtf outrigger/test_data/tasic2016/unprocessed/gtf/gencode.vM10.annotation.snap25.myl6.gtf \
+    --sj-out-tab outrigger/tests/data/tasic2016/unprocessed/sj_out_tab/* \
+    --gtf outrigger/tests/data/tasic2016/unprocessed/gtf/gencode.vM10.annotation.snap25.myl6.gtf \
     --output ./outrigger_output --min-reads 10
 ```
 
@@ -356,7 +358,7 @@ $ outrigger index --sj-out-tab example_data/tasic2016/unprocessed/sj_out_tab/* -
 ```
 
 
-#### Outputs
+#### `outrigger_index` Outputs
 
 The above commands will create a folder called `outrigger_index` in the folder you ran the command from, with the following structure
 
@@ -391,6 +393,9 @@ outrigger_output
 ```
 
 ### `validate`: Check that the found exons are real
+
+This example command assumes that you have a `mm10` genome fasta file located at `~/genomes/mm10/gencode/m10/GRCm38.primary_assembly.genome.fa` and a chromosome sizes file located at `~/genomes/mm10/mm10.chrom.sizes`
+
 
 ```
 outrigger validate -f ~/genomes/mm10/gencode/m10/GRCm38.primary_assembly.genome.fa -g ~/genomes/mm10/mm10.chrom.sizes
@@ -461,7 +466,7 @@ outrigger psi --index ./outrigger_index --min-reads 10
 ```
 
 
-## Outputs
+#### `outrigger_psi` Outputs
 
 Now the `outrigger_output` folder has `psi` subfolder, with the MXE and SE events separate.
 
