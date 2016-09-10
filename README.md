@@ -5,9 +5,7 @@
 [![Build Status](https://travis-ci.org/YeoLab/outrigger.svg?branch=master)](https://travis-ci.org/YeoLab/outrigger)[![](https://img.shields.io/pypi/v/outrigger.svg)](https://pypi.python.org/pypi/outrigger)[![Coverage Status](https://coveralls.io/repos/YeoLab/outrigger/badge.svg?branch=master&service=github)](https://coveralls.io/github/YeoLab/outrigger?branch=master)
 
 
-Outrigger is a program which uses junction reads from RNA seq data, and a graph
-database to create a *de novo* alternative splicing annotation with a graph
-database, and quantify percent spliced-in (Psi) of the events.
+Outrigger is a program which uses junction reads from RNA seq data, and a graph database to create a *de novo* alternative splicing annotation with a graph database, and quantify percent spliced-in (Psi) of the events.
 
 * Free software: BSD license
 
@@ -20,12 +18,9 @@ database, and quantify percent spliced-in (Psi) of the events.
 
 ## Installation
 
-To install `outrigger`, we recommend using the
-[Anaconda Python Distribution](http://anaconda.org/) and creating an environment.
+To install `outrigger`, we recommend using the [Anaconda Python Distribution](http://anaconda.org/) and creating an environment.
 
-You'll want to add the [`bioconda`](https://bioconda.github.io/) channel to
-make installing [`bedtools`](bedtools.readthedocs.io) and its Python wrapper,
-[`pybedtools`](https://daler.github.io/pybedtools/) easy.
+You'll want to add the [`bioconda`](https://bioconda.github.io/) channel to make installing [`bedtools`](bedtools.readthedocs.io) and its Python wrapper, [`pybedtools`](https://daler.github.io/pybedtools/) easy.
 
 ```
 conda config --add channels r
@@ -33,8 +28,7 @@ conda config --add channels bioconda
 
 ```
 
-Create an environment called `outrigger-env`. Python 2.7, Python 3.4, and
-Python 3.5 are supported.
+Create an environment called `outrigger-env`. Python 2.7, Python 3.4, and Python 3.5 are supported.
 
 ```
 conda create -n outrigger-env pandas pybedtools gffutils biopython
@@ -47,8 +41,7 @@ source activate outrigger-env
 pip install outrigger
 ```
 
-To check that it installed properly, try the command with the help option (`-h`), `outrigger -h`. The output
-should look like this:
+To check that it installed properly, try the command with the help option (`-h`), `outrigger -h`. The output should look like this:
 
 ```
 $ outrigger -h
@@ -95,31 +88,20 @@ pip install .
 
 ## Quick start
 
-If you just want to know how to run this on your data with the default
-parameters, start here. Let's say you performed your alignment in the folder
-called `~/projects/tasic2016/analysis/tasic2016_v1`, and that's where your
-`SJ.out.tab` files from the STAR aligner are (they're output into the same
-folder as the `.bam` files). First you'll need to change directories to that
-folder with `cd`.
+If you just want to know how to run this on your data with the default parameters, start here. Let's say you performed your alignment in the folder called `~/projects/tasic2016/analysis/tasic2016_v1`, and that's where your `SJ.out.tab` files from the STAR aligner are (they're output into the same folder as the `.bam` files). First you'll need to change directories to that folder with `cd`.
 
 ```
 cd ~/projects/tasic2016/analysis/tasic2016_v1
 ```
 
-Then you need find all alternative splicing events, which you do by running
-`outrigger index` on the splice junction files and the gtf. Here is an example
-command:
+Then you need find all alternative splicing events, which you do by running `outrigger index` on the splice junction files and the gtf. Here is an example command:
 
 ```
 outrigger index --sj-out-tab *SJ.out.tab \
     --gtf /projects/ps-yeolab/genomes/mm10/gencode/m10/gencode.vM10.annotation.gtf
 ```
 
-Next, you'll want to validate that the splicing events you found follow
-biological rules, such as being containing GT/AG (mammalian major spliceosome)
-or AT/AC (mammalian minor splicesome) sequences. To do that, you'll need to
-provide the genome name (e.g. `mm10`) and the genome sequences. An example
-command is below:
+Next, you'll want to validate that the splicing events you found follow biological rules, such as being containing GT/AG (mammalian major spliceosome) or AT/AC (mammalian minor splicesome) sequences. To do that, you'll need to provide the genome name (e.g. `mm10`) and the genome sequences. An example command is below:
 
 ```
 outrigger validate --genome mm10 \
@@ -127,20 +109,17 @@ outrigger validate --genome mm10 \
 ```
 
 
-Finally, you can calculate percent spliced in (Psi) of your splicing events!
-Thankfully this is very easy:
+Finally, you can calculate percent spliced in (Psi) of your splicing events! Thankfully this is very easy:
 
 ```
 outrigger psi
 ```
 
-It should be noted that ALL of these commands should be performed in the same
-directory, so no moving.
+It should be noted that ALL of these commands should be performed in the same directory, so no moving.
 
 ### Quick start summary
 
-
-
+Here is a summary the commands in the order you would use them for outrigger!
 
 ```
 cd ~/projects/tasic2016/analysis/tasic2016_v1
@@ -151,20 +130,54 @@ outrigger validate --genome mm10 \
 outrigger psi
 ```
 
-This will create a folder called `outrigger_output`, which at the end should
-look like this:
+This will create a folder called `outrigger_output`, which at the end should look like this:
 
 
+```
+$ tree outrigger_output
+outrigger_output
+├── index
+│   ├── gtf
+│   │   ├── gencode.vM10.annotation.subset.gtf
+│   │   ├── gencode.vM10.annotation.subset.gtf.db
+│   │   └── novel_exons.gtf
+│   ├── junction_exon_direction_triples.csv
+│   ├── mxe
+│   │   ├── events.csv
+│   │   ├── exon1.bed
+│   │   ├── exon2.bed
+│   │   ├── exon3.bed
+│   │   ├── exon4.bed
+│   │   ├── splice_sites.csv
+│   │   └── validated
+│   │       └── events.csv
+│   └── se
+│       ├── events.csv
+│       ├── exon1.bed
+│       ├── exon2.bed
+│       ├── exon3.bed
+│       ├── splice_sites.csv
+│       └── validated
+│           └── events.csv
+├── junctions
+│   ├── metadata.csv
+│   └── reads.csv
+└── psi
+    ├── mxe
+    │   └── psi.csv
+    ├── outrigger_psi.csv
+    └── se
+        └── psi.csv
 
+10 directories, 22 files
+```
 
 
 ## Features
 
 ### `index`: Build a *de novo* splicing annotation index of events custom to *your* data
 
-The "help" output of the two programs tries to be explicit about what is required
-to run `outrigger`. Below is the output of when you use the command,
-`outrigger index --help`
+The "help" output of the two programs tries to be explicit about what is required to run `outrigger`. Below is the output of when you use the command, `outrigger index --help`
 
 ```
 $ outrigger index --help
@@ -220,16 +233,9 @@ optional arguments:
 
 #### Example command
 
-Included in this repository is a subset of the 1809 cells from
-["Adult mouse cortical cell taxonomy revealed by single cell transcriptomics."
-by Tasic et al, Nature Neuroscience (2016)](http://www.ncbi.nlm.nih.gov/pubmed/26727548).
-There splice junction output files from the [STAR aligner](https://github.com/alexdobin/STAR) from the 43 "`CAV_LP_Ipsi_tdTpos`" cells,
-plus a subset of the [GENCODE M10](http://www.gencodegenes.org/mouse_releases/10.html)
-(Version M10 (January 2016 freeze, GRCm38) - Ensembl 85) mouse annotation.
+Included in this repository is a subset of the 1809 cells from ["Adult mouse cortical cell taxonomy revealed by single cell transcriptomics." by Tasic et al, Nature Neuroscience (2016)](http://www.ncbi.nlm.nih.gov/pubmed/26727548). There splice junction output files from the [STAR aligner](https://github.com/alexdobin/STAR) from the 43 "`CAV_LP_Ipsi_tdTpos`" cells, plus a subset of the [GENCODE M10](http://www.gencodegenes.org/mouse_releases/10.html) (Version M10 (January 2016 freeze, GRCm38) - Ensembl 85) mouse annotation.
 
-To run this program with the included example data, from the `outrigger` directory
-where you cloned `outrigger` (this is important because the locations of the files
-is relative to that directory), run this command:
+To run this program with the included example data, from the `outrigger` directory where you cloned `outrigger` (this is important because the locations of the files is relative to that directory), run this command:
 
 ```
 outrigger index \
@@ -237,18 +243,13 @@ outrigger index \
     --gtf outrigger/test_data/tasic2016/unprocessed/gtf/gencode.vM10.annotation.snap25.myl6.gtf
 ```
 
-*Note: the backslashes (`\`, like a tree that's falling backwards relative to
-right-to-left reading) to tell the computer that you're not
-done telling it what to do, so the line continues, and to help the code be a
-little more human-readable. The above code is read by the computer exactly the
-same as the one-liner below, but is easier for us humans to read.*
+*Note: the backslashes (`\`, like a tree that's falling backwards relative to right-to-left reading) to tell the computer that you're not done telling it what to do, so the line continues, and to help the code be a little more human-readable. The above code is read by the computer exactly the same as the one-liner below, but is easier for us humans to read.*
 
 ```
 outrigger index --sj-out-tab outrigger/test_data/tasic2016/unprocessed/sj_out_tab/* --gtf outrigger/test_data/tasic2016/unprocessed/gtf/gencode.vM10.annotation.snap25.myl6.gtf
 ```
 
-This is equivalent to the below command, which specifies all the other arguments
-with the default values.
+This is equivalent to the below command, which specifies all the other arguments with the default values.
 
 ```
 outrigger index \
@@ -462,8 +463,7 @@ outrigger psi --index ./outrigger_index --min-reads 10
 
 ## Outputs
 
-Now the `outrigger_output` folder has `psi` subfolder, with the MXE and SE
-events separate.
+Now the `outrigger_output` folder has `psi` subfolder, with the MXE and SE events separate.
 
 
 ```
@@ -507,8 +507,7 @@ outrigger_output
 
 ## For Developers
 
-How to run the code with the Python debugger. To run the command line functions
-such that when they break, you jump into the `pdb` (Python debugger), here is the code:
+How to run the code with the Python debugger. To run the command line functions such that when they break, you jump into the `pdb` (Python debugger), here is the code:
 
 ```
 python -m pdb outrigger/commandline.py index \
@@ -516,5 +515,4 @@ python -m pdb outrigger/commandline.py index \
     --gtf outrigger/test_data/tasic2016/unprocessed/gtf/gencode.vM10.annotation.snap25.myl6.gtf
 ```
 
-Notice that you replace `outrigger` with `python -m pdb outrigger/commandline.py`,
-which is relative to this github directory.
+Notice that you replace `outrigger` with `python -m pdb outrigger/commandline.py`, which is relative to this github directory.
