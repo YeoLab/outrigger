@@ -4,16 +4,19 @@
 
 [![Build Status](https://travis-ci.org/YeoLab/outrigger.svg?branch=master)](https://travis-ci.org/YeoLab/outrigger)[![](https://img.shields.io/pypi/v/outrigger.svg)](https://pypi.python.org/pypi/outrigger)[![Coverage Status](https://coveralls.io/repos/YeoLab/outrigger/badge.svg?branch=master&service=github)](https://coveralls.io/github/YeoLab/outrigger?branch=master)
 
-Outrigger is a program to calculate splicing scores of RNA-Seq data based on junction reads and a *de novo*, custom annotation created with a graph database.
 
- 1. Read all your `SJ.out.tab` files from the STAR aligner into a single, compiled file
- 2. Building a *de novo* splicing annotation index [of skipped exon (SE) and mutually exclusive exon (MXE) events] that is custom to the junctions observed in your data
- 3. (optional) Consolidate events that share junctions but have alternative start and ends for the flanking exons. The criteria to consolidate these is based on which pair of isoforms contains one isoform that is annotated as the "principal" isoform by APPRIS (in the GENCODE annotation).
- 4. Calculate "percent spliced-in" (Psi/Ψ) scores for all your samples given the events calculated in (2)
-
- The program `outrigger index` takes care of (1-3) for you. `outrigger psi` does step (4). If you're using an existing index with new junction reads, then `outrigger psi` will also do (1).
+Outrigger is a program which uses junction reads from RNA seq data, and a graph
+database to create a *de novo* alternative splicing annotation with a graph
+database, and quantify percent spliced-in (Psi) of the events.
 
 * Free software: BSD license
+
+## Features
+
+- Finds novel splicing events, including novel exons! (`outrigger index`)
+    - Currently only works with `SJ.out.tab` files from the [STAR](https://github.com/alexdobin/STAR) aligner
+- (optional) Validates that exons have correct splice sites, e.g. GT/AG and AT/AC for mammalian systems (`outrigger validate`)
+- Calculate "percent spliced-in" (Psi/Ψ) scores for all your samples given the validated events (or the original events if you opted not to validate)
 
 ## Installation
 
