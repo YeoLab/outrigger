@@ -3,6 +3,12 @@
 History
 =======
 
+v0.2.2 (September 12th, 2016)
+-----------------------------
+
+This is a point release which includes the ``index`` submodule in the ``__all__`` statement.
+
+
 v0.2.1 (September 12th, 2016)
 -----------------------------
 
