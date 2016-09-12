@@ -31,7 +31,7 @@ conda config --add channels bioconda
 Create an environment called `outrigger-env`. Python 2.7, Python 3.4, and Python 3.5 are supported.
 
 ```
-conda create -n outrigger-env pandas pybedtools gffutils biopython
+conda create -n outrigger-env pandas pybedtools gffutils biopython bedtools
 ```
 
 Now activate that environment and install `outrigger` from PyPI:
