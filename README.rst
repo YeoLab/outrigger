@@ -48,7 +48,7 @@ and Python 3.5 are supported.
 
 ::
 
-    conda create -n outrigger-env pandas pybedtools gffutils biopython
+    conda create -n outrigger-env pandas pybedtools gffutils biopython bedtools
 
 Now activate that environment and install ``outrigger`` from PyPI:
 
@@ -594,4 +594,3 @@ github directory.
    :target: https://pypi.python.org/pypi/outrigger
 .. |Coverage Status| image:: https://coveralls.io/repos/YeoLab/outrigger/badge.svg?branch=master&service=github
    :target: https://coveralls.io/github/YeoLab/outrigger?branch=master
-
