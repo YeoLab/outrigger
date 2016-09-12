@@ -5,11 +5,10 @@ Outrigger
 
 |Build Status|\ |image2|\ |Coverage Status|
 
-| Outrigger is a program which uses junction reads from RNA seq data,
-and a graph
-| database to create a *de novo* alternative splicing annotation with a
-graph
-| database, and quantify percent spliced-in (Psi) of the events.
+Outrigger is a program which uses junction reads from RNA seq data, and
+a graph database to create a *de novo* alternative splicing annotation
+with a graph database, and quantify percent spliced-in (Psi) of the
+events.
 
 -  Free software: BSD license
 
@@ -31,24 +30,21 @@ Features
 Installation
 ------------
 
-| To install ``outrigger``, we recommend using the
-| `Anaconda Python Distribution <http://anaconda.org/>`__ and creating
-an environment.
+To install ``outrigger``, we recommend using the `Anaconda Python
+Distribution <http://anaconda.org/>`__ and creating an environment.
 
-| You'll want to add the ```bioconda`` <https://bioconda.github.io/>`__
-channel to
-| make installing ```bedtools`` <bedtools.readthedocs.io>`__ and its
-Python wrapper,
-| ```pybedtools`` <https://daler.github.io/pybedtools/>`__ easy.
+You'll want to add the ```bioconda`` <https://bioconda.github.io/>`__
+channel to make installing ```bedtools`` <bedtools.readthedocs.io>`__
+and its Python wrapper,
+```pybedtools`` <https://daler.github.io/pybedtools/>`__ easy.
 
 ::
 
     conda config --add channels r
     conda config --add channels bioconda
 
-| Create an environment called ``outrigger-env``. Python 2.7, Python
-3.4, and
-| Python 3.5 are supported.
+Create an environment called ``outrigger-env``. Python 2.7, Python 3.4,
+and Python 3.5 are supported.
 
 ::
 
@@ -61,9 +57,8 @@ Now activate that environment and install ``outrigger`` from PyPI:
     source activate outrigger-env
     pip install outrigger
 
-| To check that it installed properly, try the command with the help
-option (``-h``), ``outrigger -h``. The output
-| should look like this:
+To check that it installed properly, try the command with the help
+option (``-h``), ``outrigger -h``. The output should look like this:
 
 ::
 
@@ -115,62 +110,53 @@ These steps are shown in code below.
 Quick start
 -----------
 
-| If you just want to know how to run this on your data with the default
-| parameters, start here. Let's say you performed your alignment in the
-folder
-| called ``~/projects/tasic2016/analysis/tasic2016_v1``, and that's
-where your
-| ``SJ.out.tab`` files from the STAR aligner are (they're output into
-the same
-| folder as the ``.bam`` files). First you'll need to change directories
-to that
-| folder with ``cd``.
+If you just want to know how to run this on your data with the default
+parameters, start here. Let's say you performed your alignment in the
+folder called ``~/projects/tasic2016/analysis/tasic2016_v1``, and that's
+where your ``SJ.out.tab`` files from the STAR aligner are (they're
+output into the same folder as the ``.bam`` files). First you'll need to
+change directories to that folder with ``cd``.
 
 ::
 
     cd ~/projects/tasic2016/analysis/tasic2016_v1
 
-| Then you need find all alternative splicing events, which you do by
-running
-| ``outrigger index`` on the splice junction files and the gtf. Here is
-an example
-| command:
+Then you need find all alternative splicing events, which you do by
+running ``outrigger index`` on the splice junction files and the gtf.
+Here is an example command:
 
 ::
 
     outrigger index --sj-out-tab *SJ.out.tab \
         --gtf /projects/ps-yeolab/genomes/mm10/gencode/m10/gencode.vM10.annotation.gtf
 
-| Next, you'll want to validate that the splicing events you found
-follow
-| biological rules, such as being containing GT/AG (mammalian major
-spliceosome)
-| or AT/AC (mammalian minor splicesome) sequences. To do that, you'll
-need to
-| provide the genome name (e.g. ``mm10``) and the genome sequences. An
-example
-| command is below:
+Next, you'll want to validate that the splicing events you found follow
+biological rules, such as being containing GT/AG (mammalian major
+spliceosome) or AT/AC (mammalian minor splicesome) sequences. To do
+that, you'll need to provide the genome name (e.g. ``mm10``) and the
+genome sequences. An example command is below:
 
 ::
 
     outrigger validate --genome mm10 \
         --fasta /projects/ps-yeolab/genomes/mm10/GRCm38.primary_assembly.genome.fa
 
-| Finally, you can calculate percent spliced in (Psi) of your splicing
-events!
-| Thankfully this is very easy:
+Finally, you can calculate percent spliced in (Psi) of your splicing
+events! Thankfully this is very easy:
 
 ::
 
     outrigger psi
 
-| It should be noted that ALL of these commands should be performed in
-the same
-| directory, so no moving.
+It should be noted that ALL of these commands should be performed in the
+same directory, so no moving.
 
 Quick start summary
 ~~~~~~~~~~~~~~~~~~~
 
+Here is a summary the commands in the order you would use them for
+outrigger!
+
 ::
 
     cd ~/projects/tasic2016/analysis/tasic2016_v1
@@ -180,20 +166,59 @@ Quick start summary
         --fasta /projects/ps-yeolab/genomes/mm10/GRCm38.primary_assembly.genome.fa
     outrigger psi
 
-| This will create a folder called ``outrigger_output``, which at the
-end should
-| look like this:
+This will create a folder called ``outrigger_output``, which at the end
+should look like this:
 
-Features
+::
+
+    $ tree outrigger_output
+    outrigger_output
+    ├── index
+    │   ├── gtf
+    │   │   ├── gencode.vM10.annotation.subset.gtf
+    │   │   ├── gencode.vM10.annotation.subset.gtf.db
+    │   │   └── novel_exons.gtf
+    │   ├── junction_exon_direction_triples.csv
+    │   ├── mxe
+    │   │   ├── events.csv
+    │   │   ├── exon1.bed
+    │   │   ├── exon2.bed
+    │   │   ├── exon3.bed
+    │   │   ├── exon4.bed
+    │   │   ├── splice_sites.csv
+    │   │   └── validated
+    │   │       └── events.csv
+    │   └── se
+    │       ├── events.csv
+    │       ├── exon1.bed
+    │       ├── exon2.bed
+    │       ├── exon3.bed
+    │       ├── splice_sites.csv
+    │       └── validated
+    │           └── events.csv
+    ├── junctions
+    │   ├── metadata.csv
+    │   └── reads.csv
+    └── psi
+        ├── mxe
+        │   └── psi.csv
+        ├── outrigger_psi.csv
+        └── se
+            └── psi.csv
+
+    10 directories, 22 files
+
+Commands
 --------
+
+Here's an in-depth look at the commands of \`outrigger.
 
 ``index``: Build a *de novo* splicing annotation index of events custom to *your* data
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-| The "help" output of the two programs tries to be explicit about what
-is required
-| to run ``outrigger``. Below is the output of when you use the command,
-| ``outrigger index --help``
+The "help" output of the two programs tries to be explicit about what is
+required to run ``outrigger``. Below is the output of when you use the
+command, ``outrigger index --help``
 
 ::
 
@@ -247,56 +272,49 @@ is required
                             standard out (Warning: LOTS of output. Not recommended
                             unless you think something is going wrong)
 
-Example command
-^^^^^^^^^^^^^^^
+Example ``outrigger index`` command
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| Included in this repository is a subset of the 1809 cells from
-| `"Adult mouse cortical cell taxonomy revealed by single cell
-transcriptomics."
+Included in this repository is a subset of the 1809 cells from `"Adult
+mouse cortical cell taxonomy revealed by single cell transcriptomics."
 by Tasic et al, Nature Neuroscience
-(2016) <http://www.ncbi.nlm.nih.gov/pubmed/26727548>`__.
-| There splice junction output files from the `STAR
+(2016) <http://www.ncbi.nlm.nih.gov/pubmed/26727548>`__. There splice
+junction output files from the `STAR
 aligner <https://github.com/alexdobin/STAR>`__ from the 43
-"``CAV_LP_Ipsi_tdTpos``\ " cells,
-| plus a subset of the `GENCODE
-M10 <http://www.gencodegenes.org/mouse_releases/10.html>`__
-| (Version M10 (January 2016 freeze, GRCm38) - Ensembl 85) mouse
-annotation.
+"``CAV_LP_Ipsi_tdTpos``\ " cells, plus a subset of the `GENCODE
+M10 <http://www.gencodegenes.org/mouse_releases/10.html>`__ (Version M10
+(January 2016 freeze, GRCm38) - Ensembl 85) mouse annotation.
 
-| To run this program with the included example data, from the
-``outrigger`` directory
-| where you cloned ``outrigger`` (this is important because the
-locations of the files
-| is relative to that directory), run this command:
+To run this program with the included example data, from the
+``outrigger`` directory where you cloned ``outrigger`` (this is
+important because the locations of the files is relative to that
+directory), run this command:
 
 ::
 
     outrigger index \
-        --sj-out-tab outrigger/test_data/tasic2016/unprocessed/sj_out_tab/* \
-        --gtf outrigger/test_data/tasic2016/unprocessed/gtf/gencode.vM10.annotation.snap25.myl6.gtf
+        --sj-out-tab outrigger/tests/data/tasic2016/unprocessed/sj_out_tab/* \
+        --gtf outrigger/tests/data/tasic2016/unprocessed/gtf/gencode.vM10.annotation.snap25.myl6.gtf
 
 *Note: the backslashes (``\``, like a tree that's falling backwards
-relative to
-right-to-left reading) to tell the computer that you're not
+relative to right-to-left reading) to tell the computer that you're not
 done telling it what to do, so the line continues, and to help the code
-be a
-little more human-readable. The above code is read by the computer
-exactly the
-same as the one-liner below, but is easier for us humans to read.*
+be a little more human-readable. The above code is read by the computer
+exactly the same as the one-liner below, but is easier for us humans to
+read.*
 
 ::
 
-    outrigger index --sj-out-tab outrigger/test_data/tasic2016/unprocessed/sj_out_tab/* --gtf outrigger/test_data/tasic2016/unprocessed/gtf/gencode.vM10.annotation.snap25.myl6.gtf
+    outrigger index --sj-out-tab outrigger/tests/data/tasic2016/unprocessed/sj_out_tab/* --gtf outrigger/tests/data/tasic2016/unprocessed/gtf/gencode.vM10.annotation.snap25.myl6.gtf
 
-| This is equivalent to the below command, which specifies all the other
-arguments
-| with the default values.
+This is equivalent to the below command, which specifies all the other
+arguments with the default values.
 
 ::
 
     outrigger index \
-        --sj-out-tab outrigger/test_data/tasic2016/unprocessed/sj_out_tab/* \
-        --gtf outrigger/test_data/tasic2016/unprocessed/gtf/gencode.vM10.annotation.snap25.myl6.gtf \
+        --sj-out-tab outrigger/tests/data/tasic2016/unprocessed/sj_out_tab/* \
+        --gtf outrigger/tests/data/tasic2016/unprocessed/gtf/gencode.vM10.annotation.snap25.myl6.gtf \
         --output ./outrigger_output --min-reads 10
 
 The output of this command is:
@@ -395,8 +413,8 @@ The output of this command is:
     2016-08-12 11:24:04 Writing MXE metadata to ./outrigger_output/index/mxe/metadata.csv ...
     2016-08-12 11:24:04     Done.
 
-Outputs
-^^^^^^^
+``outrigger_index`` Outputs
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The above commands will create a folder called ``outrigger_index`` in
 the folder you ran the command from, with the following structure
@@ -433,6 +451,11 @@ the folder you ran the command from, with the following structure
 
 ``validate``: Check that the found exons are real
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This example command assumes that you have a ``mm10`` genome fasta file
+located at
+``~/genomes/mm10/gencode/m10/GRCm38.primary_assembly.genome.fa`` and a
+chromosome sizes file located at ``~/genomes/mm10/mm10.chrom.sizes``
 
 ::
 
@@ -502,12 +525,11 @@ their default values:
 
     outrigger psi --index ./outrigger_index --min-reads 10
 
-Outputs
--------
+``outrigger_psi`` Outputs
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
-| Now the ``outrigger_output`` folder has ``psi`` subfolder, with the
-MXE and SE
-| events separate.
+Now the ``outrigger_output`` folder has ``psi`` subfolder, with the MXE
+and SE events separate.
 
 ::
 
@@ -515,9 +537,8 @@ MXE and SE
     outrigger_output
     ├── index
     │   ├── gtf
-    │   │   ├── gencode.vM10.annotation.snap25.myl6.gtf
-    │   │   ├── gencode.vM10.annotation.snap25.myl6.gtf.db
-    │   │   ├── gencode.vM10.annotation.snap25.myl6.gtf.db.bak
+    │   │   ├── gencode.vM10.annotation.subset.gtf
+    │   │   ├── gencode.vM10.annotation.subset.gtf.db
     │   │   └── novel_exons.gtf
     │   ├── junction_exon_direction_triples.csv
     │   ├── mxe
@@ -526,13 +547,17 @@ MXE and SE
     │   │   ├── exon2.bed
     │   │   ├── exon3.bed
     │   │   ├── exon4.bed
-    │   │   └── metadata.csv
+    │   │   ├── splice_sites.csv
+    │   │   └── validated
+    │   │       └── events.csv
     │   └── se
     │       ├── events.csv
     │       ├── exon1.bed
     │       ├── exon2.bed
     │       ├── exon3.bed
-    │       └── metadata.csv
+    │       ├── splice_sites.csv
+    │       └── validated
+    │           └── events.csv
     ├── junctions
     │   ├── metadata.csv
     │   └── reads.csv
@@ -543,152 +568,13 @@ MXE and SE
         └── se
             └── psi.csv
 
-    8 directories, 21 files
-
-Check that the found exons are real
------------------------------------
-
-| Because ``outrigger`` trusts you, the user, to provide high-quality
-data, it uses
-| all available data, including multimapping reads. As a result, many
-false
-| positives are expected when detecting novel exons. The best method
-| for detecting these exons is checking the splice sites using
-``bedtools`` to get
-| the splice site sequences.
-
-| The reason that this step is separate from ``outrigger``
-| is because I want ``outrigger`` to do one thing (find novel splicing
-events),
-| and do that one thing well, rather than doing everything, but doing it
-poorly.
-| Plus this requires input of several other files, and IMHO complicates
-the inputs
-| to ``outrigger``, as it was my goal to make a very simple program.
-
-| You'll first want to sort the ``.bed`` files. Here's
-| an example of all the steps you would take for the SE events. The MXE
-events
-| are the same, except the folder is ``mxe`` and you would look at both
-``exon2`` and
-| ``exon3``.
-
-::
-
-    cd outrigger_output/index/se/
-    bedtools sort -i exon2.bed > exon2_sorted.bed
-
-| Get the upstream flanking sites using ``bedtools flank`` two
-nucleotides upstream
-| (aka to the "left" of the exon) using ``-l 2`` and ``-s`` for strand
-specificity.
-| You'll want to use ``-r 0`` to specify no nucleotides to the right.
-
-| I obtained the file ``~/genomes/mm10/mm10.chrom.sizes``
-| using the program
-```fetchChromSizes`` <http://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64/fetchChromSizes>`__
-| from
-```kentUtils`` <http://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64/>`__,
-with
-| the command ``fetchChromSizes mm10 > mm10.chrom.sizes``.
-
-::
-
-    bedtools flank -l 2 -r 0 -i exon2_sorted.bed -s -g ~/genomes/mm10/mm10.chrom.sizes > exon2_sorted_2nt_upstream.bed
-
-Do the same thing for downstream splice sites, but swap the ``-l`` and
-``-r``:
-
-::
-
-    bedtools flank -r 2 -l 0 -i exon_sorted2.bed -s -g ~/genomes/mm10/mm10.chrom.sizes > exon2_sorted_2nt_downstream.bed
-
-Now you can get the sequence of the splice sites. You'll need a fasta
-file of the genome sequence.
-
-::
-
-    bedtools getfasta -s -tab -fi ~/genomes/mm10/gencode/m10/GRCm38.primary_assembly.genome.fa -bed exon2_sorted_2nt_upstream.bed -fo exon2_sorted_2nt_upstream_sequences.txt
-    bedtools getfasta -s -tab -fi ~/genomes/mm10/gencode/m10/GRCm38.primary_assembly.genome.fa -bed exon2_sorted_2nt_downstream.bed -fo exon2_sorted_2nt_downstream_sequences.txt
-
-You'll get a file like this:
-
-::
-
-    $ head exon2_sorted*txt
-    ==> exon2_sorted_2nt_downstream_sequences.txt <==
-    chr10:128491287-128491289(-)    GT
-    chr10:128491717-128491719(-)    GT
-    chr10:128493331-128493333(-)    GT
-    chr10:128493331-128493333(-)    GT
-    chr2:136734661-136734663(+) GT
-    chr2:136734661-136734663(+) GT
-    chr2:136734661-136734663(+) GT
-    chr2:136772690-136772692(+) GT
-    chr2:136772690-136772692(+) GT
-    chr2:136772690-136772692(+) GT
-
-    ==> exon2_sorted_2nt_upstream_sequences.txt <==
-    chr10:128491347-128491349(-)    AG
-    chr10:128491764-128491766(-)    AG
-    chr10:128493353-128493355(-)    AG
-    chr10:128493353-128493355(-)    AG
-    chr2:136734581-136734583(+) AG
-    chr2:136734581-136734583(+) AG
-    chr2:136734581-136734583(+) AG
-    chr2:136772654-136772656(+) AG
-    chr2:136772654-136772656(+) AG
-    chr2:136772654-136772656(+) AG
-
-Filter on only "real" exons
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-| Since the sequences are in the same order as the bed file, you can
-glue on
-| these sequences as columns to the original bed file using ``cut`` and
-``paste``
-| and filter for only GT/AG events (or AT/AC for the minor spliceosome).
-
-Here's a one-liner that will get the
-
-::
-
-    paste exon2_sorted.bed \
-        <(cut -f 2 exon2_sorted_2nt_upstream_sequences.txt) \
-        <(cut -f 2 exon2_sorted_2nt_downstream_sequences.txt) \
-        > exon2_sorted_with_splice_sites.txt
-
-Then the file ``exon2_sorted_with_splice_sites.txt`` looks like this:
-
-::
-
-    chr10   128491289   128491347   isoform1=junction:chr10:128491034-128492058:-|isoform2=junction:chr10:128491348-128492058:-@novel_exon:chr10:128491290-128491347:-@junction:chr10:128491034-128491289:- .   -   GT  AG
-    chr10   128491719   128491764   isoform1=junction:chr10:128491034-128492058:-|isoform2=junction:chr10:128491765-128492058:-@novel_exon:chr10:128491720-128491764:-@junction:chr10:128491034-128491719:- .   -   GT  AG
-    chr10   128493333   128493353   isoform1=junction:chr10:128492746-128493538:-|isoform2=junction:chr10:128493354-128493538:-@novel_exon:chr10:128493334-128493353:-@junction:chr10:128492746-128493333:- .   -   GT  AG
-    chr10   128493333   128493353   isoform1=junction:chr10:128492746-128493538:-|isoform2=junction:chr10:128493354-128493538:-@novel_exon:chr10:128493334-128493353:-@junction:chr10:128492746-128493333:- .   -   GT  AG
-    chr2    136734583   136734661   isoform1=junction:chr2:136713601-136756067:+|isoform2=junction:chr2:136713601-136734583:+@novel_exon:chr2:136734584-136734661:+@junction:chr2:136734662-136756067:+ .   +   GT  AG
-    chr2    136734583   136734661   isoform1=junction:chr2:136713601-136756067:+|isoform2=junction:chr2:136713601-136734583:+@novel_exon:chr2:136734584-136734661:+@junction:chr2:136734662-136756067:+ .   +   GT  AG
-    chr2    136734583   136734661   isoform1=junction:chr2:136713601-136756067:+|isoform2=junction:chr2:136713601-136734583:+@novel_exon:chr2:136734584-136734661:+@junction:chr2:136734662-136756067:+ .   +   GT  AG
-    chr2    136772656   136772690   isoform1=junction:chr2:136770175-136773894:+|isoform2=junction:chr2:136770175-136772656:+@novel_exon:chr2:136772657-136772690:+@junction:chr2:136772691-136773894:+ .   +   GT  AG
-    chr2    136772656   136772690   isoform1=junction:chr2:136770175-136773894:+|isoform2=junction:chr2:136770175-136772656:+@novel_exon:chr2:136772657-136772690:+@junction:chr2:136772691-136773894:+ .   +   GT  AG
-    chr2    136772656   136772690   isoform1=junction:chr2:136770175-136773894:+|isoform2=junction:chr2:136770175-136772656:+@novel_exon:chr2:136772657-136772690:+@junction:chr2:136772691-136773894:+ .   +   GT  AG
-    chr2    136773894   136774020   isoform1=junction:chr2:136770175-136777335:+|isoform2=junction:chr2:136770175-136773894:+@exon:chr2:136773895-136774020:+@junction:chr2:136774021-136777335:+   .   +   GT  AG
-
-And you can filter for only GT/AG and AT/AC events with:
-
-::
-
-    grep -E '(GT\tAG)|(AT\tAC)' exon2_sorted_with_splice_sites.txt
-
-This is a relatively boring example because all of the exons would be
-retained.
+    10 directories, 22 files
 
 For Developers
 --------------
 
-| How to run the code with the Python debugger. To run the command line
-functions
-| such that when they break, you jump into the ``pdb`` (Python
+How to run the code with the Python debugger. To run the command line
+functions such that when they break, you jump into the ``pdb`` (Python
 debugger), here is the code:
 
 ::
@@ -697,9 +583,9 @@ debugger), here is the code:
     --sj-out-tab outrigger/test_data/tasic2016/unprocessed/sj_out_tab/* \
         --gtf outrigger/test_data/tasic2016/unprocessed/gtf/gencode.vM10.annotation.snap25.myl6.gtf
 
-| Notice that you replace ``outrigger`` with
-``python -m pdb outrigger/commandline.py``,
-| which is relative to this github directory.
+Notice that you replace ``outrigger`` with
+``python -m pdb outrigger/commandline.py``, which is relative to this
+github directory.
 
 .. |Outrigger logo| image:: https://raw.githubusercontent.com/YeoLab/outrigger/master/logo/logo_v1.png
 .. |Build Status| image:: https://travis-ci.org/YeoLab/outrigger.svg?branch=master
@@ -708,3 +594,4 @@ debugger), here is the code:
    :target: https://pypi.python.org/pypi/outrigger
 .. |Coverage Status| image:: https://coveralls.io/repos/YeoLab/outrigger/badge.svg?branch=master&service=github
    :target: https://coveralls.io/github/YeoLab/outrigger?branch=master
+
