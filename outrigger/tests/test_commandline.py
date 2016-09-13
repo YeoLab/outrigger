@@ -24,7 +24,7 @@ class TestSubcommand(object):
             assert os.path.exists(folder)
 
 
-def test_main_index(tmpdir):
+def test_main_index(tmpdir, capsys):
     from outrigger.commandline import CommandLine
 
     sj_out_tab = ' '.join(glob.iglob('outrigger/tests/data/tasic2016/unprocessed/sj_out_tab/*'))  # noqa
@@ -33,6 +33,8 @@ def test_main_index(tmpdir):
         splice_junctions=sj_out_tab, gtf=gtf, output=tmpdir.strpath).split()
     # import pdb; pdb.set_trace()
     CommandLine(args)
+
+    out, err = capsys.readouterr()
 
     dir1 = os.path.join(tmpdir.strpath, 'index')
     dir2 = os.path.join('outrigger', 'tests', 'data', 'tasic2016',
