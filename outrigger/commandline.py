@@ -285,7 +285,7 @@ class Usage(Exception):
 
 class Subcommand(object):
 
-    output_folder = OUTPUT
+    # output_folder = OUTPUT
     sj_out_tab = None
     junction_reads_csv = JUNCTION_READS_PATH
     ignore_multimapping = False
@@ -322,6 +322,13 @@ class Subcommand(object):
     def folders(self):
         return self.output_folder, self.index_folder, self.gtf_folder, \
                self.junctions_folder
+
+    @property
+    def output_folder(self):
+        if not hasattr(self, 'output'):
+            return OUTPUT
+        else:
+            return self.output
 
     @property
     def index_folder(self):
@@ -529,7 +536,7 @@ class Index(Subcommand):
                            os.path.basename(self.gtf_filename))
         util.progress('Write new GTF to {} ...'.format(gtf))
         with open(gtf, 'w') as f:
-            for feature in db.all_features():
+            for feature in sorted(db.all_features()):
                 f.write(str(feature) + '\n')
         util.done()
 
