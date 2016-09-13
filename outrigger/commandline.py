@@ -227,10 +227,10 @@ class CommandLine(object):
         else:
             self.args = self.parser.parse_args(input_options)
 
-        if self.args is not None and self.args.debug:
-            print(self.args)
-            print(input_options)
-
+        if self.args is not None:
+            if self.args.debug:
+                print(self.args)
+                print(input_options)
             self.args.func()
 
     def index(self):
