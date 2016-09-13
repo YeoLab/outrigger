@@ -23,7 +23,7 @@ test_requirements = [
 
 setup(
     name='outrigger',
-    version='0.2.2',
+    version='0.2.3',
     description="Outrigger is a tool to de novo annotate splice sites "
                 "and exons",
     long_description=readme + '\n\n' + history,
@@ -31,7 +31,9 @@ setup(
     author_email='olga.botvinnik@gmail.com',
     url='https://github.com/yeolab/outrigger',
     packages=[
-        'outrigger',
+        'outrigger', 'outrigger.index',
+        'outrigger.psi', 'outrigger.io',
+        'outrigger.validate'
     ],
     package_dir={'outrigger':
                  'outrigger'},

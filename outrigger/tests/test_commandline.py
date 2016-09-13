@@ -1,8 +1,8 @@
 
 # import filecmp
 # import glob
-# import os
-
+import os
+import subprocess
 
 class TestSubcommand(object):
 
@@ -16,6 +16,19 @@ class TestSubcommand(object):
         for key, value in kwargs.items():
             assert getattr(s, key) == value
 
+
+def test_main_help_from_commandline(tmpdir):
+    os.chdir(tmpdir.strpath)
+
+    command = 'outrigger -h'
+    args = command.split()
+
+    outrigger_output = str(subprocess.check_output(args))
+    assert 'outrigger' in outrigger_output
+    assert 'psi' in outrigger_output
+    assert 'validate' in outrigger_output
+    assert 'help' in outrigger_output
+    assert 'usage' in outrigger_output
 
 # def test_main_index(tmpdir):
 #     from outrigger.commandline import CommandLine
@@ -70,3 +83,4 @@ class TestSubcommand(object):
 #                                           ignore=['.DS_Store'])
 #     assert len(directory_comparison.left_only) == 0
 #     assert len(directory_comparison.right_only) == 0
+
