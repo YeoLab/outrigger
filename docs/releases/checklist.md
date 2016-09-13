@@ -3,7 +3,12 @@
 - [ ] 1. Check that version numbers in `outrigger/outrigger/__init__.py` and `outrigger/setup.py` match
 - [ ] 2. Add release notes in `outrigger/docs/releases`
 - [ ] 3. Copy release notes to `outrigger/HISTORY.rst`
-- [ ] 4. Convert `README.md` to RST: `pandoc --from=markdown_github --to=rst README.md > README.rst`
+- [ ] 4. Convert `README.md` to RST:
+
+```
+pandoc --from=markdown_github --to=rst README.md > README.rst
+```
+
 - [ ] 5. Create an annotated tag for git and push it:
 
 ```
