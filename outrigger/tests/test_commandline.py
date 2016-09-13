@@ -25,35 +25,26 @@ class TestSubcommand(object):
 def test_main_help_from_commandline(tmpdir):
     os.chdir(tmpdir.strpath)
 
-    command = 'outrigger --help'
+    command = 'outrigger -h'
     args = command.split()
 
-    outrigger_output = str(subprocess.check_output(args, shell=True))
+    outrigger_output = str(subprocess.check_output(args))
     assert 'outrigger' in outrigger_output
     assert 'psi' in outrigger_output
     assert 'validate' in outrigger_output
+    assert 'help' in outrigger_output
     assert 'usage' in outrigger_output
 
 
-def test_main_index(tmpdir, capsys, tasic2016_unprocessed):
+def test_main_index(tmpdir):
     from outrigger.commandline import CommandLine
 
-    globber = os.path.join(tasic2016_unprocessed, 'sj_out_tab',
-                              '*SJ.out.tab')
-    sj_out_tab = ' '.join(glob.iglob(globber))
-    gtf = os.path.join(tasic2016_unprocessed, 'gtf',
-                       'gencode.vM10.annotation.subset.gtf')
-    arguments = ['index',
-                 '--sj-out-tab']
-    arguments.extend(sj_out_tab)
-    arguments.extend(['--gtf', gtf,
-                      '--output {output} '
-                      '--debug'.format(output=tmpdir.strpath)])
+    sj_out_tab = ' '.join(glob.iglob('outrigger/tests/data/tasic2016/unprocessed/sj_out_tab/*'))  # noqa
+    gtf = ' outrigger/tests/data/tasic2016/unprocessed/gtf/gencode.vM10.annotation.subset.gtf'  # noqa
+    args = 'index --sj-out-tab {splice_junctions} --gtf {gtf} --output {output}'.format(  # noqa
+        splice_junctions=sj_out_tab, gtf=gtf, output=tmpdir.strpath).split()
     # import pdb; pdb.set_trace()
-    # assert False
-    CommandLine(arguments)
-
-    out, err = capsys.readouterr()
+    CommandLine(args)
 
     dir1 = os.path.join(tmpdir.strpath, 'index')
     dir2 = os.path.join('outrigger', 'tests', 'data', 'tasic2016',
