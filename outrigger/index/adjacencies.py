@@ -251,7 +251,7 @@ class ExonJunctionAdjacencies(object):
     def write_de_novo_exons(self, filename='novel_exons.gtf'):
         """Write all de novo exons to a gtf"""
         with open(filename, 'w') as f:
-            for noveL_exon in self.db.features_of_type(NOVEL_EXON):
+            for noveL_exon in sorted(self.db.features_of_type(NOVEL_EXON)):
                 f.write(str(noveL_exon) + '\n')
 
     def add_exon_to_db(self, chrom, start, stop, strand):
