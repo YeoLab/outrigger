@@ -4,6 +4,7 @@
 import os
 import subprocess
 
+
 class TestSubcommand(object):
 
     def test___init(self):
@@ -29,6 +30,7 @@ def test_main_help_from_commandline(tmpdir):
     assert 'validate' in outrigger_output
     assert 'help' in outrigger_output
     assert 'usage' in outrigger_output
+
 
 # def test_main_index(tmpdir):
 #     from outrigger.commandline import CommandLine
@@ -83,4 +85,3 @@ def test_main_help_from_commandline(tmpdir):
 #                                           ignore=['.DS_Store'])
 #     assert len(directory_comparison.left_only) == 0
 #     assert len(directory_comparison.right_only) == 0
-
