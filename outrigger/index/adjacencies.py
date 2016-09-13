@@ -214,8 +214,8 @@ class ExonJunctionAdjacencies(object):
 
             progress('\tCreating gffutils.Feature objects for each novel exon,'
                      ' plus potentially its overlapping gene')
-            exon_features = (self.exon_location_to_feature(*x)
-                             for x in novel_exons)
+            exon_features = [self.exon_location_to_feature(*x)
+                             for x in novel_exons]
             done(n_tabs=3)
 
             progress('\tUpdating gffutils database with {n} novel exons on '
