@@ -45,4 +45,4 @@ ISOFORM_JUNCTIONS = {
 
 # for gffutils to sort output features by something so that output files are
 # comparable
-ORDER_BY = ('seqid', 'start', 'end', 'frame', 'source', 'strand')
+ORDER_BY = ('seqid', 'start', 'end', 'frame', 'source', 'strand', 'attributes')
