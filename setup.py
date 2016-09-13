@@ -31,7 +31,9 @@ setup(
     author_email='olga.botvinnik@gmail.com',
     url='https://github.com/yeolab/outrigger',
     packages=[
-        'outrigger',
+        'outrigger', 'outrigger.index',
+        'outrigger.psi', 'outrigger.io',
+        'outrigger.validate'
     ],
     package_dir={'outrigger':
                  'outrigger'},
