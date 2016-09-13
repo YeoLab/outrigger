@@ -56,16 +56,18 @@ class CommandLine(object):
                  'You will need this file for the next step, "outrigger psi"'
                  ' (default="./outrigger_output")')
 
-        junctions = index_parser.add_mutually_exclusive_group(required=True)
-        junctions.add_argument(
+        index_junctions = index_parser.add_mutually_exclusive_group(
+            required=True)
+        index_junctions.add_argument(
             '-j', '--sj-out-tab', type=str, action='store',
-            nargs='*', help='SJ.out.tab files from STAR aligner output')
-        junctions.add_argument(
-            '-c', '--junction-reads-csv', required=False,
-            help="Name of the splice junction files to calculate psi scores "
-                 "on. If not provided, the compiled '{sj_csv}' file with all "
-                 "the samples from the SJ.out.tab files that were used during "
-                 "'outrigger index' will be used. Not required if you specify "
+            nargs='*', help='SJ.out.tab files from STAR aligner output. Not '
+                            'required if you specify '
+                            '"--compiled-junction-reads"')
+        index_junctions.add_argument(
+            '-c', '--compiled-junction-reads', required=False,
+            help="Name of the splice junction files to detect novel exons and "
+                 "build an index of alternative splicing events from. "
+                 "Not required if you specify "
                  "SJ.out.tab file with '--sj-out-tab'".format(
                         sj_csv=JUNCTION_READS_PATH))
         index_parser.add_argument('-m', '--min-reads', type=int,
@@ -140,7 +142,7 @@ class CommandLine(object):
                                           'outside of the defined range')
         validate_outputs = validate_parser.add_mutually_exclusive_group('outputs')
         validate_outputs.add_argument('-i', '--index', required=False,
-                                     default=INDEX,
+                                     default=None,
                                      help='Name of the folder where you saved '
                                           'the output from "outrigger index" '
                                           '(default is {}, which is relative '
@@ -153,7 +155,7 @@ class CommandLine(object):
                                           '"validate".'.format(INDEX))
         validate_outputs.add_argument(
             '-o', '--output', required=False, type=str, action='store',
-            default=OUTPUT,
+            default=None,
             help='Name of the folder where you saved the output from '
                  '"outrigger index" (default is {}, which is '
                  'relative to the directory where you called the program). '
@@ -190,21 +192,19 @@ class CommandLine(object):
                                      '"outrigger psi" in the same folder as '
                                      'you called "outrigger '
                                      'index")'.format(INDEX))
-        splice_junctions = psi_parser.add_mutually_exclusive_group(
+        psi_junctions = psi_parser.add_mutually_exclusive_group(
             required=False)
-        splice_junctions.add_argument(
-            '-c', '--junction-reads-csv', required=False,
-            help="Name of the splice junction files to calculate psi scores "
-                 "on. If not provided, the compiled '{sj_csv}' file with all "
-                 "the samples from the SJ.out.tab files that were used during "
-                 "'outrigger index' will be used. Not required if you specify "
-                 "SJ.out.tab file with '--sj-out-tab'".format(
-                        sj_csv=JUNCTION_READS_PATH))
-        splice_junctions.add_argument(
+        psi_junctions.add_argument(
+            '-c', '--compiled-junction-reads', required=False,
+            help="Name of the compiled splice junction file to calculate psi "
+                 "scores on. Default is the '--output' folder's "
+                 "junctions/reads.csv file. Not required if you specify "
+                 "SJ.out.tab files with '--sj-out-tab'")
+        psi_junctions.add_argument(
             '-j', '--sj-out-tab', required=False,
             type=str, action='store', nargs='*',
             help='SJ.out.tab files from STAR aligner output. Not required if '
-                 'you specify a file with "--junction-reads-csv"')
+                 'you specify a file with "--compiled-junction-reads"')
         psi_parser.add_argument('-m', '--min-reads', type=int, action='store',
                                 required=False, default=10,
                                 help='Minimum number of reads per junction for'
@@ -299,7 +299,6 @@ class Subcommand(object):
 
     # output_folder = OUTPUT
     sj_out_tab = None
-    junction_reads_csv = JUNCTION_READS_PATH
     ignore_multimapping = False
     min_reads = common.MIN_READS
     reads_col = common.READS
@@ -312,11 +311,6 @@ class Subcommand(object):
         # Read all arguments and set as attributes of this class
         for key, value in kwargs.items():
             setattr(self, key, value)
-
-        # Since you can specify either junction reads csv or sj out tab,
-        # the other one might get overwritten as None
-        if self.junction_reads_csv is None:
-            self.junction_reads_csv = JUNCTION_READS_PATH
 
         for folder in self.folders:
             self.maybe_make_folder(folder)
@@ -351,25 +345,32 @@ class Subcommand(object):
     def junctions_folder(self):
         return os.path.join(self.output_folder, 'junctions')
 
+    @property
+    def junction_reads(self):
+        if self.compiled_junction_reads is not None:
+            return self.compiled_junction_reads
+        else:
+            return os.path.join(self.junctions_folder, 'reads.csv')
+
     def csv(self):
         """Create a csv file of compiled splice junctions"""
-        if not os.path.exists(self.junction_reads_csv):
+        if not os.path.exists(self.junction_reads):
             util.progress(
                 'Reading SJ.out.files and creating a big splice junction'
                 ' table of reads spanning exon-exon junctions...')
             splice_junctions = star.read_multiple_sj_out_tab(
                 self.sj_out_tab, ignore_multimapping=self.ignore_multimapping)
 
-            dirname = os.path.dirname(self.junction_reads_csv)
+            dirname = os.path.dirname(self.junction_reads)
             if not os.path.exists(dirname):
                 os.makedirs(dirname)
-            util.progress('Writing {} ...\n'.format(self.junction_reads_csv))
-            splice_junctions.to_csv(self.junction_reads_csv, index=False)
+            util.progress('Writing {} ...\n'.format(self.junction_reads))
+            splice_junctions.to_csv(self.junction_reads, index=False)
             util.done()
         else:
             util.progress('Found compiled junction reads file in {} and '
-                          'reading it in ...'.format(self.junction_reads_csv))
-            splice_junctions = pd.read_csv(self.junction_reads_csv)
+                          'reading it in ...'.format(self.junction_reads))
+            splice_junctions = pd.read_csv(self.junction_reads)
             util.done()
         return splice_junctions
 
@@ -449,7 +450,11 @@ class Index(Subcommand):
         util.done()
 
         novel_exons_gtf = os.path.join(self.gtf_folder, 'novel_exons.gtf')
-        util.progress('Writing novel exons to {} ...'.format(novel_exons_gtf))
+        novel_exons = exon_junction_adjacencies.db.features_of_type(
+            adjacencies.NOVEL_EXON)
+        n_novel_exons = sum(1 for _ in novel_exons)
+        util.progress('Writing {n} novel exons to {gtf} ...'.format(
+            n=n_novel_exons, gtf=novel_exons_gtf))
         exon_junction_adjacencies.write_de_novo_exons(novel_exons_gtf)
         util.done()
 
@@ -582,10 +587,10 @@ class SubcommandAfterIndex(Subcommand):
 
     @property
     def index_folder(self):
-        if not hasattr(self, 'index'):
-            return INDEX
-        else:
+        if self.index is not None:
             return self.index
+        else:
+            return os.path.join(self.output_folder, 'index')
 
 class Validate(SubcommandAfterIndex):
 
