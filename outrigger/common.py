@@ -41,3 +41,8 @@ ISOFORM_JUNCTIONS = {
            'isoform2_junctions': SE_ISOFORM2_JUNCTIONS},
     'mxe': {'isoform1_junctions': MXE_ISOFORM1_JUNCTIONS,
             'isoform2_junctions': MXE_ISOFORM2_JUNCTIONS}}
+
+
+# for gffutils to sort output features by something so that output files are
+# comparable
+ORDER_BY = ('seqid', 'start', 'end', 'frame', 'source', 'strand')

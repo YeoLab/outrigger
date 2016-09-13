@@ -8,7 +8,8 @@ import gffutils
 from gffutils.helpers import merge_attributes
 import joblib
 
-from ..common import JUNCTION_ID, EXON_START, EXON_STOP, CHROM, STRAND
+from ..common import JUNCTION_ID, EXON_START, EXON_STOP, CHROM, STRAND, \
+    ORDER_BY
 from ..io.gtf import transform
 from ..region import Region, STRANDS
 from ..util import done, progress
@@ -251,7 +252,8 @@ class ExonJunctionAdjacencies(object):
     def write_de_novo_exons(self, filename='novel_exons.gtf'):
         """Write all de novo exons to a gtf"""
         with open(filename, 'w') as f:
-            for noveL_exon in sorted(self.db.features_of_type(NOVEL_EXON)):
+            for noveL_exon in self.db.features_of_type(NOVEL_EXON,
+                                                       order=ORDER_BY):
                 f.write(str(noveL_exon) + '\n')
 
     def add_exon_to_db(self, chrom, start, stop, strand):
