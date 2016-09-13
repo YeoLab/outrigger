@@ -67,5 +67,5 @@ install: clean
 tasic2016:
 	rm -rf tasic2016_outrigger_output
 	outrigger index --sj-out-tab outrigger/tests/data/tasic2016/unprocessed/sj_out_tab/*SJ.out.tab --gtf outrigger/tests/data/tasic2016/unprocessed/gtf/gencode.vM10.annotation.subset.gtf --output tasic2016_outrigger_output
-	outrigger validate --genome ~/genomes/mm10/mm10.chrom.sizes --fasta ~/genomes/mm10/gencode/m10/GRCm38.primary_assembly.genome.fa --index tasic2016_outrigger_output/index
-	outrigger psi --index tasic2016_outrigger_output/index
+	outrigger validate --genome ~/genomes/mm10/mm10.chrom.sizes --fasta ~/genomes/mm10/gencode/m10/GRCm38.primary_assembly.genome.fa --output tasic2016_outrigger_output
+	outrigger psi --output tasic2016_outrigger_output
