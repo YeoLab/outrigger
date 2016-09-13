@@ -1,0 +1,25 @@
+v0.2.3 (...)
+------------
+
+This is a patch release of outrigger, with non-breaking changes from the
+previous one.
+
+New features
+~~~~~~~~~~~~
+
+- Output gtf files in chromosome, start, end, frame, source, strand, attributes sorted order
+
+Plotting functions
+~~~~~~~~~~~~~~~~~~
+
+API changes
+~~~~~~~~~~~
+
+Bug fixes
+~~~~~~~~~
+
+- Don't need to add the ``--debug`` flag for the command line programs to run
+
+Miscellaneous
+~~~~~~~~~~~~~
+
