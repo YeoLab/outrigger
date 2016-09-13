@@ -680,7 +680,6 @@ class Validate(SubcommandAfterIndex):
 class Psi(Subcommand):
 
     # Instantiate empty variables here so PyCharm doesn't get mad at me
-    index = INDEX
     reads_col = None
     sample_id_col = None
     junction_id_col = None
