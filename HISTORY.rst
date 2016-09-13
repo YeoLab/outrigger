@@ -3,6 +3,20 @@
 History
 =======
 
+v0.2.3 (September 13th, 2016)
+-----------------------------
+
+This is a patch release of outrigger, with non-breaking changes from the
+previous one.
+
+
+Bug fixes
+~~~~~~~~~
+
+- Subfolders get copied when installing
+- Add test for checking that ``outrigger -h`` command works
+
+
 v0.2.2 (September 12th, 2016)
 -----------------------------
 
