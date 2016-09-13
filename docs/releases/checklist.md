@@ -11,7 +11,7 @@ git tag -a v0.2.1 -m "v0.2.1 - Release *with* requirements.txt"
 git push origin v0.2.1
 ```
 
-- [ ] 6. If you messed up and made the tag too early and later made changes that should be added to the tag, remove the remote tag and force re-add the local tag:
+- [ ] 6. (If you messed up) and made the tag too early and later made changes that should be added to the tag, remove the remote tag and force re-add the local tag:
 
 ```
 git push origin :refs/tags/v0.2.1
@@ -26,7 +26,7 @@ python setup.py register -r pypitest
 python setup.py sdist upload -r pypitest
 ```
 
-- [ ] 8. If there's an error in either the `HISTORY.rst` or `README.rst` file, you will get an error. To narrow down this error, look for the corresponding line in `outrigger.egg-info`. It won't be exactly the same line because of the header but it will be closer since `PKG-INFO` concatenates your `README.rst` and `HISTORY.rst` files.
+- [ ] 8. (If there's an error) in either the `HISTORY.rst` or `README.rst` file, you will get an error. To narrow down this error, look for the corresponding line in `outrigger.egg-info`. It won't be exactly the same line because of the header but it will be closer since `PKG-INFO` concatenates your `README.rst` and `HISTORY.rst` files.
 
 ```
 warning: unexpected indent on line 615 blah blah I'm pypi RST and I'm way too strict
@@ -70,7 +70,7 @@ python setup.py register -r pypi
 python setup.py sdist upload -r pypi
 ```
 
-- [ ] 14. Upload to Anaconda.org:
+- [ ] 14. (Doesn't really work yet) Upload to Anaconda.org:
 
 ```
 anaconda login
