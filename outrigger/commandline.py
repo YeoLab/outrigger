@@ -138,7 +138,8 @@ class CommandLine(object):
                                           'make sure we do not accidentally '
                                           'ask for genome positions that are '
                                           'outside of the defined range')
-        validate_parser.add_argument('-i', '--index', required=False,
+        validate_outputs = validate_parser.add_mutually_exclusive_group('outputs')
+        validate_outputs.add_argument('-i', '--index', required=False,
                                      default=INDEX,
                                      help='Name of the folder where you saved '
                                           'the output from "outrigger index" '
@@ -147,7 +148,18 @@ class CommandLine(object):
                                           'this program, assuming you have '
                                           'called "outrigger psi" in the same '
                                           'folder as you called "outrigger '
-                                          'index")'.format(INDEX))
+                                          'index"). Cannot specify both an '
+                                          '--index and --output with '
+                                          '"validate".'.format(INDEX))
+        validate_outputs.add_argument(
+            '-o', '--output', required=False, type=str, action='store',
+            default=OUTPUT,
+            help='Name of the folder where you saved the output from '
+                 '"outrigger index" (default is {}, which is '
+                 'relative to the directory where you called the program). '
+                 'Cannot specify both an --index and --output with "validate"'
+                 ''.format(OUTPUT))
+
         validate_parser.add_argument(
             '-s', '--valid-splice-sites', required=False,
             default=check_splice_sites.MAMMALIAN_SPLICE_SITES,
@@ -554,7 +566,17 @@ class Index(Subcommand):
         self.write_new_gtf(db)
 
 
-class Validate(Subcommand):
+class SubcommandAfterIndex(Subcommand):
+    """Can use different index folder than outrigger_output/index"""
+
+    @property
+    def index_folder(self):
+        if not hasattr(self, 'index'):
+            return INDEX
+        else:
+            return self.index
+
+class Validate(SubcommandAfterIndex):
 
     def exon_pair_splice_sites(self, exonA, exonB, splice_abbrev):
         name = '{exonA}-{exonB}_splice_site'.format(
@@ -650,7 +672,7 @@ class Validate(Subcommand):
             util.done(3)
 
 
-class Psi(Subcommand):
+class Psi(SubcommandAfterIndex):
 
     # Instantiate empty variables here so PyCharm doesn't get mad at me
     index = INDEX
