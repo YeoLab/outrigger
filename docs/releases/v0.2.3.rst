@@ -9,3 +9,4 @@ Bug fixes
 ~~~~~~~~~
 
 - Subfolders get copied when installing
+- Add test for checking that ``outrigger -h`` command works
