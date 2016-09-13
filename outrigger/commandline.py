@@ -321,9 +321,6 @@ class Subcommand(object):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-        sys.stdout.write('self.junction_reads_csv: {}\n'.format(
-            self.junction_reads_csv))
-
         # Since you can specify either junction reads csv or sj out tab,
         # the other one might get overwritten as None
         if self.junction_reads_csv is None:
