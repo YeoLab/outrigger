@@ -64,9 +64,8 @@ dist: clean
 install: clean
 	python setup.py install
 
-treutlein2014:
-	rm -rf treutlein2014
-	outrigger index \
-		-j outrigger/tests/data/io/star/treutlein2014/sj_out_tab/* \
-		-g outrigger/tests/data/io/gtf/treutlein2014/gencode.vM2.annotation.fgfr2.gtf \
-		-o treutlein2014
+tasic2016:
+	rm -rf tasic2016_outrigger_output
+	outrigger index --sj-out-tab outrigger/tests/data/tasic2016/unprocessed/sj_out_tab/*SJ.out.tab --gtf outrigger/tests/data/tasic2016/unprocessed/gtf/gencode.vM10.annotation.subset.gtf --output tasic2016_outrigger_output
+	outrigger validate --genome ~/genomes/mm10/mm10.chrom.sizes --fasta ~/genomes/mm10/gencode/m10/GRCm38.primary_assembly.genome.fa --index tasic2016_outrigger_output/index
+	outrigger psi --index tasic2016_outrigger_output/index
