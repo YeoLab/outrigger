@@ -158,3 +158,23 @@ def snap25_exon_id():
 def myl6_novel_exon_junction():
     """Junction downstream of a novel exon in MYL6 test set"""
     return 'junction:chr10:128491033-128491719:-'
+
+
+def check_db_equal(left, right):
+    # Check that all the left db features are in the right database
+    for featuretype in left.featuretypes():
+        for feature in left.features_of_type(featuretype=featuretype):
+            try:
+                right[feature.id]
+            except gffutils.FeatureNotFoundError:
+                pytest.fail('Feature in left database not found in right '
+                            'database')
+
+    # Check that all the right db features are in the left database
+    for featuretype in right.featuretypes():
+        for feature in right.features_of_type(featuretype=featuretype):
+            try:
+                left[feature.id]
+            except gffutils.FeatureNotFoundError:
+                pytest.fail('Feature in right database not found in left '
+                            'database')

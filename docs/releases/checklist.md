@@ -48,6 +48,7 @@ pip install --index-url https://testpypi.python.org/pypi outrigger --extra-index
 
 - [ ] 12. Check that the installation was successful. `outrigger -h` should have the following output:
 
+
 ```
 $ outrigger -h
 usage: outrigger [-h] {index,validate,psi} ...
@@ -67,6 +68,7 @@ positional arguments:
 optional arguments:
   -h, --help            show this help message and exit
 ```
+
 
 - [ ] 13. Upload to PyPI:
 

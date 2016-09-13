@@ -3,6 +3,9 @@ import filecmp
 import glob
 import os
 
+import gffutils
+
+from .conftest import check_db_equal
 
 class TestSubcommand(object):
 
@@ -37,7 +40,8 @@ def test_main_index(tmpdir):
     ignore = ['psi', '.DS_Store', 'validated', 'splice_sites.csv',
               # Databases get stored in a weird random way... we're still
               # checking that the final gtfs are the same
-              'gencode.vM10.annotation.subset.gtf.db']
+              # 'gencode.vM10.annotation.subset.gtf.db'
+              ]
     directory_comparison = filecmp.dircmp(dir1, dir2, ignore=ignore)
 
     directory_comparison.report_full_closure()
@@ -51,17 +55,27 @@ def test_main_index(tmpdir):
         assert len(subdir.left_only) == 0
         assert len(subdir.right_only) == 0
         for filename in subdir.common_files:
+
             filename1 = os.path.join(subdir.left, filename)
             filename2 = os.path.join(subdir.right, filename)
 
-            stat1 = os.stat(filename1)
-            stat2 = os.stat(filename2)
-            file1 =  open(filename1)
-            file2 =  open(filename2)
+            if filename.endswith('.db'):
+                db1 = gffutils.FeatureDB(filename1)
+                db2 = gffutils.FeatureDB(filename2)
 
-            assert stat1.st_size == stat2.st_size
-            # for line1, line2 in zip(file1, file2):
-            #     assert line1 == line2
+                check_db_equal(db1, db2)
+            else:
+                stat1 = os.stat(filename1)
+                stat2 = os.stat(filename2)
+
+                assert stat1.st_size == stat2.st_size
+                # file1 = sorted(open(filename1).readlines())
+                # file2 = sorted(open(filename2).readlines())
+                # for line1, line2 in zip(file1, file2):
+                #     assert line1 == line2
+                #
+                # file1.close()
+                # file2.close()
 
 #
 # def test_main_psi(tmpdir):
