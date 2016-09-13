@@ -531,7 +531,7 @@ class Index(Subcommand):
                            os.path.basename(self.gtf_filename))
         util.progress('Write new GTF to {} ...'.format(gtf))
         with open(gtf, 'w') as f:
-            for feature in sorted(db.all_features()):
+            for feature in db.all_features(order_by=common.ORDER_BY):
                 f.write(str(feature) + '\n')
         util.done()
 
