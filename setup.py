@@ -23,7 +23,7 @@ test_requirements = [
 
 setup(
     name='outrigger',
-    version='0.2.2',
+    version='0.2.3',
     description="Outrigger is a tool to de novo annotate splice sites "
                 "and exons",
     long_description=readme + '\n\n' + history,
