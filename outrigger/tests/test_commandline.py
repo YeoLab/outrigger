@@ -36,14 +36,20 @@ def test_main_help_from_commandline(tmpdir):
     assert 'usage' in outrigger_output
 
 
-def test_main_index(tmpdir, capsys):
+def test_main_index(tmpdir, capsys, tasic2016_unprocessed):
     from outrigger.commandline import CommandLine
 
-    sj_out_tab = ' '.join(glob.iglob('outrigger/tests/data/tasic2016/unprocessed/sj_out_tab/*'))  # noqa
-    gtf = ' outrigger/tests/data/tasic2016/unprocessed/gtf/gencode.vM10.annotation.subset.gtf'  # noqa
-    args = 'index --sj-out-tab {splice_junctions} --gtf {gtf} --output {output}'.format(  # noqa
-        splice_junctions=sj_out_tab, gtf=gtf, output=tmpdir.strpath).split()
+    globber = os.path.join(tasic2016_unprocessed, 'sj_out_tab',
+                              '*SJ.out.tab')
+    sj_out_tab = ' '.join(glob.iglob(globber))
+    gtf = os.path.join(tasic2016_unprocessed, 'gtf',
+                       'gencode.vM10.annotation.subset.gtf')
+    args = ['index',
+            '--sj-out-tab {}'.format(sj_out_tab),
+            '--gtf {gtf}'.format(gtf=gtf),
+            '--output {output}'.format(output=tmpdir.strpath)]
     # import pdb; pdb.set_trace()
+    assert False
     CommandLine(args)
 
     out, err = capsys.readouterr()
