@@ -198,9 +198,9 @@ class ExonJunctionAdjacencies(object):
             # double-counting exons
             progress('\tFinding all exons on chromosome {chrom} '
                      '...'.format(chrom=chrom))
-            exon_locations = joblib.Parallel(n_jobs=self.n_jobs)(
+            exon_locations = pd.concat(joblib.Parallel(n_jobs=self.n_jobs)(
                 joblib.delayed(_neighboring_exons)(junction, df, 'left')
-                for junction in df.region)
+                for junction in df.region))
             done(n_tabs=3)
 
             progress('\tFiltering for only novel exons on chromosome {chrom} '
