@@ -235,7 +235,7 @@ class CommandLine(object):
             if self.args.debug:
                 print(self.args)
                 print(input_options)
-
+            
             self.args.func()
 
     def index(self):
