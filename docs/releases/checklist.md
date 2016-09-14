@@ -42,6 +42,8 @@ warning: unexpected indent on line 615 blah blah I'm pypi RST and I'm way too st
 
 ```
 conda create --yes -n outrigger_pypi_test_v0.2.1 --file conda_requirements.txt
+# Change to a different directory to make sure you're not importing the `outrigger` folder
+cd $HOME
 source activate outrigger_pypi_test_v0.2.1
 pip install --index-url https://testpypi.python.org/pypi outrigger --extra-index-url https://pypi.python.org/simple
 ```
