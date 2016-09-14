@@ -48,7 +48,14 @@ source activate outrigger_pypi_test_v0.2.1
 pip install --index-url https://testpypi.python.org/pypi outrigger --extra-index-url https://pypi.python.org/simple
 ```
 
-- [ ] 12. Check that the installation was successful. `outrigger -h` should have the following output:
+- [ ] 12. Make sure that the correct `outrigger` from the right environment is getting referenced. `which outrigger` should have the following output:
+
+```
+$ which outrigger
+/Users/olga/anaconda3/envs/outrigger_pypi_v0.2.1/bin/outrigger
+```
+
+- [ ] 13. Check that the installation was successful. `outrigger -h` should have the following output:
 
 
     $ outrigger -h
@@ -70,14 +77,14 @@ pip install --index-url https://testpypi.python.org/pypi outrigger --extra-index
       -h, --help            show this help message and exit
 
 
-- [ ] 13. Upload to PyPI:
+- [ ] 14. Upload to PyPI:
 
 ```
 python setup.py register -r pypi
 python setup.py sdist upload -r pypi
 ```
 
-- [ ] 14. (Doesn't really work yet) Upload to Anaconda.org:
+- [ ] 15. (Doesn't really work yet) Upload to Anaconda.org:
 
 ```
 anaconda login
