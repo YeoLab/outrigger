@@ -28,7 +28,7 @@ def test_main_help_from_commandline(tmpdir):
     command = 'outrigger -h'
     args = command.split()
 
-    outrigger_output = str(subprocess.check_output(args))
+    outrigger_output = str(subprocess.check_output(args, shell=True))
     assert 'outrigger' in outrigger_output
     assert 'psi' in outrigger_output
     assert 'validate' in outrigger_output
