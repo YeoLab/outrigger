@@ -44,11 +44,13 @@ def test_main_index(tmpdir, capsys, tasic2016_unprocessed):
     gtf = os.path.join(tasic2016_unprocessed, 'gtf',
                        'gencode.vM10.annotation.subset.gtf')
     arguments = ['index',
-            '--sj-out-tab {}'.format(sj_out_tab),
-            '--gtf {gtf}'.format(gtf=gtf),
-            '--output {output}'.format(output=tmpdir.strpath)]
+                 '--sj-out-tab']
+    arguments.extend(sj_out_tab)
+    arguments.extend(['--gtf', gtf,
+                      '--output {output} '
+                      '--debug'.format(output=tmpdir.strpath)])
     # import pdb; pdb.set_trace()
-    assert False
+    # assert False
     CommandLine(arguments)
 
     out, err = capsys.readouterr()
