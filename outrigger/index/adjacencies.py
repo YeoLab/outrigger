@@ -172,10 +172,11 @@ class ExonJunctionAdjacencies(object):
         self.strand = strand
 
         self.db = db
+        progress('\tLooking up which exons are already defined ...')
         self.existing_exons = set(
             i['id'] for i in self.db.execute(
                 'select id from features where featuretype = "exon"'))
-
+        done(n_tabs=3)
         self.max_de_novo_exon_length = max_de_novo_exon_length
 
         self.n_jobs = n_jobs
