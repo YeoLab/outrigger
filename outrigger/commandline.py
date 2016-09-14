@@ -140,7 +140,7 @@ class CommandLine(object):
                                           'make sure we do not accidentally '
                                           'ask for genome positions that are '
                                           'outside of the defined range')
-        validate_outputs = validate_parser.add_mutually_exclusive_group('outputs')
+        validate_outputs = validate_parser.add_mutually_exclusive_group(required=False)
         validate_outputs.add_argument('-i', '--index', required=False,
                                      default=None,
                                      help='Name of the folder where you saved '
@@ -256,7 +256,7 @@ class CommandLine(object):
             if self.args.debug:
                 print(self.args)
                 print(input_options)
-            
+
             self.args.func()
 
     def index(self):
