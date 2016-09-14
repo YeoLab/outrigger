@@ -25,14 +25,13 @@ class TestSubcommand(object):
 def test_main_help_from_commandline(tmpdir):
     os.chdir(tmpdir.strpath)
 
-    command = 'outrigger -h'
+    command = 'outrigger --help'
     args = command.split()
 
     outrigger_output = str(subprocess.check_output(args, shell=True))
     assert 'outrigger' in outrigger_output
     assert 'psi' in outrigger_output
     assert 'validate' in outrigger_output
-    assert 'help' in outrigger_output
     assert 'usage' in outrigger_output
 
 
@@ -44,13 +43,13 @@ def test_main_index(tmpdir, capsys, tasic2016_unprocessed):
     sj_out_tab = ' '.join(glob.iglob(globber))
     gtf = os.path.join(tasic2016_unprocessed, 'gtf',
                        'gencode.vM10.annotation.subset.gtf')
-    args = ['index',
+    arguments = ['index',
             '--sj-out-tab {}'.format(sj_out_tab),
             '--gtf {gtf}'.format(gtf=gtf),
             '--output {output}'.format(output=tmpdir.strpath)]
     # import pdb; pdb.set_trace()
     assert False
-    CommandLine(args)
+    CommandLine(arguments)
 
     out, err = capsys.readouterr()
 
