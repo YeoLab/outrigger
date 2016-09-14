@@ -3,7 +3,12 @@
 - [ ] 1. Check that version numbers in `outrigger/outrigger/__init__.py` and `outrigger/setup.py` match
 - [ ] 2. Add release notes in `outrigger/docs/releases`
 - [ ] 3. Copy release notes to `outrigger/HISTORY.rst`
-- [ ] 4. Convert `README.md` to RST: `pandoc --from=markdown_github --to=rst README.md > README.rst`
+- [ ] 4. Convert `README.md` to RST:
+
+```
+pandoc --from=markdown_github --to=rst README.md > README.rst
+```
+
 - [ ] 5. Create an annotated tag for git and push it:
 
 ```
@@ -36,12 +41,21 @@ warning: unexpected indent on line 615 blah blah I'm pypi RST and I'm way too st
 - [ ] 11. Do a test installation in a `conda` environment using the PyPI test server
 
 ```
-conda create --yes -n outrigger_pypi_test_v3 --file conda_requirements.txt
-source activate outrigger_pypi_test_v3
+conda create --yes -n outrigger_pypi_test_v0.2.1 --file conda_requirements.txt
+# Change to a different directory to make sure you're not importing the `outrigger` folder
+cd $HOME
+source activate outrigger_pypi_test_v0.2.1
 pip install --index-url https://testpypi.python.org/pypi outrigger --extra-index-url https://pypi.python.org/simple
 ```
 
-- [ ] 12. Check that the installation was successful. `outrigger -h` should have the following output:
+- [ ] 12. Make sure that the correct `outrigger` from the right environment is getting referenced. `which outrigger` should have the following output:
+
+```
+$ which outrigger
+/Users/olga/anaconda3/envs/outrigger_pypi_v0.2.1/bin/outrigger
+```
+
+- [ ] 13. Check that the installation was successful. `outrigger -h` should have the following output:
 
 
     $ outrigger -h
@@ -63,14 +77,14 @@ pip install --index-url https://testpypi.python.org/pypi outrigger --extra-index
       -h, --help            show this help message and exit
 
 
-- [ ] 13. Upload to PyPI:
+- [ ] 14. Upload to PyPI:
 
 ```
 python setup.py register -r pypi
 python setup.py sdist upload -r pypi
 ```
 
-- [ ] 14. (Doesn't really work yet) Upload to Anaconda.org:
+- [ ] 15. (Doesn't really work yet) Upload to Anaconda.org:
 
 ```
 anaconda login

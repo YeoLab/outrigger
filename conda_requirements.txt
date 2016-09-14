@@ -6,3 +6,4 @@ gffutils
 pybedtools
 biopython
 bedtools
+joblib

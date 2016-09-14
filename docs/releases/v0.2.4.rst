@@ -1,0 +1,16 @@
+v0.2.4 (September 14th, 2016)
+-----------------------------
+
+This is a non-breaking patch release of ``outrigger``.
+
+New features
+~~~~~~~~~~~~
+
+- **Actually** parallelized exon finding for novel exons. Before had written the code and tested the non-parallelized version but now using actually parallelized version!
+
+
+Bug fixes
+~~~~~~~~~
+
+- Don't need to turn on ``--debug`` command for outrigger to even run
+
