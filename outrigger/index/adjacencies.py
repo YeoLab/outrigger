@@ -6,6 +6,7 @@ import warnings
 
 import gffutils
 from gffutils.helpers import merge_attributes
+import joblib
 
 from ..common import JUNCTION_ID, EXON_START, EXON_STOP, CHROM, STRAND
 from ..io.gtf import transform
@@ -196,13 +197,9 @@ class ExonJunctionAdjacencies(object):
             # double-counting exons
             progress('\tFinding all exons on chromosome {chrom} '
                      '...'.format(chrom=chrom))
-            # exon_locations = joblib.Parallel(n_jobs=self.n_jobs)(
-            #     joblib.delayed(_neighboring_exons)(junction, df, 'left')
-            #     for junction in df.region)
-            exon_locations = []
-            for junction in df.region:
-                exon_locations.append(_neighboring_exons(junction, df, 'left'))
-            exon_locations = pd.concat(exon_locations, ignore_index=True)
+            exon_locations = joblib.Parallel(n_jobs=self.n_jobs)(
+                joblib.delayed(_neighboring_exons)(junction, df, 'left')
+                for junction in df.region)
             done(n_tabs=3)
 
             progress('\tFiltering for only novel exons on chromosome {chrom} '
