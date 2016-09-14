@@ -3,6 +3,16 @@
 History
 =======
 
+v0.2.5 (September 14th, 2016)
+-----------------------------
+
+
+Bug fixes
+~~~~~~~~~
+
+- Added ``joblib`` to requirements
+
+
 v0.2.4 (September 14th, 2016)
 -----------------------------
 
