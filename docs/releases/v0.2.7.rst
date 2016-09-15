@@ -1,0 +1,23 @@
+v0.2.7 (...)
+------------
+
+
+New features
+~~~~~~~~~~~~
+
+- Parallelized exon finding for novel exons
+- Added ``outrigger validate`` command for
+
+Plotting functions
+~~~~~~~~~~~~~~~~~~
+
+API changes
+~~~~~~~~~~~
+
+
+Bug fixes
+~~~~~~~~~
+
+Miscellaneous
+~~~~~~~~~~~~~
+
