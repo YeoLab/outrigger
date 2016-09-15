@@ -39,7 +39,7 @@ class CommandLine(object):
                         'just for you!'.format(version=__version__))
         self.parser.add_argument('--version',
                                  action='version',
-                                 version='%(prog) is version '
+                                 version='outrigger is version'
                                          '{version}'.format(
                                      version=__version__))
         self.subparser = self.parser.add_subparsers(help='Sub-commands')
