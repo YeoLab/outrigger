@@ -3,6 +3,24 @@
 History
 =======
 
+v0.2.6 (September 15th, 2016)
+-----------------------------
+
+This is a non-breaking patch release
+
+Bug fixes
+~~~~~~~~~
+
+- Wasn't concatenating exons properly after parallelizing
+
+
+Miscellaneous
+~~~~~~~~~~~~~
+
+- Clarified ``.gtf`` file example for directory output
+
+
+
 v0.2.5 (September 14th, 2016)
 -----------------------------
 
