@@ -40,7 +40,8 @@ class CommandLine(object):
         self.parser.add_argument('--version',
                                  action='version',
                                  version='%(prog) is version '
-                                         '{version}'.format(__version__))
+                                         '{version}'.format(
+                                     version=__version__))
         self.subparser = self.parser.add_subparsers(help='Sub-commands')
 
         # --- Subcommand to build the index of splicing events --- #
