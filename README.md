@@ -138,8 +138,8 @@ $ tree outrigger_output
 outrigger_output
 ├── index
 │   ├── gtf
-│   │   ├── gencode.vM10.annotation.subset.gtf
-│   │   ├── gencode.vM10.annotation.subset.gtf.db
+│   │   ├── gencode.vM10.annotation.gtf
+│   │   ├── gencode.vM10.annotation.gtf.db
 │   │   └── novel_exons.gtf
 │   ├── junction_exon_direction_triples.csv
 │   ├── mxe
