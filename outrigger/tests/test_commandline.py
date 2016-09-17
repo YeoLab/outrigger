@@ -7,7 +7,7 @@ import os
 
 class TestSubcommand(object):
 
-    def test___init(self, tmpdir):
+    def test___init__(self, tmpdir):
         from outrigger.commandline import Subcommand
 
         output = os.path.join(tmpdir.strpath, 'blue_ivy')
@@ -22,17 +22,20 @@ class TestSubcommand(object):
             assert os.path.exists(folder)
 
 
-def test_main_help_from_commandline(tmpdir):
+def test_main_help_from_commandline(tmpdir, capsys):
+    from outrigger.commandline import CommandLine
     os.chdir(tmpdir.strpath)
 
     command = 'outrigger --help'
-    args = command.split()
+    arguments = command.split()
 
-    outrigger_output = str(subprocess.check_output(args, shell=True))
-    assert 'outrigger' in outrigger_output
-    assert 'psi' in outrigger_output
-    assert 'validate' in outrigger_output
-    assert 'usage' in outrigger_output
+    CommandLine(arguments)
+
+    out, err = capsys.readouterr()
+    assert 'outrigger' in out
+    assert 'psi' in out
+    assert 'validate' in out
+    assert 'usage' in out
 
 
 def test_main_index(tmpdir, capsys, tasic2016_unprocessed):
