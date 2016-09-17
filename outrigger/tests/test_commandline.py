@@ -1,9 +1,9 @@
 
-import subprocess
 import filecmp
 import glob
 import os
 
+import pytest
 
 class TestSubcommand(object):
 
@@ -22,118 +22,127 @@ class TestSubcommand(object):
             assert os.path.exists(folder)
 
 
-def test_main_help(capsys):
-    from outrigger.commandline import CommandLine
-    command = 'outrigger --help'
-    arguments = command.split()
+class TestCommandLine(object):
 
-    CommandLine(arguments)
+    def test_no_arguments(self):
+        """
+        User passes no args, should fail with SystemExit
+        """
 
-    out, err = capsys.readouterr()
-    assert 'outrigger' in out
-    assert 'psi' in out
-    assert 'validate' in out
-    assert 'usage' in out
+    def test_help(self, capsys):
+        """
+        User asks for help, should SystemExit and give helpful output
+        """
+        from outrigger.commandline import CommandLine
 
+        with pytest.raises(SystemExit):
+            CommandLine(['--help'])
 
-def test_main_version(capsys):
-    from outrigger.commandline import CommandLine
-    from outrigger import __version__
-
-    command = 'outrigger --version'
-    arguments = command.split()
-
-    CommandLine(arguments)
-
-    out, err = capsys.readouterr()
-    assert 'outrigger' in out
-    assert __version__ in out
+        out, err = capsys.readouterr()
+        assert 'outrigger' in out
+        assert 'psi' in out
+        assert 'validate' in out
+        assert 'usage' in out
 
 
-def test_main_index(tmpdir, capsys, tasic2016_unprocessed):
-    from outrigger.commandline import CommandLine
+    def test_main_version(self, capsys):
+        from outrigger.commandline import CommandLine
+        from outrigger import __version__
 
-    globber = os.path.join(tasic2016_unprocessed, 'sj_out_tab',
-                              '*SJ.out.tab')
-    sj_out_tab = ' '.join(glob.iglob(globber))
-    gtf = os.path.join(tasic2016_unprocessed, 'gtf',
-                       'gencode.vM10.annotation.subset.gtf')
-    arguments = ['index',
-                 '--sj-out-tab']
-    arguments.extend(sj_out_tab)
-    arguments.extend(['--gtf', gtf,
-                      '--output {output} '
-                      '--debug'.format(output=tmpdir.strpath)])
-    # import pdb; pdb.set_trace()
-    # assert False
-    CommandLine(arguments)
+        with pytest.raises(SystemExit):
+            CommandLine(['--version'])
 
-    out, err = capsys.readouterr()
+        out, err = capsys.readouterr()
+        assert 'outrigger' in out
+        assert __version__ in out
 
-    dir1 = os.path.join(tmpdir.strpath, 'index')
-    dir2 = os.path.join('outrigger', 'tests', 'data', 'tasic2016',
-                        'outrigger_output', 'index')
-    ignore = ['psi', '.DS_Store', 'validated', 'splice_sites.csv',
-              # Databases get stored in a weird random way... we're still
-              # checking that the final gtfs are the same
-              'gencode.vM10.annotation.subset.gtf.db']
-    directory_comparison = filecmp.dircmp(dir1, dir2, ignore=ignore)
 
-    directory_comparison.report_full_closure()
-    assert len(directory_comparison.left_only) == 0
-    assert len(directory_comparison.right_only) == 0
-    # assert False
+    def test_main_index(self, tmpdir, capsys, tasic2016_unprocessed):
+        from outrigger.commandline import CommandLine
 
-    for subdir in directory_comparison.subdirs.values():
-        print(subdir.common_files)
+        globber = os.path.join(tasic2016_unprocessed, 'sj_out_tab',
+                                  '*SJ.out.tab')
+        sj_out_tab = ' '.join(glob.iglob(globber))
+        gtf = os.path.join(tasic2016_unprocessed, 'gtf',
+                           'gencode.vM10.annotation.subset.gtf')
+        arguments = ['index',
+                     '--sj-out-tab']
+        arguments.extend(sj_out_tab)
+        arguments.extend(['--gtf', gtf,
+                          '--output {output} '
+                          '--debug'.format(output=tmpdir.strpath)])
+        # import pdb; pdb.set_trace()
+        # assert False
+        CommandLine(arguments)
 
-        assert len(subdir.left_only) == 0
-        assert len(subdir.right_only) == 0
-        for filename in subdir.common_files:
-            filename1 = os.path.join(subdir.left, filename)
-            filename2 = os.path.join(subdir.right, filename)
+        out, err = capsys.readouterr()
 
-            stat1 = os.stat(filename1)
-            stat2 = os.stat(filename2)
-            # file1 = open(filename1)
-            # file2 = open(filename2)
+        dir1 = os.path.join(tmpdir.strpath, 'index')
+        dir2 = os.path.join('outrigger', 'tests', 'data', 'tasic2016',
+                            'outrigger_output', 'index')
+        ignore = ['psi', '.DS_Store', 'validated', 'splice_sites.csv',
+                  # Databases get stored in a weird random way... we're still
+                  # checking that the final gtfs are the same
+                  'gencode.vM10.annotation.subset.gtf.db']
+        directory_comparison = filecmp.dircmp(dir1, dir2, ignore=ignore)
 
-            assert stat1.st_size == stat2.st_size
-            # for line1, line2 in zip(file1, file2):
-            #     assert line1 == line2
+        directory_comparison.report_full_closure()
+        assert len(directory_comparison.left_only) == 0
+        assert len(directory_comparison.right_only) == 0
+        # assert False
 
-#
-# def test_main_psi(tmpdir):
-#     from outrigger.commandline import CommandLine
-#
-#     args = 'index --sj-out-tab outrigger/test_data/tasic2016/unprocessed/sj_out_tab/* --gtf outrigger/test_data/tasic2016/unprocessed/gtf/gencode.vM10.annotation.snap25.myl6.gtf'.split()  # noqa
-#     CommandLine(args)
-#
-#     args = ['psi']
-#     CommandLine(args)
-#
-#     dir1 = tmpdir.strpath
-#     dir2 = os.path.join('outrigger', 'test_data', 'tasic2016',
-#                         'outrigger_output')
-#     directory_comparison = filecmp.dircmp(dir1, dir2,
-#                                           ignore=['.DS_Store'])
-#     assert len(directory_comparison.left_only) == 0
-#     assert len(directory_comparison.right_only) == 0
+        for subdir in directory_comparison.subdirs.values():
+            print(subdir.common_files)
 
-#
-# def test_main_validate(tmpdir, negative_control_folder):
-#     from outrigger.commandline import CommandLine
-#
-#     args =['validate', '--genome',
-#            '{folder}/chromsizes'.format(folder=negative_control_folder),
-#            '--fasta',
-#            '{folder}/genome.fasta'.format(folder=negative_control_folder)]
-#     CommandLine(args)
-#
-#     dir1 = tmpdir.strpath
-#     dir2 = os.path.join('outrigger', 'test_data', 'tasic2016',
-#                         'outrigger_output')
-#     directory_comparison = filecmp.dircmp(dir1, dir2,
-#                                           ignore=['.DS_Store'])
-#     assert len(directory_comparison.left_only) == 0
-#     assert len(directory_comparison.right_only) == 0
+            assert len(subdir.left_only) == 0
+            assert len(subdir.right_only) == 0
+            for filename in subdir.common_files:
+                filename1 = os.path.join(subdir.left, filename)
+                filename2 = os.path.join(subdir.right, filename)
+
+                stat1 = os.stat(filename1)
+                stat2 = os.stat(filename2)
+                # file1 = open(filename1)
+                # file2 = open(filename2)
+
+                assert stat1.st_size == stat2.st_size
+                # for line1, line2 in zip(file1, file2):
+                #     assert line1 == line2
+
+
+    def test_main_psi(self, tmpdir, tasic_unprocessed):
+        from outrigger.commandline import CommandLine
+
+        args = 'index --sj-out-tab {folder}/sj_out_tab/* ' \
+               '--gtf {folder}/gtf/gencode.vM10.annotation.subset.gtf' \
+               ''.format(tasic_unprocessed).split()
+        CommandLine(args)
+
+        args = ['psi']
+        CommandLine(args)
+
+        dir1 = tmpdir.strpath
+        dir2 = os.path.join('outrigger', 'test_data', 'tasic2016',
+                            'outrigger_output')
+        directory_comparison = filecmp.dircmp(dir1, dir2,
+                                              ignore=['.DS_Store'])
+        assert len(directory_comparison.left_only) == 0
+        assert len(directory_comparison.right_only) == 0
+
+
+    def test_main_validate(self, tmpdir, negative_control_folder):
+        from outrigger.commandline import CommandLine
+
+        args =['validate', '--genome',
+               '{folder}/chromsizes'.format(folder=negative_control_folder),
+               '--fasta',
+               '{folder}/genome.fasta'.format(folder=negative_control_folder)]
+        CommandLine(args)
+
+        dir1 = tmpdir.strpath
+        dir2 = os.path.join('outrigger', 'test_data', 'tasic2016',
+                            'outrigger_output')
+        directory_comparison = filecmp.dircmp(dir1, dir2,
+                                              ignore=['.DS_Store'])
+        assert len(directory_comparison.left_only) == 0
+        assert len(directory_comparison.right_only) == 0
