@@ -60,14 +60,13 @@ class TestCommandLine(object):
     def test_main_index(self, tmpdir, capsys, tasic2016_unprocessed):
         from outrigger.commandline import CommandLine
 
-        globber = os.path.join(tasic2016_unprocessed, 'sj_out_tab',
-                                  '*SJ.out.tab')
-        sj_out_tab = ' '.join(glob.iglob(globber))
+        sj_out_tab_globber = os.path.join(tasic2016_unprocessed, 'sj_out_tab',
+                                          '*SJ.out.tab')
         gtf = os.path.join(tasic2016_unprocessed, 'gtf',
                            'gencode.vM10.annotation.subset.gtf')
         arguments = ['index',
                      '--sj-out-tab']
-        arguments.extend(sj_out_tab)
+        arguments.extend(glob.iglob(sj_out_tab_globber))
         arguments.extend(['--gtf', gtf, '--output', tmpdir.strpath, '--debug'])
         # import pdb; pdb.set_trace()
         # assert False
