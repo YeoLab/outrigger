@@ -34,7 +34,7 @@ Create an environment called `outrigger-env`. Python 2.7, Python 3.4, and Python
 conda create -n outrigger-env pandas pybedtools gffutils biopython bedtools joblib
 ```
 
-Now activate that environment and install `outrigger` from PyPI:
+Now activate that environment using `source activate outrigger-env` and install `outrigger` from PyPI, using `pip`:
 
 ```
 source activate outrigger-env
