@@ -33,13 +33,14 @@ METADATA_CSV = 'metadata.csv'
 class CommandLine(object):
     def __init__(self, input_options=None):
         self.parser = argparse.ArgumentParser(
-            description='outrigger {version}\nCalculate "percent-spliced in" '
+            description='(outrigger {version}) Calculate "percent-spliced in" '
                         '(Psi) scores of alternative splicing on a *de novo*, '
                         'custom-built splicing index -- '
                         'just for you!'.format(version=__version__))
         self.parser.add_argument(
             '--version', action='version',
             version='outrigger {version}'.format(version=__version__))
+        # self.parser.add_argument('--help', action='help')
         self.subparser = self.parser.add_subparsers(help='Sub-commands')
 
         # --- Subcommand to build the index of splicing events --- #
