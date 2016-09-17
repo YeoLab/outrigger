@@ -68,9 +68,7 @@ class TestCommandLine(object):
         arguments = ['index',
                      '--sj-out-tab']
         arguments.extend(sj_out_tab)
-        arguments.extend(['--gtf', gtf,
-                          '--output {output} '
-                          '--debug'.format(output=tmpdir.strpath)])
+        arguments.extend(['--gtf', gtf, '--output', tmpdir.strpath, '--debug'])
         # import pdb; pdb.set_trace()
         # assert False
         CommandLine(arguments)
