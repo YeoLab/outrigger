@@ -22,10 +22,8 @@ class TestSubcommand(object):
             assert os.path.exists(folder)
 
 
-def test_main_help_from_commandline(tmpdir, capsys):
+def test_main_help(capsys):
     from outrigger.commandline import CommandLine
-    os.chdir(tmpdir.strpath)
-
     command = 'outrigger --help'
     arguments = command.split()
 
@@ -36,6 +34,20 @@ def test_main_help_from_commandline(tmpdir, capsys):
     assert 'psi' in out
     assert 'validate' in out
     assert 'usage' in out
+
+
+def test_main_version(capsys):
+    from outrigger.commandline import CommandLine
+    from outrigger import __version__
+
+    command = 'outrigger --version'
+    arguments = command.split()
+
+    CommandLine(arguments)
+
+    out, err = capsys.readouterr()
+    assert 'outrigger' in out
+    assert __version__ in out
 
 
 def test_main_index(tmpdir, capsys, tasic2016_unprocessed):
@@ -83,8 +95,8 @@ def test_main_index(tmpdir, capsys, tasic2016_unprocessed):
 
             stat1 = os.stat(filename1)
             stat2 = os.stat(filename2)
-            file1 =  open(filename1)
-            file2 =  open(filename2)
+            # file1 = open(filename1)
+            # file2 = open(filename2)
 
             assert stat1.st_size == stat2.st_size
             # for line1, line2 in zip(file1, file2):
