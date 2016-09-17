@@ -21,7 +21,7 @@ def tasic2016(data_folder):
 
 
 @pytest.fixture
-def tasic2016_unprocessed(tasic2016):
+def tasic2016_unprocessed(tasic2016, scope='session'):
     """Suffix for raw data created from Tasic et al, Nat Neurosci (2016)"""
     return os.path.join(tasic2016, 'unprocessed')
 
