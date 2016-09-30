@@ -120,6 +120,28 @@ class CommandLine(object):
                                        ' LOTS of output. Not recommended '
                                        'unless you think something is going '
                                        'wrong)')
+        overwrite_parser = index_parser.add_mutually_exclusive_group(
+            required=False)
+        overwrite_parser.add_argument('--force', action='store_true',
+                                      help="If the 'outrigger index' command "
+                                           "was interrupted, there will be "
+                                           "intermediate files remaining. If "
+                                           "you wish to restart outrigger and "
+                                           "overwrite them all, use this flag."
+                                           " If you want to continue from "
+                                           "where you left off, use the "
+                                           "'--resume' flag. If neither is "
+                                           "specified, the program exits and "
+                                           "complains to the user.")
+        overwrite_parser.add_argument('--resume', action='store_true',
+                                      help="If the 'outrigger index' command "
+                                           "was interrupted, there will be "
+                                           "intermediate files remaining. If "
+                                           "you want to continue from "
+                                           "where you left off, use this flag."
+                                           " The default action is to do "
+                                           "nothing and ask the user for "
+                                           "input.")
         index_parser.set_defaults(func=self.index)
 
         # -- Subcommand to validate exons of built index --- #
@@ -294,6 +316,8 @@ class Subcommand(object):
     gtf_filename = None
     gffutils_db = None
     debug = False
+    force = False
+    resume = False
 
     def __init__(self, **kwargs):
 
@@ -427,28 +451,51 @@ class Index(Subcommand):
         exon_junction_adjacencies = adjacencies.ExonJunctionAdjacencies(
             metadata, db, max_de_novo_exon_length=self.max_de_novo_exon_length)
 
-        util.progress('Detecting de novo exons based on gaps between '
-                      'junctions ...')
-        exon_junction_adjacencies.detect_exons_from_junctions()
-        util.done()
-
         novel_exons_gtf = os.path.join(self.gtf_folder, 'novel_exons.gtf')
-        util.progress('Writing novel exons to {} ...'.format(novel_exons_gtf))
-        exon_junction_adjacencies.write_de_novo_exons(novel_exons_gtf)
-        util.done()
+        if not os.path.exists(novel_exons_gtf) or self.force:
+            util.progress('Detecting de novo exons based on gaps between '
+                          'junctions ...')
+            exon_junction_adjacencies.detect_exons_from_junctions()
+            util.done()
 
-        util.progress('Getting junction-direction-exon triples for graph '
-                      'database ...')
-        junction_exon_triples = \
-            exon_junction_adjacencies.upstream_downstream_exons()
-        util.done()
+            util.progress('Writing novel exons to {} ...'.format(novel_exons_gtf))
+            exon_junction_adjacencies.write_de_novo_exons(novel_exons_gtf)
+            util.done()
+        elif self.resume:
+            util.progress("With the flag '--resume', Found an existing file "
+                          "containing novel exons,"
+                          "{gtf}, not re-calculating. To force overwriting, "
+                          "use the flag ''--force'.".format(gtf=novel_exons_gtf))
+        else:
+            raise ValueError("Found existing novel exons gtf file ({gtf}) "
+                             "but don't "
+                             "know whether you want me to continue where I "
+                             "stopped ('--resume') or force restart from "
+                             "scratch ('--force')! Exiting."
+                             ".".format(gtf=novel_exons_gtf))
 
         csv = os.path.join(self.index_folder,
                            'junction_exon_direction_triples.csv')
-        util.progress('Writing junction-exon-direction triples'
-                      ' to {}...'.format(csv))
-        junction_exon_triples.to_csv(csv, index=False)
-        util.done()
+        if not os.path.exists(csv) or self.force:
+            util.progress('Getting junction-direction-exon triples for graph '
+                          'database ...')
+            junction_exon_triples = \
+                exon_junction_adjacencies.upstream_downstream_exons()
+            util.done()
+
+            util.progress('Writing junction-exon-direction triples'
+                          ' to {}...'.format(csv))
+            junction_exon_triples.to_csv(csv, index=False)
+            util.done()
+        elif self.resume:
+            junction_exon_triples = pd.read_csv(csv)
+        else:
+            raise ValueError("Found existing junction-exon-triples file "
+                             "({csv}) but don't "
+                             "know whether you want me to continue where I "
+                             "stopped ('--resume') or force restart from "
+                             "scratch ('--force')! Exiting."
+                             ".".format(csv=csv))
 
         return junction_exon_triples
 
