@@ -203,20 +203,20 @@ class ExonJunctionAdjacencies(object):
                 for junction in df.region))
             done(n_tabs=3)
 
-            progress('\tFiltering for only novel exons on chromosome {chrom} '
+            progress('\t\tFiltering for only novel exons on chromosome {chrom} '
                      '...'.format(chrom=chrom))
             novel_exons = set(x for x in exon_locations if
                               'exon:{}:{}-{}:{}'.format(*x)
                               not in self.existing_exons)
-            done(n_tabs=3)
+            done(n_tabs=4)
 
-            progress('\tCreating gffutils.Feature objects for each novel exon,'
+            progress('\t\tCreating gffutils.Feature objects for each novel exon,'
                      ' plus potentially its overlapping gene')
             exon_features = [self.exon_location_to_feature(*x)
                              for x in novel_exons]
-            done(n_tabs=3)
+            done(n_tabs=4)
 
-            progress('\tUpdating gffutils database with {n} novel exons on '
+            progress('\t\tUpdating gffutils database with {n} novel exons on '
                      'chromosome {chrom} ...'.format(chrom=chrom,
                                                      n=len(novel_exons)))
             try:
@@ -225,9 +225,8 @@ class ExonJunctionAdjacencies(object):
                                id_spec={'novel_exon': 'location_id'},
                                transform=transform)
             except ValueError:
-                progress('\tNo novel exons found on chromosome '
                          '{chrom}'.format(chrom=chrom))
-            done(n_tabs=3)
+            done(n_tabs=4)
 
     def exon_location_to_feature(self, chrom, start, stop, strand):
         if strand not in STRANDS:
