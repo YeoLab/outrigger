@@ -225,6 +225,7 @@ class ExonJunctionAdjacencies(object):
                                id_spec={'novel_exon': 'location_id'},
                                transform=transform)
             except ValueError:
+                progress('\tNo novel exons found on chromosome '
                          '{chrom}'.format(chrom=chrom))
             done(n_tabs=4)
 
