@@ -511,31 +511,40 @@ class Index(Subcommand):
 
     def make_events_by_traversing_graph(self, event_maker, db):
         for splice_name, splice_abbrev in common.SPLICE_TYPES:
-            name_with_spaces = splice_name.replace('_', ' ')
-            # Find event junctions
-            util.progress(
-                'Finding all {name} ({abbrev}) events ...'.format(
-                    name=name_with_spaces, abbrev=splice_abbrev.upper()))
-            events_of_type = getattr(event_maker, splice_name)()
-            util.done()
-
-            # Write to a file
             csv = os.path.join(self.index_folder, splice_abbrev.lower(),
                                EVENTS_CSV)
-            dirname = os.path.dirname(csv)
-            if not os.path.exists(dirname):
-                os.makedirs(dirname)
+            if not os.path.exists(csv) or self.force:
+                name_with_spaces = splice_name.replace('_', ' ')
+                # Find event junctions
+                util.progress(
+                    'Finding all {name} ({abbrev}) events ...'.format(
+                        name=name_with_spaces, abbrev=splice_abbrev.upper()))
+                events_of_type = getattr(event_maker, splice_name)()
+                util.done()
 
-            n_events = len(events_of_type.groupby(level=0, axis=0))
-            if n_events > 0:
-                util.progress(
-                    'Found {n} {abbrev} events.'.format(
-                        n=n_events, abbrev=splice_abbrev.upper(), csv=csv))
-                self.get_event_attributes(db, events_of_type, splice_abbrev)
+                # Write to a file
+
+                dirname = os.path.dirname(csv)
+                if not os.path.exists(dirname):
+                    os.makedirs(dirname)
+
+                n_events = len(events_of_type.groupby(level=0, axis=0))
+                if n_events > 0:
+                    util.progress(
+                        'Found {n} {abbrev} events.'.format(
+                            n=n_events, abbrev=splice_abbrev.upper(), csv=csv))
+                    self.get_event_attributes(db, events_of_type, splice_abbrev)
+                else:
+                    util.progress(
+                        'No {abbrev} events found in the junction and exon '
+                        'data.'.format(abbrev=splice_abbrev.upper()))
             else:
-                util.progress(
-                    'No {abbrev} events found in the junction and exon '
-                    'data.'.format(abbrev=splice_abbrev.upper()))
+                util.progress('Found existing {name} ({abbrev}) splicing '
+                              'events file ({csv}), so not searching. To force'
+                              ' re-finding these splicing events, use the flag'
+                              ' "--force".'.format(name=splice_name,
+                                                   abbrev=splice_abbrev,
+                                                   csv=csv))
 
     def get_event_attributes(self, db, event_df, splice_type):
         util.progress(
