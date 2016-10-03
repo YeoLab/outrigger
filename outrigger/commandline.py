@@ -413,6 +413,52 @@ class Subcommand(object):
                 util.done()
         return db
 
+    def maybe_overwrite(self, filename):
+        """Ensures that filename is not overwritten unless user-specified
+
+        - If the file doesn't exist, return "True", as in "yes, please
+          overwrite" even though there wasn't really a file there, but the
+          action is still to create the file in the next step
+        - If the file exists and the user specified nothing, exit the program
+          and complain that either --force or --resume must be specified
+        - If the file exists and the user specified --force, then return True
+        - If the file exists and the user specified --resume, then return False
+          so that the file is not overwritten
+
+        Parameters
+        ----------
+        filename : str
+            Path to a file that you may want to overwrite
+
+        Returns
+        -------
+        if_overwrite : bool
+            If True, then the next step in the program has the go-ahead to
+            "overwrite" or create the file. If False, the file exists and the
+            user doesn't want to overwrite it
+        """
+        if not os.path.exists(filename):
+            return True
+        if os.path.exists(filename):
+            if self.force:
+                util.progress("Found existing {filename}, overwriting with "
+                              "--force flag".format(filename=filename))
+                return True
+            if self.resume:
+                util.progress(
+                    "With the flag '--resume', Found an existing file "
+                    "containing novel exons,"
+                    "{filename}, not re-calculating. To force overwriting, "
+                    "use the flag ''--force'.".format(filename=filename))
+                return False
+        else:
+            raise ValueError("Found existing {filename} "
+                             "but don't "
+                             "know whether you want me to continue where I "
+                             "stopped ('--resume') or force overwrite "
+                             "and restart from "
+                             "scratch ('--force')! Exiting."
+                             ".".format(filename=filename))
 
 class Index(Subcommand):
 
@@ -452,7 +498,7 @@ class Index(Subcommand):
             metadata, db, max_de_novo_exon_length=self.max_de_novo_exon_length)
 
         novel_exons_gtf = os.path.join(self.gtf_folder, 'novel_exons.gtf')
-        if not os.path.exists(novel_exons_gtf) or self.force:
+        if self.maybe_overwrite(novel_exons_gtf):
             util.progress('Detecting de novo exons based on gaps between '
                           'junctions ...')
             exon_junction_adjacencies.detect_exons_from_junctions()
@@ -461,18 +507,6 @@ class Index(Subcommand):
             util.progress('Writing novel exons to {} ...'.format(novel_exons_gtf))
             exon_junction_adjacencies.write_de_novo_exons(novel_exons_gtf)
             util.done()
-        elif self.resume:
-            util.progress("With the flag '--resume', Found an existing file "
-                          "containing novel exons,"
-                          "{gtf}, not re-calculating. To force overwriting, "
-                          "use the flag ''--force'.".format(gtf=novel_exons_gtf))
-        else:
-            raise ValueError("Found existing novel exons gtf file ({gtf}) "
-                             "but don't "
-                             "know whether you want me to continue where I "
-                             "stopped ('--resume') or force restart from "
-                             "scratch ('--force')! Exiting."
-                             ".".format(gtf=novel_exons_gtf))
 
         csv = os.path.join(self.index_folder,
                            'junction_exon_direction_triples.csv')
