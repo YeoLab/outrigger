@@ -9,7 +9,7 @@ import os
 import gffutils
 import pandas as pd
 
-from ..common import STRAND, SPLICE_TYPE_ISOFORM_EXONS
+from ..common import SPLICE_TYPE_ISOFORM_EXONS
 from ..region import Region
 
 # Annotations from:
@@ -127,7 +127,8 @@ class SplicingAnnotator(object):
         Parameters
         ----------
         exons : list
-            List of exon ids, e.g. ["exon:chr1:100-200:+", "exon:chr1:300-400:+"]
+            List of exon ids, e.g. ["exon:chr1:100-200:+",
+            "exon:chr1:300-400:+"]
 
         Returns
         -------
@@ -136,7 +137,8 @@ class SplicingAnnotator(object):
         """
         regions = tuple(map(Region, exons))
 
-        lengths = dict(('exon{}'.format(i+1), len(exon)) for i, exon in enumerate(regions))
+        lengths = dict(('exon{}'.format(i+1), len(exon))
+                       for i, exon in enumerate(regions))
         strand = regions[0].strand
 
         first_exon = regions[0]
