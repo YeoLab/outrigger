@@ -167,7 +167,7 @@ def assert_graph_items_equal(graph1, items1, graph2, items2):
             test.sort()
             true.sort()
 
-            pdt.assert_numpy_array_equal(test, true)
+            pdt.assert_equal(test, true)
 
     for number2, item2 in enumerate(items2):
         for direction in DIRECTIONS:
@@ -181,7 +181,7 @@ def assert_graph_items_equal(graph1, items1, graph2, items2):
             test.sort()
             true.sort()
 
-            pdt.assert_numpy_array_equal(test, true)
+            pdt.assert_equal(test, true)
 
 
 class TestEventMaker(object):
@@ -199,11 +199,11 @@ class TestEventMaker(object):
         pdt.assert_frame_equal(test.junction_exon_triples,
                                junction_exon_triples)
         assert test.db is None
-        exons = junction_exon_triples.exon.unique()
-        junctions = junction_exon_triples.junction.unique()
+        exons = tuple(junction_exon_triples.exon.unique())
+        junctions = tuple(junction_exon_triples.junction.unique())
 
-        pdt.assert_numpy_array_equal(test.exons, exons)
-        pdt.assert_numpy_array_equal(test.junctions, junctions)
+        pdt.assert_equal(test.exons, exons)
+        pdt.assert_equal(test.junctions, junctions)
         pdt.assert_equal(sorted(test.items), sorted(items))
 
         assert_graph_items_equal(test.graph, test.items, graph, items)
