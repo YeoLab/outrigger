@@ -80,6 +80,9 @@ class SplicingAnnotator(object):
 
                 exon1 = self.db[row[exons[0]]]
                 other_exons = row[exons[1:]]
+
+                lengths = self.lengths(row[exons])
+                attributes.update(lengths)
                 for (key, value) in exon1.attributes.items():
                     # v2 = set.intersection(*[set(self.db[e].attributes[key])
                     #                            for e in other_exons])
@@ -118,25 +121,32 @@ class SplicingAnnotator(object):
             with open(filename, 'w') as f:
                 f.write('\n'.join(lines) + '\n')
 
-    def lengths(self):
-        """Retrieve exon and intron lengths for an event"""
-        df = self.exon_regions.copy()
+    def lengths(self, exons):
+        """Retrieve exon and intron lengths for an event
 
-        for exon_col in self.exon_cols:
-            region = '{}_region'.format(exon_col)
-            df['{}_length'.format(exon_col)] = \
-                df[region].map(len)
+        Parameters
+        ----------
+        exons : list
+            List of exon ids, e.g. ["exon:chr1:100-200:+", "exon:chr1:300-400:+"]
 
-        first_exon = '{}_region'.format(self.exon_cols[0])
-        last_exon = '{}_region'.format(self.exon_cols[-1])
-        positive = self.events[STRAND] == '+'
-        df.loc[positive, 'intron_length'] = \
-            df.loc[positive].apply(
-                lambda x: x[last_exon].start - x[first_exon].stop - 1, axis=1)
-        df.loc[~positive, 'intron_length'] = \
-            df.loc[~positive].apply(
-                lambda x: x[first_exon].start - x[last_exon].stop - 1, axis=1)
+        Returns
+        -------
+        lengths : dict
 
-        regions = [x for x in df if x.endswith('_region')]
-        df = df.drop(regions, axis=1)
-        return df
+        """
+        regions = tuple(map(Region, exons))
+
+        lengths = dict(('exon{}'.format(i+1), len(exon)) for i, exon in enumerate(regions))
+        strand = regions[0].strand
+
+        first_exon = regions[0]
+        last_exon = regions[1]
+        if strand == '-':
+            intron_length = first_exon.start - last_exon.stop - 1
+        else:
+            # If strand is positive or undefined
+            intron_length = last_exon.start - first_exon.stop - 1
+
+        lengths.update(intron_length=intron_length)
+
+        return lengths
