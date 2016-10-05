@@ -66,8 +66,6 @@ class SplicingAnnotator(object):
         # Make a dataframe with outrigger.Region objects
         self.regions = pd.DataFrame(index=self.events.index)
         self.region_cols = ['{}_region'.format(x) for x in self.exon_cols]
-        self.region_cols.extend(['intron_region', 'event_region'])
-
 
         for exon_col, region_col in zip(self.exon_cols, self.region_cols):
             self.regions[region_col] = self.events[exon_col].map(Region)
@@ -77,6 +75,7 @@ class SplicingAnnotator(object):
             self.lengths_and_introns, axis=1)
 
         self.regions = self.regions.append(intron_regions, axis=1)
+        self.region_cols.extend(['intron_region', 'event_region'])
 
         # Add the lengths of exons, introns, event region, and the genome
         # location ("name") of each intron
