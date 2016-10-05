@@ -144,11 +144,18 @@ class SplicingAnnotator(object):
         first_exon = regions[0]
         last_exon = regions[1]
         if strand == '-':
+            intron_start = first_exon.start
+            intron_stop = last_exon.stop
             intron_length = first_exon.start - last_exon.stop - 1
+
         else:
             # If strand is positive or undefined
             intron_length = last_exon.start - first_exon.stop - 1
 
-        lengths.update(intron_length=intron_length)
+        intron = 'intron:{chrom}:{start}:{stop}:{strand}'.format(
+            chrom=first_exon.chrom, start=intron_start, stop=intron_stop,
+            strand=strand)
+
+        lengths.update(intron_length=int(intron_length), intron=intron)
 
         return lengths
