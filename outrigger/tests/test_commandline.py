@@ -99,11 +99,6 @@ class TestCommandLine(object):
                 filename1 = os.path.join(subdir.left, filename)
                 filename2 = os.path.join(subdir.right, filename)
 
-                stat1 = os.stat(filename1)
-                stat2 = os.stat(filename2)
-
-                assert stat1.st_size == stat2.st_size
-
                 # If the files are csv or bed tables, check that they're equal
                 df1, df2 = None, None
 
@@ -117,6 +112,10 @@ class TestCommandLine(object):
                 if df1 is not None:
                     pdt.assert_frame_equal(df1, df2)
 
+                # Otherwise, just use the file sizes
+                stat1 = os.stat(filename1)
+                stat2 = os.stat(filename2)
+                assert stat1.st_size == stat2.st_size
 
     def test_main_psi(self, tmpdir, tasic_unprocessed):
         from outrigger.commandline import CommandLine
