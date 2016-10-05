@@ -164,4 +164,8 @@ def make_metadata(spliced_reads):
     metadata = metadata.drop_duplicates()
     metadata.index = np.arange(metadata.shape[0])
 
+    # Force all chromosomes to be strings to be compatible with ENSEMBL's
+    # integer chromosomes
+    metadata[CHROM] = metadata[CHROM].astype(str)
+
     return metadata
