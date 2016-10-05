@@ -347,7 +347,7 @@ class Subcommand(object):
             dirname = os.path.dirname(self.junction_reads_csv)
             if not os.path.exists(dirname):
                 os.makedirs(dirname)
-            util.progress('Writing {} ...\n'.format(self.junction_reads_csv))
+            util.progress('Writing {} ...'.format(self.junction_reads_csv))
             splice_junctions.to_csv(self.junction_reads_csv, index=False)
             util.done()
         else:
