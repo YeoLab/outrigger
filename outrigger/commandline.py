@@ -322,11 +322,6 @@ class Subcommand(object):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-        # Since you can specify either junction reads csv or sj out tab,
-        # the other one might get overwritten as None
-        if self.junction_reads_csv is None:
-            self.junction_reads_csv = JUNCTION_READS_PATH
-
         for folder in self.folders:
             self.maybe_make_folder(folder)
 
@@ -342,6 +337,13 @@ class Subcommand(object):
                self.junctions_folder
 
     @property
+    def output_folder(self):
+        if not hasattr(self, 'output'):
+            return OUTPUT
+        else:
+            return self.output
+
+    @property
     def index_folder(self):
         return os.path.join(self.output_folder, 'index')
 
@@ -353,25 +355,32 @@ class Subcommand(object):
     def junctions_folder(self):
         return os.path.join(self.output_folder, 'junctions')
 
+    @property
+    def junction_reads(self):
+        if self.compiled_junction_reads is not None:
+            return self.compiled_junction_reads
+        else:
+            return os.path.join(self.junctions_folder, 'reads.csv')
+
     def csv(self):
         """Create a csv file of compiled splice junctions"""
-        if not os.path.exists(self.junction_reads_csv):
+        if not os.path.exists(self.junction_reads):
             util.progress(
                 'Reading SJ.out.files and creating a big splice junction'
                 ' table of reads spanning exon-exon junctions...')
             splice_junctions = star.read_multiple_sj_out_tab(
                 self.sj_out_tab, ignore_multimapping=self.ignore_multimapping)
 
-            dirname = os.path.dirname(self.junction_reads_csv)
+            dirname = os.path.dirname(self.junction_reads)
             if not os.path.exists(dirname):
                 os.makedirs(dirname)
-            util.progress('Writing {} ...\n'.format(self.junction_reads_csv))
-            splice_junctions.to_csv(self.junction_reads_csv, index=False)
+            util.progress('Writing {} ...\n'.format(self.junction_reads))
+            splice_junctions.to_csv(self.junction_reads, index=False)
             util.done()
         else:
             util.progress('Found compiled junction reads file in {} and '
-                          'reading it in ...'.format(self.junction_reads_csv))
-            splice_junctions = pd.read_csv(self.junction_reads_csv)
+                          'reading it in ...'.format(self.junction_reads))
+            splice_junctions = pd.read_csv(self.junction_reads)
             util.done()
         return splice_junctions
 
@@ -526,13 +535,24 @@ class Index(Subcommand):
 
         attributes = sa.attributes()
         util.done()
+        util.progress('Getting exon and intron lengths of alternative '
+                      'events ...')
+        lengths = sa.lengths()
+        util.done()
+        util.progress('Combining lengths and attributes into one big '
+                      'dataframe ...')
+        lengths, attributes = lengths.align(attributes, axis=0, join='outer')
+
+        event_attributes = pd.concat([attributes, lengths], axis=1)
+        event_attributes = event_attributes.drop_duplicates()
+        util.done()
 
         # Write to a file
         csv = os.path.join(self.index_folder, splice_type, EVENTS_CSV)
         util.progress('Writing {splice_type} events to {csv} '
                       '...'.format(splice_type=splice_type.upper(), csv=csv))
-        attributes.to_csv(csv, index=True,
-                          index_label=outrigger.common.EVENT_ID_COLUMN)
+        event_attributes.to_csv(csv, index=True,
+                                index_label=outrigger.common.EVENT_ID_COLUMN)
         util.done()
 
     def write_new_gtf(self, db):
@@ -678,7 +698,7 @@ class Validate(SubcommandAfterIndex):
             util.done(3)
 
 
-class Psi(Subcommand):
+class Psi(SubcommandAfterIndex):
 
     # Instantiate empty variables here so PyCharm doesn't get mad at me
     reads_col = None
