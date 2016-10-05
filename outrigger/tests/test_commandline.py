@@ -3,6 +3,8 @@ import filecmp
 import glob
 import os
 
+import pandas as pd
+import pandas.util.testing as pdt
 import pytest
 
 class TestSubcommand(object):
@@ -99,12 +101,21 @@ class TestCommandLine(object):
 
                 stat1 = os.stat(filename1)
                 stat2 = os.stat(filename2)
-                # file1 = open(filename1)
-                # file2 = open(filename2)
 
                 assert stat1.st_size == stat2.st_size
-                # for line1, line2 in zip(file1, file2):
-                #     assert line1 == line2
+
+                # If the files are csv or bed tables, check that they're equal
+                df1, df2 = None, None
+
+                if filename.endswith('.csv'):
+                    df1 = pd.read_csv(filename1)
+                    df2 = pd.read_csv(filename2)
+                elif filename.endswith('.bed'):
+                    df1 = pd.read_table(filename1)
+                    df2 = pd.read_table(filename2)
+
+                if df1 is not None:
+                    pdt.assert_frame_equal(df1, df2)
 
 
     def test_main_psi(self, tmpdir, tasic_unprocessed):
