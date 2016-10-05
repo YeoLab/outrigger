@@ -504,24 +504,13 @@ class Index(Subcommand):
 
         attributes = sa.attributes()
         util.done()
-        util.progress('Getting exon and intron lengths of alternative '
-                      'events ...')
-        lengths = sa.lengths()
-        util.done()
-        util.progress('Combining lengths and attributes into one big '
-                      'dataframe ...')
-        lengths, attributes = lengths.align(attributes, axis=0, join='outer')
-
-        event_attributes = pd.concat([attributes, lengths], axis=1)
-        event_attributes = event_attributes.drop_duplicates()
-        util.done()
 
         # Write to a file
         csv = os.path.join(self.index_folder, splice_type, EVENTS_CSV)
         util.progress('Writing {splice_type} events to {csv} '
                       '...'.format(splice_type=splice_type.upper(), csv=csv))
-        event_attributes.to_csv(csv, index=True,
-                                index_label=outrigger.common.EVENT_ID_COLUMN)
+        attributes.to_csv(csv, index=True,
+                          index_label=outrigger.common.EVENT_ID_COLUMN)
         util.done()
 
     def write_new_gtf(self, db):
