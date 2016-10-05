@@ -32,6 +32,13 @@ class Region(object):
                 raise ValueError('Start ({0}) cannot be larger than stop'
                                  ' ({1})'.format(start, stop))
         self.region = region
+
+        # Try casting the chromosome to an int to be compatible with ENSEMBL
+        try:
+            chrom = int(chrom)
+        except ValueError:
+            pass
+
         self.chrom = chrom
 
         self.start = start
