@@ -64,10 +64,25 @@ class SplicingAnnotator(object):
         self.exon_cols.sort()
 
         # Make a dataframe with outrigger.Region objects
-        self.exon_regions = pd.DataFrame(index=self.events.index)
+        self.regions = pd.DataFrame(index=self.events.index)
         self.region_cols = ['{}_region'.format(x) for x in self.exon_cols]
+
         for exon_col, region_col in zip(self.exon_cols, self.region_cols):
-            self.exon_regions[region_col] = self.events[exon_col].map(Region)
+            self.regions[region_col] = self.events[exon_col].map(Region)
+
+        # Make introns and copy-pastable genome locations for the whole event
+        intron_regions = self.regions[self.region_cols].apply(
+            self.event_introns_regions, axis=1)
+
+        self.regions = pd.concat([self.regions, intron_regions], axis=1)
+        self.region_cols.extend(['intron_region', 'event_region'])
+
+        # Add the lengths of exons, introns, event region, and the genome
+        # location ("name") of each intron
+        self.lengths = self.regions.applymap(len)
+        intron_names = intron_regions.applymap(lambda x: x.name)
+        self.events = pd.concat([self.events, self.lengths, intron_names],
+                                axis=1)
 
     def attributes(self):
         """Retrieve all GTF attributes for each isoform's event"""
@@ -81,8 +96,6 @@ class SplicingAnnotator(object):
                 exon1 = self.db[row[exons[0]]]
                 other_exons = row[exons[1:]]
 
-                lengths = self.lengths(row[exons])
-                attributes.update(lengths)
                 for (key, value) in exon1.attributes.items():
                     # v2 = set.intersection(*[set(self.db[e].attributes[key])
                     #                            for e in other_exons])
@@ -110,45 +123,57 @@ class SplicingAnnotator(object):
 
     def exon_bedfiles(self, folder):
         for region_col in self.region_cols:
-            column = self.exon_regions[region_col]
+            column = self.regions[region_col]
             lines = (region.to_bed_format(event_id)
                      for event_id, region in column.iteritems())
 
-            exon_name = region_col.split('_')[0]
-            basename = exon_name + '.bed'
+            name = region_col.split('_')[0]
+            basename = name + '.bed'
             filename = os.path.join(folder, basename)
 
             with open(filename, 'w') as f:
                 f.write('\n'.join(lines) + '\n')
 
-    def lengths(self, exons):
-        """Retrieve exon and intron lengths for an event
+    def event_introns_regions(self, exons):
+        """Make intron and event regions for an event
 
         Parameters
         ----------
-        exons : list
+        exons : outrigger.Regions
             List of exon ids, e.g. ["exon:chr1:100-200:+",
             "exon:chr1:300-400:+"]
 
         Returns
         -------
-        lengths : dict
+        regions : dict
 
         """
-        regions = tuple(map(Region, exons))
+        first_exon = exons[0]
+        last_exon = exons[-1]
 
-        lengths = dict(('exon{}'.format(i+1), len(exon))
-                       for i, exon in enumerate(regions))
-        strand = regions[0].strand
+        chrom = first_exon.chrom
+        strand = first_exon.strand
 
-        first_exon = regions[0]
-        last_exon = regions[1]
         if strand == '-':
-            intron_length = first_exon.start - last_exon.stop - 1
+            intron_stop = first_exon.start
+            intron_start = last_exon.stop
+
+            event_start = last_exon.start
+            event_stop = first_exon.stop
         else:
             # If strand is positive or undefined
-            intron_length = last_exon.start - first_exon.stop - 1
+            intron_start = first_exon.stop
+            intron_stop = last_exon.start
 
-        lengths.update(intron_length=intron_length)
+            event_start = first_exon.start
+            event_stop = last_exon.stop
 
-        return lengths
+        intron = Region('intron:{chrom}:{start}-{stop}:{strand}'.format(
+            chrom=chrom, start=intron_start, stop=intron_stop,
+            strand=strand))
+        event = Region('event:{chrom}:{start}-{stop}:{strand}'.format(
+            chrom=chrom, start=event_start, stop=event_stop, strand=strand))
+
+        regions = pd.Series(dict(intron_region=intron, event_region=event))
+
+        return regions
