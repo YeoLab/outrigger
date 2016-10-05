@@ -74,7 +74,7 @@ class SplicingAnnotator(object):
         intron_regions = self.regions[self.region_cols].apply(
             self.event_introns_regions, axis=1)
 
-        self.regions = self.regions.append(intron_regions, axis=1)
+        self.regions = pd.concat([self.regions, intron_regions], axis=1)
         self.region_cols.extend(['intron_region', 'event_region'])
 
         # Add the lengths of exons, introns, event region, and the genome
@@ -149,7 +149,7 @@ class SplicingAnnotator(object):
 
         """
         first_exon = exons[0]
-        last_exon = exons[1]
+        last_exon = exons[-1]
 
         chrom = first_exon.chrom
         strand = first_exon.strand
@@ -162,8 +162,8 @@ class SplicingAnnotator(object):
             event_stop = first_exon.stop
         else:
             # If strand is positive or undefined
-            intron_start = last_exon.start
-            intron_stop = first_exon.stop
+            intron_start = first_exon.stop
+            intron_stop = last_exon.start
 
             event_start = first_exon.start
             event_stop = last_exon.stop
