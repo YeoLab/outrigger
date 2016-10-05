@@ -72,7 +72,7 @@ class SplicingAnnotator(object):
 
         # Make introns and copy-pastable genome locations for the whole event
         intron_regions = self.regions[self.region_cols].apply(
-            self.lengths_and_introns, axis=1)
+            self.event_introns_regions, axis=1)
 
         self.regions = self.regions.append(intron_regions, axis=1)
         self.region_cols.extend(['intron_region', 'event_region'])
