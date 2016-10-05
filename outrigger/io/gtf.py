@@ -128,8 +128,8 @@ class SplicingAnnotator(object):
             lines = (region.to_bed_format(event_id)
                      for event_id, region in column.iteritems())
 
-            exon_name = region_col.split('_')[0]
-            basename = exon_name + '.bed'
+            name = region_col.split('_')[0]
+            basename = name + '.bed'
             filename = os.path.join(folder, basename)
 
             with open(filename, 'w') as f:
