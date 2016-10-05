@@ -174,6 +174,6 @@ class SplicingAnnotator(object):
         event = Region('event:{chrom}:{start}-{stop}:{strand}'.format(
             chrom=chrom, start=event_start, stop=event_stop, strand=strand))
 
-        regions = dict(intron_region=intron, event_region=event)
+        regions = pd.Series(dict(intron_region=intron, event_region=event))
 
         return regions
