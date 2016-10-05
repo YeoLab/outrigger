@@ -106,8 +106,14 @@ class TestCommandLine(object):
                     df1 = pd.read_csv(filename1)
                     df2 = pd.read_csv(filename2)
                 elif filename.endswith('.bed'):
-                    df1 = pd.read_table(filename1)
-                    df2 = pd.read_table(filename2)
+                    df1 = pd.read_table(filename1, header=None)
+                    df2 = pd.read_table(filename2, header=None)
+
+                    df1.sort_values([3, 1], kind='mergesort', inplace=True)
+                    df2.sort_values([3, 1], kind='mergesort', inplace=True)
+
+                    df1.index = range(len(df1.index))
+                    df2.index = range(len(df2.index))
 
                 if df1 is not None:
                     pdt.assert_frame_equal(df1, df2)
