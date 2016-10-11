@@ -51,6 +51,8 @@ def test_make_arabdopsis(outrigger_folder):
     assert '11371/21995 junctions remain' in outrigger_output
     assert '25 novel exons on chromosome 4' in outrigger_output
     assert 'No MXE events found' in outrigger_output
+    assert 'Writing a samples x features matrix of Psi' in outrigger_output
+    assert 'Iterating over 14 events' in outrigger_output
 
 # def test_main_index(tmpdir):
 #     from outrigger.commandline import CommandLine
