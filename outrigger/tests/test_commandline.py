@@ -8,7 +8,7 @@ import pytest
 
 
 slow = pytest.mark.skipif(
-    not pytest.config.getoption("--runslow"),
+    not pytest.config.getoption("--run-slow"),
     reason="need --run-slow option to run"
 )
 
