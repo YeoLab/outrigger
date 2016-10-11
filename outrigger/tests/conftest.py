@@ -12,6 +12,7 @@ def outrigger_folder():
     """Absolute path root folder of outrigger package"""
     return os.path.join(os.path.abspath(os.path.dirname(__file__)), '../../')
 
+
 @pytest.fixture
 def data_folder():
     """Absolute path to where test data is stored"""
