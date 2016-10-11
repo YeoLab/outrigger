@@ -40,6 +40,9 @@ lint:
 test:
 	py.test outrigger
 
+fast:
+	py.test --skip-slow outrigger
+
 coverage:
 	coverage run --source outrigger --omit="*/test*" --module py.test
 	coverage report --show-missing

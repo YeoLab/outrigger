@@ -7,9 +7,9 @@ import subprocess
 import pytest
 
 
-slow = pytest.mark.skipif(
-    not pytest.config.getoption("--run-slow"),
-    reason="need --run-slow option to run"
+skip_slow = pytest.mark.skipif(
+    pytest.config.getoption("--skip-slow"),
+    reason="Very long (~15m) tests, don't want to waste time running"
 )
 
 
@@ -39,7 +39,7 @@ def test_main_help_from_commandline(tmpdir):
     assert 'help' in outrigger_output
     assert 'usage' in outrigger_output
 
-@slow
+@skip_slow
 def test_make_arabdopsis(outrigger_folder):
     os.chdir(outrigger_folder)
 

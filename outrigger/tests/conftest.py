@@ -167,6 +167,6 @@ def myl6_novel_exon_junction():
 
 
 def pytest_addoption(parser):
-    parser.addoption("--run-slow", action="store_true",
-        help="Run the 'slow' (~15m) tests")
+    parser.addoption("--skip-slow", action="store_true",
+        help="Don't run the 'slow' (~15m) tests")
 

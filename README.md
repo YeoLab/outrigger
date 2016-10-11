@@ -512,6 +512,8 @@ outrigger_output
 
 ## For Developers
 
+### How to run with the Python debugger
+
 How to run the code with the Python debugger. To run the command line functions such that when they break, you jump into the `pdb` (Python debugger), here is the code:
 
 ```
@@ -521,3 +523,23 @@ python -m pdb outrigger/commandline.py index \
 ```
 
 Notice that you replace `outrigger` with `python -m pdb outrigger/commandline.py`, which is relative to this github directory.
+
+
+### How to run the slow tests
+
+By default, `make test` and `make coverage` will run ALL the tests, even the
+slow ones. With `make coverage`, you can't turn off this feature because you're
+calculating coverage, therefore you *need* to run all the tests. If you're just
+running some tests and want to turn off the slow ones, then add the option
+`--skip-slow` to your `py.test` command:
+
+```
+py.test --skip-slow outrigger/tests/test_commandline.py
+```
+
+If you want to run ALL the tests except for the slow ones, do this:
+
+```
+make fast
+```
+
