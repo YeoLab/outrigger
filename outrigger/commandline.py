@@ -771,6 +771,7 @@ class Psi(Subcommand):
                 util.progress('No {name} ({abbrev}) events found, '
                               'skipping.'. format(name=splice_name,
                                                   abbrev=splice_abbrev))
+                continue
             # event_type = os.path.basename(filename).split('.csv')[0]
             util.progress('Reading {name} ({abbrev}) events from {filename}'
                           ' ...'.format(name=splice_name, abbrev=splice_abbrev,
