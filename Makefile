@@ -70,3 +70,10 @@ treutlein2014:
 		-j outrigger/tests/data/io/star/treutlein2014/sj_out_tab/* \
 		-g outrigger/tests/data/io/gtf/treutlein2014/gencode.vM2.annotation.fgfr2.gtf \
 		-o treutlein2014
+
+arabdopsis:
+	rm -rf outrigger_output
+	outrigger index \
+		--sj-out-tab outrigger/tests/data/arabdopsis/unprocessed/rna.chr4.SJ.out.tab \
+		--gtf outrigger/tests/data/arabdopsis/unprocessed/Arabidopsis_thaliana.TAIR10.31.chr4.gtf
+	outrigger psi
