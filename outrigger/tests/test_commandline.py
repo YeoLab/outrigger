@@ -4,6 +4,14 @@
 import os
 import subprocess
 
+import pytest
+
+
+slow = pytest.mark.skipif(
+    not pytest.config.getoption("--runslow"),
+    reason="need --run-slow option to run"
+)
+
 
 class TestSubcommand(object):
 
@@ -31,7 +39,7 @@ def test_main_help_from_commandline(tmpdir):
     assert 'help' in outrigger_output
     assert 'usage' in outrigger_output
 
-
+@slow
 def test_make_arabdopsis(outrigger_folder):
     os.chdir(outrigger_folder)
 

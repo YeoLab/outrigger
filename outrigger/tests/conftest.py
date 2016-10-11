@@ -164,3 +164,9 @@ def snap25_exon_id():
 def myl6_novel_exon_junction():
     """Junction downstream of a novel exon in MYL6 test set"""
     return 'junction:chr10:128491033-128491719:-'
+
+
+def pytest_addoption(parser):
+    parser.addoption("--run-slow", action="store_true",
+        help="Run the 'slow' (~15m) tests")
+
