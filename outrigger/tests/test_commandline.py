@@ -31,8 +31,8 @@ def test_main_help_from_commandline(tmpdir):
     assert 'help' in outrigger_output
     assert 'usage' in outrigger_output
 
-def test_make_arabdopsis(tmpdir):
-    os.chdir(tmpdir.strpath)
+def test_make_arabdopsis(outrigger_folder):
+    os.chdir(outrigger_folder)
 
     command = 'make arabdopsis'
     args = command.split()
