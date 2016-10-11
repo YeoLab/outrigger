@@ -31,6 +31,17 @@ def test_main_help_from_commandline(tmpdir):
     assert 'help' in outrigger_output
     assert 'usage' in outrigger_output
 
+def test_make_arabdopsis(tmpdir):
+    os.chdir(tmpdir.strpath)
+
+    command = 'make arabdopsis'
+    args = command.split()
+
+    outrigger_output = str(subprocess.check_output(args))
+    assert 'Found 14 SE events' in outrigger_output
+    assert '11371/21995 junctions remain' in outrigger_output
+    assert '25 novel exons on chromosome 4' in outrigger_output
+    assert 'No MXE events found' in outrigger_output
 
 # def test_main_index(tmpdir):
 #     from outrigger.commandline import CommandLine
