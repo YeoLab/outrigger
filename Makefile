@@ -43,9 +43,6 @@ lint:
 test: clean-pyc
 	py.test outrigger
 
-fast: clean-pyc
-	py.test --skip-slow outrigger
-
 coverage: clean-pyc
 	coverage run --source outrigger --omit="*/test*" --module py.test
 	coverage report --show-missing
