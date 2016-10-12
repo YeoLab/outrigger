@@ -40,10 +40,10 @@ clean-output:
 lint:
 	flake8 --exclude outrigger/external,doc outrigger
 
-test:
+test: clean-pyc
 	py.test outrigger
 
-fast:
+fast: clean-pyc
 	py.test --skip-slow outrigger
 
 coverage: clean-pyc
