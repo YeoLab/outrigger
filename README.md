@@ -534,19 +534,24 @@ covered in the test suite, run
 make test
 ```
 
-By default, `make test` and `make coverage` will run ALL the tests, even the
-slow ones. With `make coverage`, you can't turn off this feature because you're
-calculating coverage, therefore you *need* to run all the tests. If you're just
-running some tests and want to turn off the slow ones, then add the option
-`--skip-slow` to your `py.test` command:
+If you want to run the tests and see which lines are covered by tests and get
+an overall percentage of test coverage, run
 
 ```
-py.test --skip-slow outrigger/tests/test_commandline.py
+make coverage
 ```
 
-If you want to run ALL the tests except for the slow ones, do this:
+If you want to run an example with ENSEMBL GTF files, do:
 
 ```
-make fast
+make arabdopsis
 ```
 
+By default, Travis-CI does all three:
+
+```
+script:
+- make coverage
+- make lint
+- make arabdopsis
+```
