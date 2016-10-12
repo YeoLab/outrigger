@@ -525,7 +525,14 @@ python -m pdb outrigger/commandline.py index \
 Notice that you replace `outrigger` with `python -m pdb outrigger/commandline.py`, which is relative to this github directory.
 
 
-### How to run the slow tests
+### How to run the tests
+
+If you want to run the tests without calculating what percentage of lines are
+covered in the test suite, run
+
+```
+make test
+```
 
 By default, `make test` and `make coverage` will run ALL the tests, even the
 slow ones. With `make coverage`, you can't turn off this feature because you're
