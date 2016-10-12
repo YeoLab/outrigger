@@ -66,8 +66,7 @@ class TestCommandLine(object):
                                           '*SJ.out.tab')
         gtf = os.path.join(tasic2016_unprocessed, 'gtf',
                            'gencode.vM10.annotation.subset.gtf')
-        arguments = ['index',
-                     '--sj-out-tab']
+        arguments = ['index', '--sj-out-tab']
         arguments.extend(glob.iglob(sj_out_tab_globber))
         arguments.extend(['--gtf', gtf, '--output', tmpdir.strpath, '--debug'])
         # import pdb; pdb.set_trace()
