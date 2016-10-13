@@ -26,10 +26,19 @@ class TestSubcommand(object):
 
 class TestCommandLine(object):
 
-    def test_no_arguments(self):
+    def test_no_arguments(self, capsys):
         """
         User passes no args, should fail with SystemExit
         """
+
+        from outrigger.commandline import CommandLine
+
+        CommandLine()
+
+        text = '[-h] [--version] {index,validate,psi} ...'
+        out, err = capsys.readouterr()
+        assert 'usage' in out
+        assert text in out
 
     def test_help(self, capsys):
         """
@@ -130,15 +139,15 @@ class TestCommandLine(object):
                 stat2 = os.stat(filename2)
                 assert stat1.st_size == stat2.st_size
 
-    def test_main_psi(self, tmpdir, tasic2016_unprocessed):
+    def test_main_validate(self, tmpdir, negative_control_folder):
         from outrigger.commandline import CommandLine
 
-        args = 'index --sj-out-tab {folder}/sj_out_tab/* ' \
-               '--gtf {folder}/gtf/gencode.vM10.annotation.subset.gtf' \
-               ''.format(tasic2016_unprocessed).split()
-        CommandLine(args)
-
-        args = ['psi']
+        args = ['validate', '--genome',
+                '{folder}/chromsizes'.format(
+                    folder=negative_control_folder),
+                '--fasta',
+                '{folder}/genome.fasta'.format(
+                    folder=negative_control_folder)]
         CommandLine(args)
 
         dir1 = tmpdir.strpath
@@ -149,14 +158,21 @@ class TestCommandLine(object):
         assert len(directory_comparison.left_only) == 0
         assert len(directory_comparison.right_only) == 0
 
-
-    def test_main_validate(self, tmpdir, negative_control_folder):
+    def test_main_psi(self, tmpdir, tasic2016_unprocessed):
+        # This must be run after "index" so keep this order
         from outrigger.commandline import CommandLine
 
-        args =['validate', '--genome',
-               '{folder}/chromsizes'.format(folder=negative_control_folder),
-               '--fasta',
-               '{folder}/genome.fasta'.format(folder=negative_control_folder)]
+        # sj_out_tab_globber = os.path.join(tasic2016_unprocessed, 'sj_out_tab',
+        #                                   '*SJ.out.tab')
+        #
+        # gtf = os.path.join(tasic2016_unprocessed, 'gtf',
+        #                    'gencode.vM10.annotation.subset.gtf')
+        # arguments = ['psi', '--sj-out-tab']
+        # arguments.extend(glob.iglob(sj_out_tab_globber))
+        # arguments.extend(['--gtf', gtf, '--output', tmpdir.strpath, '--debug'])
+        # CommandLine(args)
+
+        args = ['psi']
         CommandLine(args)
 
         dir1 = tmpdir.strpath
