@@ -521,3 +521,6 @@ python -m pdb outrigger/commandline.py index \
 ```
 
 Notice that you replace `outrigger` with `python -m pdb outrigger/commandline.py`, which is relative to this github directory.
+
+
+isoform1=junction:chr2:136769861-136773894:+@exon:chr2:136773895-136774020:+@junction:chr2:136774021-136777335:+|isoform2=junction:chr2:136769861-136770056:+@exon:chr2:136770057-136770174:+@junction:chr2:136770175-136777335:+

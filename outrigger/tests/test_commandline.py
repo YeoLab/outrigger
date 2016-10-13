@@ -102,17 +102,22 @@ class TestCommandLine(object):
                 df1, df2 = None, None
 
                 if filename.endswith('.csv'):
-                    df1 = pd.read_csv(filename1)
-                    df2 = pd.read_csv(filename2)
+                    df1 = pd.read_csv(filename1, index_col=0)
+                    df2 = pd.read_csv(filename2, index_col=0)
 
                     df1.sort_index(inplace=True)
                     df2.sort_index(inplace=True)
+
+                    exons = [x for x in df1 if 'exon' in x]
+
+                    df1.sort_values(exons, inplace=True)
+                    df2.sort_values(exons, inplace=True)
                 elif filename.endswith('.bed'):
                     df1 = pd.read_table(filename1, header=None)
                     df2 = pd.read_table(filename2, header=None)
 
-                    df1.sort_values([3, 1, 2], kind='mergesort', inplace=True)
-                    df2.sort_values([3, 1, 2], kind='mergesort', inplace=True)
+                    df1.sort_values([3, 0, 1, 2], kind='mergesort', inplace=True)
+                    df2.sort_values([3, 0, 1, 2], kind='mergesort', inplace=True)
 
                     df1.index = range(len(df1.index))
                     df2.index = range(len(df2.index))
