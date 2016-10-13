@@ -130,12 +130,12 @@ class TestCommandLine(object):
                 stat2 = os.stat(filename2)
                 assert stat1.st_size == stat2.st_size
 
-    def test_main_psi(self, tmpdir, tasic_unprocessed):
+    def test_main_psi(self, tmpdir, tasic2016_unprocessed):
         from outrigger.commandline import CommandLine
 
         args = 'index --sj-out-tab {folder}/sj_out_tab/* ' \
                '--gtf {folder}/gtf/gencode.vM10.annotation.subset.gtf' \
-               ''.format(tasic_unprocessed).split()
+               ''.format(tasic2016_unprocessed).split()
         CommandLine(args)
 
         args = ['psi']
