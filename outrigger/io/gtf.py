@@ -63,6 +63,10 @@ class SplicingAnnotator(object):
             *self.isoform_exons.values())))
         self.exon_cols.sort()
 
+        # Remove region columns in "events" dataframe
+        cols_to_remove = [x for x in self.events if 'region' in x]
+        self.events = self.events.drop(cols_to_remove, axis=1)
+
         # Make a dataframe with outrigger.Region objects
         self.regions = pd.DataFrame(index=self.events.index)
         self.region_cols = ['{}_region'.format(x) for x in self.exon_cols]
@@ -81,8 +85,10 @@ class SplicingAnnotator(object):
         # location ("name") of each intron
         self.lengths = self.regions.applymap(len)
         intron_names = intron_regions.applymap(lambda x: x.name)
-        self.events = pd.concat([self.events, self.lengths, intron_names],
-                                axis=1)
+        region_name = self.regions['event_region'].map(lambda x: x.name)
+        region_name.name = 'event_location'
+        self.events = pd.concat([self.events, self.lengths, intron_names,
+                                 region_name], axis=1)
 
     def attributes(self):
         """Retrieve all GTF attributes for each isoform's event"""
