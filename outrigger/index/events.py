@@ -314,33 +314,34 @@ class EventMaker(object):
                     exon4_from3 = set(
                         self.exons_one_junction_downstream(exon3_i))
 
+                    exon4_is = exon4_from2 & exon4_from3
                     try:
-                        exon4_i = (exon4_from2 & exon4_from3).pop()
-                        exon4_name = self.items[exon4_i]
-                        # Isoform 1 - corresponds to Psi=0. Inclusion of exon3
-                        exon13_junction = self.junctions_between_exons(
-                            exon1_i, exon3_i)
+                        for exon4_i in exon4_is:
+                            exon4_name = self.items[exon4_i]
+                            # Isoform 1 - corresponds to Psi=0. Inclusion of exon3
+                            exon13_junction = self.junctions_between_exons(
+                                exon1_i, exon3_i)
 
-                        exon34_junction = self.junctions_between_exons(
-                            exon3_i, exon4_i)
+                            exon34_junction = self.junctions_between_exons(
+                                exon3_i, exon4_i)
 
-                        # Isoform 2 - corresponds to Psi=1. Inclusion of exon2
-                        exon12_junction = self.junctions_between_exons(
-                            exon1_i, exon2_i)
-                        exon24_junction = self.junctions_between_exons(
-                            exon2_i, exon4_i)
+                            # Isoform 2 - corresponds to Psi=1. Inclusion of exon2
+                            exon12_junction = self.junctions_between_exons(
+                                exon1_i, exon2_i)
+                            exon24_junction = self.junctions_between_exons(
+                                exon2_i, exon4_i)
 
-                        exon_tuple = exon1_name, exon2.name, exon3.name, \
-                            exon4_name
-                        #             print exon12_junction.next()
-                        junctions_i = list(
-                            itertools.chain(*[exon13_junction,
-                                              exon34_junction,
-                                              exon12_junction,
-                                              exon24_junction]))
-                        junctions = [self.items[i] for i in junctions_i]
+                            exon_tuple = exon1_name, exon2.name, exon3.name, \
+                                exon4_name
+                            #             print exon12_junction.next()
+                            junctions_i = list(
+                                itertools.chain(*[exon13_junction,
+                                                  exon34_junction,
+                                                  exon12_junction,
+                                                  exon24_junction]))
+                            junctions = [self.items[i] for i in junctions_i]
 
-                        events[exon_tuple] = junctions
+                            events[exon_tuple] = junctions
                     except KeyError:
                         pass
         events = self.event_dict_to_df(events,
