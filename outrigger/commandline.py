@@ -328,7 +328,7 @@ class Subcommand(object):
     def maybe_make_folder(self, folder):
         util.progress("Creating folder {} ...".format(folder))
         if not os.path.exists(folder):
-            os.mkdir(folder)
+            os.makedirs(folder)
         util.done()
 
     @property
@@ -338,7 +338,7 @@ class Subcommand(object):
 
     @property
     def output_folder(self):
-        if not hasattr(self, 'output'):
+        if not hasattr(self, 'output') or self.output is None:
             return OUTPUT
         else:
             return self.output
