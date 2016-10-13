@@ -25,3 +25,5 @@ Miscellaneous
 
 - Added version info with ``outrigger --version``
 - Added tests for the command line!
+- Fixed memory error that resulted from doing a really dumb join
+- Simple annotation of splicing events with gene ids, etc is much faster
