@@ -18,6 +18,7 @@ Bug fixes
 
 - Fix a bug where only one possible exon4 was randomly chosen for MXE events
   instead of using ALL of them
+- Support ENSEMBL gtf files
 
 Miscellaneous
 ~~~~~~~~~~~~~
