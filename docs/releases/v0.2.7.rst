@@ -16,8 +16,11 @@ API changes
 Bug fixes
 ~~~~~~~~~
 
+- Fix a bug where only one possible exon4 was randomly chosen for MXE events
+  instead of using ALL of them
+
 Miscellaneous
 ~~~~~~~~~~~~~
 
 - Added version info with ``outrigger --version``
-
+- Added tests for the command line!
