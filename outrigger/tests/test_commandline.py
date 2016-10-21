@@ -161,7 +161,8 @@ class TestCommandLine(object):
         assert len(directory_comparison.left_only) == 0
         assert len(directory_comparison.right_only) == 0
 
-    def test_main_psi(self, tmpdir, tasic2016_unprocessed):
+    def test_main_psi(self, tmpdir, tasic2016_unprocessed,
+                      tasic2016_outrigger_output):
         from outrigger.commandline import CommandLine
 
         output_folder = tmpdir.strpath
@@ -183,8 +184,7 @@ class TestCommandLine(object):
         CommandLine(args)
 
         dir1 = output_folder
-        dir2 = os.path.join('outrigger', 'test_data', 'tasic2016',
-                            'outrigger_output')
+        dir2 = tasic2016_outrigger_output
         directory_comparison = filecmp.dircmp(dir1, dir2,
                                               ignore=['.DS_Store'])
         assert len(directory_comparison.left_only) == 0
