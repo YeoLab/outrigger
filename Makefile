@@ -76,6 +76,7 @@ treutlein2014: clean-output
 
 arabdopsis: clean-output
 	outrigger index \
-		--sj-out-tab outrigger/tests/data/arabdopsis/unprocessed/rna.chr4.SJ.out.tab \
-		--gtf outrigger/tests/data/arabdopsis/unprocessed/Arabidopsis_thaliana.TAIR10.31.chr4.gtf
+		--sj-out-tab outrigger/tests/data/arabdopsis/unprocessed/rna.chr4.subset.SJ.out.tab \
+		--gtf outrigger/tests/data/arabdopsis/unprocessed/Arabidopsis_thaliana.TAIR10.31.chr4.subset.gtf \
+		--min-reads 1
 	outrigger psi
