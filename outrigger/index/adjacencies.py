@@ -203,8 +203,8 @@ class ExonJunctionAdjacencies(object):
                 for junction in df.region))
             done(n_tabs=3)
 
-            progress('\t\tFiltering for only novel exons on chromosome {chrom}'
-                     ' ...'.format(chrom=chrom))
+            progress('\t\tFiltering for only novel exons on chromosome '
+                     '{chrom} ...'.format(chrom=chrom))
             novel_exons = set(x for x in exon_locations if
                               'exon:{}:{}-{}:{}'.format(*x)
                               not in self.existing_exons)

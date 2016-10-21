@@ -120,6 +120,28 @@ class CommandLine(object):
                                        ' LOTS of output. Not recommended '
                                        'unless you think something is going '
                                        'wrong)')
+        overwrite_parser = index_parser.add_mutually_exclusive_group(
+            required=False)
+        overwrite_parser.add_argument('--force', action='store_true',
+                                      help="If the 'outrigger index' command "
+                                           "was interrupted, there will be "
+                                           "intermediate files remaining. If "
+                                           "you wish to restart outrigger and "
+                                           "overwrite them all, use this flag."
+                                           " If you want to continue from "
+                                           "where you left off, use the "
+                                           "'--resume' flag. If neither is "
+                                           "specified, the program exits and "
+                                           "complains to the user.")
+        overwrite_parser.add_argument('--resume', action='store_true',
+                                      help="If the 'outrigger index' command "
+                                           "was interrupted, there will be "
+                                           "intermediate files remaining. If "
+                                           "you want to continue from "
+                                           "where you left off, use this flag."
+                                           " The default action is to do "
+                                           "nothing and ask the user for "
+                                           "input.")
         index_parser.set_defaults(func=self.index)
 
         # -- Subcommand to validate exons of built index --- #
@@ -294,6 +316,8 @@ class Subcommand(object):
     gtf_filename = None
     gffutils_db = None
     debug = False
+    force = False
+    resume = False
 
     def __init__(self, **kwargs):
 
@@ -389,6 +413,53 @@ class Subcommand(object):
                 util.done()
         return db
 
+    def maybe_overwrite(self, filename):
+        """Ensures that filename is not overwritten unless user-specified
+
+        - If the file doesn't exist, return "True", as in "yes, please
+          overwrite" even though there wasn't really a file there, but the
+          action is still to create the file in the next step
+        - If the file exists and the user specified nothing, exit the program
+          and complain that either --force or --resume must be specified
+        - If the file exists and the user specified --force, then return True
+        - If the file exists and the user specified --resume, then return False
+          so that the file is not overwritten
+
+        Parameters
+        ----------
+        filename : str
+            Path to a file that you may want to overwrite
+
+        Returns
+        -------
+        if_overwrite : bool
+            If True, then the next step in the program has the go-ahead to
+            "overwrite" or create the file. If False, the file exists and the
+            user doesn't want to overwrite it
+        """
+        if not os.path.exists(filename):
+            return True
+        if os.path.exists(filename):
+            if self.force:
+                util.progress("Found existing {filename}, overwriting with "
+                              "--force flag".format(filename=filename))
+                return True
+            if self.resume:
+                util.progress(
+                    "With the flag '--resume', Found an existing file "
+                    "containing novel exons,"
+                    "{filename}, not re-calculating. To force overwriting, "
+                    "use the flag ''--force'.".format(filename=filename))
+                return False
+        else:
+            raise ValueError("Found existing {filename} "
+                             "but don't "
+                             "know whether you want me to continue where I "
+                             "stopped ('--resume') or force overwrite "
+                             "and restart from "
+                             "scratch ('--force')! Exiting."
+                             ".".format(filename=filename))
+
 
 class Index(Subcommand):
 
@@ -427,28 +498,40 @@ class Index(Subcommand):
         exon_junction_adjacencies = adjacencies.ExonJunctionAdjacencies(
             metadata, db, max_de_novo_exon_length=self.max_de_novo_exon_length)
 
-        util.progress('Detecting de novo exons based on gaps between '
-                      'junctions ...')
-        exon_junction_adjacencies.detect_exons_from_junctions()
-        util.done()
-
         novel_exons_gtf = os.path.join(self.gtf_folder, 'novel_exons.gtf')
-        util.progress('Writing novel exons to {} ...'.format(novel_exons_gtf))
-        exon_junction_adjacencies.write_de_novo_exons(novel_exons_gtf)
-        util.done()
+        if self.maybe_overwrite(novel_exons_gtf):
+            util.progress('Detecting de novo exons based on gaps between '
+                          'junctions ...')
+            exon_junction_adjacencies.detect_exons_from_junctions()
+            util.done()
 
-        util.progress('Getting junction-direction-exon triples for graph '
-                      'database ...')
-        junction_exon_triples = \
-            exon_junction_adjacencies.upstream_downstream_exons()
-        util.done()
+            util.progress('Writing novel exons to {} ...'.format(
+                novel_exons_gtf))
+            exon_junction_adjacencies.write_de_novo_exons(novel_exons_gtf)
+            util.done()
 
         csv = os.path.join(self.index_folder,
                            'junction_exon_direction_triples.csv')
-        util.progress('Writing junction-exon-direction triples'
-                      ' to {}...'.format(csv))
-        junction_exon_triples.to_csv(csv, index=False)
-        util.done()
+        if not os.path.exists(csv) or self.force:
+            util.progress('Getting junction-direction-exon triples for graph '
+                          'database ...')
+            junction_exon_triples = \
+                exon_junction_adjacencies.upstream_downstream_exons()
+            util.done()
+
+            util.progress('Writing junction-exon-direction triples'
+                          ' to {}...'.format(csv))
+            junction_exon_triples.to_csv(csv, index=False)
+            util.done()
+        elif self.resume:
+            junction_exon_triples = pd.read_csv(csv)
+        else:
+            raise ValueError("Found existing junction-exon-triples file "
+                             "({csv}) but don't "
+                             "know whether you want me to continue where I "
+                             "stopped ('--resume') or force restart from "
+                             "scratch ('--force')! Exiting."
+                             ".".format(csv=csv))
 
         return junction_exon_triples
 
@@ -464,31 +547,41 @@ class Index(Subcommand):
 
     def make_events_by_traversing_graph(self, event_maker, db):
         for splice_name, splice_abbrev in common.SPLICE_TYPES:
-            name_with_spaces = splice_name.replace('_', ' ')
-            # Find event junctions
-            util.progress(
-                'Finding all {name} ({abbrev}) events ...'.format(
-                    name=name_with_spaces, abbrev=splice_abbrev.upper()))
-            events_of_type = getattr(event_maker, splice_name)()
-            util.done()
-
-            # Write to a file
             csv = os.path.join(self.index_folder, splice_abbrev.lower(),
                                EVENTS_CSV)
-            dirname = os.path.dirname(csv)
-            if not os.path.exists(dirname):
-                os.makedirs(dirname)
+            if not os.path.exists(csv) or self.force:
+                name_with_spaces = splice_name.replace('_', ' ')
+                # Find event junctions
+                util.progress(
+                    'Finding all {name} ({abbrev}) events ...'.format(
+                        name=name_with_spaces, abbrev=splice_abbrev.upper()))
+                events_of_type = getattr(event_maker, splice_name)()
+                util.done()
 
-            n_events = len(events_of_type.groupby(level=0, axis=0))
-            if n_events > 0:
-                util.progress(
-                    'Found {n} {abbrev} events.'.format(
-                        n=n_events, abbrev=splice_abbrev.upper(), csv=csv))
-                self.get_event_attributes(db, events_of_type, splice_abbrev)
+                # Write to a file
+
+                dirname = os.path.dirname(csv)
+                if not os.path.exists(dirname):
+                    os.makedirs(dirname)
+
+                n_events = len(events_of_type.groupby(level=0, axis=0))
+                if n_events > 0:
+                    util.progress(
+                        'Found {n} {abbrev} events.'.format(
+                            n=n_events, abbrev=splice_abbrev.upper(), csv=csv))
+                    self.get_event_attributes(db, events_of_type,
+                                              splice_abbrev)
+                else:
+                    util.progress(
+                        'No {abbrev} events found in the junction and exon '
+                        'data.'.format(abbrev=splice_abbrev.upper()))
             else:
-                util.progress(
-                    'No {abbrev} events found in the junction and exon '
-                    'data.'.format(abbrev=splice_abbrev.upper()))
+                util.progress('Found existing {name} ({abbrev}) splicing '
+                              'events file ({csv}), so not searching. To force'
+                              ' re-finding these splicing events, use the flag'
+                              ' "--force".'.format(name=splice_name,
+                                                   abbrev=splice_abbrev,
+                                                   csv=csv))
 
     def get_event_attributes(self, db, event_df, splice_type):
         util.progress(
