@@ -200,7 +200,7 @@ class CommandLine(object):
             help='Name of the folder where you saved the output from '
                  '"outrigger index" (default is {}, which is '
                  'relative to the directory where you called the program). '
-                 'Cannot specify both an --index and --output with "validate"'
+                 'Cannot specify both an --index and --output with "psi"'
                  ''.format(OUTPUT))
         psi_junctions = psi_parser.add_mutually_exclusive_group(
             required=False)
