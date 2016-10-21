@@ -460,6 +460,7 @@ class Subcommand(object):
                              "scratch ('--force')! Exiting."
                              ".".format(filename=filename))
 
+
 class Index(Subcommand):
 
     max_de_novo_exon_length = adjacencies.MAX_DE_NOVO_EXON_LENGTH
@@ -504,7 +505,8 @@ class Index(Subcommand):
             exon_junction_adjacencies.detect_exons_from_junctions()
             util.done()
 
-            util.progress('Writing novel exons to {} ...'.format(novel_exons_gtf))
+            util.progress('Writing novel exons to {} ...'.format(
+                novel_exons_gtf))
             exon_junction_adjacencies.write_de_novo_exons(novel_exons_gtf)
             util.done()
 
@@ -567,7 +569,8 @@ class Index(Subcommand):
                     util.progress(
                         'Found {n} {abbrev} events.'.format(
                             n=n_events, abbrev=splice_abbrev.upper(), csv=csv))
-                    self.get_event_attributes(db, events_of_type, splice_abbrev)
+                    self.get_event_attributes(db, events_of_type,
+                                              splice_abbrev)
                 else:
                     util.progress(
                         'No {abbrev} events found in the junction and exon '
