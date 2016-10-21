@@ -26,10 +26,6 @@ class TestSubcommand(object):
 
 class TestCommandLine(object):
 
-    @pytest.fixture(scope='class')
-    def output_folder(self, tmpdir):
-        return tmpdir.strpath
-
     def test_no_arguments(self, capsys):
         """
         User passes no args, should fail with SystemExit
