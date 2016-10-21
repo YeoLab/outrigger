@@ -151,7 +151,8 @@ class TestCommandLine(object):
                 '--fasta',
                 '{folder}/genome.fasta'.format(
                     folder=negative_control_folder),
-                '--output', negative_control_output]
+                '--output', tmpdir.strpath,
+                '--index', os.path.join(negative_control_output, 'index')]
         CommandLine(args)
 
         dir1 = tmpdir.strpath

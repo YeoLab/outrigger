@@ -141,8 +141,8 @@ class CommandLine(object):
                                           'make sure we do not accidentally '
                                           'ask for genome positions that are '
                                           'outside of the defined range')
-        validate_outputs = validate_parser.add_mutually_exclusive_group(required=False)
-        validate_outputs.add_argument('-i', '--index', required=False,
+        # validate_outputs = validate_parser.add_mutually_exclusive_group(required=False)
+        validate_parser.add_argument('-i', '--index', required=False,
                                      default=None,
                                      help='Name of the folder where you saved '
                                           'the output from "outrigger index" '
@@ -151,16 +151,13 @@ class CommandLine(object):
                                           'this program, assuming you have '
                                           'called "outrigger psi" in the same '
                                           'folder as you called "outrigger '
-                                          'index"). Cannot specify both an '
-                                          '--index and --output with '
-                                          '"validate".'.format(INDEX))
-        validate_outputs.add_argument(
+                                          'index").'.format(INDEX))
+        validate_parser.add_argument(
             '-o', '--output', required=False, type=str, action='store',
             default=None,
             help='Name of the folder where you saved the output from '
                  '"outrigger index" (default is {}, which is '
                  'relative to the directory where you called the program). '
-                 'Cannot specify both an --index and --output with "validate"'
                  ''.format(OUTPUT))
 
         validate_parser.add_argument(
