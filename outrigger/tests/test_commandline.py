@@ -26,6 +26,10 @@ class TestSubcommand(object):
 
 class TestCommandLine(object):
 
+    @pytest.fixture(scope='class')
+    def output_folder(self, tmpdir):
+        return tmpdir.strpath
+
     def test_no_arguments(self, capsys):
         """
         User passes no args, should fail with SystemExit
@@ -71,20 +75,22 @@ class TestCommandLine(object):
     def test_main_index(self, tmpdir, capsys, tasic2016_unprocessed):
         from outrigger.commandline import CommandLine
 
+        output_folder = tmpdir.strpath
+
         sj_out_tab_globber = os.path.join(tasic2016_unprocessed, 'sj_out_tab',
                                           '*SJ.out.tab')
         gtf = os.path.join(tasic2016_unprocessed, 'gtf',
                            'gencode.vM10.annotation.subset.gtf')
         arguments = ['index', '--sj-out-tab']
         arguments.extend(glob.iglob(sj_out_tab_globber))
-        arguments.extend(['--gtf', gtf, '--output', tmpdir.strpath, '--debug'])
+        arguments.extend(['--gtf', gtf, '--output', output_folder, '--debug'])
         # import pdb; pdb.set_trace()
         # assert False
         CommandLine(arguments)
 
         out, err = capsys.readouterr()
 
-        dir1 = os.path.join(tmpdir.strpath, 'index')
+        dir1 = os.path.join(output_folder, 'index')
         dir2 = os.path.join('outrigger', 'tests', 'data', 'tasic2016',
                             'outrigger_output', 'index')
         ignore = ['psi', '.DS_Store', 'validated', 'splice_sites.csv',
@@ -139,7 +145,8 @@ class TestCommandLine(object):
                 stat2 = os.stat(filename2)
                 assert stat1.st_size == stat2.st_size
 
-    def test_main_validate(self, tmpdir, negative_control_folder):
+    def test_main_validate(self, tmpdir, negative_control_folder,
+                           negative_control_output):
         from outrigger.commandline import CommandLine
 
         args = ['validate', '--genome',
@@ -147,35 +154,39 @@ class TestCommandLine(object):
                     folder=negative_control_folder),
                 '--fasta',
                 '{folder}/genome.fasta'.format(
-                    folder=negative_control_folder)]
+                    folder=negative_control_folder),
+                '--output', negative_control_output]
         CommandLine(args)
 
         dir1 = tmpdir.strpath
-        dir2 = os.path.join('outrigger', 'test_data', 'tasic2016',
-                            'outrigger_output')
+        dir2 = negative_control_output
         directory_comparison = filecmp.dircmp(dir1, dir2,
                                               ignore=['.DS_Store'])
         assert len(directory_comparison.left_only) == 0
         assert len(directory_comparison.right_only) == 0
 
     def test_main_psi(self, tmpdir, tasic2016_unprocessed):
-        # This must be run after "index" so keep this order
         from outrigger.commandline import CommandLine
 
-        # sj_out_tab_globber = os.path.join(tasic2016_unprocessed, 'sj_out_tab',
-        #                                   '*SJ.out.tab')
-        #
-        # gtf = os.path.join(tasic2016_unprocessed, 'gtf',
-        #                    'gencode.vM10.annotation.subset.gtf')
-        # arguments = ['psi', '--sj-out-tab']
-        # arguments.extend(glob.iglob(sj_out_tab_globber))
-        # arguments.extend(['--gtf', gtf, '--output', tmpdir.strpath, '--debug'])
-        # CommandLine(args)
+        output_folder = tmpdir.strpath
 
-        args = ['psi']
+        sj_out_tab_globber = os.path.join(tasic2016_unprocessed, 'sj_out_tab',
+                                          '*SJ.out.tab')
+
+        gtf = os.path.join(tasic2016_unprocessed, 'gtf',
+                           'gencode.vM10.annotation.subset.gtf')
+        arguments = ['index', '--sj-out-tab']
+        arguments.extend(glob.iglob(sj_out_tab_globber))
+        arguments.extend(['--gtf', gtf, '--output', output_folder, '--debug'])
+        # import pdb; pdb.set_trace()
+        # assert False
+        CommandLine(arguments)
+
+
+        args = ['psi', '--output', output_folder]
         CommandLine(args)
 
-        dir1 = tmpdir.strpath
+        dir1 = output_folder
         dir2 = os.path.join('outrigger', 'test_data', 'tasic2016',
                             'outrigger_output')
         directory_comparison = filecmp.dircmp(dir1, dir2,
