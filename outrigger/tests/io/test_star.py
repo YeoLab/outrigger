@@ -76,9 +76,11 @@ def test_read_multiple_sj_out_tab(sj_filenames, ignore_multimapping,
     pdt.assert_frame_equal(test, true)
 
 
-def test_make_metadata(junction_metadata, junction_reads):
+def test_make_metadata(tasic2016_intermediate, junction_reads):
     from outrigger.io.star import make_metadata
+    from outrigger.common import MIN_READS
 
-    true = junction_metadata
+    csv = os.path.join(tasic2016_intermediate, 'junction_metadata.csv')
+    true = pd.read_csv(csv)
     test = make_metadata(junction_reads)
     pdt.assert_frame_equal(test, true)
