@@ -582,11 +582,18 @@ class SubcommandAfterIndex(Subcommand):
     """Can use different index folder than outrigger_output/index"""
 
     @property
-    def index_folder(self):
+    def input_index(self):
+        """Where to read the index from"""
         if self.index is not None:
             return self.index
         else:
             return os.path.join(self.output_folder, 'index')
+
+    @property
+    def folders(self):
+        return self.output_folder, self.input_index, self.index_folder,\
+               self.gtf_folder, self.junctions_folder
+
 
 class Validate(SubcommandAfterIndex):
 
@@ -605,7 +612,7 @@ class Validate(SubcommandAfterIndex):
         return intron_splice_site
 
     def individual_exon_splice_sites(self, exon, splice_abbrev, direction):
-        exon_bed = os.path.join(self.index_folder, splice_abbrev,
+        exon_bed = os.path.join(self.input_index, splice_abbrev,
                                 '{}.bed'.format(exon))
         splice_sites = check_splice_sites.read_splice_sites(
             exon_bed, self.genome, self.fasta, direction)
@@ -667,7 +674,7 @@ class Validate(SubcommandAfterIndex):
                                     splice_name=splice_name_spaces,
                                     splice_abbrev=splice_abbrev.upper()))
 
-            original_events_csv = os.path.join(self.index_folder,
+            original_events_csv = os.path.join(self.input_index,
                                                splice_abbrev, EVENTS_CSV)
             validated_events_csv = os.path.join(validated_folder, EVENTS_CSV)
             util.progress('\tWriting validated events to {csv} ...'.format(
@@ -695,15 +702,30 @@ class Psi(SubcommandAfterIndex):
                      '--sample-id-col': sample_id_col,
                      '--junction-id-col': junction_id_col}
 
+    @property
+    def psi_folder(self):
+        return os.path.join(self.output_folder, 'psi')
+
+    @property
+    def splice_type_folders(self):
+        return dict((splice_name, os.path.join(self.input_index,
+                                               splice_abbrev))
+                    for splice_name, splice_abbrev in
+                    outrigger.common.SPLICE_TYPES)
+
+    @property
+    def folders(self):
+        return self.output_folder, self.psi_folder
+
     def __init__(self, **kwargs):
         # Read all arguments and set as attributes of this class
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-        if not os.path.exists(self.index_folder):
+        if not os.path.exists(self.input_index):
             raise OSError("The index folder ({}) doesn't exist! Cowardly "
                           "exiting because I don't know what events to "
-                          "calcaulate psi on :(".format(self.index_folder))
+                          "calcaulate psi on :(".format(self.input_index))
 
         for splice_name, splice_folder in self.splice_type_folders.items():
             if not os.path.exists(splice_folder):
@@ -722,21 +744,6 @@ class Psi(SubcommandAfterIndex):
 
         for folder in self.folders:
             self.maybe_make_folder(folder)
-
-    @property
-    def psi_folder(self):
-        return os.path.join(self.output_folder, 'psi')
-
-    @property
-    def splice_type_folders(self):
-        return dict((splice_name, os.path.join(self.index_folder,
-                                               splice_abbrev))
-                    for splice_name, splice_abbrev in
-                    outrigger.common.SPLICE_TYPES)
-
-    @property
-    def folders(self):
-        return self.output_folder, self.psi_folder
 
     def maybe_read_junction_reads(self):
         try:
@@ -764,7 +771,7 @@ class Psi(SubcommandAfterIndex):
                                     flag=flag))
 
     def maybe_get_validated_events(self, splice_abbrev):
-        splice_folder = os.path.join(self.index_folder, splice_abbrev)
+        splice_folder = os.path.join(self.input_index, splice_abbrev)
         events = os.path.join(splice_folder, EVENTS_CSV)
         validated_events = os.path.join(splice_folder, 'validated', EVENTS_CSV)
         if os.path.exists(validated_events):

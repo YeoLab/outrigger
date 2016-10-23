@@ -153,7 +153,7 @@ class TestCommandLine(object):
                     folder=negative_control_folder),
                 '--output', tmpdir.strpath,
                 '--index', os.path.join(negative_control_output, 'index')]
-        CommandLine(args)
+        cl = CommandLine(args)
 
         dir1 = tmpdir.strpath
         dir2 = negative_control_output
