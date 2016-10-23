@@ -78,7 +78,6 @@ def test_read_multiple_sj_out_tab(sj_filenames, ignore_multimapping,
 
 def test_make_metadata(tasic2016_intermediate, junction_reads):
     from outrigger.io.star import make_metadata
-    from outrigger.common import MIN_READS
 
     csv = os.path.join(tasic2016_intermediate, 'junction_metadata.csv')
     true = pd.read_csv(csv)
