@@ -1,0 +1,29 @@
+
+package:
+  name: outrigger
+  version: 0.2.8
+
+source:
+  path: .
+
+requirements:
+  build:
+    - python
+  run:
+    - python
+    - pandas>=0.17.0
+    - setuptools
+    - gffutils
+    - pybedtools
+    - biopython
+    - bedtools
+    - joblib
+
+test:
+  imports:
+    - outrigger
+
+about:
+  home: https://github.com/YeoLab/outrigger
+  summary: Create a *de novo* alternative splicing database, validate splicing events, and quantify percent spliced-in (Psi) from RNA seq data
+  license: BSD 3-Clause
