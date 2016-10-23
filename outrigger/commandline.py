@@ -141,7 +141,6 @@ class CommandLine(object):
                                           'make sure we do not accidentally '
                                           'ask for genome positions that are '
                                           'outside of the defined range')
-        # validate_outputs = validate_parser.add_mutually_exclusive_group(required=False)
         validate_parser.add_argument('-i', '--index', required=False,
                                      default=None,
                                      help='Name of the folder where you saved '
@@ -181,16 +180,15 @@ class CommandLine(object):
                         'the splicing event index built with "outrigger '
                         'index"')
         psi_outputs = psi_parser.add_mutually_exclusive_group(required=False)
-        psi_outputs.add_argument('-i', '--index', required=False,
-                                default=None,
-                                help='Name of the folder where you saved the '
-                                     'output from "outrigger index" (default '
-                                     'is {}, which is relative '
-                                     'to the directory where you called this '
-                                     'program, assuming you have called '
-                                     '"outrigger psi" in the same folder as '
-                                     'you called "outrigger '
-                                     'index")'.format(INDEX))
+        psi_outputs.add_argument('-i', '--index', required=False, default=None,
+                                 help='Name of the folder where you saved the '
+                                      'output from "outrigger index" (default '
+                                      'is {}, which is relative '
+                                      'to the directory where you called this '
+                                      'program, assuming you have called '
+                                      '"outrigger psi" in the same folder as '
+                                      'you called "outrigger '
+                                      'index")'.format(INDEX))
         psi_outputs.add_argument(
             '-o', '--output', required=False, type=str, action='store',
             default=None,
@@ -538,7 +536,7 @@ class Index(Subcommand):
         util.progress('Writing {splice_type} events to {csv} '
                       '...'.format(splice_type=splice_type.upper(), csv=csv))
         attributes.to_csv(csv, index=True,
-                                index_label=outrigger.common.EVENT_ID_COLUMN)
+                          index_label=outrigger.common.EVENT_ID_COLUMN)
         util.done()
 
     def write_new_gtf(self, db):

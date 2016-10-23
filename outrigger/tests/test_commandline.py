@@ -1,11 +1,11 @@
 
 import filecmp
-import glob
 import os
 
 import pandas as pd
 import pandas.util.testing as pdt
 import pytest
+
 
 class TestSubcommand(object):
 
@@ -102,7 +102,6 @@ class TestCommandLine(object):
         assert 'validate' in out
         assert 'usage' in out
 
-
     def test_main_version(self, capsys):
         from outrigger.commandline import CommandLine
         from outrigger import __version__
@@ -115,7 +114,7 @@ class TestCommandLine(object):
         assert __version__ in out
 
     def test_main_index(self, tmpdir, capsys, tasic2016_unprocessed,
-                         sj_filenames):
+                        sj_filenames):
         from outrigger.commandline import CommandLine
 
         output_folder = tmpdir.strpath

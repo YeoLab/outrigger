@@ -77,6 +77,7 @@ def negative_control_folder(data_folder):
 def negative_control_output(negative_control_folder):
     return os.path.join(negative_control_folder, 'outrigger_output')
 
+
 @pytest.fixture
 def tasic2016_sj_out_tab(tasic2016_unprocessed):
     return os.path.join(tasic2016_unprocessed, 'sj_out_tab')
