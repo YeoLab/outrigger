@@ -17,6 +17,7 @@ from ..region import Region
 
 gene_transcript = set(('gene', 'transcript'))
 
+
 def maybe_analyze(db):
     try:
         # For gffutils >0.8.7.1
