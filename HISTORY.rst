@@ -25,7 +25,7 @@ Bug fixes
 ~~~~~~~~~
 
 - Support ENSEMBL gtf files which specify chromsome names with a number, e.g.
-``4`` instead of ``chr4``. Thank you to lcscs12345_ for pointing this out!
+  ``4`` instead of ``chr4``. Thank you to lcscs12345_ for pointing this out!
 
 Miscellaneous
 ~~~~~~~~~~~~~
