@@ -1,0 +1,4 @@
+v0.2.8 (October 23rd, 2016)
+---------------------------
+
+Updated README/HISTORY files

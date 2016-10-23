@@ -3,6 +3,12 @@
 History
 =======
 
+v0.2.8 (October 23rd, 2016)
+---------------------------
+
+Updated README/HISTORY files
+
+
 v0.2.7 (October 23rd, 2016)
 ---------------------------
 
