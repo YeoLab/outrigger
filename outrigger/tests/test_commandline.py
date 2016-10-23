@@ -24,8 +24,10 @@ class TestSubcommand(object):
             assert os.path.exists(folder)
 
 
-def assert_directories_equal(dir1, dir2, ignore=None):
+def assert_directories_equal(dir1, dir2, ignore=None,
+                             sortables=('exon', 'junction')):
     """Compare contents of subdirectories to assert they are equal"""
+
     directory_comparison = filecmp.dircmp(dir1, dir2, ignore=ignore)
 
     directory_comparison.report_full_closure()
@@ -45,17 +47,11 @@ def assert_directories_equal(dir1, dir2, ignore=None):
             df1, df2 = None, None
 
             if filename.endswith('.csv'):
-                df1 = pd.read_csv(filename1, index_col=0)
-                df2 = pd.read_csv(filename2, index_col=0)
+                df1 = pd.read_csv(filename1)
+                df2 = pd.read_csv(filename2)
 
-                df1.sort_index(inplace=True)
-                df2.sort_index(inplace=True)
-
-                exons = [x for x in df1 if 'exon' in x]
-
-                if len(exons) > 0:
-                    df1.sort_values(exons, inplace=True)
-                    df2.sort_values(exons, inplace=True)
+                df1.sort_values(df1.columns.tolist(), inplace=True)
+                df2.sort_values(df2.columns.tolist(), inplace=True)
             elif filename.endswith('.bed'):
                 df1 = pd.read_table(filename1, header=None)
                 df2 = pd.read_table(filename2, header=None)
@@ -63,10 +59,10 @@ def assert_directories_equal(dir1, dir2, ignore=None):
                 df1.sort_values([3, 0, 1, 2], kind='mergesort', inplace=True)
                 df2.sort_values([3, 0, 1, 2], kind='mergesort', inplace=True)
 
+            if df1 is not None:
                 df1.index = range(len(df1.index))
                 df2.index = range(len(df2.index))
 
-            if df1 is not None:
                 pdt.assert_frame_equal(df1, df2)
 
             # Otherwise, just use the file sizes
