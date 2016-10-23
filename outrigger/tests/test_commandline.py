@@ -114,18 +114,16 @@ class TestCommandLine(object):
         assert 'outrigger' in out
         assert __version__ in out
 
-
-    def test_main_index(self, tmpdir, capsys, tasic2016_unprocessed):
+    def test_main_index(self, tmpdir, capsys, tasic2016_unprocessed,
+                         sj_filenames):
         from outrigger.commandline import CommandLine
 
         output_folder = tmpdir.strpath
 
-        sj_out_tab_globber = os.path.join(tasic2016_unprocessed, 'sj_out_tab',
-                                          '*SJ.out.tab')
         gtf = os.path.join(tasic2016_unprocessed, 'gtf',
                            'gencode.vM10.annotation.subset.gtf')
         arguments = ['index', '--sj-out-tab']
-        arguments.extend(glob.iglob(sj_out_tab_globber))
+        arguments.extend(sj_filenames)
         arguments.extend(['--gtf', gtf, '--output', output_folder, '--debug'])
         # import pdb; pdb.set_trace()
         # assert False
@@ -161,18 +159,15 @@ class TestCommandLine(object):
         assert_directories_equal(dir1, dir2, ignore=['.DS_Store'])
 
     def test_main_psi(self, tmpdir, tasic2016_unprocessed,
-                      tasic2016_outrigger_output):
+                      tasic2016_outrigger_output, sj_filenames):
         from outrigger.commandline import CommandLine
 
         output_folder = tmpdir.strpath
 
-        sj_out_tab_globber = os.path.join(tasic2016_unprocessed, 'sj_out_tab',
-                                          '*SJ.out.tab')
-
         gtf = os.path.join(tasic2016_unprocessed, 'gtf',
                            'gencode.vM10.annotation.subset.gtf')
         arguments = ['index', '--sj-out-tab']
-        arguments.extend(glob.iglob(sj_out_tab_globber))
+        arguments.extend(sj_filenames)
         arguments.extend(['--gtf', gtf, '--output', output_folder, '--debug'])
         # import pdb; pdb.set_trace()
         # assert False

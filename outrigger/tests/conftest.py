@@ -119,7 +119,7 @@ def strand(request):
 
 @pytest.fixture
 def sj_filenames(tasic2016_sj_out_tab):
-    globber = os.path.join(tasic2016_sj_out_tab, '*SJ.out.tab')
+    globber = os.path.join(tasic2016_sj_out_tab, 'CAV_LP*SJ.out.tab')
     return glob.glob(globber)
 
 
