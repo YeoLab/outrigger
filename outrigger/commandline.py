@@ -371,7 +371,7 @@ class Subcommand(object):
             dirname = os.path.dirname(self.junction_reads_csv)
             if not os.path.exists(dirname):
                 os.makedirs(dirname)
-            util.progress('Writing {} ...\n'.format(self.junction_reads_csv))
+            util.progress('Writing {} ...'.format(self.junction_reads_csv))
             splice_junctions.to_csv(self.junction_reads_csv, index=False)
             util.done()
         else:
@@ -860,6 +860,11 @@ class Psi(Subcommand):
         psis = []
         for splice_name, splice_abbrev in outrigger.common.SPLICE_TYPES:
             filename = self.maybe_get_validated_events(splice_abbrev)
+            if not os.path.exists(filename):
+                util.progress('No {name} ({abbrev}) events found, '
+                              'skipping.'. format(name=splice_name,
+                                                  abbrev=splice_abbrev))
+                continue
             # event_type = os.path.basename(filename).split('.csv')[0]
             util.progress('Reading {name} ({abbrev}) events from {filename}'
                           ' ...'.format(name=splice_name, abbrev=splice_abbrev,

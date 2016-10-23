@@ -512,6 +512,8 @@ outrigger_output
 
 ## For Developers
 
+### How to run with the Python debugger
+
 How to run the code with the Python debugger. To run the command line functions such that when they break, you jump into the `pdb` (Python debugger), here is the code:
 
 ```
@@ -521,3 +523,35 @@ python -m pdb outrigger/commandline.py index \
 ```
 
 Notice that you replace `outrigger` with `python -m pdb outrigger/commandline.py`, which is relative to this github directory.
+
+
+### How to run the tests
+
+If you want to run the tests without calculating what percentage of lines are
+covered in the test suite, run
+
+```
+make test
+```
+
+If you want to run the tests and see which lines are covered by tests and get
+an overall percentage of test coverage, run
+
+```
+make coverage
+```
+
+If you want to run an example with ENSEMBL GTF files, do:
+
+```
+make arabdopsis
+```
+
+By default, Travis-CI does all three:
+
+```
+script:
+- make coverage
+- make lint
+- make arabdopsis
+```

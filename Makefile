@@ -14,7 +14,7 @@ help:
 	@echo "dist - package"
 	@echo "install - install the package to the active Python's site-packages"
 
-clean: clean-build clean-pyc clean-test
+clean: clean-build clean-pyc clean-test clean-output
 
 clean-build:
 	rm -fr build/
@@ -34,13 +34,16 @@ clean-test:
 	rm -f .coverage
 	rm -fr htmlcov/
 
+clean-output:
+	rm -rf *outrigger_output
+
 lint:
 	flake8 --exclude outrigger/external,doc outrigger
 
-test:
+test: clean-pyc
 	py.test outrigger
 
-coverage:
+coverage: clean-pyc
 	coverage run --source outrigger --omit="*/test*" --module py.test
 	coverage report --show-missing
 
@@ -64,9 +67,16 @@ dist: clean
 install: clean
 	python setup.py install
 
-treutlein2014:
+treutlein2014: clean-output
 	rm -rf treutlein2014
 	outrigger index \
 		-j outrigger/tests/data/io/star/treutlein2014/sj_out_tab/* \
 		-g outrigger/tests/data/io/gtf/treutlein2014/gencode.vM2.annotation.fgfr2.gtf \
 		-o treutlein2014
+
+arabdopsis: clean-output
+	outrigger index \
+		--sj-out-tab outrigger/tests/data/arabdopsis/unprocessed/rna.chr4.subset.SJ.out.tab \
+		--gtf outrigger/tests/data/arabdopsis/unprocessed/Arabidopsis_thaliana.TAIR10.31.chr4.subset.gtf \
+		--min-reads 1
+	outrigger psi

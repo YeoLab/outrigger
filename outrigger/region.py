@@ -32,6 +32,7 @@ class Region(object):
                 raise ValueError('Start ({0}) cannot be larger than stop'
                                  ' ({1})'.format(start, stop))
         self.region = region
+
         self.chrom = chrom
 
         self.start = start
