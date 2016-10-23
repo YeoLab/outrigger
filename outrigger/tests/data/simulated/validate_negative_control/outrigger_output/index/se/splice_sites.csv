@@ -1,3 +1,3 @@
-,exon1-exon3_splice_site,exon1-exon2_splice_site,exon2-exon3_splice_site
-isoform1=junction:simulated:150-500:+|isoform2=junction:simulated:150-300:+@exon:simulated:300-400:+@junction:simulated:400-500:+,TG/GC,TG/AA,AT/GC
-isoform1=junction:simulated:100-600:-|isoform2=junction:simulated:300-600:-@exon:simulated:300-400:-@junction:simulated:100-400:-,GC/CA,GC/AT,TT/CA
+,exon1-exon2_splice_site,exon2-exon3_splice_site,exon1-exon3_splice_site
+isoform1=junction:simulated:150-500:+|isoform2=junction:simulated:150-300:+@exon:simulated:300-400:+@junction:simulated:400-500:+,TG/AA,AT/GC,TG/GC
+isoform1=junction:simulated:100-600:-|isoform2=junction:simulated:300-600:-@exon:simulated:300-400:-@junction:simulated:100-400:-,GC/AT,TT/CA,GC/CA
