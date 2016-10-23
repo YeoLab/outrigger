@@ -1,4 +1,4 @@
-v0.2.7 (...)
+v0.2.7 (October 23rd, 2016)
 ------------
 
 
@@ -21,7 +21,7 @@ Bug fixes
 ~~~~~~~~~
 
 - Support ENSEMBL gtf files which specify chromsome names with a number, e.g.
-``4`` instead of ``chr4``. Thank you to _lcscs12345 for pointing this out!
+``4`` instead of ``chr4``. Thank you to lcscs12345_ for pointing this out!
 
 Miscellaneous
 ~~~~~~~~~~~~~
@@ -31,4 +31,4 @@ Miscellaneous
   databases.
 
 
-.. lcscs12345_: https://github.com/lcscs12345
+.. _lcscs12345: https://github.com/lcscs12345
