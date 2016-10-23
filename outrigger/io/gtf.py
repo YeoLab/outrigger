@@ -17,6 +17,14 @@ from ..region import Region
 
 gene_transcript = set(('gene', 'transcript'))
 
+def maybe_analyze(db):
+    try:
+        # For gffutils >0.8.7.1
+        db.analyze()
+    except AttributeError:
+        # For compatability with gffutils<=0.8.7.1
+        db.execute('ANALYZE features')
+
 
 def transform(f):
     if f.featuretype in gene_transcript:
@@ -48,7 +56,7 @@ def create_db(gtf_filename, db_filename=None):
         disable_infer_genes=True,
         disable_infer_transcripts=True,
         force_merge_fields=['source'])
-    db.analyze()
+    maybe_analyze(db)
     return db
 
 
