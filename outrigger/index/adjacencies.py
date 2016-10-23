@@ -9,7 +9,7 @@ from gffutils.helpers import merge_attributes
 import joblib
 
 from ..common import JUNCTION_ID, EXON_START, EXON_STOP, CHROM, STRAND
-from ..io.gtf import transform
+from ..io.gtf import transform, maybe_analyze
 from ..region import Region, STRANDS
 from ..util import done, progress
 
@@ -228,6 +228,10 @@ class ExonJunctionAdjacencies(object):
                 progress('\tNo novel exons found on chromosome '
                          '{chrom}'.format(chrom=chrom))
             done(n_tabs=4)
+
+        # For up to 1000x faster queries, re-Analyze the database now that it
+        # has been updated
+        maybe_analyze(self.db)
 
     def exon_location_to_feature(self, chrom, start, stop, strand):
         if strand not in STRANDS:

@@ -48,9 +48,10 @@ and Python 3.5 are supported.
 
 ::
 
-    conda create -n outrigger-env pandas pybedtools gffutils biopython bedtools
+    conda create -n outrigger-env pandas pybedtools gffutils biopython bedtools joblib
 
-Now activate that environment and install ``outrigger`` from PyPI:
+Now activate that environment using ``source activate outrigger-env``
+and install ``outrigger`` from PyPI, using ``pip``:
 
 ::
 

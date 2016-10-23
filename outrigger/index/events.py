@@ -73,8 +73,10 @@ class EventMaker(object):
                 tr.store(getattr(V(exon_i), row.direction)(junction_i))
                 tr.store(getattr(V(junction_i),
                                  opposite(row.direction))(exon_i))
+
         # To speed up queries
-        self.graph.analyze()
+        self.graph.db.execute("ANALYZE upstream")
+        self.graph.db.execute("ANALYZE downstream")
 
     @property
     def exon_progress_interval(self):
