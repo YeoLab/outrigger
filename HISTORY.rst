@@ -4,8 +4,7 @@ History
 =======
 
 v0.2.7 (October 23rd, 2016)
-------------
-
+---------------------------
 
 New features
 ~~~~~~~~~~~~
@@ -13,7 +12,7 @@ New features
 - Added ``outrigger validate`` command to check for canonical splice sites
   by default: ``GT/AG`` (U1, major spliceosome) and ``AT/AC``
   (U12, minor spliceosome). Both of these are user-adjustable as they are only
-   the standard for mammalian genomes.
+  the standard for mammalian genomes.
 
 API changes
 ~~~~~~~~~~~
