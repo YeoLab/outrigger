@@ -21,7 +21,7 @@ git push origin v0.2.1
 ```
 git push origin :refs/tags/v0.2.1
 git tag -fa v0.2.1
-git push origin master --tags
+git push --tags
 ```
 
 
