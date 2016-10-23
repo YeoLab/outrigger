@@ -34,7 +34,7 @@ def transform(f):
 def create_db(gtf_filename, db_filename=None):
     db_filename = ':memory:' if db_filename is None else db_filename
 
-    return gffutils.create_db(
+    db = gffutils.create_db(
         gtf_filename,
         db_filename,
         merge_strategy='merge',
@@ -48,6 +48,8 @@ def create_db(gtf_filename, db_filename=None):
         disable_infer_genes=True,
         disable_infer_transcripts=True,
         force_merge_fields=['source'])
+    db.analyze()
+    return db
 
 
 class SplicingAnnotator(object):
