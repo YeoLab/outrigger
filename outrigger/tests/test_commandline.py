@@ -84,8 +84,9 @@ class TestCommandLine(object):
 
         text = '[-h] [--version] {index,validate,psi} ...'
         out, err = capsys.readouterr()
-        assert 'usage' in out
-        assert text in out
+        outerr = out + err
+        assert 'usage' in outerr
+        assert text in outerr
 
     def test_help(self, capsys):
         """
