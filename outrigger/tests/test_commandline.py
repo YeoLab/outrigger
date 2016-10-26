@@ -155,7 +155,7 @@ class TestCommandLine(object):
 
         dir1 = tmpdir.strpath
         dir2 = negative_control_output
-        assert_directories_equal(dir1, dir2, ignore=['.DS_Store'])
+        assert_directories_equal(dir1, dir2, ignore=['.DS_Store', 'junctions'])
 
     def test_main_psi(self, tmpdir, tasic2016_unprocessed,
                       tasic2016_outrigger_output, sj_filenames):
