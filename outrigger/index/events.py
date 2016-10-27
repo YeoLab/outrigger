@@ -2,14 +2,12 @@ import itertools
 import logging
 
 import graphlite
-import joblib
 import numpy as np
 import pandas as pd
 from graphlite import V
 
 from ..common import STRAND, ISOFORM_ORDER, ISOFORM_COMPONENTS, \
-    EVENT_ID_COLUMN, ILLEGAL_JUNCTIONS, SPLICE_ABBREVS, SPLICE_TYPE_ALL_EXONS, \
-    SPLICE_TYPE_ALL_JUNCTIONS, JUNCTION_ID
+    EVENT_ID_COLUMN, ILLEGAL_JUNCTIONS
 from outrigger.region import Region
 from .adjacencies import UPSTREAM, DOWNSTREAM, DIRECTIONS
 from ..util import progress
@@ -27,16 +25,11 @@ def stringify_location(chrom, start, stop, strand, region=None):
 def opposite(direction):
     return UPSTREAM if direction == DOWNSTREAM else DOWNSTREAM
 
-class SpliceSubGraph(object):
-
-    def __init__(self):
-        pass
-
 
 class EventMaker(object):
 
-    def __init__(self, junction_exon_triples, metadata, db=None,
-                 junction_col='junction', exon_col='exon'):
+    def __init__(self, junction_exon_triples, db=None, junction_col='junction',
+                 exon_col='exon'):
         """Combine splice junctions into splicing events
 
         Parameters
@@ -52,25 +45,17 @@ class EventMaker(object):
             information about the transcript (AFE, ALE) cannot be annotated.
         """
         self.log = logging.getLogger('EventMaker')
-
-        self.metadata = metadata.set_index(JUNCTION_ID)
-
         self.junction_exon_triples = junction_exon_triples
-        self.junction_exon_triples = self.junction_exon_triples.join(
-            self.metadata, on=junction_col)
         self.db = db
 
-    def _make_graph(self, junction_exon_triples):
-
-        graph = graphlite.connect(":memory:", graphs=DIRECTIONS)
-        exons = tuple(junction_exon_triples[exon_col].unique())
+        self.graph = graphlite.connect(":memory:", graphs=DIRECTIONS)
+        self.exons = tuple(junction_exon_triples[exon_col].unique())
         self.n_exons = len(self.exons)
         self.junctions = tuple(junction_exon_triples[junction_col].unique())
 
         self.items = tuple(np.concatenate([self.exons, self.junctions]))
         self.item_to_region = pd.Series(map(Region, self.items),
                                         index=self.items)
-        import pdb; pdb.set_trace()
 
         with self.graph.transaction() as tr:
             for i, row in self.junction_exon_triples.iterrows():
@@ -258,43 +243,25 @@ class EventMaker(object):
             V(exon_a).upstream) \
             .intersection(V(exon_b).downstream)
 
-    def find_events(self, n_jobs=-1):
-        """Iterate over all exons and test if they could be part of an alternative event"""
-        events = dict.fromkeys(SPLICE_ABBREVS)
-        events_dfs = dict.fromkeys(SPLICE_ABBREVS)
+    def find_events(self, event_type='SE'):
+        events = {}
 
         progress('Trying out {0} exons ...'.format(self.n_exons))
 
-        # for i, exon1_name in enumerate(self.exons):
-        #     self._maybe_print_exon_progress(i)
-        event_updates = joblib.Parallel(n_jobs=n_jobs)(
-            joblib.delayed(self.get_alternative_events)(i, exon1_name)
-            for i, exon1_name in enumerate(self.exons))
-        for event_type, event_subset in events.items():
-            exons = SPLICE_TYPE_ALL_EXONS(event_type)
-            junctions = SPLICE_TYPE_ALL_JUNCTIONS(event_type)
-            events_df = self.event_dict_to_df(events, exon_names=exons,
-                                              junction_names=junctions)
-            events_df = self.add_event_id_col(events_df, event_type)
-            events_df = self.add_illegal_junctions(events_df, event_type)
-            events_dfs[event_type] = events_df
-        return events_dfs
-
-    def get_alternative_events(self, exon1_i, exon1_name):
-        events = {}
-        for event_type, event_finder in self.event_finders:
-            events[event_type].update(event_finder(exon1_i, exon1_name))
+        events = self.event_dict_to_df(events,
+                               exon_names=['exon1', 'exon2', 'exon3',
+                                           'exon4'],
+                               junction_names=['junction13',
+                                               'junction34',
+                                               'junction12',
+                                               'junction24'])
+        events = self.add_event_id_col(events, event_type)
+        events = self.add_illegal_junctions(events, event_type)
         return events
-
-    @property
-    def event_finders(self):
-        finders = (('se', self._skipped_exon),
-                   ('mxe', self._mutually_exclusive_exon))
-        return finders
 
     def _skipped_exon(self, exon1_i, exon1_name):
 
-        events = {}
+        self._maybe_print_exon_progress(exon1_i)
 
         exon23s = list(self.exons_one_junction_downstream(exon1_i))
         exon23s = self.item_to_region[[self.items[i] for i in exon23s]]
@@ -325,65 +292,80 @@ class EventMaker(object):
                     junctions = [self.items[i] for i in junctions_i]
                     exons = exon1_name, exon2.name, exon3.name
 
-                    events[exons] = junctions
-        return events
+                    event = pd.Series(junctions, name=exons)
+        return pd.Series()
 
-    def _mutually_exclusive_exon(self, exon1_i, exon1_name):
+    def mutually_exclusive_exon(self):
         events = {}
 
-        exon23s_from1 = self.exons_one_junction_downstream(exon1_i)
-        exon4s = self.exons_two_junctions_downstream(exon1_i)
-        exon23s_from4 = self.exons_one_junction_upstream(exon4s)
+        progress('Trying out {0} exons ...'.format(self.n_exons))
+        for i, exon1_name in enumerate(self.exons):
+            self._maybe_print_exon_progress(i)
 
-        exon23s = set(exon23s_from4) & set(exon23s_from1)
-        exon23s = [self.items[i] for i in exon23s]
+            exon1_i = self.items.index(exon1_name)
 
-        exon23s = self.item_to_region[exon23s]
+            exon23s_from1 = self.exons_one_junction_downstream(exon1_i)
+            exon4s = self.exons_two_junctions_downstream(exon1_i)
+            exon23s_from4 = self.exons_one_junction_upstream(exon4s)
 
-        for exon_a, exon_b in itertools.combinations(exon23s, 2):
-            if not exon_a.overlaps(exon_b):
-                exon2 = min((exon_a, exon_b), key=lambda x: x._start)
-                exon3 = max((exon_a, exon_b), key=lambda x: x._start)
+            exon23s = set(exon23s_from4) & set(exon23s_from1)
+            exon23s = [self.items[i] for i in exon23s]
 
-                exon2_i = self.items.index(exon2.name)
-                exon3_i = self.items.index(exon3.name)
+            exon23s = self.item_to_region[exon23s]
 
-                exon4_from2 = set(
-                    self.exons_one_junction_downstream(exon2_i))
-                exon4_from3 = set(
-                    self.exons_one_junction_downstream(exon3_i))
+            for exon_a, exon_b in itertools.combinations(exon23s, 2):
+                if not exon_a.overlaps(exon_b):
+                    exon2 = min((exon_a, exon_b), key=lambda x: x._start)
+                    exon3 = max((exon_a, exon_b), key=lambda x: x._start)
 
-                exon4_is = exon4_from2 & exon4_from3
-                try:
-                    for exon4_i in exon4_is:
-                        exon4_name = self.items[exon4_i]
-                        # Isoform 1 - corresponds to Psi=0. Inclusion of
-                        # exon3
-                        exon13_junction = self.junctions_between_exons(
-                            exon1_i, exon3_i)
+                    exon2_i = self.items.index(exon2.name)
+                    exon3_i = self.items.index(exon3.name)
 
-                        exon34_junction = self.junctions_between_exons(
-                            exon3_i, exon4_i)
+                    exon4_from2 = set(
+                        self.exons_one_junction_downstream(exon2_i))
+                    exon4_from3 = set(
+                        self.exons_one_junction_downstream(exon3_i))
 
-                        # Isoform 2 - corresponds to Psi=1. Inclusion of
-                        # exon2
-                        exon12_junction = self.junctions_between_exons(
-                            exon1_i, exon2_i)
-                        exon24_junction = self.junctions_between_exons(
-                            exon2_i, exon4_i)
+                    exon4_is = exon4_from2 & exon4_from3
+                    try:
+                        for exon4_i in exon4_is:
+                            exon4_name = self.items[exon4_i]
+                            # Isoform 1 - corresponds to Psi=0. Inclusion of
+                            # exon3
+                            exon13_junction = self.junctions_between_exons(
+                                exon1_i, exon3_i)
 
-                        exon_tuple = exon1_name, exon2.name, exon3.name, \
-                            exon4_name
-                        #             print exon12_junction.next()
-                        junctions_i = list(
-                            itertools.chain(*[exon13_junction,
-                                              exon34_junction,
-                                              exon12_junction,
-                                              exon24_junction]))
-                        junctions = [self.items[i] for i in junctions_i]
+                            exon34_junction = self.junctions_between_exons(
+                                exon3_i, exon4_i)
 
-                        events[exon_tuple] = junctions
-                except KeyError:
-                    pass
+                            # Isoform 2 - corresponds to Psi=1. Inclusion of
+                            # exon2
+                            exon12_junction = self.junctions_between_exons(
+                                exon1_i, exon2_i)
+                            exon24_junction = self.junctions_between_exons(
+                                exon2_i, exon4_i)
 
+                            exon_tuple = exon1_name, exon2.name, exon3.name, \
+                                exon4_name
+                            #             print exon12_junction.next()
+                            junctions_i = list(
+                                itertools.chain(*[exon13_junction,
+                                                  exon34_junction,
+                                                  exon12_junction,
+                                                  exon24_junction]))
+                            junctions = [self.items[i] for i in junctions_i]
+
+                            events[exon_tuple] = junctions
+                    except KeyError:
+                        pass
+        events = self.event_dict_to_df(events,
+                                       exon_names=['exon1', 'exon2', 'exon3',
+                                                   'exon4'],
+                                       junction_names=['junction13',
+                                                       'junction34',
+                                                       'junction12',
+                                                       'junction24'])
+        if not events.empty:
+            events = self.add_event_id_col(events, 'mxe')
+            events = self.add_illegal_junctions(events, 'mxe')
         return events
