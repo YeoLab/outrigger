@@ -51,21 +51,23 @@ class CommandLine(object):
             '-o', '--output', required=False, type=str, action='store',
             default=OUTPUT,
             help='Name of the folder where you saved the output from '
-                 '"outrigger index" (default is ./outrigger_output, which is '
+                 '"outrigger index" (default is {}, which is '
                  'relative to the directory where you called the program)". '
                  'You will need this file for the next step, "outrigger psi"'
-                 ' (default="./outrigger_output")')
+                 ''.format(OUTPUT))
 
-        junctions = index_parser.add_mutually_exclusive_group(required=True)
-        junctions.add_argument(
+        index_junctions = index_parser.add_mutually_exclusive_group(
+            required=True)
+        index_junctions.add_argument(
             '-j', '--sj-out-tab', type=str, action='store',
-            nargs='*', help='SJ.out.tab files from STAR aligner output')
-        junctions.add_argument(
-            '-c', '--junction-reads-csv', required=False,
-            help="Name of the splice junction files to calculate psi scores "
-                 "on. If not provided, the compiled '{sj_csv}' file with all "
-                 "the samples from the SJ.out.tab files that were used during "
-                 "'outrigger index' will be used. Not required if you specify "
+            nargs='*', help='SJ.out.tab files from STAR aligner output. Not '
+                            'required if you specify '
+                            '"--compiled-junction-reads"')
+        index_junctions.add_argument(
+            '-c', '--compiled-junction-reads', required=False,
+            help="Name of the splice junction files to detect novel exons and "
+                 "build an index of alternative splicing events from. "
+                 "Not required if you specify "
                  "SJ.out.tab file with '--sj-out-tab'".format(
                         sj_csv=JUNCTION_READS_PATH))
         index_parser.add_argument('-m', '--min-reads', type=int,
@@ -161,7 +163,7 @@ class CommandLine(object):
                                           'ask for genome positions that are '
                                           'outside of the defined range')
         validate_parser.add_argument('-i', '--index', required=False,
-                                     default=INDEX,
+                                     default=None,
                                      help='Name of the folder where you saved '
                                           'the output from "outrigger index" '
                                           '(default is {}, which is relative '
@@ -169,7 +171,15 @@ class CommandLine(object):
                                           'this program, assuming you have '
                                           'called "outrigger psi" in the same '
                                           'folder as you called "outrigger '
-                                          'index")'.format(INDEX))
+                                          'index").'.format(INDEX))
+        validate_parser.add_argument(
+            '-o', '--output', required=False, type=str, action='store',
+            default=None,
+            help='Name of the folder where you saved the output from '
+                 '"outrigger index" (default is {}, which is '
+                 'relative to the directory where you called the program). '
+                 ''.format(OUTPUT))
+
         validate_parser.add_argument(
             '-s', '--valid-splice-sites', required=False,
             default=check_splice_sites.MAMMALIAN_SPLICE_SITES,
@@ -190,31 +200,37 @@ class CommandLine(object):
             'psi', help='Calculate "percent spliced-in" (Psi) values using '
                         'the splicing event index built with "outrigger '
                         'index"')
-        psi_parser.add_argument('-i', '--index', required=False,
-                                default=INDEX,
-                                help='Name of the folder where you saved the '
-                                     'output from "outrigger index" (default '
-                                     'is {}, which is relative '
-                                     'to the directory where you called this '
-                                     'program, assuming you have called '
-                                     '"outrigger psi" in the same folder as '
-                                     'you called "outrigger '
-                                     'index")'.format(INDEX))
-        splice_junctions = psi_parser.add_mutually_exclusive_group(
+        psi_outputs = psi_parser.add_mutually_exclusive_group(required=False)
+        psi_outputs.add_argument('-i', '--index', required=False, default=None,
+                                 help='Name of the folder where you saved the '
+                                      'output from "outrigger index" (default '
+                                      'is {}, which is relative '
+                                      'to the directory where you called this '
+                                      'program, assuming you have called '
+                                      '"outrigger psi" in the same folder as '
+                                      'you called "outrigger '
+                                      'index")'.format(INDEX))
+        psi_outputs.add_argument(
+            '-o', '--output', required=False, type=str, action='store',
+            default=None,
+            help='Name of the folder where you saved the output from '
+                 '"outrigger index" (default is {}, which is '
+                 'relative to the directory where you called the program). '
+                 'Cannot specify both an --index and --output with "psi"'
+                 ''.format(OUTPUT))
+        psi_junctions = psi_parser.add_mutually_exclusive_group(
             required=False)
-        splice_junctions.add_argument(
-            '-c', '--junction-reads-csv', required=False,
-            help="Name of the splice junction files to calculate psi scores "
-                 "on. If not provided, the compiled '{sj_csv}' file with all "
-                 "the samples from the SJ.out.tab files that were used during "
-                 "'outrigger index' will be used. Not required if you specify "
-                 "SJ.out.tab file with '--sj-out-tab'".format(
-                        sj_csv=JUNCTION_READS_PATH))
-        splice_junctions.add_argument(
+        psi_junctions.add_argument(
+            '-c', '--compiled-junction-reads', required=False,
+            help="Name of the compiled splice junction file to calculate psi "
+                 "scores on. Default is the '--output' folder's "
+                 "junctions/reads.csv file. Not required if you specify "
+                 "SJ.out.tab files with '--sj-out-tab'")
+        psi_junctions.add_argument(
             '-j', '--sj-out-tab', required=False,
             type=str, action='store', nargs='*',
             help='SJ.out.tab files from STAR aligner output. Not required if '
-                 'you specify a file with "--junction-reads-csv"')
+                 'you specify a file with "--compiled-junction-reads"')
         psi_parser.add_argument('-m', '--min-reads', type=int, action='store',
                                 required=False, default=10,
                                 help='Minimum number of reads per junction for'
@@ -307,9 +323,8 @@ class Usage(Exception):
 
 class Subcommand(object):
 
-    output_folder = OUTPUT
+    # output_folder = OUTPUT
     sj_out_tab = None
-    junction_reads_csv = JUNCTION_READS_PATH
     ignore_multimapping = False
     min_reads = common.MIN_READS
     reads_col = common.READS
@@ -325,27 +340,26 @@ class Subcommand(object):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-        sys.stdout.write('self.junction_reads_csv: {}\n'.format(
-            self.junction_reads_csv))
-
-        # Since you can specify either junction reads csv or sj out tab,
-        # the other one might get overwritten as None
-        if self.junction_reads_csv is None:
-            self.junction_reads_csv = JUNCTION_READS_PATH
-
         for folder in self.folders:
             self.maybe_make_folder(folder)
 
     def maybe_make_folder(self, folder):
         util.progress("Creating folder {} ...".format(folder))
         if not os.path.exists(folder):
-            os.mkdir(folder)
+            os.makedirs(folder)
         util.done()
 
     @property
     def folders(self):
         return self.output_folder, self.index_folder, self.gtf_folder, \
                self.junctions_folder
+
+    @property
+    def output_folder(self):
+        if not hasattr(self, 'output') or self.output is None:
+            return OUTPUT
+        else:
+            return self.output
 
     @property
     def index_folder(self):
@@ -359,25 +373,32 @@ class Subcommand(object):
     def junctions_folder(self):
         return os.path.join(self.output_folder, 'junctions')
 
+    @property
+    def junction_reads(self):
+        if self.compiled_junction_reads is not None:
+            return self.compiled_junction_reads
+        else:
+            return os.path.join(self.junctions_folder, 'reads.csv')
+
     def csv(self):
         """Create a csv file of compiled splice junctions"""
-        if not os.path.exists(self.junction_reads_csv):
+        if not os.path.exists(self.junction_reads):
             util.progress(
                 'Reading SJ.out.files and creating a big splice junction'
                 ' table of reads spanning exon-exon junctions...')
             splice_junctions = star.read_multiple_sj_out_tab(
                 self.sj_out_tab, ignore_multimapping=self.ignore_multimapping)
 
-            dirname = os.path.dirname(self.junction_reads_csv)
+            dirname = os.path.dirname(self.junction_reads)
             if not os.path.exists(dirname):
                 os.makedirs(dirname)
-            util.progress('Writing {} ...'.format(self.junction_reads_csv))
-            splice_junctions.to_csv(self.junction_reads_csv, index=False)
+            util.progress('Writing {} ...\n'.format(self.junction_reads))
+            splice_junctions.to_csv(self.junction_reads, index=False)
             util.done()
         else:
             util.progress('Found compiled junction reads file in {} and '
-                          'reading it in ...'.format(self.junction_reads_csv))
-            splice_junctions = pd.read_csv(self.junction_reads_csv)
+                          'reading it in ...'.format(self.junction_reads))
+            splice_junctions = pd.read_csv(self.junction_reads)
             util.done()
         return splice_junctions
 
@@ -505,10 +526,14 @@ class Index(Subcommand):
             exon_junction_adjacencies.detect_exons_from_junctions()
             util.done()
 
-            util.progress('Writing novel exons to {} ...'.format(
-                novel_exons_gtf))
-            exon_junction_adjacencies.write_de_novo_exons(novel_exons_gtf)
-            util.done()
+        novel_exons_gtf = os.path.join(self.gtf_folder, 'novel_exons.gtf')
+        novel_exons = exon_junction_adjacencies.db.features_of_type(
+            adjacencies.NOVEL_EXON)
+        n_novel_exons = sum(1 for _ in novel_exons)
+        util.progress('Writing {n} novel exons to {gtf} ...'.format(
+            n=n_novel_exons, gtf=novel_exons_gtf))
+        exon_junction_adjacencies.write_de_novo_exons(novel_exons_gtf)
+        util.done()
 
         csv = os.path.join(self.index_folder,
                            'junction_exon_direction_triples.csv')
@@ -611,7 +636,7 @@ class Index(Subcommand):
                            os.path.basename(self.gtf_filename))
         util.progress('Write new GTF to {} ...'.format(gtf))
         with open(gtf, 'w') as f:
-            for feature in db.all_features():
+            for feature in db.all_features(order_by=common.ORDER_BY):
                 f.write(str(feature) + '\n')
         util.done()
 
@@ -643,7 +668,24 @@ class Index(Subcommand):
         self.write_new_gtf(db)
 
 
-class Validate(Subcommand):
+class SubcommandAfterIndex(Subcommand):
+    """Can use different index folder than outrigger_output/index"""
+
+    @property
+    def input_index(self):
+        """Where to read the index from"""
+        if self.index is not None:
+            return self.index
+        else:
+            return os.path.join(self.output_folder, 'index')
+
+    @property
+    def folders(self):
+        return self.output_folder, self.input_index, self.index_folder,\
+               self.gtf_folder, self.junctions_folder
+
+
+class Validate(SubcommandAfterIndex):
 
     def exon_pair_splice_sites(self, exonA, exonB, splice_abbrev):
         name = '{exonA}-{exonB}_splice_site'.format(
@@ -660,7 +702,7 @@ class Validate(Subcommand):
         return intron_splice_site
 
     def individual_exon_splice_sites(self, exon, splice_abbrev, direction):
-        exon_bed = os.path.join(self.index_folder, splice_abbrev,
+        exon_bed = os.path.join(self.input_index, splice_abbrev,
                                 '{}.bed'.format(exon))
         splice_sites = check_splice_sites.read_splice_sites(
             exon_bed, self.genome, self.fasta, direction)
@@ -722,7 +764,7 @@ class Validate(Subcommand):
                                     splice_name=splice_name_spaces,
                                     splice_abbrev=splice_abbrev.upper()))
 
-            original_events_csv = os.path.join(self.index_folder,
+            original_events_csv = os.path.join(self.input_index,
                                                splice_abbrev, EVENTS_CSV)
             validated_events_csv = os.path.join(validated_folder, EVENTS_CSV)
             util.progress('\tWriting validated events to {csv} ...'.format(
@@ -739,10 +781,9 @@ class Validate(Subcommand):
             util.done(3)
 
 
-class Psi(Subcommand):
+class Psi(SubcommandAfterIndex):
 
     # Instantiate empty variables here so PyCharm doesn't get mad at me
-    index = INDEX
     reads_col = None
     sample_id_col = None
     junction_id_col = None
@@ -751,53 +792,13 @@ class Psi(Subcommand):
                      '--sample-id-col': sample_id_col,
                      '--junction-id-col': junction_id_col}
 
-    def __init__(self, **kwargs):
-        # Read all arguments and set as attributes of this class
-        for key, value in kwargs.items():
-            setattr(self, key, value)
-
-        # If no junction reads csv was specified, use the default one in
-        # The outrigger output folder
-        if self.junction_reads_csv is None:
-            self.junction_reads_csv = JUNCTION_READS_PATH
-
-        if not os.path.exists(self.index_folder):
-            raise OSError("The index folder ({}) doesn't exist! Cowardly "
-                          "exiting because I don't know what events to "
-                          "calcaulate psi on :(".format(self.index_folder))
-
-        for splice_name, splice_folder in self.splice_type_folders.items():
-            if not os.path.exists(splice_folder):
-                raise OSError(
-                    "The splicing index of {} ({}) splice types "
-                    "doesn't exist! Cowardly existing because I "
-                    "don't know how to define events :(".format(
-                        splice_name, splice_folder))
-
-        if not os.path.exists(self.junction_reads_csv):
-            raise OSError(
-                "The junction reads csv file ({}) doesn't exist! "
-                "Cowardly exiting because I don't have the junction "
-                "counts calcaulate psi on :(".format(
-                    self.junction_reads_csv))
-
-        for folder in self.folders:
-            self.maybe_make_folder(folder)
-
     @property
     def psi_folder(self):
         return os.path.join(self.output_folder, 'psi')
 
     @property
-    def index_folder(self):
-        if not hasattr(self, 'index'):
-            return os.path.join(self.output_folder, 'index')
-        else:
-            return self.index
-
-    @property
     def splice_type_folders(self):
-        return dict((splice_name, os.path.join(self.index_folder,
+        return dict((splice_name, os.path.join(self.input_index,
                                                splice_abbrev))
                     for splice_name, splice_abbrev in
                     outrigger.common.SPLICE_TYPES)
@@ -806,22 +807,48 @@ class Psi(Subcommand):
     def folders(self):
         return self.output_folder, self.psi_folder
 
+    def __init__(self, **kwargs):
+        # Read all arguments and set as attributes of this class
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+
+        if not os.path.exists(self.input_index):
+            raise OSError("The index folder ({}) doesn't exist! Cowardly "
+                          "exiting because I don't know what events to "
+                          "calcaulate psi on :(".format(self.input_index))
+
+        for splice_name, splice_folder in self.splice_type_folders.items():
+            if not os.path.exists(splice_folder):
+                raise OSError(
+                    "The splicing index of {} ({}) splice types "
+                    "doesn't exist! Cowardly exiting because I "
+                    "don't know how to define events :(".format(
+                        splice_name, splice_folder))
+
+        if not os.path.exists(self.junction_reads):
+            raise OSError(
+                "The junction reads csv file ({}) doesn't exist! "
+                "Cowardly exiting because I don't have the junction "
+                "counts calcaulate psi on :(".format(
+                    self.junction_reads))
+
+        for folder in self.folders:
+            self.maybe_make_folder(folder)
+
     def maybe_read_junction_reads(self):
         try:
             dtype = {self.reads_col: np.float32}
-            if self.junction_reads_csv is None:
-                self.junction_reads_csv = JUNCTION_READS_PATH
             util.progress(
                 'Reading splice junction reads from {} ...'.format(
-                    self.junction_reads_csv))
+                    self.junction_reads))
             junction_reads = pd.read_csv(
-                self.junction_reads_csv, dtype=dtype)
+                self.junction_reads, dtype=dtype)
             util.done()
         except OSError:
             raise IOError(
                 "There is no junction reads file at the expected location"
                 " ({csv}). Are you in the correct directory?".format(
-                    csv=self.junction_reads_csv))
+                    csv=self.junction_reads))
         return junction_reads
 
     def validate_junction_reads_data(self, junction_reads):
@@ -830,11 +857,11 @@ class Psi(Subcommand):
                 raise ValueError(
                     "The required column name {col} does not exist in {csv}. "
                     "You can change this with the command line flag, "
-                    "{flag}".format(col=col, csv=self.junction_reads_csv,
+                    "{flag}".format(col=col, csv=self.junction_reads,
                                     flag=flag))
 
     def maybe_get_validated_events(self, splice_abbrev):
-        splice_folder = os.path.join(self.index_folder, splice_abbrev)
+        splice_folder = os.path.join(self.input_index, splice_abbrev)
         events = os.path.join(splice_folder, EVENTS_CSV)
         validated_events = os.path.join(splice_folder, 'validated', EVENTS_CSV)
         if os.path.exists(validated_events):

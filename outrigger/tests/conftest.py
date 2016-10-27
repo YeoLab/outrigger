@@ -80,6 +80,11 @@ def negative_control_folder(data_folder):
 
 
 @pytest.fixture
+def negative_control_output(negative_control_folder):
+    return os.path.join(negative_control_folder, 'outrigger_output')
+
+
+@pytest.fixture
 def tasic2016_sj_out_tab(tasic2016_unprocessed):
     return os.path.join(tasic2016_unprocessed, 'sj_out_tab')
 
@@ -121,7 +126,7 @@ def strand(request):
 
 @pytest.fixture
 def sj_filenames(tasic2016_sj_out_tab):
-    globber = os.path.join(tasic2016_sj_out_tab, '*SJ.out.tab')
+    globber = os.path.join(tasic2016_sj_out_tab, 'CAV_LP*SJ.out.tab')
     return glob.glob(globber)
 
 

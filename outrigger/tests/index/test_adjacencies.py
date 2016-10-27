@@ -98,8 +98,7 @@ class TestExonJunctionAdjacencies(object):
     def test__single_junction_exon_triple(self, adjacencies,
                                           snap25_exon_id,
                                           tasic2016_intermediate,
-                                          adjacent_in_genome_upstream
-                                          ):
+                                          adjacent_in_genome_upstream):
         test = adjacencies._single_junction_exon_triple(
             adjacent_in_genome_upstream, 'downstream', snap25_exon_id)
         test = test.sort_values('junction')

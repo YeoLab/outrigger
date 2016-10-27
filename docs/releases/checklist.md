@@ -57,25 +57,25 @@ $ which outrigger
 
 - [ ] 13. Check that the installation was successful. `outrigger -h` should have the following output:
 
+```
+$ outrigger -h
+usage: outrigger [-h] {index,validate,psi} ...
 
-    $ outrigger -h
-    usage: outrigger [-h] {index,validate,psi} ...
+Calculate "percent-spliced in" (Psi) scores of alternative splicing on a *de
+novo*, custom-built splicing index
 
-    Calculate "percent-spliced in" (Psi) scores of alternative splicing on a *de
-    novo*, custom-built splicing index
+positional arguments:
+  {index,validate,psi}  Sub-commands
+    index               Build an index of splicing events using a graph
+                        database on your junction reads and an annotation
+    validate            Ensure that the splicing events found all have the
+                        correct splice sites
+    psi                 Calculate "percent spliced-in" (Psi) values using the
+                        splicing event index built with "outrigger index"
 
-    positional arguments:
-      {index,validate,psi}  Sub-commands
-        index               Build an index of splicing events using a graph
-                            database on your junction reads and an annotation
-        validate            Ensure that the splicing events found all have the
-                            correct splice sites
-        psi                 Calculate "percent spliced-in" (Psi) values using the
-                            splicing event index built with "outrigger index"
-
-    optional arguments:
-      -h, --help            show this help message and exit
-
+optional arguments:
+  -h, --help            show this help message and exit
+```
 
 - [ ] 14. Upload to PyPI:
 

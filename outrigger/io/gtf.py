@@ -2,7 +2,7 @@
 Functions for creating GTF databases using gffutils and using those databases
 to annotate alternative events.
 """
-
+from collections import Counter
 import itertools
 import os
 
@@ -91,46 +91,62 @@ class SplicingAnnotator(object):
         # Add the lengths of exons, introns, event region, and the genome
         # location ("name") of each intron
         self.lengths = self.regions.applymap(len)
+        self.lengths.columns = [x.replace('_region', '_length')
+                                for x in self.lengths]
+
         intron_names = intron_regions.applymap(lambda x: x.name)
+        intron_names.columns = [x.replace('_region', '_location')
+                                for x in intron_names]
         self.events = pd.concat([self.events, self.lengths, intron_names],
                                 axis=1)
 
     def attributes(self):
         """Retrieve all GTF attributes for each isoform's event"""
 
+        ignore_keys = 'location_id', 'exon_id', 'exon_number'
+
         lines = []
 
         for event_id, row in self.events.iterrows():
+            attributes = pd.Series(name=event_id)
             for isoform, exons in self.isoform_exons.items():
-                attributes = {}
 
-                exon1 = self.db[row[exons[0]]]
-                other_exons = row[exons[1:]]
+                for e in exons:
+                    attributes[e] = row[e]
 
-                for (key, value) in exon1.attributes.items():
-                    # v2 = set.intersection(*[set(self.db[e].attributes[key])
-                    #                            for e in other_exons])
-                    other_values = set([])
-                    for i, e in enumerate(other_exons):
+                n_exons = len(exons)
+
+                exon_ids = row[exons]
+
+                keys = set(itertools.chain(
+                    *[self.db[exon_id].attributes.keys()
+                      for exon_id in exon_ids]))
+
+                for key in keys:
+                    # Skip the location IDs which is specific to the
+                    # outrigger-built database, and the exon ids which will
+                    # never match up across all exons
+                    if key in ignore_keys:
+                        continue
+                    values = Counter()
+
+                    for exon_id in exon_ids:
                         try:
-                            if i == 0:
-                                other_values = set(self.db[e].attributes[key])
-                            else:
-                                other_values.intersection_update(
-                                    self.db[e].attributes[key])
+                            values.update(
+                                self.db[exon_id].attributes[key])
                         except KeyError:
-                            # i -= 1
                             continue
-
-                    intersection = set(value) & other_values
-                    if len(intersection) > 0:
-                        attributes[key] = ','.join(sorted(list(intersection)))
-                attributes = pd.Series(attributes, name=event_id)
-                attributes.index = isoform + '_' + attributes.index
-                lines.append(attributes)
+                    if len(values) > 0:
+                        # Only use attributes that came up in for all exons
+                        # of the isoform
+                        values = [value for value, count in values.items()
+                                  if count == n_exons]
+                        new_key = isoform + '_' + key
+                        attributes[new_key] = ','.join(sorted(values))
+            lines.append(attributes)
         event_attributes = pd.concat(lines, axis=1).T
-        event_attributes = self.events.join(event_attributes)
-        return event_attributes
+        events_with_attributes = pd.concat([self.events, event_attributes])
+        return events_with_attributes
 
     def exon_bedfiles(self, folder):
         for region_col in self.region_cols:
