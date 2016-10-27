@@ -111,8 +111,9 @@ class TestCommandLine(object):
             CommandLine(['--version'])
 
         out, err = capsys.readouterr()
-        assert 'outrigger' in out
-        assert __version__ in out
+        outerr = out + err
+        assert 'outrigger' in outerr
+        assert __version__ in outerr
 
     def test_main_index(self, tmpdir, capsys, tasic2016_unprocessed,
                         sj_filenames):
