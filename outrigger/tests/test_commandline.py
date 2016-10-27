@@ -111,6 +111,9 @@ class TestCommandLine(object):
             CommandLine(['--version'])
 
         out, err = capsys.readouterr()
+
+        # Argparse for Python2 sends the version info to stderr, but Python3
+        # argparse sends the info to stdout so we concatenate here
         outerr = out + err
         assert 'outrigger' in outerr
         assert __version__ in outerr
