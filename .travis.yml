@@ -31,7 +31,7 @@ before_script:
 script:
 - make coverage
 - make lint
-- travis_wait make arabdopsis
+- make arabdopsis
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
