@@ -21,11 +21,11 @@ git push origin v0.2.1
 ```
 git push origin :refs/tags/v0.2.1
 git tag -fa v0.2.1
-git push origin master --tags
+git push --tags
 ```
 
 
-- [ ] 7. Do a test run of uploading to PyPI test:
+- [ ] 7. Do a test run of uploading to PyPI test. This assumes you have set up your PyPI configuration according to [this](http://peterdowns.com/posts/first-time-with-pypi.html).
 ```
 python setup.py register -r pypitest
 python setup.py sdist upload -r pypitest

@@ -74,6 +74,10 @@ class EventMaker(object):
                 tr.store(getattr(V(junction_i),
                                  opposite(row.direction))(exon_i))
 
+        # To speed up queries
+        self.graph.db.execute("ANALYZE upstream")
+        self.graph.db.execute("ANALYZE downstream")
+
     @property
     def exon_progress_interval(self):
         return int(np.ceil(self.n_exons / 100.))
@@ -279,8 +283,9 @@ class EventMaker(object):
         events = self.event_dict_to_df(
             events, exon_names=['exon1', 'exon2', 'exon3'],
             junction_names=['junction12', 'junction23', 'junction13'])
-        events = self.add_event_id_col(events, 'se')
-        events = self.add_illegal_junctions(events, 'se')
+        if not events.empty:
+            events = self.add_event_id_col(events, 'se')
+            events = self.add_illegal_junctions(events, 'se')
         return events
 
     def mutually_exclusive_exon(self):
@@ -353,6 +358,7 @@ class EventMaker(object):
                                                        'junction34',
                                                        'junction12',
                                                        'junction24'])
-        events = self.add_event_id_col(events, 'mxe')
-        events = self.add_illegal_junctions(events, 'mxe')
+        if not events.empty:
+            events = self.add_event_id_col(events, 'mxe')
+            events = self.add_illegal_junctions(events, 'mxe')
         return events
