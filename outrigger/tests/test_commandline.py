@@ -84,6 +84,9 @@ class TestCommandLine(object):
 
         text = '[-h] [--version] {index,validate,psi} ...'
         out, err = capsys.readouterr()
+
+        # Argparse for Python2 sends the version info to stderr, but Python3
+        # argparse sends the info to stdout so we concatenate here
         outerr = out + err
         assert 'usage' in outerr
         assert text in outerr
