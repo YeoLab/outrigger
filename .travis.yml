@@ -34,4 +34,8 @@ script:
 - make arabdopsis
 
 after_success:
-  - bash <(curl -s https://codecov.io/bash)
+  - set -o pipefail
+  - curl -s https://codecov.io/bash | bash
+  - echo $?
+  - set +o pipefail
+#  - bash <(curl -s https://codecov.io/bash)
