@@ -1,3 +1,4 @@
+import itertools
 
 # Column names and constants used across outrigger
 
@@ -42,6 +43,15 @@ ISOFORM_JUNCTIONS = {
     'mxe': {'isoform1_junctions': MXE_ISOFORM1_JUNCTIONS,
             'isoform2_junctions': MXE_ISOFORM2_JUNCTIONS}}
 
+
+SPLICE_ABBREVS = 'se', 'mxe'
+SPLICE_TYPE_ALL_EXONS = {'se': ['exon1', 'exon2', 'exon3'],
+                         'mxe': ['exon1', 'exon2', 'exon3', 'exon4']}
+SPLICE_TYPE_ALL_JUNCTIONS = {'se': ['junction13', 'junction12', 'junction23'],
+                             'mxe': ['junction13',
+                                     'junction34',
+                                     'junction12',
+                                     'junction24']}
 
 # for gffutils to sort output features by something so that output files are
 # comparable
