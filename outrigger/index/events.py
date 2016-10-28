@@ -240,13 +240,15 @@ class EventMaker(object):
             .intersection(V(exon_b).downstream)
 
     def find_events(self, event_types=('SE', 'MXE')):
-        events = {}
+        events = dict.fromkeys(event_types)
 
         progress('Trying out {0} exons ...'.format(self.n_exons))
 
         for i, exon1_name in enumerate(self.exons):
-            self._skipped_exon(i, exon1_name)
-            self._mutually_exclusive_exon(i, exon1_name)
+            for event_type, finder in self.event_finders:
+                if event_type not in event_types:
+                    continue
+                events.update(finder(i, exon1_name))
 
         events = self.event_dict_to_df(events,
                                exon_names=['exon1', 'exon2', 'exon3',
@@ -259,7 +261,15 @@ class EventMaker(object):
         events = self.add_illegal_junctions(events, event_type)
         return events
 
+    @property
+    def event_finders(self):
+        finders = (('SE', self._skipped_exon),
+                   ('MXE', self._mutually_exclusive_exon))
+        return finders
+
     def _skipped_exon(self, exon1_i, exon1_name):
+
+        events = {}
 
         self._maybe_print_exon_progress(exon1_i)
 
@@ -292,9 +302,8 @@ class EventMaker(object):
                     junctions = [self.items[i] for i in junctions_i]
                     exons = exon1_name, exon2.name, exon3.name
 
-                    event = pd.Series(junctions, name=exons)
-                    return event
-        return pd.Series()
+                    events[exons] = junctions
+        return events
 
     def mutually_exclusive_exon(self):
         events = {}
