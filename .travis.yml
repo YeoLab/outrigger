@@ -35,6 +35,7 @@ script:
 - make arabdopsis
 
 after_success:
+  - which -a curl
   - set -o pipefail
   - curl --progress-bar http://codecov.io/bash | bash
   - echo $?
