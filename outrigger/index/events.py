@@ -2,6 +2,7 @@ import itertools
 import logging
 
 import graphlite
+import joblib
 import numpy as np
 import pandas as pd
 from graphlite import V
@@ -244,19 +245,18 @@ class EventMaker(object):
             V(exon_a).upstream) \
             .intersection(V(exon_b).downstream)
 
-    def find_events(self, event_types=SPLICE_ABBREVS):
+    def find_events(self, n_jobs=-1):
         """Iterate over all exons and test if they could be part of an alternative event"""
-        events = dict.fromkeys(event_types)
-        events_dfs = dict.fromkeys(event_types)
+        events = dict.fromkeys(SPLICE_ABBREVS)
+        events_dfs = dict.fromkeys(SPLICE_ABBREVS)
 
         progress('Trying out {0} exons ...'.format(self.n_exons))
 
-        for i, exon1_name in enumerate(self.exons):
-            self._maybe_print_exon_progress(i)
-            for event_type, event_finder in self.event_finders:
-                if event_type not in event_types:
-                    continue
-                events.update(event_finder(i, exon1_name))
+        # for i, exon1_name in enumerate(self.exons):
+        #     self._maybe_print_exon_progress(i)
+        event_updates = joblib.Parallel(n_jobs=n_jobs)(
+            joblib.delayed(self.get_alternative_events)(i, exon1_name)
+            for i, exon1_name in enumerate(self.exons))
         for event_type, event_subset in events.items():
             exons = SPLICE_TYPE_ALL_EXONS(event_type)
             junctions = SPLICE_TYPE_ALL_JUNCTIONS(event_type)
@@ -266,6 +266,12 @@ class EventMaker(object):
             events_df = self.add_illegal_junctions(events_df, event_type)
             events_dfs[event_type] = events_df
         return events_dfs
+
+    def get_alternative_events(self, exon1_i, exon1_name):
+        events = {}
+        for event_type, event_finder in self.event_finders:
+            events[event_type].update(event_finder(exon1_i, exon1_name))
+        return events
 
     @property
     def event_finders(self):
