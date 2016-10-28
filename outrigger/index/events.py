@@ -7,7 +7,8 @@ import pandas as pd
 from graphlite import V
 
 from ..common import STRAND, ISOFORM_ORDER, ISOFORM_COMPONENTS, \
-    EVENT_ID_COLUMN, ILLEGAL_JUNCTIONS
+    EVENT_ID_COLUMN, ILLEGAL_JUNCTIONS, SPLICE_ABBREVS, SPLICE_TYPE_ALL_EXONS, \
+    SPLICE_TYPE_ALL_JUNCTIONS
 from outrigger.region import Region
 from .adjacencies import UPSTREAM, DOWNSTREAM, DIRECTIONS
 from ..util import progress
@@ -243,39 +244,38 @@ class EventMaker(object):
             V(exon_a).upstream) \
             .intersection(V(exon_b).downstream)
 
-    def find_events(self, event_types=('SE', 'MXE')):
+    def find_events(self, event_types=SPLICE_ABBREVS):
+        """Iterate over all exons and test if they could be part of an alternative event"""
         events = dict.fromkeys(event_types)
+        events_dfs = dict.fromkeys(event_types)
 
         progress('Trying out {0} exons ...'.format(self.n_exons))
 
         for i, exon1_name in enumerate(self.exons):
-            for event_type, finder in self.event_finders:
+            self._maybe_print_exon_progress(i)
+            for event_type, event_finder in self.event_finders:
                 if event_type not in event_types:
                     continue
-                events.update(finder(i, exon1_name))
-
-        events = self.event_dict_to_df(events,
-                               exon_names=['exon1', 'exon2', 'exon3',
-                                           'exon4'],
-                               junction_names=['junction13',
-                                               'junction34',
-                                               'junction12',
-                                               'junction24'])
-        events = self.add_event_id_col(events, event_type)
-        events = self.add_illegal_junctions(events, event_type)
-        return events
+                events.update(event_finder(i, exon1_name))
+        for event_type, event_subset in events.items():
+            exons = SPLICE_TYPE_ALL_EXONS(event_type)
+            junctions = SPLICE_TYPE_ALL_JUNCTIONS(event_type)
+            events_df = self.event_dict_to_df(events, exon_names=exons,
+                                              junction_names=junctions)
+            events_df = self.add_event_id_col(events_df, event_type)
+            events_df = self.add_illegal_junctions(events_df, event_type)
+            events_dfs[event_type] = events_df
+        return events_dfs
 
     @property
     def event_finders(self):
-        finders = (('SE', self._skipped_exon),
-                   ('MXE', self._mutually_exclusive_exon))
+        finders = (('se', self._skipped_exon),
+                   ('mxe', self._mutually_exclusive_exon))
         return finders
 
     def _skipped_exon(self, exon1_i, exon1_name):
 
         events = {}
-
-        self._maybe_print_exon_progress(exon1_i)
 
         exon23s = list(self.exons_one_junction_downstream(exon1_i))
         exon23s = self.item_to_region[[self.items[i] for i in exon23s]]
@@ -309,77 +309,62 @@ class EventMaker(object):
                     events[exons] = junctions
         return events
 
-    def mutually_exclusive_exon(self):
+    def _mutually_exclusive_exon(self, exon1_i, exon1_name):
         events = {}
 
-        progress('Trying out {0} exons ...'.format(self.n_exons))
-        for i, exon1_name in enumerate(self.exons):
-            self._maybe_print_exon_progress(i)
+        exon23s_from1 = self.exons_one_junction_downstream(exon1_i)
+        exon4s = self.exons_two_junctions_downstream(exon1_i)
+        exon23s_from4 = self.exons_one_junction_upstream(exon4s)
 
-            exon1_i = self.items.index(exon1_name)
+        exon23s = set(exon23s_from4) & set(exon23s_from1)
+        exon23s = [self.items[i] for i in exon23s]
 
-            exon23s_from1 = self.exons_one_junction_downstream(exon1_i)
-            exon4s = self.exons_two_junctions_downstream(exon1_i)
-            exon23s_from4 = self.exons_one_junction_upstream(exon4s)
+        exon23s = self.item_to_region[exon23s]
 
-            exon23s = set(exon23s_from4) & set(exon23s_from1)
-            exon23s = [self.items[i] for i in exon23s]
+        for exon_a, exon_b in itertools.combinations(exon23s, 2):
+            if not exon_a.overlaps(exon_b):
+                exon2 = min((exon_a, exon_b), key=lambda x: x._start)
+                exon3 = max((exon_a, exon_b), key=lambda x: x._start)
 
-            exon23s = self.item_to_region[exon23s]
+                exon2_i = self.items.index(exon2.name)
+                exon3_i = self.items.index(exon3.name)
 
-            for exon_a, exon_b in itertools.combinations(exon23s, 2):
-                if not exon_a.overlaps(exon_b):
-                    exon2 = min((exon_a, exon_b), key=lambda x: x._start)
-                    exon3 = max((exon_a, exon_b), key=lambda x: x._start)
+                exon4_from2 = set(
+                    self.exons_one_junction_downstream(exon2_i))
+                exon4_from3 = set(
+                    self.exons_one_junction_downstream(exon3_i))
 
-                    exon2_i = self.items.index(exon2.name)
-                    exon3_i = self.items.index(exon3.name)
+                exon4_is = exon4_from2 & exon4_from3
+                try:
+                    for exon4_i in exon4_is:
+                        exon4_name = self.items[exon4_i]
+                        # Isoform 1 - corresponds to Psi=0. Inclusion of
+                        # exon3
+                        exon13_junction = self.junctions_between_exons(
+                            exon1_i, exon3_i)
 
-                    exon4_from2 = set(
-                        self.exons_one_junction_downstream(exon2_i))
-                    exon4_from3 = set(
-                        self.exons_one_junction_downstream(exon3_i))
+                        exon34_junction = self.junctions_between_exons(
+                            exon3_i, exon4_i)
 
-                    exon4_is = exon4_from2 & exon4_from3
-                    try:
-                        for exon4_i in exon4_is:
-                            exon4_name = self.items[exon4_i]
-                            # Isoform 1 - corresponds to Psi=0. Inclusion of
-                            # exon3
-                            exon13_junction = self.junctions_between_exons(
-                                exon1_i, exon3_i)
+                        # Isoform 2 - corresponds to Psi=1. Inclusion of
+                        # exon2
+                        exon12_junction = self.junctions_between_exons(
+                            exon1_i, exon2_i)
+                        exon24_junction = self.junctions_between_exons(
+                            exon2_i, exon4_i)
 
-                            exon34_junction = self.junctions_between_exons(
-                                exon3_i, exon4_i)
+                        exon_tuple = exon1_name, exon2.name, exon3.name, \
+                            exon4_name
+                        #             print exon12_junction.next()
+                        junctions_i = list(
+                            itertools.chain(*[exon13_junction,
+                                              exon34_junction,
+                                              exon12_junction,
+                                              exon24_junction]))
+                        junctions = [self.items[i] for i in junctions_i]
 
-                            # Isoform 2 - corresponds to Psi=1. Inclusion of
-                            # exon2
-                            exon12_junction = self.junctions_between_exons(
-                                exon1_i, exon2_i)
-                            exon24_junction = self.junctions_between_exons(
-                                exon2_i, exon4_i)
+                        events[exon_tuple] = junctions
+                except KeyError:
+                    pass
 
-                            exon_tuple = exon1_name, exon2.name, exon3.name, \
-                                exon4_name
-                            #             print exon12_junction.next()
-                            junctions_i = list(
-                                itertools.chain(*[exon13_junction,
-                                                  exon34_junction,
-                                                  exon12_junction,
-                                                  exon24_junction]))
-                            junctions = [self.items[i] for i in junctions_i]
-
-                            events[exon_tuple] = junctions
-                    except KeyError:
-                        pass
-        events = self.event_dict_to_df(events,
-                                       exon_names=['exon1', 'exon2', 'exon3',
-                                                   'exon4'],
-                                       junction_names=['junction13',
-                                                       'junction34',
-                                                       'junction12',
-                                                       'junction24'])
-        if not events.empty:
-            events = self.add_event_id_col(events, 'mxe')
-            events = self.add_illegal_junctions(events, 'mxe')
         return events

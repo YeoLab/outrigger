@@ -611,21 +611,21 @@ class Index(Subcommand):
         return junction_exon_triples
 
     @staticmethod
-    def make_graph(junction_exon_triples, metadata, db):
+    def make_graph(junction_exon_triples, db):
         """Create graph database of exon-junction adjacencies"""
         util.progress('Populating graph database of the '
                       'junction-direction-exon triples ...')
 
-        event_maker = events.EventMaker(junction_exon_triples, metadata, db)
+        event_maker = events.EventMaker(junction_exon_triples, db)
         util.done()
         return event_maker
 
     def make_events_by_traversing_graph(self, event_maker, db):
         """Search the splice graph for alternative exons"""
-        existing_events = [os.path.exists(
+        existing_events = map(os.path.exists(
             os.path.join(self.index_folder, splice_abbrev.lower(),
                          EVENTS_CSV)
-            ) for splice_abbrev in common.SPLICE_ABBREVS]
+            ) for splice_abbrev in common.SPLICE_TYPES)
         if all(existing_events):
             util.progress('Found existing splicing events files for all splice'
                           ' types, so not searching. To force'
@@ -699,7 +699,7 @@ class Index(Subcommand):
         junction_exon_triples = self.make_exon_junction_adjacencies(
             metadata, db)
 
-        event_maker = self.make_graph(junction_exon_triples, metadata, db)
+        event_maker = self.make_graph(junction_exon_triples, db=db)
         self.make_events_by_traversing_graph(event_maker, db)
 
         self.write_new_gtf(db)
