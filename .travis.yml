@@ -35,7 +35,7 @@ script:
 
 after_success:
   - set -o pipefail
-  - curl --progress-bar https://codecov.io/bash | bash
+  - curl --progress-bar http://codecov.io/bash | bash
   - echo $?
   - set +o pipefail
 #  - bash <(curl -s https://codecov.io/bash)
