@@ -239,7 +239,7 @@ class EventMaker(object):
             V(exon_a).upstream) \
             .intersection(V(exon_b).downstream)
 
-    def find_events(self, event_type='SE'):
+    def find_events(self, event_types=('SE', 'MXE')):
         events = {}
 
         progress('Trying out {0} exons ...'.format(self.n_exons))
@@ -289,6 +289,7 @@ class EventMaker(object):
                     exons = exon1_name, exon2.name, exon3.name
 
                     event = pd.Series(junctions, name=exons)
+                    return event
         return pd.Series()
 
     def mutually_exclusive_exon(self):
