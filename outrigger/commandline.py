@@ -622,10 +622,10 @@ class Index(Subcommand):
 
     def make_events_by_traversing_graph(self, event_maker, db):
         """Search the splice graph for alternative exons"""
-        existing_events = map(os.path.exists(
+        existing_events = [os.path.exists(
             os.path.join(self.index_folder, splice_abbrev.lower(),
                          EVENTS_CSV)
-            ) for splice_abbrev in common.SPLICE_TYPES)
+            ) for splice_abbrev in common.SPLICE_ABBREVS]
         if all(existing_events):
             util.progress('Found existing splicing events files for all splice'
                           ' types, so not searching. To force'
