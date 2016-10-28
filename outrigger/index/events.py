@@ -248,6 +248,10 @@ class EventMaker(object):
 
         progress('Trying out {0} exons ...'.format(self.n_exons))
 
+        for i, exon1_name in enumerate(self.exons):
+            self._skipped_exon(i, exon1_name)
+            self._mutually_exclusive_exon(i, exon1_name)
+
         events = self.event_dict_to_df(events,
                                exon_names=['exon1', 'exon2', 'exon3',
                                            'exon4'],
