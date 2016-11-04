@@ -46,8 +46,6 @@ def read_splice_sites(bed, genome, fasta, direction='upstream'):
         bed = pybedtools.BedTool(bed)
 
     genome = maybe_read_chromsizes(genome)
-    fasta_object = pyfasta.Fasta(fasta, key_fn=lambda key: key.split()[0])
-    fasta_chroms = fasta_object.keys()
 
     if direction == 'upstream':
         left = NT
