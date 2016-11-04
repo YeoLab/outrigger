@@ -1,0 +1,25 @@
+v0.2.9 (...)
+------------
+
+
+
+New features
+~~~~~~~~~~~~
+
+Plotting functions
+~~~~~~~~~~~~~~~~~~
+
+API changes
+~~~~~~~~~~~
+
+
+Bug fixes
+~~~~~~~~~
+
+- Fixed an issue in ``outrigger validate`` when fasta file and genome
+  annotation didn't have overlapping chromosomes and ``outrigger validate``
+  would simply fail rather than gracefully skipping those events.
+
+Miscellaneous
+~~~~~~~~~~~~~
+
