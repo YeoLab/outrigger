@@ -25,7 +25,6 @@ You'll want to add the [`bioconda`](https://bioconda.github.io/) channel to make
 ```
 conda config --add channels r
 conda config --add channels bioconda
-
 ```
 
 Create an environment called `outrigger-env`. Python 2.7, Python 3.4, and Python 3.5 are supported.
