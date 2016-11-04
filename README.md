@@ -7,7 +7,7 @@
 
 Outrigger is a program which uses junction reads from RNA seq data, and a graph database to create a *de novo* alternative splicing annotation with a graph database, and quantify percent spliced-in (Psi) of the events.
 
-* Free software: BSD license
+* Free and open source software: BSD license
 
 ## Features
 
