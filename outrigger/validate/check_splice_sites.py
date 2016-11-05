@@ -59,4 +59,5 @@ def read_splice_sites(bed, genome, fasta, direction='upstream'):
 
     splice_sites = pd.read_table(seqs.seqfn, index_col=0, header=None,
                                  squeeze=True)
+    splice_sites.index = [x.split('::')[0] for x in splice_sites.index]
     return splice_sites
