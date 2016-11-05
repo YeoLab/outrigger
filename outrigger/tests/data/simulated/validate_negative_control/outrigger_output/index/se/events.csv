@@ -1,2 +1,4 @@
 isoform1=junction:simulated:150-500:+|isoform2=junction:simulated:150-300:+@exon:simulated:300-400:+@junction:simulated:400-500:+
 isoform1=junction:simulated:100-600:-|isoform2=junction:simulated:300-600:-@exon:simulated:300-400:-@junction:simulated:100-400:-
+isoform1=junction:nonexistent:100-600:-|isoform2=junction:nonexistent:300-600:-@exon:nonexistent:300-400:-@junction:nonexistent:100-400:-
+isoform1=junction:in_chromsizes:100-600:-|isoform2=junction:in_chromsizes:300-600:-@exon:in_chromsizes:300-400:-@junction:in_chromsizes:100-400:-

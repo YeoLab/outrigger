@@ -1,9 +1,9 @@
 
 from collections import OrderedDict
 
-from Bio import SeqIO
 import pandas as pd
 import pybedtools
+
 
 NT = 2
 
@@ -55,11 +55,10 @@ def read_splice_sites(bed, genome, fasta, direction='upstream'):
         right = NT
 
     flanked = bed.flank(l=left, r=right, s=True, genome=genome)
-    seqs = flanked.sequence(fi=fasta, s=True)
+    seqs = flanked.sequence(fi=fasta, s=True, name=True, tab=True)
 
-    with open(seqs.seqfn) as f:
-        records = SeqIO.parse(f, 'fasta')
-        records = pd.Series([str(r.seq) for r in records],
-                            index=[b.name for b in bed])
-    # import pdb; pdb.set_trace()
-    return records
+    splice_sites = pd.read_table(seqs.seqfn, index_col=0, header=None,
+                                 squeeze=True)
+    splice_sites.index = [x.split('::')[0] for x in splice_sites.index]
+    splice_sites.name = None
+    return splice_sites
