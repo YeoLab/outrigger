@@ -5,19 +5,14 @@ import os
 import warnings
 
 import numpy as np
+from outrigger.common import UNIQUE_READS, MULTIMAP_READS, MAX_OVERHANG
 
 from ..common import JUNCTION_ID, JUNCTION_START, JUNCTION_STOP, READS, \
     JUNCTION_MOTIF, EXON_START, EXON_STOP, CHROM, STRAND, ANNOTATED, SAMPLE_ID
 
-
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
     import pandas as pd
-
-
-UNIQUE_READS = 'unique_junction_reads'
-MULTIMAP_READS = 'multimap_junction_reads'
-MAX_OVERHANG = 'max_overhang'
 
 COLUMN_NAMES = (CHROM, JUNCTION_START, JUNCTION_STOP, STRAND,
                 JUNCTION_MOTIF, ANNOTATED, UNIQUE_READS, MULTIMAP_READS,
