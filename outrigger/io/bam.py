@@ -8,7 +8,7 @@ from ..common import UNIQUE_READS, MULTIMAP_READS, READS, CHROM, \
     JUNCTION_START, JUNCTION_STOP, STRAND
 
 
-def report_read_position(read, counter):
+def _report_read_positions(read, counter):
     chrom = read.reference_name
     strand = '-' if read.is_reverse else '+'
 
@@ -26,7 +26,7 @@ def report_read_position(read, counter):
         last_read_pos = read_loc
 
 
-def choose_strand_and_sum(reads):
+def _choose_strand_and_sum(reads):
     """Use the strand with more counts and sum all reads with same junction
 
     STAR seems to take a simple majority to decide on strand when there are
@@ -40,12 +40,12 @@ def choose_strand_and_sum(reads):
     return pd.Series(counts.values, index=index, name=reads.name)
 
 
-def reads_dict_to_table(uniquely, multi, ignore_multimapping=False):
+def _reads_dict_to_table(uniquely, multi, ignore_multimapping=False):
     uniquely = pd.Series(uniquely, name=UNIQUE_READS)
     multi = pd.Series(multi, name=MULTIMAP_READS)
 
-    uniquely = choose_strand_and_sum(uniquely)
-    multi = choose_strand_and_sum(multi)
+    uniquely = _choose_strand_and_sum(uniquely)
+    multi = _choose_strand_and_sum(multi)
 
     # Join the data on the chromosome locations
     reads = uniquely.to_frame().join(multi)
@@ -64,7 +64,8 @@ def reads_dict_to_table(uniquely, multi, ignore_multimapping=False):
     return reads
 
 
-def get_junction_reads(filename):
+def _get_junction_reads(filename):
+    """Read a sam file and extract unique and multi mapped junction reads"""
     samfile = pysam.AlignmentFile(filename, "rb")
 
     # Uniquely mapped reads
@@ -80,14 +81,18 @@ def get_junction_reads(filename):
             else:
                 counter = uniquely
 
-            report_read_position(read, counter)
+            _report_read_positions(read, counter)
     samfile.close()
     return uniquely, multi
 
 
-def make_reads_table(filename, ignore_multimapping):
-    uniquely, multi = get_junction_reads(filename)
-    reads = reads_dict_to_table(uniquely, multi, ignore_multimapping)
+def make_reads_table(bam_filename, ignore_multimapping=False):
+    """Create a table of reads for this bam file"""
+    uniquely, multi = _get_junction_reads(bam_filename)
+    reads = _reads_dict_to_table(uniquely, multi, ignore_multimapping)
 
-    reads['sample_id'] = os.path.basename(filename)
+    # Remove "junctions" with same start and stop
+    reads = reads.loc[reads[JUNCTION_START] != reads[JUNCTION_STOP]]
+
+    reads['sample_id'] = os.path.basename(bam_filename)
     return reads
