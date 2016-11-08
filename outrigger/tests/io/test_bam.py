@@ -1,8 +1,10 @@
-import os
+import collections
 import glob
+import os
 
 import pandas as pd
 import pandas.util.testing as pdt
+import pysam
 import pytest
 
 
@@ -25,6 +27,7 @@ def junction_reads_table_csv(bamfile, tasic2016_intermediate_bam,
     csv = os.path.join(tasic2016_intermediate_bam, basename2)
     return csv
 
+
 @pytest.fixture
 def bamfiles(tasic2016_bam):
     return glob.glob(os.path.join(tasic2016_bam, '*'))
@@ -40,8 +43,19 @@ def junction_reads_table_csvs(tasic2016_intermediate_bam,
     return csvs
 
 
-def test__report_read_positions():
-    pass
+def test__report_read_positions(bamfile):
+    from outrigger.io.bam import _report_read_positions
+
+    bam = pysam.AlignmentFile(bamfile, 'rb')
+
+    test = collections.Counter()
+
+    for read in bam:
+        _report_read_positions(read, test)
+        break
+
+    true = {('chr2', 136713559, 136713559, '+'): 1}
+    pdt.assert_dict_equal(test, true)
 
 
 def test__choose_strand_and_sum():
