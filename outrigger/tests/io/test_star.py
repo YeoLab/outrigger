@@ -47,11 +47,6 @@ def test_int_to_intron_motif():
     assert test == true
 
 
-@pytest.fixture(params=[True, False])
-def ignore_multimapping(request):
-    return request.param
-
-
 @pytest.fixture
 def splice_junction_csv(ignore_multimapping, tasic2016_intermediate):
     """Different file depending on whether multimapping is True"""
