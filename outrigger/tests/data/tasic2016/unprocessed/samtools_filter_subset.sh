@@ -10,3 +10,6 @@ BAM3=$PREFIX3.bam
 samtools sort $BAM2 $PREFIX3
 
 samtools index $BAM3
+
+
+PREFIX=CAV_LP_Ipsi_tdTpos_cell_2-SRR2140357-GSM1840945_R1.polyATrim.adapterTrim.rmRep.sorted.rg

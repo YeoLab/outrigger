@@ -1,6 +1,7 @@
 import collections
 import os
 
+import joblib
 import pandas as pd
 import pysam
 
@@ -86,7 +87,7 @@ def _get_junction_reads(filename):
     return uniquely, multi
 
 
-def make_reads_table(bam_filename, ignore_multimapping=False):
+def bam_to_junction_reads_table(bam_filename, ignore_multimapping=False):
     """Create a table of reads for this bam file"""
     uniquely, multi = _get_junction_reads(bam_filename)
     reads = _reads_dict_to_table(uniquely, multi, ignore_multimapping)
@@ -95,4 +96,13 @@ def make_reads_table(bam_filename, ignore_multimapping=False):
     reads = reads.loc[reads[JUNCTION_START] != reads[JUNCTION_STOP]]
 
     reads['sample_id'] = os.path.basename(bam_filename)
+    return reads
+
+
+def read_multiple_bams(bam_filenames, ignore_multimapping=False, n_jobs=-1):
+    dfs = joblib.Parallel(n_jobs=n_jobs)(
+        joblib.delayed(
+            bam_to_junction_reads_table(filename, ignore_multimapping))
+        for filename in bam_filenames)
+    reads = pd.concat(dfs, ignore_index=True)
     return reads
