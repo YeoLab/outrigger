@@ -2,6 +2,7 @@ import collections
 import os
 
 import joblib
+import numpy as np
 import pandas as pd
 import pysam
 
@@ -61,7 +62,7 @@ def _reads_dict_to_table(uniquely, multi, ignore_multimapping=False):
     reads = reads.reset_index()
     reads = reads.rename(columns={'level_0': CHROM, 'level_1': JUNCTION_START,
                                   'level_2': JUNCTION_STOP, 'level_3': STRAND})
-
+    reads.index = np.arange(reads.shape[0])
     return reads
 
 
