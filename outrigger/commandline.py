@@ -86,9 +86,10 @@ class CommandLine(object):
                                        'junction. If inputting "bam" files, '
                                        'then this means that reads with a '
                                        'mapping quality (MAPQ) of less than '
-                                       '255 are considered "multimapped." '
-                                       'By default, this is off, and'
-                                       ' all reads are used.')
+                                       '255 are considered "multimapped." This'
+                                       ' is the same thing as what the STAR '
+                                       'aligner does. By default, this is off,'
+                                       ' and all reads are used.')
         index_parser.add_argument(
             '-l', '--max-de-novo-exon-length',
             default=adjacencies.MAX_DE_NOVO_EXON_LENGTH, action='store',
@@ -248,9 +249,10 @@ class CommandLine(object):
                                      'junction. If inputting "bam" files, '
                                      'then this means that reads with a '
                                      'mapping quality (MAPQ) of less than '
-                                     '255 are considered "multimapped." By '
-                                     'default, this is off, and'
-                                     ' all reads are used.')
+                                     '255 are considered "multimapped." This '
+                                     'is the same thing as what the STAR '
+                                     'aligner does. By default, this is off, '
+                                     'and all reads are used.')
         psi_parser.add_argument('--reads-col', default='reads',
                                 help="Name of column in --splice-junction-csv "
                                      "containing reads to use. "
