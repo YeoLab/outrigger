@@ -78,7 +78,7 @@ def _get_junction_reads(filename):
 
     for read in samfile.fetch():
         if "N" in read.cigarstring:
-            if read.is_secondary:
+            if read.mapping_quality < 255:
                 counter = multi
             else:
                 counter = uniquely
