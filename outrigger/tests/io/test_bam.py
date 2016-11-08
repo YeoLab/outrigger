@@ -53,6 +53,7 @@ def test__report_read_positions(bamfile):
     for read in bam:
         _report_read_positions(read, test)
         break
+    bam.close()
 
     true = {('chr2', 136713559, 136713559, '+'): 1}
     pdt.assert_dict_equal(test, true)
@@ -66,8 +67,12 @@ def test__reads_dict_to_table():
     pass
 
 
-def test__get_junction_reads():
-    pass
+def test__get_junction_reads(bamfile):
+    from outrigger.io.bam import _get_junction_reads
+
+    test_uniquely, test_multi = _get_junction_reads(bamfile)
+
+    assert False
 
 
 def test_bam_to_junction_reads_table(bamfile, junction_reads_table_csv):
