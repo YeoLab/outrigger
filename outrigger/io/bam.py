@@ -54,7 +54,7 @@ def _choose_strand_and_sum(reads):
     return pd.Series(counts.values, index=index, name=reads.name)
 
 
-def _reads_dicts_to_table(uniquely, multi, ignore_multimapping=False):
+def _combine_uniquely_multi(uniquely, multi, ignore_multimapping=False):
     """Combine uniquely and multi-mapped read counts into a single table
 
     Parameters
@@ -121,10 +121,11 @@ def _get_junction_reads(filename):
 def bam_to_junction_reads_table(bam_filename, ignore_multimapping=False):
     """Create a table of reads for this bam file"""
     uniquely, multi = _get_junction_reads(bam_filename)
-    reads = _reads_dicts_to_table(uniquely, multi, ignore_multimapping)
+    reads = _combine_uniquely_multi(uniquely, multi, ignore_multimapping)
 
     # Remove "junctions" with same start and stop
     reads = reads.loc[reads[JUNCTION_START] != reads[JUNCTION_STOP]]
+    reads.index = np.arange(reads.shape[0])
 
     reads['sample_id'] = os.path.basename(bam_filename)
     return reads

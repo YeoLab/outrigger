@@ -17,8 +17,9 @@ def bamfile(tasic2016_bam):
 
 
 @pytest.fixture
-def junction_reads_table_csv(bamfile, tasic2016_intermediate_bam,
-                             ignore_multimapping):
+def single_bam_final_junction_reads_table_csv(bamfile,
+                                              tasic2016_intermediate_bam,
+                                              ignore_multimapping):
     """csv for bamfile (singular)"""
     basename = os.path.basename(bamfile)
     suffix = '.outrigger_junction_reads_ignore-multimapping{}.csv'.format(
@@ -73,8 +74,8 @@ def uniquely_summed_csv(bamfile, tasic2016_intermediate_bam):
 
 
 @pytest.fixture
-def single_bam_reads_table_csv(tasic2016_intermediate_bam, bamfile,
-                               ignore_multimapping):
+def single_bam_combined_uniquely_multi_csv(tasic2016_intermediate_bam, bamfile,
+                                           ignore_multimapping):
     basename = os.path.basename(bamfile)
     basename = basename.replace(
         '.bam', '.junction_reads_ignore-multimapping{}.csv')
@@ -84,7 +85,7 @@ def single_bam_reads_table_csv(tasic2016_intermediate_bam, bamfile,
 
 @pytest.fixture
 def bamfiles(tasic2016_bam):
-    return glob.glob(os.path.join(tasic2016_bam, '*'))
+    return glob.glob(os.path.join(tasic2016_bam, '*.bam'))
 
 
 @pytest.fixture
@@ -128,12 +129,12 @@ def test__choose_strand_and_sum(uniquely, uniquely_summed_csv):
     pdt.assert_series_equal(test, true)
 
 
-def test__reads_dicts_to_table(uniquely, multi, ignore_multimapping,
-                               single_bam_reads_table_csv):
-    from outrigger.io.bam import _reads_dicts_to_table
+def test__combine_uniquely_multi(uniquely, multi, ignore_multimapping,
+                                 single_bam_combined_uniquely_multi_csv):
+    from outrigger.io.bam import _combine_uniquely_multi
 
-    test = _reads_dicts_to_table(uniquely, multi, ignore_multimapping)
-    true = pd.read_csv(single_bam_reads_table_csv)
+    test = _combine_uniquely_multi(uniquely, multi, ignore_multimapping)
+    true = pd.read_csv(single_bam_combined_uniquely_multi_csv)
 
     pdt.assert_frame_equal(test, true)
 
@@ -150,11 +151,13 @@ def test__get_junction_reads(bamfile, uniquely_csv, multi_csv):
     pdt.assert_dict_equal(test_multi, true_multi)
 
 
-def test_bam_to_junction_reads_table(bamfile, junction_reads_table_csv):
+def test_bam_to_junction_reads_table(
+        bamfile, single_bam_final_junction_reads_table_csv):
+
     from outrigger.io.bam import bam_to_junction_reads_table
 
     test = bam_to_junction_reads_table(bamfile)
-    true = pd.read_csv(junction_reads_table_csv)
+    true = pd.read_csv(single_bam_final_junction_reads_table_csv)
 
     pdt.assert_frame_equal(test, true)
 
