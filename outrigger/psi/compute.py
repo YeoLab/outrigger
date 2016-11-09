@@ -88,7 +88,7 @@ def maybe_get_isoform_reads(splice_junction_reads, junction_locations,
 
 def _single_event_psi(i, event_id, event_df, splice_junction_reads,
                       isoform1_junctions, isoform2_junctions, reads_col,
-                      min_reads, junction_cols, debug, log):
+                      min_reads, junction_cols):
     if (i + 1) % 1000 == 0:
         sys.stdout.write('{}\t\t\t{} events completed\n'.format(
             timestamp(), i))
@@ -101,23 +101,12 @@ def _single_event_psi(i, event_id, event_df, splice_junction_reads,
                                        junction_locations,
                                        isoform2_junctions, reads_col)
 
-    log.debug('--- junction columns of event ---\n%s',
-              repr(junction_locations[junction_cols]))
-    log.debug('--- isoform1 ---\n%s', repr(isoform1))
-    log.debug('--- isoform2 ---\n%s', repr(isoform2))
-
-    isoform1 = filter_and_sum(isoform1, min_reads, isoform1_junctions,
-                              debug=debug)
-    isoform2 = filter_and_sum(isoform2, min_reads, isoform2_junctions,
-                              debug=debug)
+    isoform1 = filter_and_sum(isoform1, min_reads, isoform1_junctions)
+    isoform2 = filter_and_sum(isoform2, min_reads, isoform2_junctions)
 
     if isoform1.empty and isoform2.empty:
         # If both are empty after filtering this event --> don't calculate
         return pd.Series(name=event_id)
-
-    log.debug('\n- After filter and sum -')
-    log.debug('--- isoform1 ---\n%s', repr(isoform1))
-    log.debug('--- isoform2 ---\n%s', repr(isoform2))
 
     isoform1, isoform2 = isoform1.align(isoform2, 'outer')
 
@@ -128,10 +117,7 @@ def _single_event_psi(i, event_id, event_df, splice_junction_reads,
     psi = isoform2 / (isoform2 + multiplier * isoform1)
     psi.name = event_id
 
-    log.debug('--- Psi ---\n%s', repr(psi))
-
     return psi
-
 
 
 def calculate_psi(event_annotation, splice_junction_reads,
@@ -196,7 +182,7 @@ def calculate_psi(event_annotation, splice_junction_reads,
         joblib.delayed(_single_event_psi)(
             i, event_id, event_df, splice_junction_reads,
             isoform1_junctions, isoform2_junctions, reads_col,
-            min_reads, junction_cols, debug, log)
+            min_reads, junction_cols)
         for i, (event_id, event_df) in enumerate(grouped))
 
     psi_df = pd.concat(psis)
