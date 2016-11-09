@@ -130,6 +130,13 @@ class CommandLine(object):
                                        ' LOTS of output. Not recommended '
                                        'unless you think something is going '
                                        'wrong)')
+        index_parser.add_argument('--n-jobs', required=False, default=-1,
+                                  action='store', type=int,
+                                  help='Number of threads to use when '
+                                       'parallelizing exon finding and file '
+                                       'reading. Default is -1, which means '
+                                       'to use as many threads as are '
+                                       'available.')
         overwrite_parser = index_parser.add_mutually_exclusive_group(
             required=False)
         overwrite_parser.add_argument('--force', action='store_true',
