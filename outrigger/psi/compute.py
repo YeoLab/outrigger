@@ -5,7 +5,7 @@ import joblib
 import pandas as pd
 
 from ..common import ILLEGAL_JUNCTIONS, MIN_READS
-from ..util import timestamp
+from ..util import timestamp, progress, done
 
 
 logging.basicConfig()
@@ -175,8 +175,7 @@ def calculate_psi(event_annotation, splice_junction_reads,
 
     n_events = len(grouped.size())
 
-    sys.stdout.write('{}\t\tIterating over {} events ...\n'.format(
-        timestamp(), n_events))
+    progress('\tIterating over {} events ...\n'.format(n_events))
 
     psis = joblib.Parallel(n_jobs=n_jobs)(
         joblib.delayed(_single_event_psi)(
@@ -185,7 +184,7 @@ def calculate_psi(event_annotation, splice_junction_reads,
             min_reads, junction_cols)
         for i, (event_id, event_df) in enumerate(grouped))
 
-    psi_df = pd.concat(psis)
-    sys.stdout.write('{}\t\t\tDone.\n'.format(timestamp()))
-
+    # use only non-empty psi outputs
+    psi_df = pd.concat(filter(lambda x: not x.empty, psis), axis=1)
+    done(n_tabs=3)
     return psi_df
