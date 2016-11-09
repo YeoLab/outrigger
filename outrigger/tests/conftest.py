@@ -159,8 +159,8 @@ def sj_filenames(tasic2016_sj_out_tab):
 
 
 @pytest.fixture
-def bam_filenames(tasic2016_intermediate_bam):
-    globber = os.path.join(tasic2016_intermediate_bam, '*bam')
+def bam_filenames(tasic2016_bam):
+    globber = os.path.join(tasic2016_bam, '*bam')
     return glob.glob(globber)
 
 
