@@ -215,8 +215,7 @@ class CommandLine(object):
             'psi', help='Calculate "percent spliced-in" (Psi) values using '
                         'the splicing event index built with "outrigger '
                         'index"')
-        psi_outputs = psi_parser.add_mutually_exclusive_group(required=False)
-        psi_outputs.add_argument('-i', '--index', required=False, default=None,
+        psi_parser.add_argument('-i', '--index', required=False, default=None,
                                  help='Name of the folder where you saved the '
                                       'output from "outrigger index" (default '
                                       'is {}, which is relative '
@@ -225,7 +224,7 @@ class CommandLine(object):
                                       '"outrigger psi" in the same folder as '
                                       'you called "outrigger '
                                       'index")'.format(INDEX))
-        psi_outputs.add_argument(
+        psi_parser.add_argument(
             '-o', '--output', required=False, type=str, action='store',
             default=None,
             help='Name of the folder where you saved the output from '
