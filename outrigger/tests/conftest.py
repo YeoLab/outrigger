@@ -118,6 +118,12 @@ def tasic2016_outrigger_output(tasic2016):
 
 
 @pytest.fixture
+def tasic2016_outrigger_output_index(tasic2016_outrigger_output):
+    """Suffix for outrigger_output files from Tasic Nat Neurosci (2016)"""
+    return os.path.join(tasic2016_outrigger_output, 'index')
+
+
+@pytest.fixture
 def tasic2016_outrigger_output_bam(tasic2016):
     """Suffix for outrigger_output files from Tasic Nat Neurosci (2016)"""
     return os.path.join(tasic2016, 'outrigger_output_bam')

@@ -121,7 +121,8 @@ class TestCommandLine(object):
         assert 'outrigger' in outerr
         assert __version__ in outerr
 
-    def test_main_index(self, tmpdir, tasic2016_unprocessed, sj_filenames):
+    def test_main_index(self, tmpdir, tasic2016_unprocessed, sj_filenames,
+                        tasic2016_outrigger_output_index):
         from outrigger.commandline import CommandLine
 
         output_folder = tmpdir.strpath
@@ -136,8 +137,7 @@ class TestCommandLine(object):
         CommandLine(arguments)
 
         dir1 = os.path.join(output_folder, 'index')
-        dir2 = os.path.join('outrigger', 'tests', 'data', 'tasic2016',
-                            'outrigger_output', 'index')
+        dir2 = tasic2016_outrigger_output_index
         ignore = ['psi', '.DS_Store', 'validated', 'splice_sites.csv',
                   # Databases get stored in a weird random way... we're still
                   # checking that the final gtfs are the same
@@ -197,8 +197,6 @@ class TestCommandLine(object):
         arguments = ['index', '--sj-out-tab']
         arguments.extend(sj_filenames)
         arguments.extend(['--gtf', gtf, '--output', output_folder, '--debug'])
-        # import pdb; pdb.set_trace()
-        # assert False
         CommandLine(arguments)
 
         args = ['psi', '--output', output_folder]
@@ -208,22 +206,15 @@ class TestCommandLine(object):
         dir2 = tasic2016_outrigger_output
         assert_directories_equal(dir1, dir2, ignore=['.DS_Store'])
 
-    def test_main_psi_bam(self, tmpdir, tasic2016_unprocessed,
-                          tasic2016_outrigger_output_bam, bam_filename):
+    def test_main_psi_bam(self, tmpdir, tasic2016_outrigger_output_index,
+                          tasic2016_outrigger_output_bam, bam_filenames):
         from outrigger.commandline import CommandLine
 
         output_folder = tmpdir.strpath
 
-        gtf = os.path.join(tasic2016_unprocessed, 'gtf',
-                           'gencode.vM10.annotation.subset.gtf')
-        arguments = ['index', '--bams']
-        arguments.extend(bam_filename)
-        arguments.extend(['--gtf', gtf, '--output', output_folder, '--debug'])
-        # import pdb; pdb.set_trace()
-        # assert False
-        CommandLine(arguments)
-
-        args = ['psi', '--output', output_folder]
+        args = ['psi', '--output', output_folder,
+                '--index', tasic2016_outrigger_output_index,
+                '--bams', bam_filenames]
         CommandLine(args)
 
         dir1 = output_folder
