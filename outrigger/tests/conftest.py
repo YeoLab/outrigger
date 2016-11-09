@@ -88,6 +88,7 @@ def negative_control_output(negative_control_folder):
 def tasic2016_sj_out_tab(tasic2016_unprocessed):
     return os.path.join(tasic2016_unprocessed, 'sj_out_tab')
 
+
 @pytest.fixture
 def tasic2016_bam(tasic2016_unprocessed):
     return os.path.join(tasic2016_unprocessed, 'bam')
@@ -102,6 +103,7 @@ def tasic2016_gtf(tasic2016_unprocessed):
 def tasic2016_intermediate(tasic2016):
     """Suffix for intermediate files from Tasic et al Nat Neurosci (2016)"""
     return os.path.join(tasic2016, 'intermediate')
+
 
 @pytest.fixture
 def tasic2016_intermediate_bam(tasic2016_intermediate):
