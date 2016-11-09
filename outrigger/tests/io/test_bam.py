@@ -162,7 +162,7 @@ def test_read_multiple_bams(bam_filenames, multiple_bams_reads_table_csvs,
                             ignore_multimapping):
     from outrigger.io.bam import read_multiple_bams
 
-    test = read_multiple_bams(bamfiles, ignore_multimapping)
+    test = read_multiple_bams(bam_filenames, ignore_multimapping)
 
     dfs = [pd.read_csv(csv) for csv in multiple_bams_reads_table_csvs]
     true = pd.concat(dfs, ignore_index=True)
