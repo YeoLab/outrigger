@@ -47,18 +47,25 @@ def multi_csv(suffix_template, tasic2016_intermediate_bam):
 
 
 def read_intermediate_junctions(csv):
-    return pd.read_csv(csv, index_col=[0, 1, 2, 3],
-                                squeeze=True, header=None).to_dict()
+    return pd.read_csv(csv, index_col=[0, 1, 2, 3], squeeze=True, header=None)
 
 
 @pytest.fixture
 def multi(multi_csv):
-    return read_intermediate_junctions(multi_csv)
+    return read_intermediate_junctions(multi_csv).to_dict()
 
 
 @pytest.fixture
 def uniquely(uniquely_csv):
-    return read_intermediate_junctions(uniquely_csv)
+    return read_intermediate_junctions(uniquely_csv).to_dict()
+
+@pytest.fixture
+def uniquely_summed_csv(bamfile, tasic2016_intermediate_bam):
+    basename = os.path.basename(bamfile)
+    basename = basename.replace('.bam', 'uniquely_mapped_summed.csv')
+
+    csv = os.path.join(tasic2016_intermediate_bam, basename)
+    return csv
 
 
 @pytest.fixture
@@ -92,13 +99,14 @@ def test__report_read_positions(bamfile):
     pdt.assert_dict_equal(test, true)
 
 
-def test__choose_strand_and_sum(uniquely):
+def test__choose_strand_and_sum(uniquely, uniquely_summed_csv):
     from outrigger.io.bam import UNIQUE_READS, _choose_strand_and_sum
 
     uniquely = pd.Series(uniquely, name=UNIQUE_READS)
 
     test = _choose_strand_and_sum(uniquely)
-    assert False
+    true = pd.read_csv(uniquely_summed_csv)
+    pdt.assert_frame_equal(test, true)
 
 
 def test__reads_dict_to_table(uniquely, multi, ignore_multimapping):
