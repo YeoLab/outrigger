@@ -160,6 +160,14 @@ def illegal_junctions(splice_type):
         return 'junction23'
 
 
+def test__single_event_psi():
+    from outrigger.psi.compute import _single_event_psi
+
+
+def test_calculate_psi():
+    from outrigger.psi.compute import calculate_psi
+
+
 # def test_psi(splice_junction_reads, junction12_reads, junction23_reads,
 #              junction13_reads, exons_to_junctions, capsys, events):
 #     from outrigger.psi.compute import calculate_psi, MIN_READS

@@ -88,7 +88,7 @@ def maybe_get_isoform_reads(splice_junction_reads, junction_locations,
 
 def _single_event_psi(i, event_id, event_df, splice_junction_reads,
                       isoform1_junctions, isoform2_junctions, reads_col,
-                      min_reads, junction_cols):
+                      min_reads):
     if (i + 1) % 1000 == 0:
         sys.stdout.write('{}\t\t\t{} events completed\n'.format(
             timestamp(), i))
@@ -106,7 +106,7 @@ def _single_event_psi(i, event_id, event_df, splice_junction_reads,
 
     if isoform1.empty and isoform2.empty:
         # If both are empty after filtering this event --> don't calculate
-        return pd.Series(name=event_id)
+        return
 
     isoform1, isoform2 = isoform1.align(isoform2, 'outer')
 
@@ -163,8 +163,6 @@ def calculate_psi(event_annotation, splice_junction_reads,
     if debug:
         log.setLevel(10)
 
-    junction_cols = isoform1_junctions + isoform2_junctions
-
     # There are multiple rows with the same event id because the junctions
     # are the same, but the flanking exons may be a little wider or shorter,
     # but ultimately the event Psi is calculated only on the junctions so the
@@ -181,10 +179,10 @@ def calculate_psi(event_annotation, splice_junction_reads,
         joblib.delayed(_single_event_psi)(
             i, event_id, event_df, splice_junction_reads,
             isoform1_junctions, isoform2_junctions, reads_col,
-            min_reads, junction_cols)
+            min_reads)
         for i, (event_id, event_df) in enumerate(grouped))
 
     # use only non-empty psi outputs
-    psi_df = pd.concat(filter(lambda x: not x.empty, psis), axis=1)
+    psi_df = pd.concat(filter(lambda x: x is not None, psis), axis=1)
     done(n_tabs=3)
     return psi_df
