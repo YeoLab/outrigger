@@ -1,14 +1,12 @@
 import logging
 import sys
-import warnings
 
-from ..common import ILLEGAL_JUNCTIONS
+import joblib
+import pandas as pd
+
+from ..common import ILLEGAL_JUNCTIONS, MIN_READS
 from ..util import timestamp
 
-
-with warnings.catch_warnings():
-    warnings.simplefilter("ignore")
-    import pandas as pd
 
 logging.basicConfig()
 
@@ -88,9 +86,57 @@ def maybe_get_isoform_reads(splice_junction_reads, junction_locations,
         return pd.Series()
 
 
+def _single_event_psi(i, event_id, event_df, splice_junction_reads,
+                      isoform1_junctions, isoform2_junctions, reads_col,
+                      min_reads, junction_cols, debug, log):
+    if (i + 1) % 1000 == 0:
+        sys.stdout.write('{}\t\t\t{} events completed\n'.format(
+            timestamp(), i))
+    junction_locations = event_df.iloc[0]
+
+    isoform1 = maybe_get_isoform_reads(splice_junction_reads,
+                                       junction_locations,
+                                       isoform1_junctions, reads_col)
+    isoform2 = maybe_get_isoform_reads(splice_junction_reads,
+                                       junction_locations,
+                                       isoform2_junctions, reads_col)
+
+    log.debug('--- junction columns of event ---\n%s',
+              repr(junction_locations[junction_cols]))
+    log.debug('--- isoform1 ---\n%s', repr(isoform1))
+    log.debug('--- isoform2 ---\n%s', repr(isoform2))
+
+    isoform1 = filter_and_sum(isoform1, min_reads, isoform1_junctions,
+                              debug=debug)
+    isoform2 = filter_and_sum(isoform2, min_reads, isoform2_junctions,
+                              debug=debug)
+
+    if isoform1.empty and isoform2.empty:
+        # If both are empty after filtering this event --> don't calculate
+        return pd.Series(name=event_id)
+
+    log.debug('\n- After filter and sum -')
+    log.debug('--- isoform1 ---\n%s', repr(isoform1))
+    log.debug('--- isoform2 ---\n%s', repr(isoform2))
+
+    isoform1, isoform2 = isoform1.align(isoform2, 'outer')
+
+    isoform1 = isoform1.fillna(0)
+    isoform2 = isoform2.fillna(0)
+
+    multiplier = float(len(isoform2_junctions)) / len(isoform1_junctions)
+    psi = isoform2 / (isoform2 + multiplier * isoform1)
+    psi.name = event_id
+
+    log.debug('--- Psi ---\n%s', repr(psi))
+
+    return psi
+
+
+
 def calculate_psi(event_annotation, splice_junction_reads,
                   isoform1_junctions, isoform2_junctions, reads_col='reads',
-                  min_reads=10, debug=False):
+                  min_reads=MIN_READS, n_jobs=-1, debug=False):
     """Compute percent-spliced-in of events based on junction reads
 
     Parameters
@@ -146,51 +192,14 @@ def calculate_psi(event_annotation, splice_junction_reads,
     sys.stdout.write('{}\t\tIterating over {} events ...\n'.format(
         timestamp(), n_events))
 
-    psi_df = pd.DataFrame(index=splice_junction_reads.index.levels[1],
-                          columns=sorted(grouped.groups.keys()))
+    psis = joblib.Parallel(n_jobs=n_jobs)(
+        joblib.delayed(_single_event_psi)(
+            i, event_id, event_df, splice_junction_reads,
+            isoform1_junctions, isoform2_junctions, reads_col,
+            min_reads, junction_cols, debug, log)
+        for i, (event_id, event_df) in enumerate(grouped))
 
-    for i, (event_id, event_df) in enumerate(grouped):
-        if (i+1) % 1000 == 0:
-            sys.stdout.write('{}\t\t\t{} events completed\n'.format(
-                timestamp(), i))
-        junction_locations = event_df.iloc[0]
-
-        isoform1 = maybe_get_isoform_reads(splice_junction_reads,
-                                           junction_locations,
-                                           isoform1_junctions, reads_col)
-        isoform2 = maybe_get_isoform_reads(splice_junction_reads,
-                                           junction_locations,
-                                           isoform2_junctions, reads_col)
-
-        log.debug('--- junction columns of event ---\n%s',
-                  repr(junction_locations[junction_cols]))
-        log.debug('--- isoform1 ---\n%s', repr(isoform1))
-        log.debug('--- isoform2 ---\n%s', repr(isoform2))
-
-        isoform1 = filter_and_sum(isoform1, min_reads, isoform1_junctions,
-                                  debug=debug)
-        isoform2 = filter_and_sum(isoform2, min_reads, isoform2_junctions,
-                                  debug=debug)
-
-        if isoform1.empty and isoform2.empty:
-            # If both are empty after filtering this event --> don't calculate
-            continue
-
-        log.debug('\n- After filter and sum -')
-        log.debug('--- isoform1 ---\n%s', repr(isoform1))
-        log.debug('--- isoform2 ---\n%s', repr(isoform2))
-
-        isoform1, isoform2 = isoform1.align(isoform2, 'outer')
-
-        isoform1 = isoform1.fillna(0)
-        isoform2 = isoform2.fillna(0)
-
-        multiplier = float(len(isoform2_junctions))/len(isoform1_junctions)
-        psi = isoform2/(isoform2 + multiplier * isoform1)
-        log.debug('--- Psi ---\n%s', repr(psi))
-        if not psi.empty:
-            psi.name = event_id
-            psi_df[event_id] = psi
+    psi_df = pd.concat(psis)
     sys.stdout.write('{}\t\t\tDone.\n'.format(timestamp()))
 
     return psi_df
