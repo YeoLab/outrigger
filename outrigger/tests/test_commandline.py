@@ -121,8 +121,7 @@ class TestCommandLine(object):
         assert 'outrigger' in outerr
         assert __version__ in outerr
 
-    def test_main_index(self, tmpdir, capsys, tasic2016_unprocessed,
-                        sj_filenames):
+    def test_main_index(self, tmpdir, tasic2016_unprocessed, sj_filenames):
         from outrigger.commandline import CommandLine
 
         output_folder = tmpdir.strpath
@@ -136,11 +135,32 @@ class TestCommandLine(object):
         # assert False
         CommandLine(arguments)
 
-        out, err = capsys.readouterr()
-
         dir1 = os.path.join(output_folder, 'index')
         dir2 = os.path.join('outrigger', 'tests', 'data', 'tasic2016',
                             'outrigger_output', 'index')
+        ignore = ['psi', '.DS_Store', 'validated', 'splice_sites.csv',
+                  # Databases get stored in a weird random way... we're still
+                  # checking that the final gtfs are the same
+                  'gencode.vM10.annotation.subset.gtf.db']
+        assert_directories_equal(dir1, dir2, ignore)
+
+    def test_main_index_bam(self, tmpdir, tasic2016_unprocessed,
+                            bam_filenames, tasic2016_outrigger_output_bam):
+        from outrigger.commandline import CommandLine
+
+        output_folder = tmpdir.strpath
+
+        gtf = os.path.join(tasic2016_unprocessed, 'gtf',
+                           'gencode.vM10.annotation.subset.gtf')
+        arguments = ['index', '--bams']
+        arguments.extend(bam_filenames)
+        arguments.extend(['--gtf', gtf, '--output', output_folder, '--debug'])
+        # import pdb; pdb.set_trace()
+        # assert False
+        CommandLine(arguments)
+
+        dir1 = os.path.join(output_folder, 'index')
+        dir2 = os.path.join(tasic2016_outrigger_output_bam, 'index')
         ignore = ['psi', '.DS_Store', 'validated', 'splice_sites.csv',
                   # Databases get stored in a weird random way... we're still
                   # checking that the final gtfs are the same
@@ -186,4 +206,26 @@ class TestCommandLine(object):
 
         dir1 = output_folder
         dir2 = tasic2016_outrigger_output
+        assert_directories_equal(dir1, dir2, ignore=['.DS_Store'])
+
+    def test_main_psi_bam(self, tmpdir, tasic2016_unprocessed,
+                          tasic2016_outrigger_output_bam, bam_filename):
+        from outrigger.commandline import CommandLine
+
+        output_folder = tmpdir.strpath
+
+        gtf = os.path.join(tasic2016_unprocessed, 'gtf',
+                           'gencode.vM10.annotation.subset.gtf')
+        arguments = ['index', '--bams']
+        arguments.extend(bam_filename)
+        arguments.extend(['--gtf', gtf, '--output', output_folder, '--debug'])
+        # import pdb; pdb.set_trace()
+        # assert False
+        CommandLine(arguments)
+
+        args = ['psi', '--output', output_folder]
+        CommandLine(args)
+
+        dir1 = output_folder
+        dir2 = tasic2016_outrigger_output_bam
         assert_directories_equal(dir1, dir2, ignore=['.DS_Store'])

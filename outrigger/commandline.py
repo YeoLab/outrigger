@@ -16,7 +16,7 @@ from outrigger import __version__
 import outrigger.common
 from outrigger import util, common
 from outrigger.index import events, adjacencies
-from outrigger.io import star, gtf
+from outrigger.io import star, gtf, bam
 from outrigger.psi import compute
 from outrigger.validate import check_splice_sites
 
@@ -70,6 +70,9 @@ class CommandLine(object):
                  "Not required if you specify "
                  "SJ.out.tab file with '--sj-out-tab'".format(
                         sj_csv=JUNCTION_READS_PATH))
+        index_junctions.add_argument(
+            '-b', '--bams', required=False, nargs='*',
+            help="Location of bam files to use for finding events.")
         index_parser.add_argument('-m', '--min-reads', type=int,
                                   action='store',
                                   required=False, default=10,
@@ -236,6 +239,10 @@ class CommandLine(object):
             type=str, action='store', nargs='*',
             help='SJ.out.tab files from STAR aligner output. Not required if '
                  'you specify a file with "--compiled-junction-reads"')
+        psi_junctions.add_argument(
+            '-b', '--bams', required=False,
+            type=str, action='store', nargs='*',
+            help='Bam files to use to calculate psi on')
         psi_parser.add_argument('-m', '--min-reads', type=int, action='store',
                                 required=False, default=10,
                                 help='Minimum number of reads per junction for'
@@ -393,12 +400,19 @@ class Subcommand(object):
     def csv(self):
         """Create a csv file of compiled splice junctions"""
         if not os.path.exists(self.junction_reads):
-            util.progress(
-                'Reading SJ.out.files and creating a big splice junction'
-                ' table of reads spanning exon-exon junctions...')
-            splice_junctions = star.read_multiple_sj_out_tab(
-                self.sj_out_tab, ignore_multimapping=self.ignore_multimapping)
-
+            if self.bams is None:
+                util.progress(
+                    'Reading SJ.out.files and creating a big splice junction'
+                    ' table of reads spanning exon-exon junctions...')
+                splice_junctions = star.read_multiple_sj_out_tab(
+                    self.sj_out_tab,
+                    ignore_multimapping=self.ignore_multimapping)
+            else:
+                util.progress('Reading bam files and creating a big splice '
+                              'junction table of reads spanning exon-exon '
+                              'junctions')
+                splice_junctions = bam.read_multiple_bams(
+                    self.bams, self.ignore_multimapping, self.n_jobs)
             dirname = os.path.dirname(self.junction_reads)
             if not os.path.exists(dirname):
                 os.makedirs(dirname)
