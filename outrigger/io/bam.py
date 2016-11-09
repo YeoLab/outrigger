@@ -54,7 +54,25 @@ def _choose_strand_and_sum(reads):
     return pd.Series(counts.values, index=index, name=reads.name)
 
 
-def _reads_dict_to_table(uniquely, multi, ignore_multimapping=False):
+def _reads_dicts_to_table(uniquely, multi, ignore_multimapping=False):
+    """Combine uniquely and multi-mapped read counts into a single table
+
+    Parameters
+    ----------
+    unqiuely, multi : dict
+        A dictionary of {(chrom, start, end, strand) : n_reads} uniquely mapped
+        and multi-mapped (reads that could map to multiple parts of the genome)
+    ignore_multimapping : bool
+        When summing all reads, whether or not to ignore the multimapping
+        reads. Default is False.
+
+    Returns
+    -------
+    reads : pandas.DataFrame
+        A combined table of all uniquely and multi-mapped reads, with an
+        additional column of "reads" which will ultimately be the reads used
+        for creating an outrigger index and calculating percent spliced-in.
+    """
     uniquely = pd.Series(uniquely, name=UNIQUE_READS)
     multi = pd.Series(multi, name=MULTIMAP_READS)
 
@@ -103,7 +121,7 @@ def _get_junction_reads(filename):
 def bam_to_junction_reads_table(bam_filename, ignore_multimapping=False):
     """Create a table of reads for this bam file"""
     uniquely, multi = _get_junction_reads(bam_filename)
-    reads = _reads_dict_to_table(uniquely, multi, ignore_multimapping)
+    reads = _reads_dicts_to_table(uniquely, multi, ignore_multimapping)
 
     # Remove "junctions" with same start and stop
     reads = reads.loc[reads[JUNCTION_START] != reads[JUNCTION_STOP]]
