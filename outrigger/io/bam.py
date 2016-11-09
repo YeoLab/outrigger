@@ -134,7 +134,7 @@ def bam_to_junction_reads_table(bam_filename, ignore_multimapping=False):
 def read_multiple_bams(bam_filenames, ignore_multimapping=False, n_jobs=-1):
     dfs = joblib.Parallel(n_jobs=n_jobs)(
         joblib.delayed(
-            bam_to_junction_reads_table(filename, ignore_multimapping))
+            bam_to_junction_reads_table)(filename, ignore_multimapping)
         for filename in bam_filenames)
     reads = pd.concat(dfs, ignore_index=True)
     return reads

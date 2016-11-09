@@ -90,7 +90,7 @@ def bamfiles(tasic2016_bam):
 
 @pytest.fixture
 def multiple_bams_reads_table_csvs(tasic2016_intermediate_bam,
-                             ignore_multimapping):
+                                   ignore_multimapping):
     """csvs for bamfiles (multiple)"""
     suffix = '*.outrigger_junction_reads_ignore-multimapping{}.csv'.format(
         ignore_multimapping)
@@ -162,10 +162,11 @@ def test_bam_to_junction_reads_table(
     pdt.assert_frame_equal(test, true)
 
 
-def test_read_multiple_bams(bamfiles, multiple_bams_reads_table_csvs):
+def test_read_multiple_bams(bamfiles, multiple_bams_reads_table_csvs,
+                            ignore_multimapping):
     from outrigger.io.bam import read_multiple_bams
 
-    test = read_multiple_bams(bamfiles)
+    test = read_multiple_bams(bamfiles, ignore_multimapping)
 
     dfs = [pd.read_csv(csv) for csv in multiple_bams_reads_table_csvs]
     true = pd.concat(dfs, ignore_index=True)
