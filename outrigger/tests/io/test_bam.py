@@ -29,6 +29,39 @@ def junction_reads_table_csv(bamfile, tasic2016_intermediate_bam,
 
 
 @pytest.fixture
+def suffix_template(bamfile, ):
+    return os.path.basename(bamfile).replace(
+        '.bam', '.junction_reads_{}mapped.csv')
+
+
+@pytest.fixture
+def uniquely_csv(suffix_template, tasic2016_intermediate_bam):
+    return os.path.join(tasic2016_intermediate_bam,
+                        suffix_template.format('uniquely'))
+
+
+@pytest.fixture
+def multi_csv(suffix_template, tasic2016_intermediate_bam):
+    return os.path.join(tasic2016_intermediate_bam,
+                        suffix_template.format('multi'))
+
+
+def read_intermediate_junctions(csv):
+    return pd.read_csv(csv, index_col=[0, 1, 2, 3],
+                                squeeze=True, header=None).to_dict()
+
+
+@pytest.fixture
+def multi(multi_csv):
+    return read_intermediate_junctions(multi_csv)
+
+
+@pytest.fixture
+def uniquely(uniquely_csv):
+    return read_intermediate_junctions(uniquely_csv)
+
+
+@pytest.fixture
 def bamfiles(tasic2016_bam):
     return glob.glob(os.path.join(tasic2016_bam, '*'))
 
@@ -59,20 +92,32 @@ def test__report_read_positions(bamfile):
     pdt.assert_dict_equal(test, true)
 
 
-def test__choose_strand_and_sum():
-    pass
+def test__choose_strand_and_sum(uniquely):
+    from outrigger.io.bam import UNIQUE_READS, _choose_strand_and_sum
+
+    uniquely = pd.Series(uniquely, name=UNIQUE_READS)
+
+    test = _choose_strand_and_sum(uniquely)
+    assert False
 
 
-def test__reads_dict_to_table():
-    pass
+def test__reads_dict_to_table(uniquely, multi, ignore_multimapping):
+    from outrigger.io.bam import _reads_dict_to_table
+
+    test = _reads_dict_to_table(uniquely, multi, ignore_multimapping)
+    assert False
 
 
-def test__get_junction_reads(bamfile):
+def test__get_junction_reads(bamfile, uniquely_csv, multi_csv):
     from outrigger.io.bam import _get_junction_reads
 
     test_uniquely, test_multi = _get_junction_reads(bamfile)
 
-    assert False
+    true_uniquely = read_intermediate_junctions(uniquely_csv)
+    true_multi = read_intermediate_junctions(multi_csv)
+
+    pdt.assert_dict_equal(test_uniquely, true_uniquely)
+    pdt.assert_dict_equal(test_multi, true_multi)
 
 
 def test_bam_to_junction_reads_table(bamfile, junction_reads_table_csv):

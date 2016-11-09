@@ -33,6 +33,11 @@ def _choose_strand_and_sum(reads):
 
     STAR seems to take a simple majority to decide on strand when there are
     reads mapping to both, so we'll do the same
+
+    Parameters
+    ----------
+
+
     """
     locations = reads.groupby(level=(0, 1, 2)).idxmax()
     counts = reads.groupby(level=(0, 1, 2)).sum()
