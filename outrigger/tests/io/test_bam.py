@@ -84,11 +84,6 @@ def single_bam_combined_uniquely_multi_csv(tasic2016_intermediate_bam, bamfile,
 
 
 @pytest.fixture
-def bamfiles(tasic2016_bam):
-    return glob.glob(os.path.join(tasic2016_bam, '*.bam'))
-
-
-@pytest.fixture
 def multiple_bams_reads_table_csvs(tasic2016_intermediate_bam,
                                    ignore_multimapping):
     """csvs for bamfiles (multiple)"""
@@ -152,17 +147,18 @@ def test__get_junction_reads(bamfile, uniquely_csv, multi_csv):
 
 
 def test_bam_to_junction_reads_table(
-        bamfile, single_bam_final_junction_reads_table_csv):
+        bamfile, single_bam_final_junction_reads_table_csv,
+        ignore_multimapping):
 
     from outrigger.io.bam import bam_to_junction_reads_table
 
-    test = bam_to_junction_reads_table(bamfile)
+    test = bam_to_junction_reads_table(bamfile, ignore_multimapping)
     true = pd.read_csv(single_bam_final_junction_reads_table_csv)
 
     pdt.assert_frame_equal(test, true)
 
 
-def test_read_multiple_bams(bamfiles, multiple_bams_reads_table_csvs,
+def test_read_multiple_bams(bam_filenames, multiple_bams_reads_table_csvs,
                             ignore_multimapping):
     from outrigger.io.bam import read_multiple_bams
 

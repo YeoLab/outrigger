@@ -1,13 +1,11 @@
-v0.3.0 (...)
+v0.2.9 (...)
 ------------
 
-This is the second release of `outrigger`
 
 New features
 ~~~~~~~~~~~~
 
-- Parallelized exon finding for novel exons
-- Added ``outrigger validate`` command for
+- Add ``bam`` alignment files as input option
 
 Plotting functions
 ~~~~~~~~~~~~~~~~~~

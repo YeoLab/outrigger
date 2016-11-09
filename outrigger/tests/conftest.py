@@ -147,6 +147,12 @@ def sj_filenames(tasic2016_sj_out_tab):
 
 
 @pytest.fixture
+def bam_filenames(tasic2016_intermediate_bam):
+    globber = os.path.join(tasic2016_intermediate_bam, '*bam')
+    return glob.glob(globber)
+
+
+@pytest.fixture
 def junction_reads(tasic2016_outrigger_junctions):
     filename = os.path.join(tasic2016_outrigger_junctions, 'reads.csv')
     return pd.read_csv(filename)
