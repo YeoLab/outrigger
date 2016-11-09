@@ -36,7 +36,14 @@ def _choose_strand_and_sum(reads):
 
     Parameters
     ----------
+    reads : pandas.Series
+        A (chrom, start, stop, strand)-indexed series of read counts
 
+    Returns
+    -------
+    reads_strand_chosen : pandas.Series
+        A (chrom, start, stop, strand)-indexed series of read counts, with
+        the majority strand as the "winner" and
 
     """
     locations = reads.groupby(level=(0, 1, 2)).idxmax()
