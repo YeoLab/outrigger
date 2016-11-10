@@ -46,10 +46,13 @@ def dummy_junction34():
 
 
 @pytest.fixture
-def dummy_junction_number_to_id():
+def dummy_junction_number_to_id(dummy_junction12, dummy_junction13,
+                                dummy_junction23, dummy_junction14,
+                                dummy_junction24, dummy_junction34):
     d = {'junction12': dummy_junction12, 'junction13': dummy_junction13,
          'junction23': dummy_junction23, 'junction14': dummy_junction14,
          'junction24': dummy_junction24, 'junction34': dummy_junction34}
+    return d
 
 
 @pytest.fixture
@@ -72,26 +75,25 @@ def dummy_legal_junctions(dummy_isoform1_junctions, dummy_isoform2_junctions):
     return dummy_isoform1_junctions + dummy_isoform2_junctions
 
 
-@pytest.fixture(params=[100, 2, np.nan, 100],
+@pytest.fixture(params=[(100, 100), (2, 2),
+                        (np.nan, np.nan), (100, 2),
+                        (2, np.nan), (100, np.nan)],
                 ids=['enough reads', 'not enough reads', 'not there',
+                     'one not enough', 'not enough, one not there',
                      'one not there'])
-def dummy_isoform1_reads(request, dummy_isoform1_junctions,
-                         dummy_junction_number_to_id):
-    reads = {dummy_junction_number_to_id[j]: request.param
-             for j in dummy_isoform1_junctions}
-    if request.name == 'one not there':
-        reads[dummy_isoform1_junctions[0]] = np.nan
+def dummy_isoform1_reads(request, dummy_isoform1_junctions):
+    reads = dict(zip(dummy_isoform1_junctions, request.param))
     return reads
 
 
-@pytest.fixture(params=[100, 2, np.nan, 100],
+@pytest.fixture(params=[(100, 100), (2, 2),
+                        (np.nan, np.nan), (100, 2),
+                        (2, np.nan), (100, np.nan)],
                 ids=['enough reads', 'not enough reads', 'not there',
+                     'one not enough', 'not enough, one not there',
                      'one not there'])
 def dummy_isoform2_reads(request, dummy_isoform2_junctions):
-    reads = {dummy_junction_number_to_id[j]: request.param
-             for j in dummy_isoform2_junctions}
-    if request.name == 'one not there':
-        reads[dummy_isoform2_junctions[0]] = np.nan
+    reads = dict(zip(dummy_isoform2_junctions, request.param))
     return reads
 
 
@@ -125,9 +127,9 @@ def dummy_splice_junction_reads(dummy_isoform_reads):
     from outrigger.common import READS
 
     s = 'sample_id,junction,{reads}\n'.format(reads=READS)
-    for junction_id, reads in dummy_isoform_reads:
-        s += 'sample1,{junction_id},{reads}'.format(junction_id=junction_id,
-                                                    reads=reads)
+    for junction_id, reads in dummy_isoform_reads.items():
+        s += 'sample1,{junction_id},{reads}\n'.format(junction_id=junction_id,
+                                                      reads=reads)
     data = pd.read_csv(six.StringIO(s), comment='#')
     data = data.dropna()
     data = data.set_index(
