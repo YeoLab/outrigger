@@ -112,6 +112,12 @@ def tasic2016_intermediate_bam(tasic2016_intermediate):
 
 
 @pytest.fixture
+def tasic2016_intermediate_psi(tasic2016_intermediate):
+    """Suffix for intermediate files from Tasic et al Nat Neurosci (2016)"""
+    return os.path.join(tasic2016_intermediate, 'psi')
+
+
+@pytest.fixture
 def tasic2016_outrigger_output(tasic2016):
     """Suffix for outrigger_output files from Tasic Nat Neurosci (2016)"""
     return os.path.join(tasic2016, 'outrigger_output')

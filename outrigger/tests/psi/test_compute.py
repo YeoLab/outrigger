@@ -28,13 +28,19 @@ def junction13():
 
 
 @pytest.fixture
-def isoform1_junctions():
-    return ['junction13']
+def isoform1_junctions(splice_type):
+    if splice_type == 'se':
+        return ['junction13']
+    if splice_type == 'mxe':
+        return ['junction13', 'junction34']
 
 
 @pytest.fixture
-def isoform2_junctions():
-    return ['junction12', 'junction23']
+def isoform2_junctions(splice_type):
+    if splice_type == 'se':
+        return ['junction12', 'junction23']
+    if splice_type == 'mxe':
+        return ['junction12', 'junction24']
 
 
 @pytest.fixture(params=['isoform1', 'isoform2',
@@ -160,9 +166,32 @@ def illegal_junctions(splice_type):
         return 'junction23'
 
 
-def test__single_event_psi(splice_junction_reads, isoform1_junctions,
-                           isoform2_junctions):
+@pytest.fixture
+def event_id(splice_type):
+    if splice_type == 'se':
+        return 'isoform1=junction:chr10:128491034-128491719:-|isoform2=junction:chr10:128491348-128491719:-@novel_exon:chr10:128491286-128491347:-@junction:chr10:128491034-128491285:-' # noqa
+    elif splice_type == 'mxe':
+        return
+
+
+@pytest.fixture
+def event_df_csv(splice_type, tasic2016_intermediate_psi):
+    if splice_type == 'se':
+        return os.path.join(tasic2016_intermediate_psi, 'se_event_df.csv')
+
+
+@pytest.fixture
+def splice_junction_reads_csv(tasic2016_intermediate_psi):
+    return os.path.join(tasic2016_intermediate_psi,
+                        'splice_junction_reads.csv')
+
+
+def test__single_event_psi(event_df_csv, splice_junction_reads_csv,
+                           isoform1_junctions, isoform2_junctions):
     from outrigger.psi.compute import _single_event_psi
+    event_df = pd.read_csv(event_df_csv, index_col=0)
+    splice_junction_reads = pd.read_csv(splice_junction_reads_csv,
+                                        index_col=[0, 1])
 
     test = _single_event_psi(event_id, event_df, splice_junction_reads,
                              isoform1_junctions, isoform2_junctions)
