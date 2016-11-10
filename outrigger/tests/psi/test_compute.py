@@ -10,21 +10,31 @@ idx = pd.IndexSlice
 
 
 @pytest.fixture
-def junction12():
+def dummy_junction12():
     """Junction between exon_cols 1 and 2"""
     return "junction:chr1:176-224:+"
 
 
 @pytest.fixture
-def junction23():
+def dummy_junction23():
     """Junction between exon_cols 2 and 3"""
     return 'junction:chr1:251-299:+'
 
 
 @pytest.fixture
-def junction13():
+def dummy_junction13():
     """Junction between exon_cols 1 and 3"""
     return 'junction:chr1:176-299:+'
+
+
+@pytest.fixture
+def dummy_isoform1_junctions(splice_type):
+    return ['junction13']
+
+
+@pytest.fixture
+def dummy_isoform2_junctions(splice_type):
+    return ['junction12', 'junction23']
 
 
 @pytest.fixture
@@ -45,17 +55,18 @@ def isoform2_junctions(splice_type):
 
 @pytest.fixture(params=['isoform1', 'isoform2',
                         pytest.mark.xfail('keyerror_isoform')])
-def isoform_junctions(request, isoform1_junctions, isoform2_junctions):
+def dummy_isoform_junctions(request, dummy_isoform1_junctions,
+                            dummy_isoform2_junctions):
     if request.param == 'isoform1':
-        return isoform1_junctions
+        return dummy_isoform1_junctions
     elif request.param == 'isoform2':
-        return isoform2_junctions
+        return dummy_isoform2_junctions
     else:
         return 'keyerror_isoform'
 
 
 @pytest.fixture
-def event_name():
+def dummy_event_name():
     return 'exon:chr1:150-175:+@exon:chr1:225-250:+@exon:chr1:300-350:+'
 
 
@@ -83,15 +94,16 @@ def reads_col():
 
 
 @pytest.fixture
-def splice_junction_reads(junction12, junction12_reads,
-                          junction23, junction23_reads,
-                          junction13, junction13_reads, reads_col):
+def dummy_splice_junction_reads(dummy_junction12, junction12_reads,
+                          dummy_junction23, junction23_reads,
+                          dummy_junction13, junction13_reads, reads_col):
+    """Completely fake dataset for sanity checking"""
     s = """sample_id,junction,{6}
 sample1,{0},{1}
 sample1,{2},{3}
-sample1,{4},{5}""".format(junction12, junction12_reads,
-                          junction23, junction23_reads,
-                          junction13, junction13_reads, reads_col)
+sample1,{4},{5}""".format(dummy_junction12, junction12_reads,
+                          dummy_junction23, junction23_reads,
+                          dummy_junction13, junction13_reads, reads_col)
     data = pd.read_csv(six.StringIO(s), comment='#')
     data = data.dropna()
     data = data.set_index(
@@ -101,29 +113,36 @@ sample1,{4},{5}""".format(junction12, junction12_reads,
 
 
 @pytest.fixture
-def junction_locations(junction12, junction23, junction13):
-    return pd.Series({'junction12': junction12, 'junction23': junction23,
-                      'junction13': junction13, 'illegal_junctions': np.nan})
+def dummy_junction_locations(dummy_junction12, dummy_junction23,
+                              dummy_junction13):
+    return pd.Series({'junction12': dummy_junction12,
+                      'junction23': dummy_junction23,
+                      'junction13': dummy_junction13,
+                      'illegal_junctions': np.nan})
 
 
 @pytest.fixture
-def junction_to_reads(junction12, junction12_reads,
-                      junction23, junction23_reads,
-                      junction13, junction13_reads):
+def dummy_junction_to_reads(dummy_junction12, junction12_reads,
+                      dummy_junction23, junction23_reads,
+                      dummy_junction13, junction13_reads):
     """Helper function for testing"""
-    return pd.Series({junction12: junction12_reads,
-                      junction23: junction23_reads,
-                      junction13: junction13_reads})
+    return pd.Series({dummy_junction12: junction12_reads,
+                      dummy_junction23: junction23_reads,
+                      dummy_junction13: junction13_reads})
 
 
-def test_maybe_get_isoform_reads(splice_junction_reads, junction_locations,
-                                 isoform_junctions, junction_to_reads,
+def test_maybe_get_isoform_reads(dummy_splice_junction_reads,
+                                 dummy_junction_locations,
+                                 dummy_isoform_junctions,
+                                 dummy_junction_to_reads,
                                  reads_col):
     from outrigger.psi.compute import maybe_get_isoform_reads
-    test = maybe_get_isoform_reads(splice_junction_reads, junction_locations,
-                                   isoform_junctions, reads_col=reads_col)
-    junctions = junction_locations[isoform_junctions]
-    reads = junction_to_reads[junctions.values]
+    test = maybe_get_isoform_reads(dummy_splice_junction_reads,
+                                   dummy_junction_locations,
+                                   dummy_isoform_junctions,
+                                   reads_col=reads_col)
+    junctions = dummy_junction_locations[dummy_isoform_junctions]
+    reads = dummy_junction_to_reads[junctions.values]
     reads = reads.dropna()
     if reads.empty:
         true = pd.Series()
@@ -169,15 +188,16 @@ def illegal_junctions(splice_type):
 @pytest.fixture
 def event_id(splice_type):
     if splice_type == 'se':
-        return 'isoform1=junction:chr10:128491034-128491719:-|isoform2=junction:chr10:128491348-128491719:-@novel_exon:chr10:128491286-128491347:-@junction:chr10:128491034-128491285:-' # noqa
+        return 'isoform1=junction:chr10:128491034-128492058:-|isoform2=junction:chr10:128491765-128492058:-@novel_exon:chr10:128491720-128491764:-@junction:chr10:128491034-128491719:-'
     elif splice_type == 'mxe':
-        return
+        return 'isoform1=junction:chr2:136763622-136770056:+@exon:chr2:136770057-136770174:+@junction:chr2:136770175-136773894:+|isoform2=junction:chr2:136763622-136769742:+@exon:chr2:136769743-136769860:+@junction:chr2:136769861-136773894:+' # noqa
 
 
 @pytest.fixture
 def event_df_csv(splice_type, tasic2016_intermediate_psi):
-    if splice_type == 'se':
-        return os.path.join(tasic2016_intermediate_psi, 'se_event_df.csv')
+    return os.path.join(tasic2016_intermediate_psi,
+                        '{splice_type}_event_df.csv'.format(
+                            splice_type=splice_type))
 
 
 @pytest.fixture
@@ -186,8 +206,16 @@ def splice_junction_reads_csv(tasic2016_intermediate_psi):
                         'splice_junction_reads.csv')
 
 
-def test__single_event_psi(event_df_csv, splice_junction_reads_csv,
-                           isoform1_junctions, isoform2_junctions):
+@pytest.fixture
+def single_event_psi_csv(tasic2016_intermediate_psi, splice_type):
+    return os.path.join(tasic2016_intermediate_psi,
+                        '{splice_type}_event_psi.csv'.format(
+                            splice_type=splice_type))
+
+
+def test__single_event_psi(event_id, event_df_csv, splice_junction_reads_csv,
+                           isoform1_junctions, isoform2_junctions,
+                           single_event_psi_csv):
     from outrigger.psi.compute import _single_event_psi
     event_df = pd.read_csv(event_df_csv, index_col=0)
     splice_junction_reads = pd.read_csv(splice_junction_reads_csv,
@@ -195,7 +223,8 @@ def test__single_event_psi(event_df_csv, splice_junction_reads_csv,
 
     test = _single_event_psi(event_id, event_df, splice_junction_reads,
                              isoform1_junctions, isoform2_junctions)
-
+    true = pd.read_csv(single_event_psi_csv, index_col=0, squeeze=True)
+    pdt.assert_series_equal(test, true)
 
 
 def test_calculate_psi():
@@ -226,7 +255,8 @@ def test_psi(splice_junction_reads, junction12_reads, junction23_reads,
 
     test = calculate_psi(exons_to_junctions, splice_junction_reads,
                          isoform1_junctions=['junction13'],
-                         isoform2_junctions=['junction12', 'junction23'])
+                         isoform2_junctions=['junction12', 'junction23'],
+                         n_jobs=1)
     out, err = capsys.readouterr()
     assert 'Iterating over' in out
 
