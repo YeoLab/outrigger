@@ -134,13 +134,13 @@ def test__combine_uniquely_multi(uniquely, multi, ignore_multimapping,
     pdt.assert_frame_equal(test, true)
 
 
-def test__get_junction_reads(bamfile, uniquely_csv, multi_csv):
+def test__get_junction_reads(bamfile, uniquely, multi):
     from outrigger.io.bam import _get_junction_reads
 
     test_uniquely, test_multi = _get_junction_reads(bamfile)
 
-    true_uniquely = read_intermediate_junctions(uniquely_csv)
-    true_multi = read_intermediate_junctions(multi_csv)
+    true_uniquely = uniquely
+    true_multi = multi
 
     pdt.assert_dict_equal(test_uniquely, true_uniquely)
     pdt.assert_dict_equal(test_multi, true_multi)
