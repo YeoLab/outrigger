@@ -109,7 +109,8 @@ def _single_event_psi(event_id, event_df, splice_junction_reads,
 
     if isoform1.empty and isoform2.empty:
         # If both are empty after filtering this event --> don't calculate
-        return
+        return pd.Series(index=splice_junction_reads.index.levels[1],
+                         name=event_id)
 
     if debug and log is not None:
         log.debug('\n- After filter and sum -')
