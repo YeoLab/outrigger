@@ -918,7 +918,7 @@ class Psi(SubcommandAfterIndex):
         if self.debug:
             logger.setLevel(10)
 
-        junction_reads = self.csv()
+        junction_reads, metadata = self.csv()
 
         junction_reads = junction_reads.set_index(
             [self.junction_id_col, self.sample_id_col])
