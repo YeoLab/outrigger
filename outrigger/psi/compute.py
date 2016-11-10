@@ -213,6 +213,10 @@ def calculate_psi(event_annotation, splice_junction_reads,
                   min_reads, n_jobs, debug, log)
 
     # use only non-empty psi outputs
-    psi_df = pd.concat(filter(lambda x: x is not None, psis), axis=1)
+    psis = filter(lambda x: x is not None, psis)
+    try:
+        psi_df = pd.concat(psis, axis=1)
+    except ValueError:
+        psi_df = pd.DataFrame(index=splice_junction_reads.index.levels[1])
     done(n_tabs=3)
     return psi_df

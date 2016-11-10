@@ -56,14 +56,14 @@ def dummy_junction_number_to_id(dummy_junction12, dummy_junction13,
 
 
 @pytest.fixture
-def dummy_isoform1_junctions(splice_type):
+def dummy_isoform1_junction_numbers(splice_type):
     if splice_type == 'se':
         return ['junction13']
     if splice_type == 'mxe':
         return ['junction13', 'junction34']
 
 @pytest.fixture
-def dummy_isoform2_junctions(splice_type):
+def dummy_isoform2_junction_numbers(splice_type):
     if splice_type == 'se':
         return ['junction12', 'junction23']
     if splice_type == 'mxe':
@@ -71,8 +71,26 @@ def dummy_isoform2_junctions(splice_type):
 
 
 @pytest.fixture
-def dummy_legal_junctions(dummy_isoform1_junctions, dummy_isoform2_junctions):
-    return dummy_isoform1_junctions + dummy_isoform2_junctions
+def dummy_isoform1_junction_ids(dummy_isoform1_junction_numbers,
+                                dummy_junction_number_to_id):
+    ids = [dummy_junction_number_to_id[j]
+           for j in dummy_isoform1_junction_numbers]
+    return ids
+
+
+@pytest.fixture
+def dummy_isoform2_junction_ids(dummy_isoform2_junction_numbers,
+                                dummy_junction_number_to_id):
+    ids = [dummy_junction_number_to_id[j]
+           for j in dummy_isoform2_junction_numbers]
+    return ids
+
+
+
+@pytest.fixture
+def dummy_legal_junction_numbers(dummy_isoform1_junction_numbers,
+                                 dummy_isoform2_junction_numbers):
+    return dummy_isoform1_junction_numbers + dummy_isoform2_junction_numbers
 
 
 @pytest.fixture(params=[(100, 100), (2, 2),
@@ -81,8 +99,8 @@ def dummy_legal_junctions(dummy_isoform1_junctions, dummy_isoform2_junctions):
                 ids=['enough reads', 'not enough reads', 'not there',
                      'one not enough', 'not enough, one not there',
                      'one not there'])
-def dummy_isoform1_reads(request, dummy_isoform1_junctions):
-    reads = dict(zip(dummy_isoform1_junctions, request.param))
+def dummy_isoform1_reads(request, dummy_isoform1_junction_ids):
+    reads = dict(zip(dummy_isoform1_junction_ids, request.param))
     return reads
 
 
@@ -92,8 +110,8 @@ def dummy_isoform1_reads(request, dummy_isoform1_junctions):
                 ids=['enough reads', 'not enough reads', 'not there',
                      'one not enough', 'not enough, one not there',
                      'one not there'])
-def dummy_isoform2_reads(request, dummy_isoform2_junctions):
-    reads = dict(zip(dummy_isoform2_junctions, request.param))
+def dummy_isoform2_reads(request, dummy_isoform2_junction_ids,):
+    reads = dict(zip(dummy_isoform2_junction_ids, request.param))
     return reads
 
 
@@ -102,6 +120,7 @@ def dummy_isoform_reads(dummy_isoform1_reads, dummy_isoform2_reads):
     """Combine isoform1 and isoform2 reads into one dict"""
     reads = dummy_isoform1_reads.copy()
     reads.update(dummy_isoform2_reads)
+    reads = pd.Series(reads)
     return reads
 
 
@@ -115,10 +134,6 @@ def dummy_isoform_junctions(request, dummy_isoform1_junctions,
         return dummy_isoform2_junctions
     else:
         return 'keyerror_isoform'
-
-@pytest.fixture
-def reads_col():
-    return 'reads'
 
 
 @pytest.fixture
@@ -139,7 +154,7 @@ def dummy_splice_junction_reads(dummy_isoform_reads):
 
 
 @pytest.fixture
-def illegal_junctions(splice_type):
+def illegal_junctions(splice_type, dummy_junction14, dummy_junction23):
     if splice_type == 'se':
         return np.nan
     if splice_type == 'mxe':
@@ -170,12 +185,12 @@ def dummy_junction_locations(dummy_legal_junctions,
 def test_maybe_get_isoform_reads(dummy_splice_junction_reads,
                                  dummy_junction_locations,
                                  dummy_isoform_junctions,
-                                 dummy_isoform_reads, reads_col):
-    from outrigger.psi.compute import maybe_get_isoform_reads
+                                 dummy_isoform_reads,):
+    from outrigger.psi.compute import maybe_get_isoform_reads, READS
+
     test = maybe_get_isoform_reads(dummy_splice_junction_reads,
                                    dummy_junction_locations,
-                                   dummy_isoform_junctions,
-                                   reads_col=reads_col)
+                                   dummy_isoform_junctions, READS)
     junctions = dummy_junction_locations[dummy_isoform_junctions]
     reads = dummy_isoform_reads[junctions.values]
     reads = reads.dropna()
@@ -183,7 +198,7 @@ def test_maybe_get_isoform_reads(dummy_splice_junction_reads,
         true = pd.Series()
     else:
         true = reads.copy()
-        true.name = reads_col
+        true.name = READS
         true.index = pd.MultiIndex.from_arrays(
             [reads.index, ['sample1']*len(reads.index)],
             names=['junction', 'sample_id'])
@@ -213,52 +228,57 @@ def dummy_events(splice_type):
 
 
 def test_dummy_calculate_psi(dummy_splice_junction_reads,
-                             dummy_junction12_reads,
-                             dummy_junction23_reads,
-                             dummy_junction13_reads,
-                             dummy_isoform1_junctions,
-                             dummy_isoform2_junctions,
-                             dummy_exons_to_junctions, capsys,
-                             dummy_events):
+                             dummy_isoform_reads,
+                             dummy_isoform1_junction_ids,
+                             dummy_isoform2_junction_ids,
+                             dummy_isoform1_junction_numbers,
+                             dummy_isoform2_junction_numbers,
+                             dummy_exons_to_junctions,
+                             dummy_events, splice_type):
     from outrigger.psi.compute import calculate_psi, MIN_READS
 
-    reads12 = dummy_junction12_reads if \
-        dummy_junction12_reads >= MIN_READS else 0
-    reads23 = dummy_junction23_reads if \
-        dummy_junction23_reads >= MIN_READS else 0
-    reads13 = dummy_junction13_reads if \
-        dummy_junction13_reads >= MIN_READS else 0
 
-    if reads12 == 0 or reads23 == 0:
+    isoform_reads = dummy_isoform_reads.copy()
+    isoform_reads[isoform_reads < MIN_READS] = np.nan
+
+    if (isoform_reads[dummy_isoform1_junction_ids].isnull()).any():
+        isoform1_reads = 0
+    else:
+        isoform1_reads = isoform_reads[dummy_isoform1_junction_ids].sum()
+    if (isoform_reads[dummy_isoform2_junction_ids].isnull()).any():
         isoform2_reads = 0
     else:
-        isoform2_reads = reads12 + reads23
-    isoform1_reads = reads13
+        isoform2_reads = isoform_reads[dummy_isoform2_junction_ids].sum()
 
     # This tests whether both are greater than zero
     if isoform1_reads or isoform2_reads:
-        true_psi = isoform2_reads/(isoform2_reads + 2.*isoform1_reads)
+        multiplier = float(len(dummy_isoform2_junction_ids))/ \
+                     len(dummy_isoform1_junction_ids)
+        true_psi = isoform2_reads/(isoform2_reads +
+                                   multiplier * isoform1_reads)
     else:
         true_psi = np.nan
 
     other_isoform1_psi = 0. if isoform1_reads > 0 else np.nan
 
-    test = calculate_psi(dummy_exons_to_junctions, dummy_splice_junction_reads,
-                         isoform1_junctions=dummy_isoform1_junctions,
-                         isoform2_junctions=dummy_isoform2_junctions,
-                         n_jobs=1)
-    out, err = capsys.readouterr()
-    assert 'Iterating over' in out
-
-    s = """sample_id,{0}# noqa
+    if splice_type == 'se':
+        s = """sample_id,{0}# noqa
 sample1,{2},{1},{2}""".format(','.join(dummy_events), true_psi,
-                              other_isoform1_psi)
+                                  other_isoform1_psi)
+    if splice_type == 'mxe':
+        s = """sample_id,{0}# noqa
+sample1,{1}""".format(','.join(dummy_events), true_psi)
 
     true = pd.read_csv(six.StringIO(s), index_col=0, comment='#')
     true = true.dropna(axis=1)
 
     if true.empty:
         true = pd.DataFrame(index=dummy_splice_junction_reads.index.levels[1])
+
+    test = calculate_psi(dummy_exons_to_junctions, dummy_splice_junction_reads,
+                         isoform1_junctions=dummy_isoform1_junction_numbers,
+                         isoform2_junctions=dummy_isoform2_junction_numbers,
+                         n_jobs=1)
 
     pdt.assert_frame_equal(test, true)
 
