@@ -8,7 +8,7 @@ import pysam
 
 from ..common import UNIQUE_READS, MULTIMAP_READS, READS, CHROM, \
     JUNCTION_START, JUNCTION_STOP, STRAND
-
+from .core import add_exons_and_junction_ids
 
 def _report_read_positions(read, counter):
     chrom = read.reference_name
@@ -128,6 +128,7 @@ def bam_to_junction_reads_table(bam_filename, ignore_multimapping=False):
     reads.index = np.arange(reads.shape[0])
 
     reads['sample_id'] = os.path.basename(bam_filename)
+    reads = add_exons_and_junction_ids(reads)
     return reads
 
 
