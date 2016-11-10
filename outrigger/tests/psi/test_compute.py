@@ -126,12 +126,12 @@ def dummy_isoform_reads(dummy_isoform1_reads, dummy_isoform2_reads):
 
 @pytest.fixture(params=['isoform1', 'isoform2',
                         pytest.mark.xfail('keyerror_isoform')])
-def dummy_isoform_junctions(request, dummy_isoform1_junctions,
-                            dummy_isoform2_junctions):
+def dummy_isoform_junctions(request, dummy_isoform1_junction_numbers,
+                            dummy_isoform2_junction_numbers):
     if request.param == 'isoform1':
-        return dummy_isoform1_junctions
+        return dummy_isoform1_junction_numbers
     elif request.param == 'isoform2':
-        return dummy_isoform2_junctions
+        return dummy_isoform2_junction_numbers
     else:
         return 'keyerror_isoform'
 
@@ -162,13 +162,13 @@ def illegal_junctions(splice_type, dummy_junction14, dummy_junction23):
 
 
 @pytest.fixture
-def dummy_junction_locations(dummy_legal_junctions,
+def dummy_junction_locations(dummy_legal_junction_numbers,
                              dummy_junction_number_to_id,
                              illegal_junctions):
     from outrigger.common import ILLEGAL_JUNCTIONS
 
     d = {junction_xy: dummy_junction_number_to_id[junction_xy]
-         for junction_xy in dummy_legal_junctions}
+         for junction_xy in dummy_legal_junction_numbers}
     d[ILLEGAL_JUNCTIONS] = illegal_junctions
     return pd.Series(d)
 
@@ -300,13 +300,16 @@ def event_df_csv(splice_type, tasic2016_intermediate_psi):
 
 
 @pytest.fixture
-def splice_junction_reads_csv(tasic2016_intermediate_psi):
-    return os.path.join(tasic2016_intermediate_psi,
-                        'splice_junction_reads.csv')
+def splice_junction_reads_csv(tasic2016_outrigger_junctions):
+    return os.path.join(tasic2016_outrigger_junctions, 'reads.csv')
+
 
 @pytest.fixture
 def splice_junction_reads(splice_junction_reads_csv):
-    return pd.read_csv(splice_junction_reads_csv, index_col=[0, 1])
+    df =  pd.read_csv(splice_junction_reads_csv,
+                      index_col=['junction_id', 'sample_id'])
+    df = df.sort_index()
+    return df
 
 
 @pytest.fixture
@@ -368,10 +371,10 @@ def test__maybe_parallelize_psi(event_annotation, splice_junction_reads,
                                 capsys, n_jobs):
     from outrigger.psi.compute import _maybe_parallelize_psi
 
-    test = _maybe_parallelize_psi(event_annotation, splice_junction_reads,
+    tests = _maybe_parallelize_psi(event_annotation, splice_junction_reads,
                                   isoform1_junctions, isoform2_junctions,
                                   n_jobs=n_jobs)
-    true = [column for name, column in psi_df.iteritems()]
+    trues = [column.dropna() for name, column in psi_df.iteritems()]
 
     out, err = capsys.readouterr()
 
@@ -379,7 +382,9 @@ def test__maybe_parallelize_psi(event_annotation, splice_junction_reads,
         assert 'Iterating' in out
     else:
         assert 'Parallelizing' in out
-    pdt.assert_equal(test, true)
+
+    for test, true in zip(tests, trues):
+        pdt.assert_series_equal(test, true)
 
 
 def test_calculate_psi(event_annotation, splice_junction_reads,
