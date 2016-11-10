@@ -140,7 +140,7 @@ def test_maybe_get_isoform_reads(dummy_splice_junction_reads,
 
 
 @pytest.fixture
-def exons_to_junctions(splice_type, simulated_outrigger_index):
+def dummy_exons_to_junctions(splice_type, simulated_outrigger_index):
     # strand_str = 'positive' if strand == "+" else 'negative'
 
     folder = os.path.join(simulated_outrigger_index, splice_type)
@@ -159,14 +159,6 @@ def dummy_events(splice_type):
     if splice_type == 'mxe':
         # if strand == '+':
         return ['isoform1=junction:chr1:176-299:+@exon:chr1:300-350:+@junction:chr1:351-399:+|isoform2=junction:chr1:176-224:+@exon:chr1:225-250:+@junction:chr1:251-399:+']  # noqa
-
-
-@pytest.fixture
-def illegal_junctions(splice_type):
-    if splice_type == 'se':
-        return None
-    if splice_type == 'mxe':
-        return 'junction23'
 
 
 def test_dummy_calculate_psi(dummy_splice_junction_reads,
