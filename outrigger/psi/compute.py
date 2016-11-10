@@ -219,4 +219,5 @@ def calculate_psi(event_annotation, splice_junction_reads,
     except ValueError:
         psi_df = pd.DataFrame(index=splice_junction_reads.index.levels[1])
     done(n_tabs=3)
+    psi_df.index.name = splice_junction_reads.index.names[1]
     return psi_df
