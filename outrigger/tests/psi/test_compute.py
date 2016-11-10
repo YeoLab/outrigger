@@ -160,49 +160,54 @@ def illegal_junctions(splice_type):
         return 'junction23'
 
 
-def test__single_event_psi():
+def test__single_event_psi(splice_junction_reads, isoform1_junctions,
+                           isoform2_junctions):
     from outrigger.psi.compute import _single_event_psi
+
+    test = _single_event_psi(event_id, event_df, splice_junction_reads,
+                             isoform1_junctions, isoform2_junctions)
+
 
 
 def test_calculate_psi():
     from outrigger.psi.compute import calculate_psi
 
 
-# def test_psi(splice_junction_reads, junction12_reads, junction23_reads,
-#              junction13_reads, exons_to_junctions, capsys, events):
-#     from outrigger.psi.compute import calculate_psi, MIN_READS
-#
-#     reads12 = junction12_reads if junction12_reads >= MIN_READS else 0
-#     reads23 = junction23_reads if junction23_reads >= MIN_READS else 0
-#     reads13 = junction13_reads if junction13_reads >= MIN_READS else 0
-#
-#     if reads12 == 0 or reads23 == 0:
-#         isoform2_reads = 0
-#     else:
-#         isoform2_reads = reads12 + reads23
-#     isoform1_reads = reads13
-#
-#     # This tests whether both are greater than zero
-#     if isoform1_reads or isoform2_reads:
-#         true_psi = isoform2_reads/(isoform2_reads + 2.*isoform1_reads)
-#     else:
-#         true_psi = np.nan
-#
-#     other_isoform1_psi = 0. if isoform1_reads > 0 else np.nan
-#
-#     test = calculate_psi(exons_to_junctions, splice_junction_reads,
-#                          isoform1_junctions=['junction13'],
-#                          isoform2_junctions=['junction12', 'junction23'])
-#     out, err = capsys.readouterr()
-#     assert 'Iterating over' in out
-#
-#     s = """sample_id,{0}# noqa
-# sample1,{2},{1},{2}""".format(','.join(events), true_psi, other_isoform1_psi)
-#
-#     true = pd.read_csv(six.StringIO(s), index_col=0, comment='#')
-#     true = true.dropna(axis=1)
-#
-#     if true.empty:
-#         true = pd.DataFrame(index=splice_junction_reads.index.levels[1])
-#
-#     pdt.assert_frame_equal(test, true)
+def test_psi(splice_junction_reads, junction12_reads, junction23_reads,
+             junction13_reads, exons_to_junctions, capsys, events):
+    from outrigger.psi.compute import calculate_psi, MIN_READS
+
+    reads12 = junction12_reads if junction12_reads >= MIN_READS else 0
+    reads23 = junction23_reads if junction23_reads >= MIN_READS else 0
+    reads13 = junction13_reads if junction13_reads >= MIN_READS else 0
+
+    if reads12 == 0 or reads23 == 0:
+        isoform2_reads = 0
+    else:
+        isoform2_reads = reads12 + reads23
+    isoform1_reads = reads13
+
+    # This tests whether both are greater than zero
+    if isoform1_reads or isoform2_reads:
+        true_psi = isoform2_reads/(isoform2_reads + 2.*isoform1_reads)
+    else:
+        true_psi = np.nan
+
+    other_isoform1_psi = 0. if isoform1_reads > 0 else np.nan
+
+    test = calculate_psi(exons_to_junctions, splice_junction_reads,
+                         isoform1_junctions=['junction13'],
+                         isoform2_junctions=['junction12', 'junction23'])
+    out, err = capsys.readouterr()
+    assert 'Iterating over' in out
+
+    s = """sample_id,{0}# noqa
+sample1,{2},{1},{2}""".format(','.join(events), true_psi, other_isoform1_psi)
+
+    true = pd.read_csv(six.StringIO(s), index_col=0, comment='#')
+    true = true.dropna(axis=1)
+
+    if true.empty:
+        true = pd.DataFrame(index=splice_junction_reads.index.levels[1])
+
+    pdt.assert_frame_equal(test, true)
