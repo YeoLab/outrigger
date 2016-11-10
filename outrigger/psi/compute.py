@@ -109,9 +109,7 @@ def _single_event_psi(event_id, event_df, splice_junction_reads,
 
     if isoform1.empty and isoform2.empty:
         # If both are empty after filtering this event --> don't calculate
-        psi =  pd.Series(name=event_id)
-        psi.index.name = splice_junction_reads.index.names[1]
-        return psi
+        return
 
     if debug and log is not None:
         log.debug('\n- After filter and sum -')
@@ -158,7 +156,7 @@ def _maybe_parallelize_psi(event_annotation, splice_junction_reads,
     else:
         processors = n_jobs if n_jobs > 0 else joblib.cpu_count()
         progress("\tParallelizing {} events' Psi calculation across {} "
-                 "processors ...\n".format(n_events, processors))
+                 "CPUs ...\n".format(n_events, processors))
         psis = joblib.Parallel(n_jobs=n_jobs)(
             joblib.delayed(_single_event_psi)(
                 event_id, event_df, splice_junction_reads,

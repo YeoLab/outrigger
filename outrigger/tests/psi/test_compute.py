@@ -313,12 +313,6 @@ def splice_junction_reads(splice_junction_reads_csv):
 
 
 @pytest.fixture
-def single_event_psi_csv(tasic2016_intermediate_psi, splice_type):
-    return os.path.join(tasic2016_intermediate_psi,
-                        '{splice_type}_event_psi.csv'.format(
-                            splice_type=splice_type))
-
-@pytest.fixture
 def event_annotation_csv(splice_type, tasic2016_outrigger_output_index):
     return os.path.join(tasic2016_outrigger_output_index, splice_type,
                         'events.csv')
@@ -355,14 +349,13 @@ def psi_df(psi_csv):
     return pd.read_csv(psi_csv, index_col=0)
 
 def test__single_event_psi(event_id, event_df_csv, splice_junction_reads,
-                           isoform1_junctions, isoform2_junctions,
-                           single_event_psi_csv):
+                           isoform1_junctions, isoform2_junctions, psi_df):
     from outrigger.psi.compute import _single_event_psi
     event_df = pd.read_csv(event_df_csv, index_col=0)
 
     test = _single_event_psi(event_id, event_df, splice_junction_reads,
                              isoform1_junctions, isoform2_junctions)
-    true = pd.read_csv(single_event_psi_csv, index_col=0, squeeze=True)
+    true = psi_df[test.name]
     pdt.assert_series_equal(test, true)
 
 
@@ -384,7 +377,10 @@ def test__maybe_parallelize_psi(event_annotation, splice_junction_reads,
         assert 'Parallelizing' in out
 
     for test, true in zip(tests, trues):
-        pdt.assert_series_equal(test, true)
+        if not true.empty:
+            pdt.assert_series_equal(test, true)
+        else:
+            assert test is None
 
 
 def test_calculate_psi(event_annotation, splice_junction_reads,
