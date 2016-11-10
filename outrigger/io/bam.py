@@ -10,6 +10,7 @@ from ..common import UNIQUE_READS, MULTIMAP_READS, READS, CHROM, \
     JUNCTION_START, JUNCTION_STOP, STRAND
 from .core import add_exons_and_junction_ids
 
+
 def _report_read_positions(read, counter):
     chrom = read.reference_name
     strand = '-' if read.is_reverse else '+'
