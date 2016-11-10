@@ -5,7 +5,7 @@ import joblib
 import pandas as pd
 
 from ..common import ILLEGAL_JUNCTIONS, MIN_READS, READS
-from ..util import timestamp, progress, done
+from ..util import progress, done
 
 
 logging.basicConfig()
@@ -147,7 +147,6 @@ def _maybe_parallelize_psi(event_annotation, splice_junction_reads,
 
     if n_jobs == 1:
         progress('\tIterating over {} events ...\n'.format(n_events))
-
         psis = []
         for event_id, event_df in grouped:
             psi = _single_event_psi(event_id, event_df, splice_junction_reads,
@@ -155,7 +154,9 @@ def _maybe_parallelize_psi(event_annotation, splice_junction_reads,
                                     reads_col, min_reads, debug, log)
             psis.append(psi)
     else:
-        progress('\tParallelizing {} events ...\n'.format(n_events))
+        processors = n_jobs if n_jobs > 0 else joblib.cpu_count()
+        progress("\tParallelizing {} events' Psi calculation across {} "
+                 "processors ...\n".format(n_events, processors))
         psis = joblib.Parallel(n_jobs=n_jobs)(
             joblib.delayed(_single_event_psi)(
                 event_id, event_df, splice_junction_reads,
