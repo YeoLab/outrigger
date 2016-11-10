@@ -99,6 +99,7 @@ def _single_event_psi(event_id, event_df, splice_junction_reads,
                                        junction_locations,
                                        isoform2_junctions, reads_col)
     if debug and log is not None:
+        junction_cols = isoform1_junctions + isoform2_junctions
         log.debug('--- junction columns of event ---\n%s',
                   repr(junction_locations[junction_cols]))
         log.debug('--- isoform1 ---\n%s', repr(isoform1))
