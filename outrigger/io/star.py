@@ -120,19 +120,24 @@ def read_multiple_sj_out_tab(filenames, ignore_multimapping=False,
         for filename in filenames)
     splice_junctions = pd.concat(dfs, ignore_index=True)
 
+    splice_junctions[CHROM] = splice_junctions[CHROM].astype(str)
     splice_junctions = splice_junctions.sort_values(
         by=[SAMPLE_ID, CHROM, JUNCTION_START, JUNCTION_STOP])
     splice_junctions.index = np.arange(splice_junctions.shape[0])
     return splice_junctions
 
 
-def make_metadata(spliced_reads):
+def make_metadata(spliced_reads, columns=(JUNCTION_ID, CHROM, JUNCTION_START,
+                                          JUNCTION_STOP, STRAND, ANNOTATED,
+                                          EXON_START, EXON_STOP)):
     """Get barebones junction chrom, start, stop, strand information
 
     Parameters
     ----------
     spliced_reads : pandas.DataFrame
         Concatenated SJ.out.tab files created by read_sj_out_tab
+    columns : iterable
+        Which columns to use to make the metadata
 
     Returns
     -------
@@ -148,9 +153,8 @@ def make_metadata(spliced_reads):
          - intron_motif
          - annotated
     """
-    metadata = spliced_reads[[JUNCTION_ID, CHROM, JUNCTION_START,
-                              JUNCTION_STOP, STRAND, ANNOTATED, EXON_START,
-                              EXON_STOP]]
+    columns = spliced_reads.columns.intersect(columns)
+    metadata = spliced_reads[columns]
     metadata = metadata.drop_duplicates()
     metadata.index = np.arange(metadata.shape[0])
 
