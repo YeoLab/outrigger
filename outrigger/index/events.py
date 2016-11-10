@@ -9,7 +9,7 @@ from graphlite import V
 
 from ..common import STRAND, ISOFORM_ORDER, ISOFORM_COMPONENTS, \
     EVENT_ID_COLUMN, ILLEGAL_JUNCTIONS, SPLICE_ABBREVS, SPLICE_TYPE_ALL_EXONS, \
-    SPLICE_TYPE_ALL_JUNCTIONS
+    SPLICE_TYPE_ALL_JUNCTIONS, JUNCTION_ID
 from outrigger.region import Region
 from .adjacencies import UPSTREAM, DOWNSTREAM, DIRECTIONS
 from ..util import progress
@@ -27,11 +27,16 @@ def stringify_location(chrom, start, stop, strand, region=None):
 def opposite(direction):
     return UPSTREAM if direction == DOWNSTREAM else DOWNSTREAM
 
+class SpliceSubGraph(object):
+
+    def __init__(self):
+        pass
+
 
 class EventMaker(object):
 
-    def __init__(self, junction_exon_triples, db=None, junction_col='junction',
-                 exon_col='exon'):
+    def __init__(self, junction_exon_triples, metadata, db=None,
+                 junction_col='junction', exon_col='exon'):
         """Combine splice junctions into splicing events
 
         Parameters
@@ -47,17 +52,25 @@ class EventMaker(object):
             information about the transcript (AFE, ALE) cannot be annotated.
         """
         self.log = logging.getLogger('EventMaker')
+
+        self.metadata = metadata.set_index(JUNCTION_ID)
+
         self.junction_exon_triples = junction_exon_triples
+        self.junction_exon_triples = self.junction_exon_triples.join(
+            self.metadata, on=junction_col)
         self.db = db
 
-        self.graph = graphlite.connect(":memory:", graphs=DIRECTIONS)
-        self.exons = tuple(junction_exon_triples[exon_col].unique())
+    def _make_graph(self, junction_exon_triples):
+
+        graph = graphlite.connect(":memory:", graphs=DIRECTIONS)
+        exons = tuple(junction_exon_triples[exon_col].unique())
         self.n_exons = len(self.exons)
         self.junctions = tuple(junction_exon_triples[junction_col].unique())
 
         self.items = tuple(np.concatenate([self.exons, self.junctions]))
         self.item_to_region = pd.Series(map(Region, self.items),
                                         index=self.items)
+        import pdb; pdb.set_trace()
 
         with self.graph.transaction() as tr:
             for i, row in self.junction_exon_triples.iterrows():
