@@ -13,6 +13,9 @@ help:
 	@echo "release - package and upload a release"
 	@echo "dist - package"
 	@echo "install - install the package to the active Python's site-packages"
+	@echo "tasic2016 - Run outrigger on mouse brain single-cell dataset"
+	@echo "treutlein2014 - Run outrigger on mouse lung single-cell dataset"
+	@echo "arabdopsis - Run outrigger to check for ENSEMBL compatability"
 
 clean: clean-build clean-pyc clean-test clean-output
 
