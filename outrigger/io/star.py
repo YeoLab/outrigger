@@ -153,7 +153,7 @@ def make_metadata(spliced_reads, columns=(JUNCTION_ID, CHROM, JUNCTION_START,
          - intron_motif
          - annotated
     """
-    columns = spliced_reads.columns.intersect(columns)
+    columns = spliced_reads.columns.intersection(columns)
     metadata = spliced_reads[columns]
     metadata = metadata.drop_duplicates()
     metadata.index = np.arange(metadata.shape[0])
