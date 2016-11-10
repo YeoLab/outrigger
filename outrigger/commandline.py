@@ -410,34 +410,75 @@ class Subcommand(object):
         else:
             return os.path.join(self.junctions_folder, 'reads.csv')
 
+    def make_junction_reads_file(self):
+        if self.bams is None:
+            util.progress(
+                'Reading SJ.out.files and creating a big splice junction'
+                ' table of reads spanning exon-exon junctions...')
+            splice_junctions = star.read_multiple_sj_out_tab(
+                self.sj_out_tab,
+                ignore_multimapping=self.ignore_multimapping)
+        else:
+            util.progress('Reading bam files and creating a big splice '
+                          'junction table of reads spanning exon-exon '
+                          'junctions')
+            splice_junctions = bam.read_multiple_bams(
+                self.bams, self.ignore_multimapping, self.n_jobs)
+        dirname = os.path.dirname(self.junction_reads)
+        if not os.path.exists(dirname):
+            os.makedirs(dirname)
+        util.progress('Writing {} ...\n'.format(self.junction_reads))
+        splice_junctions.to_csv(self.junction_reads, index=False)
+        util.done()
+        return splice_junctions
+
     def csv(self):
         """Create a csv file of compiled splice junctions"""
         if not os.path.exists(self.junction_reads):
-            if self.bams is None:
-                util.progress(
-                    'Reading SJ.out.files and creating a big splice junction'
-                    ' table of reads spanning exon-exon junctions...')
-                splice_junctions = star.read_multiple_sj_out_tab(
-                    self.sj_out_tab,
-                    ignore_multimapping=self.ignore_multimapping)
-            else:
-                util.progress('Reading bam files and creating a big splice '
-                              'junction table of reads spanning exon-exon '
-                              'junctions')
-                splice_junctions = bam.read_multiple_bams(
-                    self.bams, self.ignore_multimapping, self.n_jobs)
-            dirname = os.path.dirname(self.junction_reads)
-            if not os.path.exists(dirname):
-                os.makedirs(dirname)
-            util.progress('Writing {} ...\n'.format(self.junction_reads))
-            splice_junctions.to_csv(self.junction_reads, index=False)
-            util.done()
+            splice_junctions = self.make_junction_reads_file()
         else:
             util.progress('Found compiled junction reads file in {} and '
                           'reading it in ...'.format(self.junction_reads))
             splice_junctions = pd.read_csv(self.junction_reads)
             util.done()
-        return splice_junctions
+        splice_junctions = self.filter_junctions_on_reads(splice_junctions)
+
+        metadata = self.junction_metadata(splice_junctions)
+        metadata_csv = os.path.join(self.junctions_folder, METADATA_CSV)
+        util.progress('Writing metadata of junctions to {csv}'
+                      ' ...'.format(csv=metadata_csv))
+        metadata.to_csv(metadata_csv, index=False)
+        util.done()
+
+        return splice_junctions, metadata
+
+    @staticmethod
+    def junction_metadata(spliced_reads):
+        """Get just the junction info from the concatenated read files"""
+        util.progress('Creating splice junction metadata of merely where '
+                      'junctions start and stop')
+
+        metadata = star.make_metadata(spliced_reads)
+        util.done()
+        return metadata
+
+    def filter_junctions_on_reads(self, spliced_reads):
+        # Filter junction metadata to only get junctions with minimum reads
+        util.progress('Filtering for only junctions with minimum {} reads '
+                      '...'.format(self.min_reads))
+        original = len(spliced_reads.groupby(common.JUNCTION_ID))
+        enough_reads_rows = spliced_reads[self.reads_col] >= self.min_reads
+        spliced_reads = spliced_reads.loc[enough_reads_rows]
+        enough_reads = len(spliced_reads.groupby(common.JUNCTION_ID))
+        filtered = original - enough_reads
+        util.progress('\t{enough}/{original} junctions remain after '
+                      'filtering out {filtered} junctions with < '
+                      '{min_reads} '
+                      'reads.'.format(filtered=filtered, enough=enough_reads,
+                                      original=original,
+                                      min_reads=self.min_reads))
+        util.done(2)
+        return spliced_reads
 
     def maybe_make_db(self):
         """Get GFFutils database from file or create from a gtf"""
@@ -522,34 +563,6 @@ class Subcommand(object):
 class Index(Subcommand):
 
     max_de_novo_exon_length = adjacencies.MAX_DE_NOVO_EXON_LENGTH
-
-    def filter_junctions_on_reads(self, spliced_reads):
-        # Filter junction metadata to only get junctions with minimum reads
-        util.progress('Filtering for only junctions with minimum {} reads '
-                      '...'.format(self.min_reads))
-        original = len(spliced_reads.groupby(common.JUNCTION_ID))
-        enough_reads_rows = spliced_reads[self.reads_col] >= self.min_reads
-        spliced_reads = spliced_reads.loc[enough_reads_rows]
-        enough_reads = len(spliced_reads.groupby(common.JUNCTION_ID))
-        filtered = original - enough_reads
-        util.progress('\t{enough}/{original} junctions remain after '
-                      'filtering out {filtered} junctions with < '
-                      '{min_reads} '
-                      'reads.'.format(filtered=filtered, enough=enough_reads,
-                                      original=original,
-                                      min_reads=self.min_reads))
-        util.done(2)
-        return spliced_reads
-
-    @staticmethod
-    def junction_metadata(spliced_reads):
-        """Get just the junction info from the concatenated read files"""
-        util.progress('Creating splice junction metadata of merely where '
-                      'junctions start and stop')
-
-        metadata = star.make_metadata(spliced_reads)
-        util.done()
-        return metadata
 
     def make_exon_junction_adjacencies(self, metadata, db):
         """Get annotated exon_cols next to junctions in data"""
@@ -684,15 +697,7 @@ class Index(Subcommand):
         if self.debug:
             logger.setLevel(10)
 
-        spliced_reads = self.csv()
-        spliced_reads = self.filter_junctions_on_reads(spliced_reads)
-
-        metadata = self.junction_metadata(spliced_reads)
-        metadata_csv = os.path.join(self.junctions_folder, METADATA_CSV)
-        util.progress('Writing metadata of junctions to {csv}'
-                      ' ...'.format(csv=metadata_csv))
-        metadata.to_csv(metadata_csv, index=False)
-        util.done()
+        spliced_reads, metadata = self.csv()
 
         db = self.maybe_make_db()
 
