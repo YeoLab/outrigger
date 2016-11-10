@@ -11,30 +11,96 @@ idx = pd.IndexSlice
 
 @pytest.fixture
 def dummy_junction12():
-    """Junction between exon_cols 1 and 2"""
+    """Junction between exons 1 and 2"""
     return "junction:chr1:176-224:+"
 
 
 @pytest.fixture
 def dummy_junction23():
-    """Junction between exon_cols 2 and 3"""
+    """Junction between exons 2 and 3"""
     return 'junction:chr1:251-299:+'
 
 
 @pytest.fixture
 def dummy_junction13():
-    """Junction between exon_cols 1 and 3"""
+    """Junction between exons 1 and 3"""
     return 'junction:chr1:176-299:+'
 
 
 @pytest.fixture
-def dummy_isoform1_junctions(splice_type):
-    return ['junction13']
+def dummy_junction14():
+    """Junction between exons 1 and 4"""
+    return "junction:chr1:176-324:+"
 
 
 @pytest.fixture
+def dummy_junction24():
+    """Junction between exons 2 and 4"""
+    return 'junction:chr1:251-399:+'
+
+
+@pytest.fixture
+def dummy_junction34():
+    """Junction between exons 3 and 4"""
+    return 'junction:chr1:351-399:+'
+
+
+@pytest.fixture
+def dummy_junction_number_to_id():
+    d = {'junction12': dummy_junction12, 'junction13': dummy_junction13,
+         'junction23': dummy_junction23, 'junction14': dummy_junction14,
+         'junction24': dummy_junction24, 'junction34': dummy_junction34}
+
+
+@pytest.fixture
+def dummy_isoform1_junctions(splice_type):
+    if splice_type == 'se':
+        return ['junction13']
+    if splice_type == 'mxe':
+        return ['junction13', 'junction34']
+
+@pytest.fixture
 def dummy_isoform2_junctions(splice_type):
-    return ['junction12', 'junction23']
+    if splice_type == 'se':
+        return ['junction12', 'junction23']
+    if splice_type == 'mxe':
+        return ['junction12', 'junction24']
+
+
+@pytest.fixture
+def dummy_legal_junctions(dummy_isoform1_junctions, dummy_isoform2_junctions):
+    return dummy_isoform1_junctions + dummy_isoform2_junctions
+
+
+@pytest.fixture(params=[100, 2, np.nan, 100],
+                ids=['enough reads', 'not enough reads', 'not there',
+                     'one not there'])
+def dummy_isoform1_reads(request, dummy_isoform1_junctions,
+                         dummy_junction_number_to_id):
+    reads = {dummy_junction_number_to_id[j]: request.param
+             for j in dummy_isoform1_junctions}
+    if request.name == 'one not there':
+        reads[dummy_isoform1_junctions[0]] = np.nan
+    return reads
+
+
+@pytest.fixture(params=[100, 2, np.nan, 100],
+                ids=['enough reads', 'not enough reads', 'not there',
+                     'one not there'])
+def dummy_isoform2_reads(request, dummy_isoform2_junctions):
+    reads = {dummy_junction_number_to_id[j]: request.param
+             for j in dummy_isoform2_junctions}
+    if request.name == 'one not there':
+        reads[dummy_isoform2_junctions[0]] = np.nan
+    return reads
+
+
+@pytest.fixture
+def dummy_isoform_reads(dummy_isoform1_reads, dummy_isoform2_reads):
+    """Combine isoform1 and isoform2 reads into one dict"""
+    reads = dummy_isoform1_reads.copy()
+    reads.update(dummy_isoform2_reads)
+    return reads
 
 
 @pytest.fixture(params=['isoform1', 'isoform2',
@@ -48,46 +114,20 @@ def dummy_isoform_junctions(request, dummy_isoform1_junctions,
     else:
         return 'keyerror_isoform'
 
-
-@pytest.fixture
-def dummy_event_name():
-    return 'exon:chr1:150-175:+@exon:chr1:225-250:+@exon:chr1:300-350:+'
-
-
-@pytest.fixture(params=[100, 2, np.nan],
-                ids=['enough reads', 'not enough reads', 'not there'])
-def dummy_junction12_reads(request):
-    return request.param
-
-
-@pytest.fixture(params=[100, 2, np.nan],
-                ids=['enough reads', 'not enough reads', 'not there'])
-def dummy_junction23_reads(request):
-    return request.param
-
-
-@pytest.fixture(params=[100, 2, np.nan],
-                ids=['enough reads', 'not enough reads', 'not there'])
-def dummy_junction13_reads(request):
-    return request.param
-
-
 @pytest.fixture
 def reads_col():
     return 'reads'
 
 
 @pytest.fixture
-def dummy_splice_junction_reads(dummy_junction12, dummy_junction12_reads,
-                          dummy_junction23, dummy_junction23_reads,
-                          dummy_junction13, dummy_junction13_reads, reads_col):
+def dummy_splice_junction_reads(dummy_isoform_reads):
     """Completely fake dataset for sanity checking"""
-    s = """sample_id,junction,{6}
-sample1,{0},{1}
-sample1,{2},{3}
-sample1,{4},{5}""".format(dummy_junction12, dummy_junction12_reads,
-                          dummy_junction23, dummy_junction23_reads,
-                          dummy_junction13, dummy_junction13_reads, reads_col)
+    from outrigger.common import READS
+
+    s = 'sample_id,junction,{reads}\n'.format(reads=READS)
+    for junction_id, reads in dummy_isoform_reads:
+        s += 'sample1,{junction_id},{reads}'.format(junction_id=junction_id,
+                                                    reads=reads)
     data = pd.read_csv(six.StringIO(s), comment='#')
     data = data.dropna()
     data = data.set_index(
@@ -97,36 +137,45 @@ sample1,{4},{5}""".format(dummy_junction12, dummy_junction12_reads,
 
 
 @pytest.fixture
-def dummy_junction_locations(dummy_junction12, dummy_junction23,
-                              dummy_junction13):
-    return pd.Series({'junction12': dummy_junction12,
-                      'junction23': dummy_junction23,
-                      'junction13': dummy_junction13,
-                      'illegal_junctions': np.nan})
+def illegal_junctions(splice_type):
+    if splice_type == 'se':
+        return np.nan
+    if splice_type == 'mxe':
+        return dummy_junction14 + '|' + dummy_junction23
 
 
 @pytest.fixture
-def dummy_junction_to_reads(dummy_junction12, dummy_junction12_reads,
-                      dummy_junction23, dummy_junction23_reads,
-                      dummy_junction13, dummy_junction13_reads):
-    """Helper function for testing"""
-    return pd.Series({dummy_junction12: dummy_junction12_reads,
-                      dummy_junction23: dummy_junction23_reads,
-                      dummy_junction13: dummy_junction13_reads})
+def dummy_junction_locations(dummy_legal_junctions,
+                             dummy_junction_number_to_id,
+                             illegal_junctions):
+    from outrigger.common import ILLEGAL_JUNCTIONS
+
+    d = {junction_xy: dummy_junction_number_to_id[junction_xy]
+         for junction_xy in dummy_legal_junctions}
+    d[ILLEGAL_JUNCTIONS] = illegal_junctions
+    return pd.Series(d)
+
+# @pytest.fixture
+# def dummy_junction_to_reads(dummy_junction12, dummy_junction12_reads,
+#                       dummy_junction23, dummy_junction23_reads,
+#                       dummy_junction13, dummy_junction13_reads):
+#     """Helper function for testing"""
+#     return pd.Series({dummy_junction12: dummy_junction12_reads,
+#                       dummy_junction23: dummy_junction23_reads,
+#                       dummy_junction13: dummy_junction13_reads})
 
 
 def test_maybe_get_isoform_reads(dummy_splice_junction_reads,
                                  dummy_junction_locations,
                                  dummy_isoform_junctions,
-                                 dummy_junction_to_reads,
-                                 reads_col):
+                                 dummy_isoform_reads, reads_col):
     from outrigger.psi.compute import maybe_get_isoform_reads
     test = maybe_get_isoform_reads(dummy_splice_junction_reads,
                                    dummy_junction_locations,
                                    dummy_isoform_junctions,
                                    reads_col=reads_col)
     junctions = dummy_junction_locations[dummy_isoform_junctions]
-    reads = dummy_junction_to_reads[junctions.values]
+    reads = dummy_isoform_reads[junctions.values]
     reads = reads.dropna()
     if reads.empty:
         true = pd.Series()
