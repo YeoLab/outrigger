@@ -284,6 +284,13 @@ class CommandLine(object):
         psi_parser.add_argument('--debug', required=False, action='store_true',
                                 help='If given, print debugging logging '
                                      'information to standard out')
+        psi_parser.add_argument('--n-jobs', required=False, default=-1,
+                                action='store', type=int,
+                                help='Number of threads to use when '
+                                     'parallelizing psi calculation and file '
+                                     'reading. Default is -1, which means '
+                                     'to use as many threads as are '
+                                     'available.')
         psi_parser.set_defaults(func=self.psi)
 
         if input_options is None or len(input_options) == 0:
@@ -855,7 +862,7 @@ class Psi(SubcommandAfterIndex):
                     "don't know how to define events :(".format(
                         splice_name, splice_folder))
 
-        if not os.path.exists(self.junction_reads):
+        if not os.path.exists(self.junction_reads) and self.bams is None:
             raise OSError(
                 "The junction reads csv file ({}) doesn't exist! "
                 "Cowardly exiting because I don't have the junction "
@@ -906,7 +913,7 @@ class Psi(SubcommandAfterIndex):
         if self.debug:
             logger.setLevel(10)
 
-        junction_reads = self.maybe_read_junction_reads()
+        junction_reads = self.csv()
 
         junction_reads = junction_reads.set_index(
             [self.junction_id_col, self.sample_id_col])
