@@ -88,7 +88,7 @@ def maybe_get_isoform_reads(splice_junction_reads, junction_locations,
 
 def _single_event_psi(event_id, event_df, splice_junction_reads,
                       isoform1_junctions, isoform2_junctions, reads_col=READS,
-                      min_reads=MIN_READS):
+                      min_reads=MIN_READS, debug=False, log=None):
     import pdb; pdb.set_trace()
     junction_locations = event_df.iloc[0]
 
@@ -98,6 +98,11 @@ def _single_event_psi(event_id, event_df, splice_junction_reads,
     isoform2 = maybe_get_isoform_reads(splice_junction_reads,
                                        junction_locations,
                                        isoform2_junctions, reads_col)
+    if debug and log is not None:
+        log.debug('--- junction columns of event ---\n%s',
+                  repr(junction_locations[junction_cols]))
+        log.debug('--- isoform1 ---\n%s', repr(isoform1))
+        log.debug('--- isoform2 ---\n%s', repr(isoform2))
 
     isoform1 = filter_and_sum(isoform1, min_reads, isoform1_junctions)
     isoform2 = filter_and_sum(isoform2, min_reads, isoform2_junctions)
@@ -105,6 +110,11 @@ def _single_event_psi(event_id, event_df, splice_junction_reads,
     if isoform1.empty and isoform2.empty:
         # If both are empty after filtering this event --> don't calculate
         return
+
+    if debug and log is not None:
+        log.debug('\n- After filter and sum -')
+        log.debug('--- isoform1 ---\n%s', repr(isoform1))
+        log.debug('--- isoform2 ---\n%s', repr(isoform2))
 
     isoform1, isoform2 = isoform1.align(isoform2, 'outer')
 
@@ -115,12 +125,15 @@ def _single_event_psi(event_id, event_df, splice_junction_reads,
     psi = isoform2 / (isoform2 + multiplier * isoform1)
     psi.name = event_id
 
+    if debug and log is not None:
+        log.debug('--- Psi ---\n%s', repr(psi))
+
     return psi
 
 
 def _maybe_parallelize_psi(event_annotation, splice_junction_reads,
                   isoform1_junctions, isoform2_junctions, reads_col=READS,
-                  min_reads=MIN_READS, n_jobs=-1):
+                  min_reads=MIN_READS, n_jobs=-1, debug=False, log=None):
     # There are multiple rows with the same event id because the junctions
     # are the same, but the flanking exons may be a little wider or shorter,
     # but ultimately the event Psi is calculated only on the junctions so the
@@ -138,7 +151,7 @@ def _maybe_parallelize_psi(event_annotation, splice_junction_reads,
         for event_id, event_df in grouped:
             psi = _single_event_psi(event_id, event_df, splice_junction_reads,
                                     isoform1_junctions, isoform2_junctions,
-                                    reads_col, min_reads)
+                                    reads_col, min_reads, debug, log)
             psis.append(psi)
     else:
         progress('\tParallelizing {} events ...\n'.format(n_events))
@@ -188,10 +201,14 @@ def calculate_psi(event_annotation, splice_junction_reads,
     psi : pandas.DataFrame
         An (samples, events) dataframe of the percent spliced-in values
     """
+    log = logging.getLogger('outrigger.psi.calculate_psi')
+
+    if debug:
+        log.setLevel(10)
 
     psis = _maybe_parallelize_psi(event_annotation, splice_junction_reads,
                   isoform1_junctions, isoform2_junctions, reads_col,
-                  min_reads, n_jobs)
+                  min_reads, n_jobs, debug, log)
 
     # use only non-empty psi outputs
     psi_df = pd.concat(filter(lambda x: x is not None, psis), axis=1)
