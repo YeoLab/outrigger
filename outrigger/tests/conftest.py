@@ -209,3 +209,8 @@ def snap25_exon_id():
 def myl6_novel_exon_junction():
     """Junction downstream of a novel exon in MYL6 test set"""
     return 'junction:chr10:128491033-128491719:-'
+
+
+@pytest.fixture(params=[-1, 1])
+def n_jobs(request):
+    return request.param
