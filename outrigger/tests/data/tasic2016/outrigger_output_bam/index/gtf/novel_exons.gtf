@@ -1,0 +1,7 @@
+chr10	outrigger_de_novo	novel_exon	128491720	128491764	.	+	.	location_id "novel_exon:chr10:128491720-128491764:+";
+chr10	outrigger_de_novo	novel_exon	128492059	128492136	.	+	.	location_id "novel_exon:chr10:128492059-128492136:+";
+chr14	outrigger_de_novo	novel_exon	24495430	24495449	.	-	.	location_id "novel_exon:chr14:24495430-24495449:-";
+chr14	outrigger_de_novo	novel_exon	64313687	64313755	.	-	.	location_id "novel_exon:chr14:64313687-64313755:-";
+chr17	outrigger_de_novo	novel_exon	80204313	80204387	.	+	.	location_id "novel_exon:chr17:80204313-80204387:+";
+chr9	outrigger_de_novo	novel_exon	67031452	67031514	.	+	.	location_id "novel_exon:chr9:67031452-67031514:+";
+chr9	outrigger_de_novo	novel_exon	67031951	67032026	.	.	.	location_id "novel_exon:chr9:67031951-67032026:.";
