@@ -1,0 +1,22 @@
+v0.2.9 (...)
+------------
+
+
+New features
+~~~~~~~~~~~~
+
+- Add ``bam`` alignment files as input option
+
+Plotting functions
+~~~~~~~~~~~~~~~~~~
+
+API changes
+~~~~~~~~~~~
+
+
+Bug fixes
+~~~~~~~~~
+
+Miscellaneous
+~~~~~~~~~~~~~
+

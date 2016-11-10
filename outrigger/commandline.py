@@ -16,7 +16,7 @@ from outrigger import __version__
 import outrigger.common
 from outrigger import util, common
 from outrigger.index import events, adjacencies
-from outrigger.io import star, gtf
+from outrigger.io import star, gtf, bam
 from outrigger.psi import compute
 from outrigger.validate import check_splice_sites
 
@@ -70,6 +70,9 @@ class CommandLine(object):
                  "Not required if you specify "
                  "SJ.out.tab file with '--sj-out-tab'".format(
                         sj_csv=JUNCTION_READS_PATH))
+        index_junctions.add_argument(
+            '-b', '--bams', required=False, nargs='*',
+            help="Location of bam files to use for finding events.")
         index_parser.add_argument('-m', '--min-reads', type=int,
                                   action='store',
                                   required=False, default=10,
@@ -83,8 +86,13 @@ class CommandLine(object):
                                        'include reads that mapped to multiple '
                                        'locations in the genome, not uniquely '
                                        'to a locus, in the read count for a '
-                                       'junction. By default, this is off, and'
-                                       ' all reads are used.')
+                                       'junction. If inputting "bam" files, '
+                                       'then this means that reads with a '
+                                       'mapping quality (MAPQ) of less than '
+                                       '255 are considered "multimapped." This'
+                                       ' is the same thing as what the STAR '
+                                       'aligner does. By default, this is off,'
+                                       ' and all reads are used.')
         index_parser.add_argument(
             '-l', '--max-de-novo-exon-length',
             default=adjacencies.MAX_DE_NOVO_EXON_LENGTH, action='store',
@@ -122,6 +130,13 @@ class CommandLine(object):
                                        ' LOTS of output. Not recommended '
                                        'unless you think something is going '
                                        'wrong)')
+        index_parser.add_argument('--n-jobs', required=False, default=-1,
+                                  action='store', type=int,
+                                  help='Number of threads to use when '
+                                       'parallelizing exon finding and file '
+                                       'reading. Default is -1, which means '
+                                       'to use as many threads as are '
+                                       'available.')
         overwrite_parser = index_parser.add_mutually_exclusive_group(
             required=False)
         overwrite_parser.add_argument('--force', action='store_true',
@@ -200,17 +215,16 @@ class CommandLine(object):
             'psi', help='Calculate "percent spliced-in" (Psi) values using '
                         'the splicing event index built with "outrigger '
                         'index"')
-        psi_outputs = psi_parser.add_mutually_exclusive_group(required=False)
-        psi_outputs.add_argument('-i', '--index', required=False, default=None,
-                                 help='Name of the folder where you saved the '
-                                      'output from "outrigger index" (default '
-                                      'is {}, which is relative '
-                                      'to the directory where you called this '
-                                      'program, assuming you have called '
-                                      '"outrigger psi" in the same folder as '
-                                      'you called "outrigger '
-                                      'index")'.format(INDEX))
-        psi_outputs.add_argument(
+        psi_parser.add_argument('-i', '--index', required=False, default=None,
+                                help='Name of the folder where you saved the '
+                                     'output from "outrigger index" (default '
+                                     'is {}, which is relative '
+                                     'to the directory where you called this '
+                                     'program, assuming you have called '
+                                     '"outrigger psi" in the same folder as '
+                                     'you called "outrigger '
+                                     'index")'.format(INDEX))
+        psi_parser.add_argument(
             '-o', '--output', required=False, type=str, action='store',
             default=None,
             help='Name of the folder where you saved the output from '
@@ -231,6 +245,10 @@ class CommandLine(object):
             type=str, action='store', nargs='*',
             help='SJ.out.tab files from STAR aligner output. Not required if '
                  'you specify a file with "--compiled-junction-reads"')
+        psi_junctions.add_argument(
+            '-b', '--bams', required=False,
+            type=str, action='store', nargs='*',
+            help='Bam files to use to calculate psi on')
         psi_parser.add_argument('-m', '--min-reads', type=int, action='store',
                                 required=False, default=10,
                                 help='Minimum number of reads per junction for'
@@ -241,8 +259,13 @@ class CommandLine(object):
                                      'include reads that mapped to multiple '
                                      'locations in the genome, not uniquely '
                                      'to a locus, in the read count for a '
-                                     'junction. By default, this is off, and'
-                                     ' all reads are used.')
+                                     'junction. If inputting "bam" files, '
+                                     'then this means that reads with a '
+                                     'mapping quality (MAPQ) of less than '
+                                     '255 are considered "multimapped." This '
+                                     'is the same thing as what the STAR '
+                                     'aligner does. By default, this is off, '
+                                     'and all reads are used.')
         psi_parser.add_argument('--reads-col', default='reads',
                                 help="Name of column in --splice-junction-csv "
                                      "containing reads to use. "
@@ -261,6 +284,13 @@ class CommandLine(object):
         psi_parser.add_argument('--debug', required=False, action='store_true',
                                 help='If given, print debugging logging '
                                      'information to standard out')
+        psi_parser.add_argument('--n-jobs', required=False, default=-1,
+                                action='store', type=int,
+                                help='Number of threads to use when '
+                                     'parallelizing psi calculation and file '
+                                     'reading. Default is -1, which means '
+                                     'to use as many threads as are '
+                                     'available.')
         psi_parser.set_defaults(func=self.psi)
 
         if input_options is None or len(input_options) == 0:
@@ -380,27 +410,75 @@ class Subcommand(object):
         else:
             return os.path.join(self.junctions_folder, 'reads.csv')
 
-    def csv(self):
-        """Create a csv file of compiled splice junctions"""
-        if not os.path.exists(self.junction_reads):
+    def make_junction_reads_file(self):
+        if self.bams is None:
             util.progress(
                 'Reading SJ.out.files and creating a big splice junction'
                 ' table of reads spanning exon-exon junctions...')
             splice_junctions = star.read_multiple_sj_out_tab(
-                self.sj_out_tab, ignore_multimapping=self.ignore_multimapping)
+                self.sj_out_tab,
+                ignore_multimapping=self.ignore_multimapping)
+        else:
+            util.progress('Reading bam files and creating a big splice '
+                          'junction table of reads spanning exon-exon '
+                          'junctions')
+            splice_junctions = bam.read_multiple_bams(
+                self.bams, self.ignore_multimapping, self.n_jobs)
+        dirname = os.path.dirname(self.junction_reads)
+        if not os.path.exists(dirname):
+            os.makedirs(dirname)
+        util.progress('Writing {} ...\n'.format(self.junction_reads))
+        splice_junctions.to_csv(self.junction_reads, index=False)
+        util.done()
+        return splice_junctions
 
-            dirname = os.path.dirname(self.junction_reads)
-            if not os.path.exists(dirname):
-                os.makedirs(dirname)
-            util.progress('Writing {} ...\n'.format(self.junction_reads))
-            splice_junctions.to_csv(self.junction_reads, index=False)
-            util.done()
+    def csv(self):
+        """Create a csv file of compiled splice junctions"""
+        if not os.path.exists(self.junction_reads):
+            splice_junctions = self.make_junction_reads_file()
         else:
             util.progress('Found compiled junction reads file in {} and '
                           'reading it in ...'.format(self.junction_reads))
             splice_junctions = pd.read_csv(self.junction_reads)
             util.done()
-        return splice_junctions
+        splice_junctions = self.filter_junctions_on_reads(splice_junctions)
+
+        metadata = self.junction_metadata(splice_junctions)
+        metadata_csv = os.path.join(self.junctions_folder, METADATA_CSV)
+        util.progress('Writing metadata of junctions to {csv}'
+                      ' ...'.format(csv=metadata_csv))
+        metadata.to_csv(metadata_csv, index=False)
+        util.done()
+
+        return splice_junctions, metadata
+
+    @staticmethod
+    def junction_metadata(spliced_reads):
+        """Get just the junction info from the concatenated read files"""
+        util.progress('Creating splice junction metadata of merely where '
+                      'junctions start and stop')
+
+        metadata = star.make_metadata(spliced_reads)
+        util.done()
+        return metadata
+
+    def filter_junctions_on_reads(self, spliced_reads):
+        # Filter junction metadata to only get junctions with minimum reads
+        util.progress('Filtering for only junctions with minimum {} reads '
+                      '...'.format(self.min_reads))
+        original = len(spliced_reads.groupby(common.JUNCTION_ID))
+        enough_reads_rows = spliced_reads[self.reads_col] >= self.min_reads
+        spliced_reads = spliced_reads.loc[enough_reads_rows]
+        enough_reads = len(spliced_reads.groupby(common.JUNCTION_ID))
+        filtered = original - enough_reads
+        util.progress('\t{enough}/{original} junctions remain after '
+                      'filtering out {filtered} junctions with < '
+                      '{min_reads} '
+                      'reads.'.format(filtered=filtered, enough=enough_reads,
+                                      original=original,
+                                      min_reads=self.min_reads))
+        util.done(2)
+        return spliced_reads
 
     def maybe_make_db(self):
         """Get GFFutils database from file or create from a gtf"""
@@ -485,34 +563,6 @@ class Subcommand(object):
 class Index(Subcommand):
 
     max_de_novo_exon_length = adjacencies.MAX_DE_NOVO_EXON_LENGTH
-
-    def filter_junctions_on_reads(self, spliced_reads):
-        # Filter junction metadata to only get junctions with minimum reads
-        util.progress('Filtering for only junctions with minimum {} reads '
-                      '...'.format(self.min_reads))
-        original = len(spliced_reads.groupby(common.JUNCTION_ID))
-        enough_reads_rows = spliced_reads[self.reads_col] >= self.min_reads
-        spliced_reads = spliced_reads.loc[enough_reads_rows]
-        enough_reads = len(spliced_reads.groupby(common.JUNCTION_ID))
-        filtered = original - enough_reads
-        util.progress('\t{enough}/{original} junctions remain after '
-                      'filtering out {filtered} junctions with < '
-                      '{min_reads} '
-                      'reads.'.format(filtered=filtered, enough=enough_reads,
-                                      original=original,
-                                      min_reads=self.min_reads))
-        util.done(2)
-        return spliced_reads
-
-    @staticmethod
-    def junction_metadata(spliced_reads):
-        """Get just the junction info from the concatenated read files"""
-        util.progress('Creating splice junction metadata of merely where '
-                      'junctions start and stop')
-
-        metadata = star.make_metadata(spliced_reads)
-        util.done()
-        return metadata
 
     def make_exon_junction_adjacencies(self, metadata, db):
         """Get annotated exon_cols next to junctions in data"""
@@ -647,15 +697,7 @@ class Index(Subcommand):
         if self.debug:
             logger.setLevel(10)
 
-        spliced_reads = self.csv()
-        spliced_reads = self.filter_junctions_on_reads(spliced_reads)
-
-        metadata = self.junction_metadata(spliced_reads)
-        metadata_csv = os.path.join(self.junctions_folder, METADATA_CSV)
-        util.progress('Writing metadata of junctions to {csv}'
-                      ' ...'.format(csv=metadata_csv))
-        metadata.to_csv(metadata_csv, index=False)
-        util.done()
+        spliced_reads, metadata = self.csv()
 
         db = self.maybe_make_db()
 
@@ -825,7 +867,7 @@ class Psi(SubcommandAfterIndex):
                     "don't know how to define events :(".format(
                         splice_name, splice_folder))
 
-        if not os.path.exists(self.junction_reads):
+        if not os.path.exists(self.junction_reads) and self.bams is None:
             raise OSError(
                 "The junction reads csv file ({}) doesn't exist! "
                 "Cowardly exiting because I don't have the junction "
@@ -876,7 +918,7 @@ class Psi(SubcommandAfterIndex):
         if self.debug:
             logger.setLevel(10)
 
-        junction_reads = self.maybe_read_junction_reads()
+        junction_reads, metadata = self.csv()
 
         junction_reads = junction_reads.set_index(
             [self.junction_id_col, self.sample_id_col])

@@ -7,3 +7,4 @@ pybedtools
 biopython
 bedtools
 joblib
+pysam

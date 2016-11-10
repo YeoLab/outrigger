@@ -2,22 +2,16 @@
 Read splice junction output files from STAR aligner (SJ.out.tab)
 """
 import os
-import warnings
 
+import joblib
 import numpy as np
+import pandas as pd
 
 from ..common import JUNCTION_ID, JUNCTION_START, JUNCTION_STOP, READS, \
-    JUNCTION_MOTIF, EXON_START, EXON_STOP, CHROM, STRAND, ANNOTATED, SAMPLE_ID
+    JUNCTION_MOTIF, EXON_START, EXON_STOP, CHROM, STRAND, ANNOTATED, \
+    SAMPLE_ID, UNIQUE_READS, MULTIMAP_READS, MAX_OVERHANG
 
-
-with warnings.catch_warnings():
-    warnings.simplefilter("ignore")
-    import pandas as pd
-
-
-UNIQUE_READS = 'unique_junction_reads'
-MULTIMAP_READS = 'multimap_junction_reads'
-MAX_OVERHANG = 'max_overhang'
+from .core import add_exons_and_junction_ids
 
 COLUMN_NAMES = (CHROM, JUNCTION_START, JUNCTION_STOP, STRAND,
                 JUNCTION_MOTIF, ANNOTATED, UNIQUE_READS, MULTIMAP_READS,
@@ -81,22 +75,27 @@ def read_sj_out_tab(filename):
     #     lambda x: NEG_STRAND_INTRON_MOTIF[x])
     sj.annotated = sj.annotated.astype(bool)
 
-    # From STAR, exon_cols start one base pair down from the end of the intron
-    sj[EXON_START] = sj[JUNCTION_STOP] + 1
-
-    # From STAR, exon_cols stop one base pair up from the start of the intron
-    sj[EXON_STOP] = sj[JUNCTION_START] - 1
-
-    sj[JUNCTION_ID] = 'junction:' + sj.chrom.astype(str) + ':' \
-        + sj[JUNCTION_START].astype(str) + '-' \
-        + sj[JUNCTION_STOP].astype(str) + ':' \
-        + sj.strand.astype(str)
+    sj = add_exons_and_junction_ids(sj)
 
     return sj
 
 
+def _read_single_filename(filename, sample_id_func, ignore_multimapping=False):
+    splice_junction = read_sj_out_tab(filename)
+    sample_id = sample_id_func(filename)
+    sample_id = sample_id.split('SJ.out.tab')[0].rstrip('.')
+    splice_junction[SAMPLE_ID] = sample_id
+
+    if not ignore_multimapping:
+        splice_junction[READS] = splice_junction[UNIQUE_READS] \
+                                  + splice_junction[MULTIMAP_READS]
+    else:
+        splice_junction[READS] = splice_junction[UNIQUE_READS]
+    return splice_junction
+
+
 def read_multiple_sj_out_tab(filenames, ignore_multimapping=False,
-                             sample_id_func=os.path.basename):
+                             sample_id_func=os.path.basename, n_jobs=-1):
     """Read the splice junction files and return a tall, tidy dataframe
 
     Adds a column called "sample_id" based on the basename of the file, minus
@@ -116,33 +115,30 @@ def read_multiple_sj_out_tab(filenames, ignore_multimapping=False,
     metadata : pandas.DataFrame
         A tidy dataframe, where each row has the observed reads for a sample
     """
-    splice_junctions = []
-    for filename in filenames:
-        splice_junction = read_sj_out_tab(filename)
-        sample_id = sample_id_func(filename)
-        sample_id = sample_id.split('SJ.out.tab')[0].rstrip('.')
-        splice_junction[SAMPLE_ID] = sample_id
-        splice_junctions.append(splice_junction)
-    splice_junctions = pd.concat(splice_junctions, ignore_index=True)
-    # splice_junctions = splice_junctions.set_index('junction_id').sort_index()
-    if not ignore_multimapping:
-        splice_junctions[READS] = splice_junctions[UNIQUE_READS] \
-                                  + splice_junctions[MULTIMAP_READS]
-    else:
-        splice_junctions[READS] = splice_junctions[UNIQUE_READS]
+    dfs = joblib.Parallel(n_jobs=n_jobs)(
+        joblib.delayed(_read_single_filename)(
+            filename, sample_id_func, ignore_multimapping)
+        for filename in filenames)
+    splice_junctions = pd.concat(dfs, ignore_index=True)
+
+    splice_junctions[CHROM] = splice_junctions[CHROM].astype(str)
     splice_junctions = splice_junctions.sort_values(
         by=[SAMPLE_ID, CHROM, JUNCTION_START, JUNCTION_STOP])
     splice_junctions.index = np.arange(splice_junctions.shape[0])
     return splice_junctions
 
 
-def make_metadata(spliced_reads):
+def make_metadata(spliced_reads, columns=(JUNCTION_ID, CHROM, JUNCTION_START,
+                                          JUNCTION_STOP, STRAND, ANNOTATED,
+                                          EXON_START, EXON_STOP)):
     """Get barebones junction chrom, start, stop, strand information
 
     Parameters
     ----------
     spliced_reads : pandas.DataFrame
         Concatenated SJ.out.tab files created by read_sj_out_tab
+    columns : iterable
+        Which columns to use to make the metadata
 
     Returns
     -------
@@ -158,9 +154,8 @@ def make_metadata(spliced_reads):
          - intron_motif
          - annotated
     """
-    metadata = spliced_reads[[JUNCTION_ID, CHROM, JUNCTION_START,
-                              JUNCTION_STOP, STRAND, ANNOTATED, EXON_START,
-                              EXON_STOP]]
+    columns = spliced_reads.columns.intersection(columns)
+    metadata = spliced_reads[columns]
     metadata = metadata.drop_duplicates()
     metadata.index = np.arange(metadata.shape[0])
 

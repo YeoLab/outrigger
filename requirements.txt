@@ -7,3 +7,4 @@ gffutils>=0.8.7.1
 pybedtools
 biopython
 joblib
+pysam

@@ -90,6 +90,11 @@ def tasic2016_sj_out_tab(tasic2016_unprocessed):
 
 
 @pytest.fixture
+def tasic2016_bam(tasic2016_unprocessed):
+    return os.path.join(tasic2016_unprocessed, 'bam')
+
+
+@pytest.fixture
 def tasic2016_gtf(tasic2016_unprocessed):
     return os.path.join(tasic2016_unprocessed, 'gtf')
 
@@ -101,9 +106,27 @@ def tasic2016_intermediate(tasic2016):
 
 
 @pytest.fixture
+def tasic2016_intermediate_bam(tasic2016_intermediate):
+    """Suffix for intermediate files from Tasic et al Nat Neurosci (2016)"""
+    return os.path.join(tasic2016_intermediate, 'bam')
+
+
+@pytest.fixture
 def tasic2016_outrigger_output(tasic2016):
     """Suffix for outrigger_output files from Tasic Nat Neurosci (2016)"""
     return os.path.join(tasic2016, 'outrigger_output')
+
+
+@pytest.fixture
+def tasic2016_outrigger_output_index(tasic2016_outrigger_output):
+    """Suffix for outrigger_output files from Tasic Nat Neurosci (2016)"""
+    return os.path.join(tasic2016_outrigger_output, 'index')
+
+
+@pytest.fixture
+def tasic2016_outrigger_output_bam(tasic2016):
+    """Suffix for outrigger_output files from Tasic Nat Neurosci (2016)"""
+    return os.path.join(tasic2016, 'outrigger_output_bam')
 
 
 @pytest.fixture
@@ -124,9 +147,20 @@ def strand(request):
         return '-'
 
 
+@pytest.fixture(params=[True, False])
+def ignore_multimapping(request):
+    return request.param
+
+
 @pytest.fixture
 def sj_filenames(tasic2016_sj_out_tab):
     globber = os.path.join(tasic2016_sj_out_tab, 'CAV_LP*SJ.out.tab')
+    return glob.glob(globber)
+
+
+@pytest.fixture
+def bam_filenames(tasic2016_bam):
+    globber = os.path.join(tasic2016_bam, '*bam')
     return glob.glob(globber)
 
 
