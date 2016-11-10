@@ -37,22 +37,6 @@ def dummy_isoform2_junctions(splice_type):
     return ['junction12', 'junction23']
 
 
-@pytest.fixture
-def isoform1_junctions(splice_type):
-    if splice_type == 'se':
-        return ['junction13']
-    if splice_type == 'mxe':
-        return ['junction13', 'junction34']
-
-
-@pytest.fixture
-def isoform2_junctions(splice_type):
-    if splice_type == 'se':
-        return ['junction12', 'junction23']
-    if splice_type == 'mxe':
-        return ['junction12', 'junction24']
-
-
 @pytest.fixture(params=['isoform1', 'isoform2',
                         pytest.mark.xfail('keyerror_isoform')])
 def dummy_isoform_junctions(request, dummy_isoform1_junctions,
@@ -257,6 +241,10 @@ def splice_junction_reads_csv(tasic2016_intermediate_psi):
     return os.path.join(tasic2016_intermediate_psi,
                         'splice_junction_reads.csv')
 
+@pytest.fixture
+def splice_junction_reads(splice_junction_reads_csv):
+    return pd.read_csv(splice_junction_reads_csv, index_col=[0, 1])
+
 
 @pytest.fixture
 def single_event_psi_csv(tasic2016_intermediate_psi, splice_type):
@@ -264,14 +252,47 @@ def single_event_psi_csv(tasic2016_intermediate_psi, splice_type):
                         '{splice_type}_event_psi.csv'.format(
                             splice_type=splice_type))
 
+@pytest.fixture
+def event_annotation_csv(splice_type, tasic2016_outrigger_output_index):
+    return os.path.join(tasic2016_outrigger_output_index, splice_type,
+                        'events.csv')
 
-def test__single_event_psi(event_id, event_df_csv, splice_junction_reads_csv,
+
+@pytest.fixture
+def event_annotation(event_annotation_csv):
+    return pd.read_csv(event_annotation_csv, index_col=0)
+
+
+@pytest.fixture
+def isoform1_junctions(splice_type):
+    if splice_type == 'se':
+        return ['junction13']
+    if splice_type == 'mxe':
+        return ['junction13', 'junction34']
+
+
+@pytest.fixture
+def isoform2_junctions(splice_type):
+    if splice_type == 'se':
+        return ['junction12', 'junction23']
+    if splice_type == 'mxe':
+        return ['junction12', 'junction24']
+
+
+@pytest.fixture
+def psi_csv(splice_type, tasic2016_outrigger_output_psi):
+    return os.path.join(tasic2016_outrigger_output_psi, splice_type, 'psi.csv')
+
+
+@pytest.fixture
+def psi_df(psi_csv):
+    return pd.read_csv(psi_csv, index_col=0)
+
+def test__single_event_psi(event_id, event_df_csv, splice_junction_reads,
                            isoform1_junctions, isoform2_junctions,
                            single_event_psi_csv):
     from outrigger.psi.compute import _single_event_psi
     event_df = pd.read_csv(event_df_csv, index_col=0)
-    splice_junction_reads = pd.read_csv(splice_junction_reads_csv,
-                                        index_col=[0, 1])
 
     test = _single_event_psi(event_id, event_df, splice_junction_reads,
                              isoform1_junctions, isoform2_junctions)
@@ -279,8 +300,15 @@ def test__single_event_psi(event_id, event_df_csv, splice_junction_reads_csv,
     pdt.assert_series_equal(test, true)
 
 
-def test__maybe_parallelize_psi(capsys, n_jobs):
+def test__maybe_parallelize_psi(event_annotation, splice_junction_reads,
+                                isoform1_junctions, isoform2_junctions, psi_df,
+                                capsys, n_jobs):
     from outrigger.psi.compute import _maybe_parallelize_psi
+
+    test = _maybe_parallelize_psi(event_annotation, splice_junction_reads,
+                                  isoform1_junctions, isoform2_junctions,
+                                  n_jobs=n_jobs)
+    true = [column for name, column in psi_df.iteritems()]
 
     out, err = capsys.readouterr()
 
@@ -288,7 +316,14 @@ def test__maybe_parallelize_psi(capsys, n_jobs):
         assert 'Iterating' in out
     else:
         assert 'Parallelizing' in out
+    pdt.assert_equal(test, true)
 
 
-def test_calculate_psi(tasic2016_outrigger_output_index, splice_type):
+def test_calculate_psi(event_annotation, splice_junction_reads,
+                       isoform1_junctions, isoform2_junctions, psi_df):
     from outrigger.psi.compute import calculate_psi
+
+    test = calculate_psi(event_annotation, splice_junction_reads,
+                         isoform1_junctions, isoform2_junctions)
+    true = psi_df
+    pdt.assert_frame_equal(test, true)
