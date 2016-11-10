@@ -89,7 +89,6 @@ def maybe_get_isoform_reads(splice_junction_reads, junction_locations,
 def _single_event_psi(event_id, event_df, splice_junction_reads,
                       isoform1_junctions, isoform2_junctions, reads_col=READS,
                       min_reads=MIN_READS, debug=False, log=None):
-    import pdb; pdb.set_trace()
     junction_locations = event_df.iloc[0]
 
     isoform1 = maybe_get_isoform_reads(splice_junction_reads,
@@ -133,8 +132,9 @@ def _single_event_psi(event_id, event_df, splice_junction_reads,
 
 
 def _maybe_parallelize_psi(event_annotation, splice_junction_reads,
-                  isoform1_junctions, isoform2_junctions, reads_col=READS,
-                  min_reads=MIN_READS, n_jobs=-1, debug=False, log=None):
+                           isoform1_junctions, isoform2_junctions,
+                           reads_col=READS, min_reads=MIN_READS, n_jobs=-1,
+                           debug=False, log=None):
     # There are multiple rows with the same event id because the junctions
     # are the same, but the flanking exons may be a little wider or shorter,
     # but ultimately the event Psi is calculated only on the junctions so the
