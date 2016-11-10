@@ -954,7 +954,8 @@ class Psi(SubcommandAfterIndex):
             event_psi = compute.calculate_psi(
                 event_annotation, junction_reads,
                 min_reads=self.min_reads, debug=self.debug,
-                reads_col=self.reads_col, **isoform_junctions)
+                reads_col=self.reads_col, n_jobs=self.n_jobs,
+                **isoform_junctions)
             csv = os.path.join(self.psi_folder, splice_abbrev,
                                'psi.csv'.format(splice_abbrev))
             self.maybe_make_folder(os.path.dirname(csv))
