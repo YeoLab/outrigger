@@ -216,14 +216,14 @@ class CommandLine(object):
                         'the splicing event index built with "outrigger '
                         'index"')
         psi_parser.add_argument('-i', '--index', required=False, default=None,
-                                 help='Name of the folder where you saved the '
-                                      'output from "outrigger index" (default '
-                                      'is {}, which is relative '
-                                      'to the directory where you called this '
-                                      'program, assuming you have called '
-                                      '"outrigger psi" in the same folder as '
-                                      'you called "outrigger '
-                                      'index")'.format(INDEX))
+                                help='Name of the folder where you saved the '
+                                     'output from "outrigger index" (default '
+                                     'is {}, which is relative '
+                                     'to the directory where you called this '
+                                     'program, assuming you have called '
+                                     '"outrigger psi" in the same folder as '
+                                     'you called "outrigger '
+                                     'index")'.format(INDEX))
         psi_parser.add_argument(
             '-o', '--output', required=False, type=str, action='store',
             default=None,

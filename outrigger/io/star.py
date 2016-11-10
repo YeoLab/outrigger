@@ -79,6 +79,7 @@ def read_sj_out_tab(filename):
 
     return sj
 
+
 def _read_single_filename(filename, sample_id_func, ignore_multimapping=False):
     splice_junction = read_sj_out_tab(filename)
     sample_id = sample_id_func(filename)
