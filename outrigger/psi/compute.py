@@ -4,7 +4,7 @@ import sys
 import joblib
 import pandas as pd
 
-from ..common import ILLEGAL_JUNCTIONS, MIN_READS
+from ..common import ILLEGAL_JUNCTIONS, MIN_READS, READS
 from ..util import timestamp, progress, done
 
 
@@ -86,12 +86,10 @@ def maybe_get_isoform_reads(splice_junction_reads, junction_locations,
         return pd.Series()
 
 
-def _single_event_psi(i, event_id, event_df, splice_junction_reads,
-                      isoform1_junctions, isoform2_junctions, reads_col,
-                      min_reads):
-    if (i + 1) % 1000 == 0:
-        sys.stdout.write('{}\t\t\t{} events completed\n'.format(
-            timestamp(), i))
+def _single_event_psi(event_id, event_df, splice_junction_reads,
+                      isoform1_junctions, isoform2_junctions, reads_col=READS,
+                      min_reads=MIN_READS):
+    import pdb; pdb.set_trace()
     junction_locations = event_df.iloc[0]
 
     isoform1 = maybe_get_isoform_reads(splice_junction_reads,
@@ -120,8 +118,40 @@ def _single_event_psi(i, event_id, event_df, splice_junction_reads,
     return psi
 
 
+def _maybe_parallelize_psi(event_annotation, splice_junction_reads,
+                  isoform1_junctions, isoform2_junctions, reads_col=READS,
+                  min_reads=MIN_READS, n_jobs=-1):
+    # There are multiple rows with the same event id because the junctions
+    # are the same, but the flanking exons may be a little wider or shorter,
+    # but ultimately the event Psi is calculated only on the junctions so the
+    # flanking exons don't matter for this. But, all the exons are in
+    # exon\d.bed in the index! And you, the lovely user, can decide what you
+    # want to do with them!
+    grouped = event_annotation.groupby(level=0, axis=0)
+
+    n_events = len(grouped.size())
+
+    if n_jobs == 1:
+        progress('\tIterating over {} events ...\n'.format(n_events))
+
+        psis = []
+        for event_id, event_df in grouped:
+            psi = _single_event_psi(event_id, event_df, splice_junction_reads,
+                                    isoform1_junctions, isoform2_junctions,
+                                    reads_col, min_reads)
+            psis.append(psi)
+    else:
+        progress('\tParallelizing {} events ...\n'.format(n_events))
+        psis = joblib.Parallel(n_jobs=n_jobs)(
+            joblib.delayed(_single_event_psi)(
+                event_id, event_df, splice_junction_reads,
+                isoform1_junctions, isoform2_junctions, reads_col,
+                min_reads) for event_id, event_df in grouped)
+    return psis
+
+
 def calculate_psi(event_annotation, splice_junction_reads,
-                  isoform1_junctions, isoform2_junctions, reads_col='reads',
+                  isoform1_junctions, isoform2_junctions, reads_col=READS,
                   min_reads=MIN_READS, n_jobs=-1, debug=False):
     """Compute percent-spliced-in of events based on junction reads
 
@@ -158,29 +188,10 @@ def calculate_psi(event_annotation, splice_junction_reads,
     psi : pandas.DataFrame
         An (samples, events) dataframe of the percent spliced-in values
     """
-    log = logging.getLogger('outrigger.psi.calculate_psi')
 
-    if debug:
-        log.setLevel(10)
-
-    # There are multiple rows with the same event id because the junctions
-    # are the same, but the flanking exons may be a little wider or shorter,
-    # but ultimately the event Psi is calculated only on the junctions so the
-    # flanking exons don't matter for this. But, all the exons are in
-    # exon\d.bed in the index! And you, the lovely user, can decide what you
-    # want to do with them!
-    grouped = event_annotation.groupby(level=0, axis=0)
-
-    n_events = len(grouped.size())
-
-    progress('\tIterating over {} events ...\n'.format(n_events))
-
-    psis = joblib.Parallel(n_jobs=n_jobs)(
-        joblib.delayed(_single_event_psi)(
-            i, event_id, event_df, splice_junction_reads,
-            isoform1_junctions, isoform2_junctions, reads_col,
-            min_reads)
-        for i, (event_id, event_df) in enumerate(grouped))
+    psis = _maybe_parallelize_psi(event_annotation, splice_junction_reads,
+                  isoform1_junctions, isoform2_junctions, reads_col,
+                  min_reads, n_jobs)
 
     # use only non-empty psi outputs
     psi_df = pd.concat(filter(lambda x: x is not None, psis), axis=1)
