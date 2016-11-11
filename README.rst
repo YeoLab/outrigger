@@ -560,6 +560,9 @@ chromosome sizes file located at ``~/genomes/mm10/mm10.chrom.sizes``
                             calculation and file reading. Default is -1, which
                             means to use as many threads as are available.
 
+The command you want to use to run this, if you used the default
+parameters above, is this:
+
 ::
 
     outrigger psi

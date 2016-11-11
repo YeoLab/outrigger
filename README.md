@@ -502,6 +502,8 @@ optional arguments:
 ```
 
 
+The command you want to use to run this, if you used the default parameters above, is this:
+
 ```
 outrigger psi
 ```
