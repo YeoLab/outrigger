@@ -35,6 +35,7 @@ class SpliceGraph(object):
         self.junction_exon_triples = junction_exon_triples
         self.junction_col = junction_col
         self.exon_col = exon_col
+        self.log = logging.getLogger('SpliceGraph')
 
         self._make_graph(junction_exon_triples)
 
@@ -141,6 +142,7 @@ class SpliceGraph(object):
             .intersection(V(exon_b).downstream)
 
     def _skipped_exon(self, exon1_i, exon1_name):
+        """Checks if this exon could be exon1 of an SE event"""
 
         events = {}
 
@@ -177,6 +179,7 @@ class SpliceGraph(object):
         return events
 
     def _mutually_exclusive_exon(self, exon1_i, exon1_name):
+        """Checks if this exon could be exon1 of a MXE event"""
         events = {}
 
         exon23s_from1 = self.exons_one_junction_downstream(exon1_i)
@@ -205,6 +208,7 @@ class SpliceGraph(object):
                 try:
                     for exon4_i in exon4_is:
                         exon4_name = self.items[exon4_i]
+                        print(exon1_name, exon2.name, exon3.name, exon4_name)
                         # Isoform 1 - corresponds to Psi=0. Inclusion of
                         # exon3
                         exon13_junction = self.junctions_between_exons(
@@ -236,10 +240,10 @@ class SpliceGraph(object):
 
         return events
 
-    def single_exon_alternative_events(self, exon1_i, exon1_name):
+    def single_exon_alternative_events(self, exon_i, exon_name):
         events = {}
         for event_type, event_finder in self.event_finders:
-            events[event_type] = event_finder(exon1_i, exon1_name)
+            events[event_type] = event_finder(exon_i, exon_name)
         return events
 
     @property
@@ -254,7 +258,7 @@ class SpliceGraph(object):
         for exon_i, exon_name in enumerate(self.exons):
             new_events = self.single_exon_alternative_events(
                 exon_i, exon_name)
-            for key, value in new_events:
+            for key, value in new_events.items():
                 events[key].update(value)
 
         return events
@@ -368,10 +372,10 @@ class EventMaker(object):
         if splice_type == 'se':
             events[ILLEGAL_JUNCTIONS] = np.nan
         elif splice_type == 'mxe':
-            junction12s = events['junction12'].map(self.item_to_region)
-            junction13s = events['junction13'].map(self.item_to_region)
-            junction24s = events['junction24'].map(self.item_to_region)
-            junction34s = events['junction34'].map(self.item_to_region)
+            junction12s = events['junction12'].map(Region)
+            junction13s = events['junction13'].map(Region)
+            junction24s = events['junction24'].map(Region)
+            junction34s = events['junction34'].map(Region)
 
             junction12_34 = pd.concat([junction12s, junction34s], axis=1)
             junction13_24 = pd.concat([junction13s, junction24s], axis=1)
@@ -392,20 +396,26 @@ class EventMaker(object):
             splice_graph = SpliceGraph(df, junction_col, exon_col)
             return splice_graph.alternative_events()
 
+        events = {abbrev: {} for abbrev in SPLICE_ABBREVS}
+
         for chrom, df in self.junction_exon_triples.groupby(CHROM):
             splice_graph = SpliceGraph(df, self.junction_col, self.exon_col)
-            events = splice_graph.alternative_events()
+            new_events = splice_graph.alternative_events()
+            for key, value in new_events.items():
+                events[key].update(value)
 
         progress("Combining all events into large dataframes")
         events_dfs = dict.fromkeys(events.keys())
 
         for event_type, event_subset in events.items():
-            exons = SPLICE_TYPE_ALL_EXONS(event_type)
-            junctions = SPLICE_TYPE_ALL_JUNCTIONS(event_type)
-            events_df = self.event_dict_to_df(events, exon_names=exons,
-                                              junction_names=junctions)
-            events_df = self.add_event_id_col(events_df, event_type)
-            events_df = self.add_illegal_junctions(events_df, event_type)
+            exon_numbers = SPLICE_TYPE_ALL_EXONS[event_type]
+            junction_numbers = SPLICE_TYPE_ALL_JUNCTIONS[event_type]
+            events_df = self.event_dict_to_df(event_subset,
+                                              exon_names=exon_numbers,
+                                              junction_names=junction_numbers)
+            if not events_df.empty:
+                events_df = self.add_event_id_col(events_df, event_type)
+                events_df = self.add_illegal_junctions(events_df, event_type)
             events_dfs[event_type] = events_df
         done()
         return events_dfs
