@@ -3,7 +3,7 @@ Outrigger
 
 |Outrigger logo|
 
-|Build Status|\ |image2|\ |codecov|\ |PyPI|
+|Build Status|\ |codecov|\ |PyPI versions|\ |Python Compatibility|
 
 Outrigger is a program which uses junction reads from RNA seq data, and
 a graph database to create a *de novo* alternative splicing annotation
@@ -677,9 +677,9 @@ By default, Travis-CI does all three:
 .. |Outrigger logo| image:: https://raw.githubusercontent.com/YeoLab/outrigger/master/logo/logo_v1.png
 .. |Build Status| image:: https://travis-ci.org/YeoLab/outrigger.svg?branch=master
    :target: https://travis-ci.org/YeoLab/outrigger
-.. |image2| image:: https://img.shields.io/pypi/v/outrigger.svg
-   :target: https://pypi.python.org/pypi/outrigger
 .. |codecov| image:: https://codecov.io/gh/YeoLab/outrigger/branch/master/graph/badge.svg
    :target: https://codecov.io/gh/YeoLab/outrigger
-.. |PyPI| image:: https://img.shields.io/pypi/pyversions/outrigger.svg
+.. |PyPI versions| image:: https://img.shields.io/pypi/v/outrigger.svg
+   :target: https://pypi.python.org/pypi/outrigger
+.. |Python Compatibility| image:: https://img.shields.io/pypi/pyversions/outrigger.svg
    :target: 
