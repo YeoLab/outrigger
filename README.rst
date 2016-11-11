@@ -16,11 +16,7 @@ Features
 --------
 
 -  Finds novel splicing events, including novel exons!
-   (``outrigger index``)
-
-   -  Currently only works with ``SJ.out.tab`` files from the
-      `STAR <https://github.com/alexdobin/STAR>`__ aligner
-
+   (``outrigger index``) from ``.bam`` files
 -  (optional) Validates that exons have correct splice sites, e.g. GT/AG
    and AT/AC for mammalian systems (``outrigger validate``)
 -  Calculate "percent spliced-in" (Psi/Ψ) scores for all your samples
