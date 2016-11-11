@@ -9,14 +9,14 @@ from graphlite import V
 
 from ..common import STRAND, ISOFORM_ORDER, ISOFORM_COMPONENTS, \
     EVENT_ID_COLUMN, ILLEGAL_JUNCTIONS, SPLICE_ABBREVS, SPLICE_TYPE_ALL_EXONS, \
-    SPLICE_TYPE_ALL_JUNCTIONS, JUNCTION_ID
+    SPLICE_TYPE_ALL_JUNCTIONS, JUNCTION_ID, CHROM
 from outrigger.region import Region
 from .adjacencies import UPSTREAM, DOWNSTREAM, DIRECTIONS
 from ..util import progress
 
 
 def stringify_location(chrom, start, stop, strand, region=None):
-    """"""
+    """Convert genome location to a string, optionally prefixing with region"""
     if region is not None:
         return '{0}:{1}:{2}-{3}:{4}'.format(region, chrom, start, stop,
                                             strand)
@@ -235,7 +235,7 @@ class SpliceGraph(object):
 
         return events
 
-    def get_alternative_events(self, exon1_i, exon1_name):
+    def single_exon_alternative_events(self, exon1_i, exon1_name):
         events = {}
         for event_type, event_finder in self.event_finders:
             events[event_type].update(event_finder(exon1_i, exon1_name))
@@ -247,6 +247,8 @@ class SpliceGraph(object):
                    ('mxe', self._mutually_exclusive_exon))
         return finders
 
+    def alternative_events(self):
+        events = []
 
 class EventMaker(object):
 
@@ -274,7 +276,6 @@ class EventMaker(object):
         self.junction_exon_triples = self.junction_exon_triples.join(
             self.metadata, on=junction_col)
         self.db = db
-
 
     @property
     def exon_progress_interval(self):
@@ -377,10 +378,13 @@ class EventMaker(object):
         events = dict.fromkeys(SPLICE_ABBREVS)
         events_dfs = dict.fromkeys(SPLICE_ABBREVS)
 
-        progress('Trying out {0} exons ...'.format(self.n_exons))
+        # progress('Trying out {0} exons ...'.format(self.n_exons))
 
         # for i, exon1_name in enumerate(self.exons):
         #     self._maybe_print_exon_progress(i)
+        for chrom, df in self.junction_exon_triples.groupby(CHROM):
+            splice_graph = SpliceGraph(df, self.junction_col, self.exon_col)
+            splice_graph
         event_updates = joblib.Parallel(n_jobs=n_jobs)(
             joblib.delayed(self.get_alternative_events)(i, exon1_name)
             for i, exon1_name in enumerate(self.exons))
