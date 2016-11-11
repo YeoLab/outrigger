@@ -12,7 +12,7 @@ from ..common import STRAND, ISOFORM_ORDER, ISOFORM_COMPONENTS, \
     SPLICE_TYPE_ALL_JUNCTIONS, JUNCTION_ID, CHROM
 from outrigger.region import Region
 from .adjacencies import UPSTREAM, DOWNSTREAM, DIRECTIONS
-from ..util import progress
+from ..util import progress, done
 
 
 def stringify_location(chrom, start, stop, strand, region=None):
@@ -45,6 +45,7 @@ class SpliceGraph(object):
         self.junctions = tuple(
             junction_exon_triples[self.junction_col].unique())
 
+        # Exons are always first to make iteration easy
         self.items = tuple(np.concatenate([self.exons, self.junctions]))
         self.item_to_region = pd.Series(map(Region, self.items),
                                         index=self.items)
@@ -238,7 +239,7 @@ class SpliceGraph(object):
     def single_exon_alternative_events(self, exon1_i, exon1_name):
         events = {}
         for event_type, event_finder in self.event_finders:
-            events[event_type].update(event_finder(exon1_i, exon1_name))
+            events[event_type] = event_finder(exon1_i, exon1_name)
         return events
 
     @property
@@ -248,11 +249,20 @@ class SpliceGraph(object):
         return finders
 
     def alternative_events(self):
-        events = []
+        events = {event_type: {} for event_type in SPLICE_ABBREVS}
+
+        for exon_i, exon_name in enumerate(self.exons):
+            new_events = self.single_exon_alternative_events(
+                exon_i, exon_name)
+            for key, value in new_events:
+                events[key].update(value)
+
+        return events
+
 
 class EventMaker(object):
 
-    def __init__(self, junction_exon_triples, metadata, db=None,
+    def __init__(self, junction_exon_triples, db=None,
                  junction_col='junction', exon_col='exon'):
         """Combine splice junctions into splicing events
 
@@ -270,12 +280,13 @@ class EventMaker(object):
         """
         self.log = logging.getLogger('EventMaker')
 
-        self.metadata = metadata.set_index(JUNCTION_ID)
-
         self.junction_exon_triples = junction_exon_triples
-        self.junction_exon_triples = self.junction_exon_triples.join(
-            self.metadata, on=junction_col)
+        self.junction_exon_triples[CHROM] = self.junction_exon_triples[
+            junction_col].str.split(':').str.get(1)
         self.db = db
+
+        self.junction_col = junction_col
+        self.exon_col = exon_col
 
     @property
     def exon_progress_interval(self):
@@ -375,19 +386,19 @@ class EventMaker(object):
 
     def find_events(self, n_jobs=-1):
         """Iterate over all exons and test if they could be part of an alternative event"""
-        events = dict.fromkeys(SPLICE_ABBREVS)
-        events_dfs = dict.fromkeys(SPLICE_ABBREVS)
 
-        # progress('Trying out {0} exons ...'.format(self.n_exons))
+        def make_splice_graph_find_events(df, junction_col=self.junction_col,
+                                          exon_col=self.exon_col):
+            splice_graph = SpliceGraph(df, junction_col, exon_col)
+            return splice_graph.alternative_events()
 
-        # for i, exon1_name in enumerate(self.exons):
-        #     self._maybe_print_exon_progress(i)
         for chrom, df in self.junction_exon_triples.groupby(CHROM):
             splice_graph = SpliceGraph(df, self.junction_col, self.exon_col)
-            splice_graph
-        event_updates = joblib.Parallel(n_jobs=n_jobs)(
-            joblib.delayed(self.get_alternative_events)(i, exon1_name)
-            for i, exon1_name in enumerate(self.exons))
+            events = splice_graph.alternative_events()
+
+        progress("Combining all events into large dataframes")
+        events_dfs = dict.fromkeys(events.keys())
+
         for event_type, event_subset in events.items():
             exons = SPLICE_TYPE_ALL_EXONS(event_type)
             junctions = SPLICE_TYPE_ALL_JUNCTIONS(event_type)
@@ -396,6 +407,7 @@ class EventMaker(object):
             events_df = self.add_event_id_col(events_df, event_type)
             events_df = self.add_illegal_junctions(events_df, event_type)
             events_dfs[event_type] = events_df
+        done()
         return events_dfs
 
 

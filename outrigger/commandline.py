@@ -611,12 +611,12 @@ class Index(Subcommand):
         return junction_exon_triples
 
     @staticmethod
-    def make_graph(junction_exon_triples, metadata, db):
+    def make_graph(junction_exon_triples, db):
         """Create graph database of exon-junction adjacencies"""
         util.progress('Populating graph database of the '
                       'junction-direction-exon triples ...')
 
-        event_maker = events.EventMaker(junction_exon_triples, metadata, db)
+        event_maker = events.EventMaker(junction_exon_triples, db)
         util.done()
         return event_maker
 
@@ -699,7 +699,7 @@ class Index(Subcommand):
         junction_exon_triples = self.make_exon_junction_adjacencies(
             metadata, db)
 
-        event_maker = self.make_graph(junction_exon_triples, metadata, db)
+        event_maker = self.make_graph(junction_exon_triples, db)
         self.make_events_by_traversing_graph(event_maker, db)
 
         self.write_new_gtf(db)
