@@ -24,9 +24,7 @@ New features
 Miscellaneous
 ~~~~~~~~~~~~~
 
-- Parallelized Psi calculation, the exact number of processors can be specified
-  wih ``--n-jobs``, and by default, ``--n-jobs`` is ``-1``, which means use as
-  many processors as are available.
+- Parallelized Psi calculation, the exact number of processors can be specified with ``--n-jobs``, and by default, ``--n-jobs`` is ``-1``, which means use as many processors as are available.
 
 
 v0.2.8 (October 23rd, 2016)
