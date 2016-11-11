@@ -142,7 +142,7 @@ def dummy_splice_junction_reads(dummy_isoform_reads):
     from outrigger.common import READS
 
     s = 'sample_id,junction,{reads}\n'.format(reads=READS)
-    for junction_id, reads in dummy_isoform_reads.items():
+    for junction_id, reads in dummy_isoform_reads.iteritems():
         s += 'sample1,{junction_id},{reads}\n'.format(junction_id=junction_id,
                                                       reads=reads)
     data = pd.read_csv(six.StringIO(s), comment='#')
