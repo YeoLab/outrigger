@@ -213,7 +213,7 @@ def snap25_exon_id():
 
 @pytest.fixture
 def myl6_novel_exon_junction():
-    """Junction downstream of a novetasic2016_outrigger_output_indexl exon in MYL6 test set"""
+    """Junction downstream of a novel exon in MYL6 test set"""
     return 'junction:chr10:128491033-128491719:-'
 
 

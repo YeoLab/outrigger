@@ -62,6 +62,7 @@ def dummy_isoform1_junction_numbers(splice_type):
     if splice_type == 'mxe':
         return ['junction13', 'junction34']
 
+
 @pytest.fixture
 def dummy_isoform2_junction_numbers(splice_type):
     if splice_type == 'se':
@@ -84,7 +85,6 @@ def dummy_isoform2_junction_ids(dummy_isoform2_junction_numbers,
     ids = [dummy_junction_number_to_id[j]
            for j in dummy_isoform2_junction_numbers]
     return ids
-
 
 
 @pytest.fixture
@@ -237,7 +237,6 @@ def test_dummy_calculate_psi(dummy_splice_junction_reads,
                              dummy_events, splice_type):
     from outrigger.psi.compute import calculate_psi, MIN_READS
 
-
     isoform_reads = dummy_isoform_reads.copy()
     isoform_reads[isoform_reads < MIN_READS] = np.nan
 
@@ -252,7 +251,7 @@ def test_dummy_calculate_psi(dummy_splice_junction_reads,
 
     # This tests whether both are greater than zero
     if isoform1_reads or isoform2_reads:
-        multiplier = float(len(dummy_isoform2_junction_ids))/ \
+        multiplier = float(len(dummy_isoform2_junction_ids)) / \
                      len(dummy_isoform1_junction_ids)
         true_psi = isoform2_reads/(isoform2_reads +
                                    multiplier * isoform1_reads)
@@ -264,7 +263,7 @@ def test_dummy_calculate_psi(dummy_splice_junction_reads,
     if splice_type == 'se':
         s = """sample_id,{0}# noqa
 sample1,{2},{1},{2}""".format(','.join(dummy_events), true_psi,
-                                  other_isoform1_psi)
+                              other_isoform1_psi)
     if splice_type == 'mxe':
         s = """sample_id,{0}# noqa
 sample1,{1}""".format(','.join(dummy_events), true_psi)
@@ -287,9 +286,9 @@ sample1,{1}""".format(','.join(dummy_events), true_psi)
 @pytest.fixture
 def event_id(splice_type):
     if splice_type == 'se':
-        return 'isoform1=junction:chr10:128491034-128492058:-|isoform2=junction:chr10:128491765-128492058:-@novel_exon:chr10:128491720-128491764:-@junction:chr10:128491034-128491719:-'
+        return 'isoform1=junction:chr10:128491034-128492058:-|isoform2=junction:chr10:128491765-128492058:-@novel_exon:chr10:128491720-128491764:-@junction:chr10:128491034-128491719:-'  # noqa
     elif splice_type == 'mxe':
-        return 'isoform1=junction:chr2:136763622-136770056:+@exon:chr2:136770057-136770174:+@junction:chr2:136770175-136773894:+|isoform2=junction:chr2:136763622-136769742:+@exon:chr2:136769743-136769860:+@junction:chr2:136769861-136773894:+' # noqa
+        return 'isoform1=junction:chr2:136763622-136770056:+@exon:chr2:136770057-136770174:+@junction:chr2:136770175-136773894:+|isoform2=junction:chr2:136763622-136769742:+@exon:chr2:136769743-136769860:+@junction:chr2:136769861-136773894:+'  # noqa
 
 
 @pytest.fixture
@@ -306,8 +305,8 @@ def splice_junction_reads_csv(tasic2016_outrigger_junctions):
 
 @pytest.fixture
 def splice_junction_reads(splice_junction_reads_csv):
-    df =  pd.read_csv(splice_junction_reads_csv,
-                      index_col=['junction_id', 'sample_id'])
+    df = pd.read_csv(splice_junction_reads_csv,
+                     index_col=['junction_id', 'sample_id'])
     df = df.sort_index()
     return df
 
@@ -348,6 +347,7 @@ def psi_csv(splice_type, tasic2016_outrigger_output_psi):
 def psi_df(psi_csv):
     return pd.read_csv(psi_csv, index_col=0)
 
+
 def test__single_event_psi(event_id, event_df_csv, splice_junction_reads,
                            isoform1_junctions, isoform2_junctions, psi_df):
     from outrigger.psi.compute import _single_event_psi
@@ -365,9 +365,9 @@ def test__maybe_parallelize_psi(event_annotation, splice_junction_reads,
     from outrigger.psi.compute import _maybe_parallelize_psi
 
     tests = _maybe_parallelize_psi(event_annotation, splice_junction_reads,
-                                  isoform1_junctions, isoform2_junctions,
-                                  n_jobs=n_jobs)
-    tests = [t for t in tests if not t is None]
+                                   isoform1_junctions, isoform2_junctions,
+                                   n_jobs=n_jobs)
+    tests = [t for t in tests if t is not None]
     trues = [column.dropna() for name, column in psi_df.iteritems()]
 
     out, err = capsys.readouterr()

@@ -1,5 +1,4 @@
 import logging
-import sys
 
 import joblib
 import pandas as pd
@@ -209,8 +208,8 @@ def calculate_psi(event_annotation, splice_junction_reads,
         log.setLevel(10)
 
     psis = _maybe_parallelize_psi(event_annotation, splice_junction_reads,
-                  isoform1_junctions, isoform2_junctions, reads_col,
-                  min_reads, n_jobs, debug, log)
+                                  isoform1_junctions, isoform2_junctions,
+                                  reads_col, min_reads, n_jobs, debug, log)
 
     # use only non-empty psi outputs
     psis = filter(lambda x: x is not None, psis)
