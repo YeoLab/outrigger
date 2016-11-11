@@ -64,6 +64,7 @@ def assert_directories_equal(dir1, dir2, ignore=None,
                 df2.index = range(len(df2.index))
 
                 pdt.assert_frame_equal(df1, df2)
+                continue
 
             # Otherwise, just use the file sizes
             size1 = os.stat(filename1).st_size
