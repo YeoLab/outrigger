@@ -184,9 +184,11 @@ The "help" output of the two programs tries to be explicit about what is require
 ```
 $ outrigger index --help
 usage: outrigger index [-h] [-o OUTPUT]
-                       (-j [SJ_OUT_TAB [SJ_OUT_TAB ...]] | -c JUNCTION_READ_CSV)
-                       [-m MIN_READS] [--use-multimapping]
+                       (-j [SJ_OUT_TAB [SJ_OUT_TAB ...]] | -c COMPILED_JUNCTION_READS | -b [BAMS [BAMS ...]])
+                       [-m MIN_READS] [--ignore-multimapping]
+                       [-l MAX_DE_NOVO_EXON_LENGTH]
                        (-g GTF_FILENAME | -d GFFUTILS_DB) [--debug]
+                       [--n-jobs N_JOBS] [--force | --resume]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -195,26 +197,35 @@ optional arguments:
                         "outrigger index" (default is ./outrigger_output,
                         which is relative to the directory where you called
                         the program)". You will need this file for the next
-                        step, "outrigger psi" (default="./outrigger_output")
+                        step, "outrigger psi"
   -j [SJ_OUT_TAB [SJ_OUT_TAB ...]], --sj-out-tab [SJ_OUT_TAB [SJ_OUT_TAB ...]]
-                        SJ.out.tab files from STAR aligner output
-  -c JUNCTION_READ_CSV, --junction-read-csv JUNCTION_READ_CSV
-                        Name of the splice junction files to calculate psi
-                        scores on. If not provided, the compiled
-                        './outrigger_output/junction_reads/reads.csv' file
-                        with all the samples from the SJ.out.tab files that
-                        were used during 'outrigger index' will be used. Not
-                        required if you specify SJ.out.tab file with '--sj-
-                        out-tab'
+                        SJ.out.tab files from STAR aligner output. Not
+                        required if you specify "--compiled-junction-reads"
+  -c COMPILED_JUNCTION_READS, --compiled-junction-reads COMPILED_JUNCTION_READS
+                        Name of the splice junction files to detect novel
+                        exons and build an index of alternative splicing
+                        events from. Not required if you specify SJ.out.tab
+                        file with '--sj-out-tab'
+  -b [BAMS [BAMS ...]], --bams [BAMS [BAMS ...]]
+                        Location of bam files to use for finding events.
   -m MIN_READS, --min-reads MIN_READS
                         Minimum number of reads per junction for that junction
                         to count in creating the index of splicing events
                         (default=10)
-  --use-multimapping    Applies to STAR SJ.out.tab files only. If this flag is
-                        used, then include reads that mapped to multiple
-                        locations in the genome, not uniquely to a locus, in
-                        the read count for a junction. By default, this is
-                        off, and only uniquely mapped reads are used.
+  --ignore-multimapping
+                        Applies to STAR SJ.out.tab files only. If this flag is
+                        used, then do not include reads that mapped to
+                        multiple locations in the genome, not uniquely to a
+                        locus, in the read count for a junction. If inputting
+                        "bam" files, then this means that reads with a mapping
+                        quality (MAPQ) of less than 255 are considered
+                        "multimapped." This is the same thing as what the STAR
+                        aligner does. By default, this is off, and all reads
+                        are used.
+  -l MAX_DE_NOVO_EXON_LENGTH, --max-de-novo-exon-length MAX_DE_NOVO_EXON_LENGTH
+                        Maximum length of an exon detected *de novo* from the
+                        dataset. This is to prevent multiple kilobase long
+                        exons from being accidentally created. (default=100)
   -g GTF_FILENAME, --gtf-filename GTF_FILENAME
                         Name of the gtf file you want to use. If a gffutils
                         feature database doesn't already exist at this
@@ -231,6 +242,20 @@ optional arguments:
   --debug               If given, print debugging logging information to
                         standard out (Warning: LOTS of output. Not recommended
                         unless you think something is going wrong)
+  --n-jobs N_JOBS       Number of threads to use when parallelizing exon
+                        finding and file reading. Default is -1, which means
+                        to use as many threads as are available.
+  --force               If the 'outrigger index' command was interrupted,
+                        there will be intermediate files remaining. If you
+                        wish to restart outrigger and overwrite them all, use
+                        this flag. If you want to continue from where you left
+                        off, use the '--resume' flag. If neither is specified,
+                        the program exits and complains to the user.
+  --resume              If the 'outrigger index' command was interrupted,
+                        there will be intermediate files remaining. If you
+                        want to continue from where you left off, use this
+                        flag. The default action is to do nothing and ask the
+                        user for input.
 ```
 
 #### Example `outrigger index` command
@@ -357,6 +382,14 @@ $ outrigger index --sj-out-tab example_data/tasic2016/unprocessed/sj_out_tab/* -
 2016-08-12 11:24:04		Done.
 ```
 
+##### Example `outrigger index` with `bam` files
+
+```
+outrigger index \
+    --bams outrigger/tests/data/tasic2016/unprocessed/bam/* \
+    --gtf outrigger/tests/data/tasic2016/unprocessed/gtf/gencode.vM10.annotation.snap25.myl6.gtf
+```
+
 
 #### `outrigger_index` Outputs
 
@@ -405,53 +438,68 @@ outrigger validate -f ~/genomes/mm10/gencode/m10/GRCm38.primary_assembly.genome.
 ### `psi`: Calculate percent spliced-in (Psi/Ψ) scores for your data from the splicing events you created
 
 ```
-$ outrigger psi --help
-usage: outrigger psi [-h] [-i INDEX]
-                     [-c JUNCTION_READ_CSV | -j [SJ_OUT_TAB [SJ_OUT_TAB ...]]]
-                     [-m MIN_READS] [--use-multimapping]
-                     [--reads-col READS_COL] [--sample-id-col SAMPLE_ID_COL]
+usage: outrigger psi [-h] [-i INDEX] [-o OUTPUT]
+                     [-c COMPILED_JUNCTION_READS | -j [SJ_OUT_TAB [SJ_OUT_TAB ...]]
+                     | -b [BAMS [BAMS ...]]] [-m MIN_READS]
+                     [--ignore-multimapping] [--reads-col READS_COL]
+                     [--sample-id-col SAMPLE_ID_COL]
                      [--junction-id-col JUNCTION_ID_COL] [--debug]
+                     [--n-jobs N_JOBS]
 
 optional arguments:
   -h, --help            show this help message and exit
   -i INDEX, --index INDEX
                         Name of the folder where you saved the output from
-                        "outrigger index" (default is ./outrigger_index, which
-                        is relative to the directory where you called this
-                        program, assuming you have called "outrigger psi" in
-                        the same folder as you called "outrigger index")
-  -c JUNCTION_READ_CSV, --junction-read-csv JUNCTION_READ_CSV
-                        Name of the splice junction files to calculate psi
-                        scores on. If not provided, the compiled
-                        './outrigger_output/junction_reads/reads.csv' file
-                        with all the samples from the SJ.out.tab files that
-                        were used during 'outrigger index' will be used. Not
-                        required if you specify SJ.out.tab file with '--sj-
-                        out-tab'
+                        "outrigger index" (default is
+                        ./outrigger_output/index, which is relative to the
+                        directory where you called this program, assuming you
+                        have called "outrigger psi" in the same folder as you
+                        called "outrigger index")
+  -o OUTPUT, --output OUTPUT
+                        Name of the folder where you saved the output from
+                        "outrigger index" (default is ./outrigger_output,
+                        which is relative to the directory where you called
+                        the program). Cannot specify both an --index and
+                        --output with "psi"
+  -c COMPILED_JUNCTION_READS, --compiled-junction-reads COMPILED_JUNCTION_READS
+                        Name of the compiled splice junction file to calculate
+                        psi scores on. Default is the '--output' folder's
+                        junctions/reads.csv file. Not required if you specify
+                        SJ.out.tab files with '--sj-out-tab'
   -j [SJ_OUT_TAB [SJ_OUT_TAB ...]], --sj-out-tab [SJ_OUT_TAB [SJ_OUT_TAB ...]]
                         SJ.out.tab files from STAR aligner output. Not
-                        required if you specify a file with "--junction-read-
-                        csv"
+                        required if you specify a file with "--compiled-
+                        junction-reads"
+  -b [BAMS [BAMS ...]], --bams [BAMS [BAMS ...]]
+                        Bam files to use to calculate psi on
   -m MIN_READS, --min-reads MIN_READS
                         Minimum number of reads per junction for calculating
                         Psi (default=10)
-  --use-multimapping    Applies to STAR SJ.out.tab files only. If this flag is
-                        used, then include reads that mapped to multiple
-                        locations in the genome, not uniquely to a locus, in
-                        the read count for a junction. By default, this is
-                        off, and only uniquely mapped reads are used.
+  --ignore-multimapping
+                        Applies to STAR SJ.out.tab files only. If this flag is
+                        used, then do not include reads that mapped to
+                        multiple locations in the genome, not uniquely to a
+                        locus, in the read count for a junction. If inputting
+                        "bam" files, then this means that reads with a mapping
+                        quality (MAPQ) of less than 255 are considered
+                        "multimapped." This is the same thing as what the STAR
+                        aligner does. By default, this is off, and all reads
+                        are used.
   --reads-col READS_COL
                         Name of column in --splice-junction-csv containing
                         reads to use. (default='reads')
   --sample-id-col SAMPLE_ID_COL
-                        Name of column in --splice-junction-csvcontaining
+                        Name of column in --splice-junction-csv containing
                         sample ids to use. (default='sample_id')
   --junction-id-col JUNCTION_ID_COL
-                        Name of column in --splice-junction-csvcontaining the
+                        Name of column in --splice-junction-csv containing the
                         ID of the junction to use. Must match exactly with the
                         junctions in the index.(default='junction_id')
   --debug               If given, print debugging logging information to
                         standard out
+  --n-jobs N_JOBS       Number of threads to use when parallelizing psi
+                        calculation and file reading. Default is -1, which
+                        means to use as many threads as are available.
 ```
 
 
@@ -481,19 +529,23 @@ outrigger_output
 │   │   └── novel_exons.gtf
 │   ├── junction_exon_direction_triples.csv
 │   ├── mxe
+│   │   ├── event.bed
 │   │   ├── events.csv
 │   │   ├── exon1.bed
 │   │   ├── exon2.bed
 │   │   ├── exon3.bed
 │   │   ├── exon4.bed
+│   │   ├── intron.bed
 │   │   ├── splice_sites.csv
 │   │   └── validated
 │   │       └── events.csv
 │   └── se
+│       ├── event.bed
 │       ├── events.csv
 │       ├── exon1.bed
 │       ├── exon2.bed
 │       ├── exon3.bed
+│       ├── intron.bed
 │       ├── splice_sites.csv
 │       └── validated
 │           └── events.csv
@@ -507,7 +559,7 @@ outrigger_output
     └── se
         └── psi.csv
 
-10 directories, 22 files
+10 directories, 26 files
 ```
 
 ## For Developers
