@@ -367,6 +367,7 @@ def test__maybe_parallelize_psi(event_annotation, splice_junction_reads,
     tests = _maybe_parallelize_psi(event_annotation, splice_junction_reads,
                                   isoform1_junctions, isoform2_junctions,
                                   n_jobs=n_jobs)
+    tests = [t for t in tests if not t is None]
     trues = [column.dropna() for name, column in psi_df.iteritems()]
 
     out, err = capsys.readouterr()
@@ -377,10 +378,7 @@ def test__maybe_parallelize_psi(event_annotation, splice_junction_reads,
         assert 'Parallelizing' in out
 
     for test, true in zip(tests, trues):
-        if not true.empty:
-            pdt.assert_series_equal(test, true)
-        else:
-            assert test is None
+        pdt.assert_series_equal(test, true)
 
 
 def test_calculate_psi(event_annotation, splice_junction_reads,
