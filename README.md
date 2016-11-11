@@ -189,15 +189,15 @@ Notice that you replace `outrigger` with `python -m pdb outrigger/commandline.py
 
 ### How to run the tests
 
-If you want to run the tests without calculating what percentage of lines are
-covered in the test suite, run
+If you want to run the tests without calculating what percentage of
+lines are covered in the test suite, run:
 
 ```
 make test
 ```
 
 If you want to run the tests and see which lines are covered by tests and get
-an overall percentage of test coverage, run
+an overall percentage of test coverage, run:
 
 ```
 make coverage
