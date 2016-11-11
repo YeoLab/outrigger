@@ -11,8 +11,7 @@ Outrigger is a program which uses junction reads from RNA seq data, and a graph 
 
 ## Features
 
-- Finds novel splicing events, including novel exons! (`outrigger index`)
-    - Currently only works with `SJ.out.tab` files from the [STAR](https://github.com/alexdobin/STAR) aligner
+- Finds novel splicing events, including novel exons! (`outrigger index`) from `.bam` files
 - (optional) Validates that exons have correct splice sites, e.g. GT/AG and AT/AC for mammalian systems (`outrigger validate`)
 - Calculate "percent spliced-in" (Psi/Ψ) scores for all your samples given the validated events (or the original events if you opted not to validate)
 
