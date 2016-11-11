@@ -635,7 +635,7 @@ class Index(Subcommand):
 
         event_dfs = event_maker.find_events()
 
-        for splice_abbrev, event_df in event_dfs:
+        for splice_abbrev, event_df in event_dfs.items():
             csv = os.path.join(self.index_folder, splice_abbrev.lower(),
                                EVENTS_CSV)
             dirname = os.path.dirname(csv)
