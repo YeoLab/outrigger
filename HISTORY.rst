@@ -10,8 +10,8 @@ This is a non-breaking release with many speed improvements, and upgrade is
 recommended.
 
 
-New features
-~~~~~~~~~~~~
+v0.2.9 New features
+~~~~~~~~~~~~~~~~~~~
 
 - Add ``bam`` alignment files as input option
 
@@ -19,7 +19,9 @@ New features
 Miscellaneous
 ~~~~~~~~~~~~~
 
-- Parallelized Psi calculation, the exact number of processors can be specified with ``--n-jobs``, and by default, ``--n-jobs`` is ``-1``, which means use as many processors as are available.
+- Parallelized Psi calculation, the exact number of processors can be specified
+  with ``--n-jobs``, and by default, ``--n-jobs`` is ``-1``, which means use as
+  many processors as are available.
 
 
 v0.2.8 (October 23rd, 2016)
@@ -31,29 +33,29 @@ Updated README/HISTORY files
 v0.2.7 (October 23rd, 2016)
 ---------------------------
 
-New features
-~~~~~~~~~~~~
+v0.2.7 New features
+~~~~~~~~~~~~~~~~~~~
 
 - Added ``outrigger validate`` command to check for canonical splice sites
   by default: ``GT/AG`` (U1, major spliceosome) and ``AT/AC``
   (U12, minor spliceosome). Both of these are user-adjustable as they are only
   the standard for mammalian genomes.
 
-API changes
-~~~~~~~~~~~
+v0.2.7 API changes
+~~~~~~~~~~~~~~~~~~
 
 - Added ``--resume`` and ``--force`` options to ``outrigger index`` to prevent
   the overwriting of interrupted indexing operations, or to force overwriting.
   By default, ``outrigger`` complains and cowardly exits.
 
-Bug fixes
-~~~~~~~~~
+v0.2.7 Bug fixes
+~~~~~~~~~~~~~~~~
 
 - Support ENSEMBL gtf files which specify chromsome names with a number, e.g.
   ``4`` instead of ``chr4``. Thank you to lcscs12345_ for pointing this out!
 
-Miscellaneous
-~~~~~~~~~~~~~
+v0.2.7 Miscellaneous
+~~~~~~~~~~~~~~~~~~~~
 
 - Added version info with ``outrigger --version``
 - Sped up gffutils queries and event finding by running ``ANALYZE`` on SQLite
@@ -68,14 +70,14 @@ v0.2.6 (September 15th, 2016)
 
 This is a non-breaking patch release
 
-Bug fixes
-~~~~~~~~~
+v0.2.6 Bug fixes
+~~~~~~~~~~~~~~~~
 
 - Wasn't concatenating exons properly after parallelizing
 
 
-Miscellaneous
-~~~~~~~~~~~~~
+v0.2.6 Miscellaneous
+~~~~~~~~~~~~~~~~~~~~
 
 - Clarified ``.gtf`` file example for directory output
 
@@ -85,8 +87,8 @@ v0.2.5 (September 14th, 2016)
 -----------------------------
 
 
-Bug fixes
-~~~~~~~~~
+v0.2.5 Bug fixes
+~~~~~~~~~~~~~~~~
 
 - Added ``joblib`` to requirements
 
@@ -96,14 +98,14 @@ v0.2.4 (September 14th, 2016)
 
 This is a non-breaking patch release of ``outrigger``.
 
-New features
-~~~~~~~~~~~~
+v0.2.4 New features
+~~~~~~~~~~~~~~~~~~~
 
 - **Actually** parallelized exon finding for novel exons. Before had written the code and tested the non-parallelized version but now using actually parallelized version!
 
 
-Bug fixes
-~~~~~~~~~
+v0.2.4 Bug fixes
+~~~~~~~~~~~~~~~~
 
 - Don't need to turn on ``--debug`` command for outrigger to even run
 
