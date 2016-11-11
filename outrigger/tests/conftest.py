@@ -112,9 +112,21 @@ def tasic2016_intermediate_bam(tasic2016_intermediate):
 
 
 @pytest.fixture
+def tasic2016_intermediate_psi(tasic2016_intermediate):
+    """Suffix for intermediate files from Tasic et al Nat Neurosci (2016)"""
+    return os.path.join(tasic2016_intermediate, 'psi')
+
+
+@pytest.fixture
 def tasic2016_outrigger_output(tasic2016):
     """Suffix for outrigger_output files from Tasic Nat Neurosci (2016)"""
     return os.path.join(tasic2016, 'outrigger_output')
+
+
+@pytest.fixture
+def tasic2016_outrigger_output_psi(tasic2016_outrigger_output):
+    """Suffix for outrigger_output files from Tasic Nat Neurosci (2016)"""
+    return os.path.join(tasic2016_outrigger_output, 'psi')
 
 
 @pytest.fixture
@@ -203,3 +215,8 @@ def snap25_exon_id():
 def myl6_novel_exon_junction():
     """Junction downstream of a novel exon in MYL6 test set"""
     return 'junction:chr10:128491033-128491719:-'
+
+
+@pytest.fixture(params=[-1, 1])
+def n_jobs(request):
+    return request.param
