@@ -205,7 +205,6 @@ should look like this:
 
     10 directories, 22 files
 
-
 For Developers
 --------------
 
@@ -268,4 +267,4 @@ By default, Travis-CI does all three:
 .. |PyPI versions| image:: https://img.shields.io/pypi/v/outrigger.svg
    :target: https://pypi.python.org/pypi/outrigger
 .. |PythonVersionCompatibility| image:: https://img.shields.io/pypi/pyversions/outrigger.svg
-   :target:
+   :target: 
