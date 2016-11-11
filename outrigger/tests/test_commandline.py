@@ -66,9 +66,14 @@ def assert_directories_equal(dir1, dir2, ignore=None,
                 pdt.assert_frame_equal(df1, df2)
 
             # Otherwise, just use the file sizes
-            stat1 = os.stat(filename1)
-            stat2 = os.stat(filename2)
-            assert stat1.st_size == stat2.st_size
+            size1 = os.stat(filename1).st_size
+            size2 = os.stat(filename2).st_size
+            pdt.assert_equal(size1, size2,
+                             msg='{f1} ({size1}) and {f2} ({size2}) have '
+                                 'different sizes'.format(f1=filename1,
+                                                          f2=filename2,
+                                                          size1=size1,
+                                                          size2=size2))
 
 
 class TestCommandLine(object):
