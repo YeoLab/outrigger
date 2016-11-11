@@ -1,5 +1,8 @@
-v0.2.9 (...)
-------------
+v0.2.9 (November 11th, 2016)
+----------------------------
+
+This is a non-breaking release with many speed improvements, and upgrade is
+recommended.
 
 
 New features
@@ -7,17 +10,10 @@ New features
 
 - Add ``bam`` alignment files as input option
 
-Plotting functions
-~~~~~~~~~~~~~~~~~~
-
-API changes
-~~~~~~~~~~~
-
-
-Bug fixes
-~~~~~~~~~
 
 Miscellaneous
 ~~~~~~~~~~~~~
 
-- Parallelized Psi calculation
+- Parallelized Psi calculation, the exact number of processors can be specified
+  wih ``--n-jobs``, and by default, ``--n-jobs`` is ``-1``, which means use as
+  many processors as are available.
