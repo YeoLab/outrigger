@@ -93,6 +93,7 @@ class SplicingAnnotator(object):
         self.lengths = self.regions.applymap(len)
         self.lengths.columns = [x.replace('_region', '_length')
                                 for x in self.lengths]
+        self.lengths = self.lengths.astype(int)
 
         intron_names = intron_regions.applymap(lambda x: x.name)
         intron_names.columns = [x.replace('_region', '_location')
@@ -144,9 +145,12 @@ class SplicingAnnotator(object):
                         new_key = isoform + '_' + key
                         attributes[new_key] = ','.join(sorted(values))
             lines.append(attributes)
+
         event_attributes = pd.concat(lines, axis=1).T
-        events_with_attributes = pd.concat([self.events, event_attributes])
-        return events_with_attributes
+        df = pd.concat([self.events, event_attributes],
+                                           axis=1)
+        df = df.loc[:, ~df.duplicated()]
+        return df
 
     def exon_bedfiles(self, folder):
         for region_col in self.region_cols:
