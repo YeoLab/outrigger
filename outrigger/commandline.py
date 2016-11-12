@@ -626,7 +626,7 @@ class Index(Subcommand):
             os.path.join(self.index_folder, splice_abbrev.lower(),
                          EVENTS_CSV)
             ) for splice_abbrev in common.SPLICE_ABBREVS]
-        if all(existing_events):
+        if all(existing_events) and not self.force:
             util.progress('Found existing splicing events files for all splice'
                           ' types, so not searching. To force'
                           ' re-finding these splicing events, use the flag'
