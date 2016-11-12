@@ -149,7 +149,7 @@ class SplicingAnnotator(object):
         event_attributes = pd.concat(lines, axis=1).T
         df = pd.concat([self.events, event_attributes],
                                            axis=1)
-        df = df.loc[:, ~df.duplicated()]
+        df = df.loc[:, ~df.columns.duplicated()]
         return df
 
     def exon_bedfiles(self, folder):
