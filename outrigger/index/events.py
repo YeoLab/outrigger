@@ -170,8 +170,7 @@ class SpliceGraph(object):
                         exon1_i, exon2_i)
 
                     junctions_i = list(itertools.chain(
-                        *[exon12_junction, exon23_junction,
-                          exon13_junction]))
+                        *[exon13_junction, exon12_junction, exon23_junction]))
                     junctions = [self.items[i] for i in junctions_i]
                     exons = exon1_name, exon2.name, exon3.name
 
@@ -227,11 +226,10 @@ class SpliceGraph(object):
                         exon_tuple = exon1_name, exon2.name, exon3.name, \
                             exon4_name
                         #             print exon12_junction.next()
-                        junctions_i = list(
-                            itertools.chain(*[exon13_junction,
-                                              exon34_junction,
-                                              exon12_junction,
-                                              exon24_junction]))
+                        junctions_i = itertools.chain(*[exon13_junction,
+                                                        exon34_junction,
+                                                        exon12_junction,
+                                                        exon24_junction])
                         junctions = [self.items[i] for i in junctions_i]
 
                         events[exon_tuple] = junctions
