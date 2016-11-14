@@ -63,6 +63,9 @@ def assert_directories_equal(dir1, dir2, ignore=None,
                 df1.index = range(len(df1.index))
                 df2.index = range(len(df2.index))
 
+                df1.sort_index(axis=1, inplace=True)
+                df2.sort_index(axis=1, inplace=True)
+
                 pdt.assert_frame_equal(df1, df2)
                 continue
 
