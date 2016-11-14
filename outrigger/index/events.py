@@ -8,8 +8,8 @@ import pandas as pd
 from graphlite import V
 
 from ..common import STRAND, ISOFORM_ORDER, ISOFORM_COMPONENTS, \
-    EVENT_ID_COLUMN, ILLEGAL_JUNCTIONS, SPLICE_ABBREVS, SPLICE_TYPE_ALL_EXONS, \
-    SPLICE_TYPE_ALL_JUNCTIONS, JUNCTION_ID, CHROM
+    EVENT_ID_COLUMN, ILLEGAL_JUNCTIONS, SPLICE_ABBREVS, \
+    SPLICE_TYPE_ALL_EXONS, SPLICE_TYPE_ALL_JUNCTIONS, CHROM
 from outrigger.region import Region
 from .adjacencies import UPSTREAM, DOWNSTREAM, DIRECTIONS
 from ..util import progress, done
