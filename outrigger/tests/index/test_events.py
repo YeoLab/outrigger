@@ -7,8 +7,6 @@ import pandas.util.testing as pdt
 import pytest
 from graphlite import connect, V
 
-from outrigger.common import SPLICE_TYPES
-
 logging.basicConfig(level=logging.DEBUG)
 
 
@@ -197,14 +195,12 @@ class TestEventMaker(object):
         junction_exon_triples_chrom[CHROM] = \
             junction_exon_triples_chrom['junction'].str.split(':').str[1]
 
-
         test = EventMaker(junction_exon_triples)
         pdt.assert_frame_equal(test.junction_exon_triples,
                                junction_exon_triples_chrom)
         assert test.db is None
         assert test.junction_col == 'junction'
         assert test.exon_col == 'exon'
-
 
     @pytest.fixture
     def strand_name(self, strand):
@@ -232,8 +228,9 @@ class TestEventMaker(object):
         for splice_abbrev in SPLICE_ABBREVS:
             test = test_events[splice_abbrev]
 
-            events_csv = os.path.join(simulated_outrigger_index, splice_abbrev,
-                            'events_{}_strand.csv'.format(strand_name))
+            events_csv = os.path.join(
+                simulated_outrigger_index, splice_abbrev,
+                'events_{}_strand.csv'.format(strand_name))
             true = pd.read_csv(events_csv, index_col=0)
 
             sort_by = [x for x in true.columns if re.match('exon\d', x)]
@@ -345,7 +342,6 @@ class TestSpliceGraph(object):
 
         return SpliceGraph(junction_exon_triples)
 
-
     def test___init__(self, junction_exon_triples, graph_items):
         from outrigger.index.events import SpliceGraph
 
@@ -361,7 +357,6 @@ class TestSpliceGraph(object):
         pdt.assert_equal(sorted(test.items), sorted(items))
 
         assert_graph_items_equal(test.graph, test.items, graph, items)
-
 
     @pytest.fixture
     def exon1_i(self, strand):
@@ -382,7 +377,8 @@ class TestSpliceGraph(object):
             true = (2, 1, 0)
         assert test == true
 
-    def test_exons_two_junctions_downstream(self, splice_graph, exon1_i, strand):
+    def test_exons_two_junctions_downstream(self, splice_graph, exon1_i,
+                                            strand):
         test = tuple(splice_graph.exons_two_junctions_downstream(exon1_i))
         if strand == '+':
             true = (2, 3, 2, 3, 7)
@@ -427,7 +423,6 @@ class TestSpliceGraph(object):
  ('exon:chr1:400-425:-', 'exon:chr1:300-350:-', 'exon:chr1:225-250:-'): ['junction:chr1:251-399:-',  # noqa
                                                                          'junction:chr1:351-399:-',  # noqa
                                                                          'junction:chr1:251-299:-']}  # noqa
-
 
     @pytest.fixture
     def mutually_exclusive_events(self, strand):

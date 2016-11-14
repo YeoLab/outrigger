@@ -147,8 +147,7 @@ class SplicingAnnotator(object):
             lines.append(attributes)
 
         event_attributes = pd.concat(lines, axis=1).T
-        df = pd.concat([self.events, event_attributes],
-                                           axis=1)
+        df = pd.concat([self.events, event_attributes], axis=1)
         df = df.loc[:, ~df.columns.duplicated()]
         return df
 

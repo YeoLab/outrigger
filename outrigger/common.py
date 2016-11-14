@@ -1,5 +1,3 @@
-import itertools
-
 # Column names and constants used across outrigger
 
 CHROM = 'chrom'
