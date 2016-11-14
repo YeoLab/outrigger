@@ -37,6 +37,12 @@ script:
 - make lint
 - deactivate lint-env
 
+after_script:
+  - MASTER=master
+  - if [[ ${TRAVIS_PYTHON_VERSION:0:1} == "2" ]] || [[ $TRAVIS_BRANCH == v*.*.* ]] ; then export DEPLOY_HTML_DIR=docs ; fi
+  - if [[ ${TRAVIS_PYTHON_VERSION:0:1} == "2" ]] || [[ $TRAVIS_BRANCH == "$MASTER" ]] ; then export DEPLOY_HTML_DIR=docs-dev ; fi
+  - if [[ ${TRAVIS_PYTHON_VERSION:0:1} == "2" ]] || [[ $TRAVIS_BRANCH == v*.*.* ]] || [[ $TRAVIS_BRANCH == "$MASTER" ]] ; then sudo apt-get install pandoc; pip install -r doc/requirements.txt; cd docs ; make setup_gh_pages ; make generate ; make deploy ; fi
+
 after_success:
   - which -a curl
   - set -o pipefail

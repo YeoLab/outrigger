@@ -57,6 +57,9 @@ clean:
 	rm -rf generated
 	rm -rf apidoc
 
+install:
+	pip install -r requirements.txt
+
 html:
 	sphinx-apidoc -l -d 4 -e --force -o . ../outrigger
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html

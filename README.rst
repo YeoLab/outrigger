@@ -3,7 +3,8 @@ Outrigger
 
 |OutriggerLogo|
 
-|BuildStatus|\ |codecov|\ |PyPI versions|\ |PythonVersionCompatibility|
+|BuildStatus|\ |codecov|\ |PyPI
+versions|\ |PythonVersionCompatibility|\ |license|
 
 Outrigger is a program which uses junction reads from RNA seq data, and
 a graph database to create a *de novo* alternative splicing annotation
@@ -21,7 +22,7 @@ Features
    and AT/AC for mammalian systems (``outrigger validate``)
 -  Calculate "percent spliced-in" (Psi/Ψ) scores for all your samples
    given the validated events (or the original events if you opted not
-   to validate)
+   to validate) via ``outrigger psi``
 
 Installation
 ------------
@@ -228,15 +229,16 @@ github directory.
 How to run the tests
 ~~~~~~~~~~~~~~~~~~~~
 
-If you want to run the tests without calculating what percentage of
-lines are covered in the test suite, run
+| If you want to run the tests without calculating what percentage of
+| lines are covered in the test suite, run:
 
 ::
 
     make test
 
-If you want to run the tests and see which lines are covered by tests
-and get an overall percentage of test coverage, run
+| If you want to run the tests and see which lines are covered by tests
+and get
+| an overall percentage of test coverage, run:
 
 ::
 
@@ -266,3 +268,5 @@ By default, Travis-CI does all three:
    :target: https://pypi.python.org/pypi/outrigger
 .. |PythonVersionCompatibility| image:: https://img.shields.io/pypi/pyversions/outrigger.svg
    :target: https://pypi.python.org/pypi/outrigger
+.. |license| image:: https://img.shields.io/github/pypi/l/outrigger.svg
+   :target: 
