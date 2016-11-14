@@ -1,0 +1,320 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>outrigger.tests.test_commandline &mdash; BED annotator 0.2.9 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.2.9',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="BED annotator 0.2.9 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">BED annotator 0.2.9 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for outrigger.tests.test_commandline</h1><div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">filecmp</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">pandas.util.testing</span> <span class="kn">as</span> <span class="nn">pdt</span>
+<span class="kn">import</span> <span class="nn">pytest</span>
+
+
+<span class="k">class</span> <span class="nc">TestSubcommand</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="TestSubcommand"><a class="viewcode-back" href="../../../outrigger.tests.test_commandline.html#outrigger.tests.test_commandline.TestSubcommand">[docs]</a>
+    <span class="k">def</span> <span class="nf">test___init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmpdir</span><span class="p">):</span>
+<div class="viewcode-block" id="TestSubcommand.test___init__"><a class="viewcode-back" href="../../../outrigger.tests.test_commandline.html#outrigger.tests.test_commandline.TestSubcommand.test___init__">[docs]</a>        <span class="kn">from</span> <span class="nn">outrigger.commandline</span> <span class="kn">import</span> <span class="n">Subcommand</span>
+
+        <span class="n">output</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tmpdir</span><span class="o">.</span><span class="n">strpath</span><span class="p">,</span> <span class="s">&#39;blue_ivy&#39;</span><span class="p">)</span>
+
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">asdf</span><span class="o">=</span><span class="s">&quot;beyonce&quot;</span><span class="p">,</span> <span class="n">jkl</span><span class="o">=</span><span class="mi">1234</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
+
+        <span class="n">subcommand</span> <span class="o">=</span> <span class="n">Subcommand</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">assert</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">subcommand</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span> <span class="o">==</span> <span class="n">value</span>
+        <span class="k">for</span> <span class="n">folder</span> <span class="ow">in</span> <span class="n">subcommand</span><span class="o">.</span><span class="n">folders</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">folder</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">assert_directories_equal</span><span class="p">(</span><span class="n">dir1</span><span class="p">,</span> <span class="n">dir2</span><span class="p">,</span> <span class="n">ignore</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span></div></div>
+<div class="viewcode-block" id="assert_directories_equal"><a class="viewcode-back" href="../../../outrigger.tests.test_commandline.html#outrigger.tests.test_commandline.assert_directories_equal">[docs]</a>                             <span class="n">sortables</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;exon&#39;</span><span class="p">,</span> <span class="s">&#39;junction&#39;</span><span class="p">)):</span>
+    <span class="sd">&quot;&quot;&quot;Compare contents of subdirectories to assert they are equal&quot;&quot;&quot;</span>
+
+    <span class="n">directory_comparison</span> <span class="o">=</span> <span class="n">filecmp</span><span class="o">.</span><span class="n">dircmp</span><span class="p">(</span><span class="n">dir1</span><span class="p">,</span> <span class="n">dir2</span><span class="p">,</span> <span class="n">ignore</span><span class="o">=</span><span class="n">ignore</span><span class="p">)</span>
+
+    <span class="n">directory_comparison</span><span class="o">.</span><span class="n">report_full_closure</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">directory_comparison</span><span class="o">.</span><span class="n">left_only</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">directory_comparison</span><span class="o">.</span><span class="n">right_only</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
+
+    <span class="k">for</span> <span class="n">subdir</span> <span class="ow">in</span> <span class="n">directory_comparison</span><span class="o">.</span><span class="n">subdirs</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">subdir</span><span class="o">.</span><span class="n">common_files</span><span class="p">)</span>
+
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">subdir</span><span class="o">.</span><span class="n">left_only</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">subdir</span><span class="o">.</span><span class="n">right_only</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">subdir</span><span class="o">.</span><span class="n">common_files</span><span class="p">:</span>
+            <span class="n">filename1</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">subdir</span><span class="o">.</span><span class="n">left</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+            <span class="n">filename2</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">subdir</span><span class="o">.</span><span class="n">right</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+
+            <span class="c"># If the files are csv or bed tables, check that they&#39;re equal</span>
+            <span class="n">df1</span><span class="p">,</span> <span class="n">df2</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span>
+
+            <span class="k">if</span> <span class="n">filename</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&#39;.csv&#39;</span><span class="p">):</span>
+                <span class="n">df1</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">filename1</span><span class="p">)</span>
+                <span class="n">df2</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">filename2</span><span class="p">)</span>
+
+                <span class="n">df1</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">df1</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+                <span class="n">df2</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">df2</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">filename</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&#39;.bed&#39;</span><span class="p">):</span>
+                <span class="n">df1</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_table</span><span class="p">(</span><span class="n">filename1</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+                <span class="n">df2</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_table</span><span class="p">(</span><span class="n">filename2</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+
+                <span class="n">df1</span><span class="o">.</span><span class="n">sort_values</span><span class="p">([</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">kind</span><span class="o">=</span><span class="s">&#39;mergesort&#39;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+                <span class="n">df2</span><span class="o">.</span><span class="n">sort_values</span><span class="p">([</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">kind</span><span class="o">=</span><span class="s">&#39;mergesort&#39;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">df1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">df1</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df1</span><span class="o">.</span><span class="n">index</span><span class="p">))</span>
+                <span class="n">df2</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df2</span><span class="o">.</span><span class="n">index</span><span class="p">))</span>
+
+                <span class="n">pdt</span><span class="o">.</span><span class="n">assert_frame_equal</span><span class="p">(</span><span class="n">df1</span><span class="p">,</span> <span class="n">df2</span><span class="p">)</span>
+                <span class="k">continue</span>
+
+            <span class="c"># Otherwise, just use the file sizes</span>
+            <span class="n">size1</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="n">filename1</span><span class="p">)</span><span class="o">.</span><span class="n">st_size</span>
+            <span class="n">size2</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="n">filename2</span><span class="p">)</span><span class="o">.</span><span class="n">st_size</span>
+            <span class="n">pdt</span><span class="o">.</span><span class="n">assert_equal</span><span class="p">(</span><span class="n">size1</span><span class="p">,</span> <span class="n">size2</span><span class="p">,</span>
+                             <span class="n">msg</span><span class="o">=</span><span class="s">&#39;{f1} ({size1}) and {f2} ({size2}) have &#39;</span>
+                                 <span class="s">&#39;different sizes&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">f1</span><span class="o">=</span><span class="n">filename1</span><span class="p">,</span>
+                                                          <span class="n">f2</span><span class="o">=</span><span class="n">filename2</span><span class="p">,</span>
+                                                          <span class="n">size1</span><span class="o">=</span><span class="n">size1</span><span class="p">,</span>
+                                                          <span class="n">size2</span><span class="o">=</span><span class="n">size2</span><span class="p">))</span>
+
+
+<span class="k">class</span> <span class="nc">TestCommandLine</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span></div>
+<div class="viewcode-block" id="TestCommandLine"><a class="viewcode-back" href="../../../outrigger.tests.test_commandline.html#outrigger.tests.test_commandline.TestCommandLine">[docs]</a>
+    <span class="k">def</span> <span class="nf">test_no_arguments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">capsys</span><span class="p">):</span>
+<div class="viewcode-block" id="TestCommandLine.test_no_arguments"><a class="viewcode-back" href="../../../outrigger.tests.test_commandline.html#outrigger.tests.test_commandline.TestCommandLine.test_no_arguments">[docs]</a>        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        User passes no args, should fail with SystemExit</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="kn">from</span> <span class="nn">outrigger.commandline</span> <span class="kn">import</span> <span class="n">CommandLine</span>
+
+        <span class="n">CommandLine</span><span class="p">()</span>
+
+        <span class="n">text</span> <span class="o">=</span> <span class="s">&#39;[-h] [--version] {index,validate,psi} ...&#39;</span>
+        <span class="n">out</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">capsys</span><span class="o">.</span><span class="n">readouterr</span><span class="p">()</span>
+
+        <span class="c"># Argparse for Python2 sends the version info to stderr, but Python3</span>
+        <span class="c"># argparse sends the info to stdout so we concatenate here</span>
+        <span class="n">outerr</span> <span class="o">=</span> <span class="n">out</span> <span class="o">+</span> <span class="n">err</span>
+        <span class="k">assert</span> <span class="s">&#39;usage&#39;</span> <span class="ow">in</span> <span class="n">outerr</span>
+        <span class="k">assert</span> <span class="n">text</span> <span class="ow">in</span> <span class="n">outerr</span>
+
+    <span class="k">def</span> <span class="nf">test_help</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">capsys</span><span class="p">):</span></div>
+<div class="viewcode-block" id="TestCommandLine.test_help"><a class="viewcode-back" href="../../../outrigger.tests.test_commandline.html#outrigger.tests.test_commandline.TestCommandLine.test_help">[docs]</a>        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        User asks for help, should SystemExit and give helpful output</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">outrigger.commandline</span> <span class="kn">import</span> <span class="n">CommandLine</span>
+
+        <span class="k">with</span> <span class="n">pytest</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="ne">SystemExit</span><span class="p">):</span>
+            <span class="n">CommandLine</span><span class="p">([</span><span class="s">&#39;--help&#39;</span><span class="p">])</span>
+
+        <span class="n">out</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">capsys</span><span class="o">.</span><span class="n">readouterr</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="s">&#39;outrigger&#39;</span> <span class="ow">in</span> <span class="n">out</span>
+        <span class="k">assert</span> <span class="s">&#39;psi&#39;</span> <span class="ow">in</span> <span class="n">out</span>
+        <span class="k">assert</span> <span class="s">&#39;validate&#39;</span> <span class="ow">in</span> <span class="n">out</span>
+        <span class="k">assert</span> <span class="s">&#39;usage&#39;</span> <span class="ow">in</span> <span class="n">out</span>
+
+    <span class="k">def</span> <span class="nf">test_main_version</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">capsys</span><span class="p">):</span></div>
+<div class="viewcode-block" id="TestCommandLine.test_main_version"><a class="viewcode-back" href="../../../outrigger.tests.test_commandline.html#outrigger.tests.test_commandline.TestCommandLine.test_main_version">[docs]</a>        <span class="kn">from</span> <span class="nn">outrigger.commandline</span> <span class="kn">import</span> <span class="n">CommandLine</span>
+        <span class="kn">from</span> <span class="nn">outrigger</span> <span class="kn">import</span> <span class="n">__version__</span>
+
+        <span class="k">with</span> <span class="n">pytest</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="ne">SystemExit</span><span class="p">):</span>
+            <span class="n">CommandLine</span><span class="p">([</span><span class="s">&#39;--version&#39;</span><span class="p">])</span>
+
+        <span class="n">out</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">capsys</span><span class="o">.</span><span class="n">readouterr</span><span class="p">()</span>
+
+        <span class="c"># Argparse for Python2 sends the version info to stderr, but Python3</span>
+        <span class="c"># argparse sends the info to stdout so we concatenate here</span>
+        <span class="n">outerr</span> <span class="o">=</span> <span class="n">out</span> <span class="o">+</span> <span class="n">err</span>
+        <span class="k">assert</span> <span class="s">&#39;outrigger&#39;</span> <span class="ow">in</span> <span class="n">outerr</span>
+        <span class="k">assert</span> <span class="n">__version__</span> <span class="ow">in</span> <span class="n">outerr</span>
+
+    <span class="k">def</span> <span class="nf">test_main_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmpdir</span><span class="p">,</span> <span class="n">tasic2016_unprocessed</span><span class="p">,</span> <span class="n">sj_filenames</span><span class="p">,</span></div>
+<div class="viewcode-block" id="TestCommandLine.test_main_index"><a class="viewcode-back" href="../../../outrigger.tests.test_commandline.html#outrigger.tests.test_commandline.TestCommandLine.test_main_index">[docs]</a>                        <span class="n">tasic2016_outrigger_output_index</span><span class="p">):</span>
+        <span class="kn">from</span> <span class="nn">outrigger.commandline</span> <span class="kn">import</span> <span class="n">CommandLine</span>
+
+        <span class="n">output_folder</span> <span class="o">=</span> <span class="n">tmpdir</span><span class="o">.</span><span class="n">strpath</span>
+
+        <span class="n">gtf</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tasic2016_unprocessed</span><span class="p">,</span> <span class="s">&#39;gtf&#39;</span><span class="p">,</span>
+                           <span class="s">&#39;gencode.vM10.annotation.subset.gtf&#39;</span><span class="p">)</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;index&#39;</span><span class="p">,</span> <span class="s">&#39;--sj-out-tab&#39;</span><span class="p">]</span>
+        <span class="n">arguments</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">sj_filenames</span><span class="p">)</span>
+        <span class="n">arguments</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s">&#39;--gtf&#39;</span><span class="p">,</span> <span class="n">gtf</span><span class="p">,</span> <span class="s">&#39;--output&#39;</span><span class="p">,</span> <span class="n">output_folder</span><span class="p">,</span> <span class="s">&#39;--debug&#39;</span><span class="p">])</span>
+        <span class="c"># import pdb; pdb.set_trace()</span>
+        <span class="c"># assert False</span>
+        <span class="n">CommandLine</span><span class="p">(</span><span class="n">arguments</span><span class="p">)</span>
+
+        <span class="n">dir1</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_folder</span><span class="p">,</span> <span class="s">&#39;index&#39;</span><span class="p">)</span>
+        <span class="n">dir2</span> <span class="o">=</span> <span class="n">tasic2016_outrigger_output_index</span>
+        <span class="n">ignore</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;psi&#39;</span><span class="p">,</span> <span class="s">&#39;.DS_Store&#39;</span><span class="p">,</span> <span class="s">&#39;validated&#39;</span><span class="p">,</span> <span class="s">&#39;splice_sites.csv&#39;</span><span class="p">,</span>
+                  <span class="c"># Databases get stored in a weird random way... we&#39;re still</span>
+                  <span class="c"># checking that the final gtfs are the same</span>
+                  <span class="s">&#39;gencode.vM10.annotation.subset.gtf.db&#39;</span><span class="p">]</span>
+        <span class="n">assert_directories_equal</span><span class="p">(</span><span class="n">dir1</span><span class="p">,</span> <span class="n">dir2</span><span class="p">,</span> <span class="n">ignore</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">test_main_index_bam</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmpdir</span><span class="p">,</span> <span class="n">tasic2016_unprocessed</span><span class="p">,</span></div>
+<div class="viewcode-block" id="TestCommandLine.test_main_index_bam"><a class="viewcode-back" href="../../../outrigger.tests.test_commandline.html#outrigger.tests.test_commandline.TestCommandLine.test_main_index_bam">[docs]</a>                            <span class="n">bam_filenames</span><span class="p">,</span> <span class="n">tasic2016_outrigger_output_bam</span><span class="p">):</span>
+        <span class="kn">from</span> <span class="nn">outrigger.commandline</span> <span class="kn">import</span> <span class="n">CommandLine</span>
+
+        <span class="n">output_folder</span> <span class="o">=</span> <span class="n">tmpdir</span><span class="o">.</span><span class="n">strpath</span>
+
+        <span class="n">gtf</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tasic2016_unprocessed</span><span class="p">,</span> <span class="s">&#39;gtf&#39;</span><span class="p">,</span>
+                           <span class="s">&#39;gencode.vM10.annotation.subset.gtf&#39;</span><span class="p">)</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;index&#39;</span><span class="p">,</span> <span class="s">&#39;--bams&#39;</span><span class="p">]</span>
+        <span class="n">arguments</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">bam_filenames</span><span class="p">)</span>
+        <span class="n">arguments</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s">&#39;--gtf&#39;</span><span class="p">,</span> <span class="n">gtf</span><span class="p">,</span> <span class="s">&#39;--output&#39;</span><span class="p">,</span> <span class="n">output_folder</span><span class="p">,</span> <span class="s">&#39;--debug&#39;</span><span class="p">])</span>
+        <span class="c"># import pdb; pdb.set_trace()</span>
+        <span class="c"># assert False</span>
+        <span class="n">CommandLine</span><span class="p">(</span><span class="n">arguments</span><span class="p">)</span>
+
+        <span class="n">dir1</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_folder</span><span class="p">,</span> <span class="s">&#39;index&#39;</span><span class="p">)</span>
+        <span class="n">dir2</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tasic2016_outrigger_output_bam</span><span class="p">,</span> <span class="s">&#39;index&#39;</span><span class="p">)</span>
+        <span class="n">ignore</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;psi&#39;</span><span class="p">,</span> <span class="s">&#39;.DS_Store&#39;</span><span class="p">,</span> <span class="s">&#39;validated&#39;</span><span class="p">,</span> <span class="s">&#39;splice_sites.csv&#39;</span><span class="p">,</span>
+                  <span class="c"># Databases get stored in a weird random way... we&#39;re still</span>
+                  <span class="c"># checking that the final gtfs are the same</span>
+                  <span class="s">&#39;gencode.vM10.annotation.subset.gtf.db&#39;</span><span class="p">]</span>
+        <span class="n">assert_directories_equal</span><span class="p">(</span><span class="n">dir1</span><span class="p">,</span> <span class="n">dir2</span><span class="p">,</span> <span class="n">ignore</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">test_main_validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmpdir</span><span class="p">,</span> <span class="n">negative_control_folder</span><span class="p">,</span></div>
+<div class="viewcode-block" id="TestCommandLine.test_main_validate"><a class="viewcode-back" href="../../../outrigger.tests.test_commandline.html#outrigger.tests.test_commandline.TestCommandLine.test_main_validate">[docs]</a>                           <span class="n">negative_control_output</span><span class="p">):</span>
+        <span class="kn">from</span> <span class="nn">outrigger.commandline</span> <span class="kn">import</span> <span class="n">CommandLine</span>
+
+        <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;validate&#39;</span><span class="p">,</span> <span class="s">&#39;--genome&#39;</span><span class="p">,</span>
+                <span class="s">&#39;{folder}/chromsizes&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">folder</span><span class="o">=</span><span class="n">negative_control_folder</span><span class="p">),</span>
+                <span class="s">&#39;--fasta&#39;</span><span class="p">,</span>
+                <span class="s">&#39;{folder}/genome.fasta&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">folder</span><span class="o">=</span><span class="n">negative_control_folder</span><span class="p">),</span>
+                <span class="s">&#39;--output&#39;</span><span class="p">,</span> <span class="n">tmpdir</span><span class="o">.</span><span class="n">strpath</span><span class="p">,</span>
+                <span class="s">&#39;--index&#39;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">negative_control_output</span><span class="p">,</span> <span class="s">&#39;index&#39;</span><span class="p">)]</span>
+        <span class="n">CommandLine</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+
+        <span class="n">dir1</span> <span class="o">=</span> <span class="n">tmpdir</span><span class="o">.</span><span class="n">strpath</span>
+        <span class="n">dir2</span> <span class="o">=</span> <span class="n">negative_control_output</span>
+        <span class="n">assert_directories_equal</span><span class="p">(</span><span class="n">dir1</span><span class="p">,</span> <span class="n">dir2</span><span class="p">,</span>
+                                 <span class="n">ignore</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;.DS_Store&#39;</span><span class="p">,</span> <span class="s">&#39;junctions&#39;</span><span class="p">,</span> <span class="s">&#39;gtf&#39;</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">test_main_psi</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmpdir</span><span class="p">,</span> <span class="n">tasic2016_unprocessed</span><span class="p">,</span></div>
+<div class="viewcode-block" id="TestCommandLine.test_main_psi"><a class="viewcode-back" href="../../../outrigger.tests.test_commandline.html#outrigger.tests.test_commandline.TestCommandLine.test_main_psi">[docs]</a>                      <span class="n">tasic2016_outrigger_output</span><span class="p">,</span> <span class="n">sj_filenames</span><span class="p">):</span>
+        <span class="kn">from</span> <span class="nn">outrigger.commandline</span> <span class="kn">import</span> <span class="n">CommandLine</span>
+
+        <span class="n">output_folder</span> <span class="o">=</span> <span class="n">tmpdir</span><span class="o">.</span><span class="n">strpath</span>
+
+        <span class="n">gtf</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tasic2016_unprocessed</span><span class="p">,</span> <span class="s">&#39;gtf&#39;</span><span class="p">,</span>
+                           <span class="s">&#39;gencode.vM10.annotation.subset.gtf&#39;</span><span class="p">)</span>
+        <span class="n">arguments</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;index&#39;</span><span class="p">,</span> <span class="s">&#39;--sj-out-tab&#39;</span><span class="p">]</span>
+        <span class="n">arguments</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">sj_filenames</span><span class="p">)</span>
+        <span class="n">arguments</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s">&#39;--gtf&#39;</span><span class="p">,</span> <span class="n">gtf</span><span class="p">,</span> <span class="s">&#39;--output&#39;</span><span class="p">,</span> <span class="n">output_folder</span><span class="p">,</span> <span class="s">&#39;--debug&#39;</span><span class="p">])</span>
+        <span class="n">CommandLine</span><span class="p">(</span><span class="n">arguments</span><span class="p">)</span>
+
+        <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;psi&#39;</span><span class="p">,</span> <span class="s">&#39;--output&#39;</span><span class="p">,</span> <span class="n">output_folder</span><span class="p">]</span>
+        <span class="n">CommandLine</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+
+        <span class="n">dir1</span> <span class="o">=</span> <span class="n">output_folder</span>
+        <span class="n">dir2</span> <span class="o">=</span> <span class="n">tasic2016_outrigger_output</span>
+        <span class="n">assert_directories_equal</span><span class="p">(</span><span class="n">dir1</span><span class="p">,</span> <span class="n">dir2</span><span class="p">,</span> <span class="n">ignore</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;.DS_Store&#39;</span><span class="p">,</span> <span class="s">&#39;psi&#39;</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">test_main_psi_bam</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmpdir</span><span class="p">,</span> <span class="n">tasic2016_outrigger_output_index</span><span class="p">,</span></div>
+<div class="viewcode-block" id="TestCommandLine.test_main_psi_bam"><a class="viewcode-back" href="../../../outrigger.tests.test_commandline.html#outrigger.tests.test_commandline.TestCommandLine.test_main_psi_bam">[docs]</a>                          <span class="n">tasic2016_outrigger_output_bam</span><span class="p">,</span> <span class="n">bam_filenames</span><span class="p">):</span>
+        <span class="kn">from</span> <span class="nn">outrigger.commandline</span> <span class="kn">import</span> <span class="n">CommandLine</span>
+
+        <span class="n">output_folder</span> <span class="o">=</span> <span class="n">tmpdir</span><span class="o">.</span><span class="n">strpath</span>
+
+        <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;psi&#39;</span><span class="p">,</span> <span class="s">&#39;--output&#39;</span><span class="p">,</span> <span class="n">output_folder</span><span class="p">,</span>
+                <span class="s">&#39;--index&#39;</span><span class="p">,</span> <span class="n">tasic2016_outrigger_output_index</span><span class="p">,</span>
+                <span class="s">&#39;--bams&#39;</span><span class="p">]</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">bam_filenames</span><span class="p">)</span>
+        <span class="n">CommandLine</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+
+        <span class="n">dir1</span> <span class="o">=</span> <span class="n">output_folder</span>
+        <span class="n">dir2</span> <span class="o">=</span> <span class="n">tasic2016_outrigger_output_bam</span>
+        <span class="n">assert_directories_equal</span><span class="p">(</span><span class="n">dir1</span><span class="p">,</span> <span class="n">dir2</span><span class="p">,</span> <span class="n">ignore</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;.DS_Store&#39;</span><span class="p">,</span> <span class="s">&#39;index&#39;</span><span class="p">])</span>
+</pre></div></div></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">BED annotator 0.2.9 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Olga Botvinnik.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

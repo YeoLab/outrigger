@@ -1,0 +1,156 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>outrigger.validate.check_splice_sites &mdash; BED annotator 0.2.9 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.2.9',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="BED annotator 0.2.9 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">BED annotator 0.2.9 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for outrigger.validate.check_splice_sites</h1><div class="highlight"><pre>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+
+<span class="kn">from</span> <span class="nn">Bio</span> <span class="kn">import</span> <span class="n">SeqIO</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">pybedtools</span>
+
+<span class="n">NT</span> <span class="o">=</span> <span class="mi">2</span>
+
+<span class="n">MAMMALIAN_SPLICE_SITES</span> <span class="o">=</span> <span class="s">&#39;GT/AG,AT/AC&#39;</span>
+
+
+<span class="k">def</span> <span class="nf">splice_site_str_to_tuple</span><span class="p">(</span><span class="n">splice_site</span><span class="p">):</span>
+<div class="viewcode-block" id="splice_site_str_to_tuple"><a class="viewcode-back" href="../../../outrigger.validate.check_splice_sites.html#outrigger.validate.check_splice_sites.splice_site_str_to_tuple">[docs]</a>    <span class="n">pairs</span> <span class="o">=</span> <span class="n">splice_site</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;,&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">pairs</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">maybe_read_chromsizes</span><span class="p">(</span><span class="n">genome</span><span class="p">):</span></div>
+<div class="viewcode-block" id="maybe_read_chromsizes"><a class="viewcode-back" href="../../../outrigger.validate.check_splice_sites.html#outrigger.validate.check_splice_sites.maybe_read_chromsizes">[docs]</a>    <span class="k">try</span><span class="p">:</span>
+        <span class="n">chromsizes</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">genome</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">chrom</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+                <span class="n">size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+                <span class="n">chromsizes</span><span class="p">[</span><span class="n">chrom</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+        <span class="n">chromsizes</span> <span class="o">=</span> <span class="n">pybedtools</span><span class="o">.</span><span class="n">chromsizes</span><span class="p">(</span><span class="n">genome</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">chromsizes</span>
+
+
+<span class="k">def</span> <span class="nf">read_splice_sites</span><span class="p">(</span><span class="n">bed</span><span class="p">,</span> <span class="n">genome</span><span class="p">,</span> <span class="n">fasta</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="s">&#39;upstream&#39;</span><span class="p">):</span></div>
+<div class="viewcode-block" id="read_splice_sites"><a class="viewcode-back" href="../../../outrigger.validate.check_splice_sites.html#outrigger.validate.check_splice_sites.read_splice_sites">[docs]</a>    <span class="sd">&quot;&quot;&quot;Read splice sites of an exon</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    bed : pybedtools.BedTool | str</span>
+<span class="sd">        Exons whose splice sites you&#39;re interested in</span>
+<span class="sd">    genome : str</span>
+<span class="sd">        Location of a chromosome sizes file for the genome</span>
+<span class="sd">    fasta : str</span>
+<span class="sd">        Location of the genome fasta file</span>
+<span class="sd">    direction : &#39;upstream&#39; | &#39;downstream&#39;</span>
+<span class="sd">        Which direction of splice sites you want for the exon</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bed</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">bed</span> <span class="o">=</span> <span class="n">pybedtools</span><span class="o">.</span><span class="n">BedTool</span><span class="p">(</span><span class="n">bed</span><span class="p">)</span>
+
+    <span class="n">genome</span> <span class="o">=</span> <span class="n">maybe_read_chromsizes</span><span class="p">(</span><span class="n">genome</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">direction</span> <span class="o">==</span> <span class="s">&#39;upstream&#39;</span><span class="p">:</span>
+        <span class="n">left</span> <span class="o">=</span> <span class="n">NT</span>
+        <span class="n">right</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">elif</span> <span class="n">direction</span> <span class="o">==</span> <span class="s">&#39;downstream&#39;</span><span class="p">:</span>
+        <span class="n">left</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">right</span> <span class="o">=</span> <span class="n">NT</span>
+
+    <span class="n">flanked</span> <span class="o">=</span> <span class="n">bed</span><span class="o">.</span><span class="n">flank</span><span class="p">(</span><span class="n">l</span><span class="o">=</span><span class="n">left</span><span class="p">,</span> <span class="n">r</span><span class="o">=</span><span class="n">right</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">genome</span><span class="o">=</span><span class="n">genome</span><span class="p">)</span>
+    <span class="n">seqs</span> <span class="o">=</span> <span class="n">flanked</span><span class="o">.</span><span class="n">sequence</span><span class="p">(</span><span class="n">fi</span><span class="o">=</span><span class="n">fasta</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">seqs</span><span class="o">.</span><span class="n">seqfn</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">records</span> <span class="o">=</span> <span class="n">SeqIO</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="s">&#39;fasta&#39;</span><span class="p">)</span>
+        <span class="n">records</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">seq</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">records</span><span class="p">],</span>
+                            <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">bed</span><span class="p">])</span>
+    <span class="c"># import pdb; pdb.set_trace()</span>
+    <span class="k">return</span> <span class="n">records</span>
+</pre></div></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">BED annotator 0.2.9 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Olga Botvinnik.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

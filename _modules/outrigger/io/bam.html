@@ -1,0 +1,234 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>outrigger.io.bam &mdash; BED annotator 0.2.9 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.2.9',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="BED annotator 0.2.9 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">BED annotator 0.2.9 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for outrigger.io.bam</h1><div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">collections</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">import</span> <span class="nn">joblib</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">pysam</span>
+
+<span class="kn">from</span> <span class="nn">..common</span> <span class="kn">import</span> <span class="n">UNIQUE_READS</span><span class="p">,</span> <span class="n">MULTIMAP_READS</span><span class="p">,</span> <span class="n">READS</span><span class="p">,</span> <span class="n">CHROM</span><span class="p">,</span> \
+    <span class="n">JUNCTION_START</span><span class="p">,</span> <span class="n">JUNCTION_STOP</span><span class="p">,</span> <span class="n">STRAND</span>
+<span class="kn">from</span> <span class="nn">.core</span> <span class="kn">import</span> <span class="n">add_exons_and_junction_ids</span>
+
+
+<span class="k">def</span> <span class="nf">_report_read_positions</span><span class="p">(</span><span class="n">read</span><span class="p">,</span> <span class="n">counter</span><span class="p">):</span>
+    <span class="n">chrom</span> <span class="o">=</span> <span class="n">read</span><span class="o">.</span><span class="n">reference_name</span>
+    <span class="n">strand</span> <span class="o">=</span> <span class="s">&#39;-&#39;</span> <span class="k">if</span> <span class="n">read</span><span class="o">.</span><span class="n">is_reverse</span> <span class="k">else</span> <span class="s">&#39;+&#39;</span>
+
+    <span class="n">last_read_pos</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="k">for</span> <span class="n">read_loc</span><span class="p">,</span> <span class="n">genome_loc</span> <span class="ow">in</span> <span class="n">read</span><span class="o">.</span><span class="n">get_aligned_pairs</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">read_loc</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">last_read_pos</span><span class="p">:</span>
+            <span class="c"># Add one to be compatible with STAR output and show the</span>
+            <span class="c"># start of the intron (not the end of the exon)</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="n">genome_loc</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">elif</span> <span class="n">read_loc</span> <span class="ow">and</span> <span class="n">last_read_pos</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">stop</span> <span class="o">=</span> <span class="n">genome_loc</span>  <span class="c"># we are right exclusive ,so this is correct</span>
+            <span class="n">counter</span><span class="p">[(</span><span class="n">chrom</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">,</span> <span class="n">strand</span><span class="p">)]</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">del</span> <span class="n">start</span>
+            <span class="k">del</span> <span class="n">stop</span>
+        <span class="n">last_read_pos</span> <span class="o">=</span> <span class="n">read_loc</span>
+
+
+<span class="k">def</span> <span class="nf">_choose_strand_and_sum</span><span class="p">(</span><span class="n">reads</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Use the strand with more counts and sum all reads with same junction</span>
+
+<span class="sd">    STAR seems to take a simple majority to decide on strand when there are</span>
+<span class="sd">    reads mapping to both, so we&#39;ll do the same</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    reads : pandas.Series</span>
+<span class="sd">        A (chrom, start, stop, strand)-indexed series of read counts</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    reads_strand_chosen : pandas.Series</span>
+<span class="sd">        A (chrom, start, stop, strand)-indexed series of read counts, with</span>
+<span class="sd">        the majority strand as the &quot;winner&quot; and</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">locations</span> <span class="o">=</span> <span class="n">reads</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span><span class="o">.</span><span class="n">idxmax</span><span class="p">()</span>
+    <span class="n">counts</span> <span class="o">=</span> <span class="n">reads</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+
+    <span class="n">index</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_tuples</span><span class="p">(</span><span class="n">locations</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">counts</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">index</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">reads</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_combine_uniquely_multi</span><span class="p">(</span><span class="n">uniquely</span><span class="p">,</span> <span class="n">multi</span><span class="p">,</span> <span class="n">ignore_multimapping</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Combine uniquely and multi-mapped read counts into a single table</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    unqiuely, multi : dict</span>
+<span class="sd">        A dictionary of {(chrom, start, end, strand) : n_reads} uniquely mapped</span>
+<span class="sd">        and multi-mapped (reads that could map to multiple parts of the genome)</span>
+<span class="sd">    ignore_multimapping : bool</span>
+<span class="sd">        When summing all reads, whether or not to ignore the multimapping</span>
+<span class="sd">        reads. Default is False.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    reads : pandas.DataFrame</span>
+<span class="sd">        A combined table of all uniquely and multi-mapped reads, with an</span>
+<span class="sd">        additional column of &quot;reads&quot; which will ultimately be the reads used</span>
+<span class="sd">        for creating an outrigger index and calculating percent spliced-in.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">uniquely</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">uniquely</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">UNIQUE_READS</span><span class="p">)</span>
+    <span class="n">multi</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">multi</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">MULTIMAP_READS</span><span class="p">)</span>
+
+    <span class="n">uniquely</span> <span class="o">=</span> <span class="n">_choose_strand_and_sum</span><span class="p">(</span><span class="n">uniquely</span><span class="p">)</span>
+    <span class="n">multi</span> <span class="o">=</span> <span class="n">_choose_strand_and_sum</span><span class="p">(</span><span class="n">multi</span><span class="p">)</span>
+
+    <span class="c"># Join the data on the chromosome locations</span>
+    <span class="n">reads</span> <span class="o">=</span> <span class="n">uniquely</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">multi</span><span class="p">)</span>
+
+    <span class="n">reads</span> <span class="o">=</span> <span class="n">reads</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">reads</span> <span class="o">=</span> <span class="n">reads</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">ignore_multimapping</span><span class="p">:</span>
+        <span class="n">reads</span><span class="p">[</span><span class="n">READS</span><span class="p">]</span> <span class="o">=</span> <span class="n">reads</span><span class="p">[</span><span class="n">UNIQUE_READS</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">reads</span><span class="p">[</span><span class="n">READS</span><span class="p">]</span> <span class="o">=</span> <span class="n">reads</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">reads</span> <span class="o">=</span> <span class="n">reads</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+    <span class="n">reads</span> <span class="o">=</span> <span class="n">reads</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;level_0&#39;</span><span class="p">:</span> <span class="n">CHROM</span><span class="p">,</span> <span class="s">&#39;level_1&#39;</span><span class="p">:</span> <span class="n">JUNCTION_START</span><span class="p">,</span>
+                                  <span class="s">&#39;level_2&#39;</span><span class="p">:</span> <span class="n">JUNCTION_STOP</span><span class="p">,</span> <span class="s">&#39;level_3&#39;</span><span class="p">:</span> <span class="n">STRAND</span><span class="p">})</span>
+    <span class="n">reads</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">reads</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">reads</span>
+
+
+<span class="k">def</span> <span class="nf">_get_junction_reads</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Read a sam file and extract unique and multi mapped junction reads&quot;&quot;&quot;</span>
+    <span class="n">samfile</span> <span class="o">=</span> <span class="n">pysam</span><span class="o">.</span><span class="n">AlignmentFile</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">&quot;rb&quot;</span><span class="p">)</span>
+
+    <span class="c"># Uniquely mapped reads</span>
+    <span class="n">uniquely</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">Counter</span><span class="p">()</span>
+
+    <span class="c"># Multimapped reads</span>
+    <span class="n">multi</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">Counter</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">read</span> <span class="ow">in</span> <span class="n">samfile</span><span class="o">.</span><span class="n">fetch</span><span class="p">():</span>
+        <span class="k">if</span> <span class="s">&quot;N&quot;</span> <span class="ow">in</span> <span class="n">read</span><span class="o">.</span><span class="n">cigarstring</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">read</span><span class="o">.</span><span class="n">mapping_quality</span> <span class="o">&lt;</span> <span class="mi">255</span><span class="p">:</span>
+                <span class="n">counter</span> <span class="o">=</span> <span class="n">multi</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">counter</span> <span class="o">=</span> <span class="n">uniquely</span>
+
+            <span class="n">_report_read_positions</span><span class="p">(</span><span class="n">read</span><span class="p">,</span> <span class="n">counter</span><span class="p">)</span>
+    <span class="n">samfile</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">uniquely</span><span class="p">,</span> <span class="n">multi</span>
+
+
+<div class="viewcode-block" id="bam_to_junction_reads_table"><a class="viewcode-back" href="../../../outrigger.io.bam.html#outrigger.io.bam.bam_to_junction_reads_table">[docs]</a><span class="k">def</span> <span class="nf">bam_to_junction_reads_table</span><span class="p">(</span><span class="n">bam_filename</span><span class="p">,</span> <span class="n">ignore_multimapping</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create a table of reads for this bam file&quot;&quot;&quot;</span>
+    <span class="n">uniquely</span><span class="p">,</span> <span class="n">multi</span> <span class="o">=</span> <span class="n">_get_junction_reads</span><span class="p">(</span><span class="n">bam_filename</span><span class="p">)</span>
+    <span class="n">reads</span> <span class="o">=</span> <span class="n">_combine_uniquely_multi</span><span class="p">(</span><span class="n">uniquely</span><span class="p">,</span> <span class="n">multi</span><span class="p">,</span> <span class="n">ignore_multimapping</span><span class="p">)</span>
+
+    <span class="c"># Remove &quot;junctions&quot; with same start and stop</span>
+    <span class="n">reads</span> <span class="o">=</span> <span class="n">reads</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">reads</span><span class="p">[</span><span class="n">JUNCTION_START</span><span class="p">]</span> <span class="o">!=</span> <span class="n">reads</span><span class="p">[</span><span class="n">JUNCTION_STOP</span><span class="p">]]</span>
+    <span class="n">reads</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">reads</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="n">reads</span><span class="p">[</span><span class="s">&#39;sample_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">bam_filename</span><span class="p">)</span>
+    <span class="n">reads</span> <span class="o">=</span> <span class="n">add_exons_and_junction_ids</span><span class="p">(</span><span class="n">reads</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">reads</span>
+
+</div>
+<div class="viewcode-block" id="read_multiple_bams"><a class="viewcode-back" href="../../../outrigger.io.bam.html#outrigger.io.bam.read_multiple_bams">[docs]</a><span class="k">def</span> <span class="nf">read_multiple_bams</span><span class="p">(</span><span class="n">bam_filenames</span><span class="p">,</span> <span class="n">ignore_multimapping</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
+    <span class="n">dfs</span> <span class="o">=</span> <span class="n">joblib</span><span class="o">.</span><span class="n">Parallel</span><span class="p">(</span><span class="n">n_jobs</span><span class="o">=</span><span class="n">n_jobs</span><span class="p">)(</span>
+        <span class="n">joblib</span><span class="o">.</span><span class="n">delayed</span><span class="p">(</span>
+            <span class="n">bam_to_junction_reads_table</span><span class="p">)(</span><span class="n">filename</span><span class="p">,</span> <span class="n">ignore_multimapping</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">bam_filenames</span><span class="p">)</span>
+    <span class="n">reads</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">dfs</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">reads</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">BED annotator 0.2.9 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Olga Botvinnik.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

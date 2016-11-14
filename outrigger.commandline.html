@@ -1,0 +1,426 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>outrigger.commandline module &mdash; BED annotator 0.2.9 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.2.9',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="BED annotator 0.2.9 documentation" href="index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">BED annotator 0.2.9 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-outrigger.commandline">
+<span id="outrigger-commandline-module"></span><h1>outrigger.commandline module<a class="headerlink" href="#module-outrigger.commandline" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="outrigger.commandline.CommandLine">
+<em class="property">class </em><code class="descclassname">outrigger.commandline.</code><code class="descname">CommandLine</code><span class="sig-paren">(</span><em>input_options=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/commandline.html#CommandLine"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.commandline.CommandLine" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="outrigger.commandline.CommandLine.do_usage_and_die">
+<code class="descname">do_usage_and_die</code><span class="sig-paren">(</span><em>str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/commandline.html#CommandLine.do_usage_and_die"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.commandline.CommandLine.do_usage_and_die" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cleanly exit if incorrect parameters are given</p>
+<p>If a critical error is encountered, where it is suspected that the
+program is not being called with consistent parameters or data, this
+method will write out an error string (str), then terminate execution
+of the program.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="outrigger.commandline.CommandLine.index">
+<code class="descname">index</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/commandline.html#CommandLine.index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.commandline.CommandLine.index" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="outrigger.commandline.CommandLine.psi">
+<code class="descname">psi</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/commandline.html#CommandLine.psi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.commandline.CommandLine.psi" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="outrigger.commandline.CommandLine.validate">
+<code class="descname">validate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/commandline.html#CommandLine.validate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.commandline.CommandLine.validate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="outrigger.commandline.Index">
+<em class="property">class </em><code class="descclassname">outrigger.commandline.</code><code class="descname">Index</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/commandline.html#Index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.commandline.Index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#outrigger.commandline.Subcommand" title="outrigger.commandline.Subcommand"><code class="xref py py-class docutils literal"><span class="pre">outrigger.commandline.Subcommand</span></code></a></p>
+<dl class="method">
+<dt id="outrigger.commandline.Index.execute">
+<code class="descname">execute</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/commandline.html#Index.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.commandline.Index.execute" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="outrigger.commandline.Index.get_event_attributes">
+<code class="descname">get_event_attributes</code><span class="sig-paren">(</span><em>db</em>, <em>event_df</em>, <em>splice_type</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/commandline.html#Index.get_event_attributes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.commandline.Index.get_event_attributes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="outrigger.commandline.Index.make_events_by_traversing_graph">
+<code class="descname">make_events_by_traversing_graph</code><span class="sig-paren">(</span><em>event_maker</em>, <em>db</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/commandline.html#Index.make_events_by_traversing_graph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.commandline.Index.make_events_by_traversing_graph" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="outrigger.commandline.Index.make_exon_junction_adjacencies">
+<code class="descname">make_exon_junction_adjacencies</code><span class="sig-paren">(</span><em>metadata</em>, <em>db</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/commandline.html#Index.make_exon_junction_adjacencies"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.commandline.Index.make_exon_junction_adjacencies" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get annotated exon_cols next to junctions in data</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="outrigger.commandline.Index.make_graph">
+<em class="property">static </em><code class="descname">make_graph</code><span class="sig-paren">(</span><em>junction_exon_triples</em>, <em>db</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/commandline.html#Index.make_graph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.commandline.Index.make_graph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create graph database of exon-junction adjacencies</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="outrigger.commandline.Index.max_de_novo_exon_length">
+<code class="descname">max_de_novo_exon_length</code><em class="property"> = 100</em><a class="headerlink" href="#outrigger.commandline.Index.max_de_novo_exon_length" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="outrigger.commandline.Index.write_new_gtf">
+<code class="descname">write_new_gtf</code><span class="sig-paren">(</span><em>db</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/commandline.html#Index.write_new_gtf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.commandline.Index.write_new_gtf" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="outrigger.commandline.Psi">
+<em class="property">class </em><code class="descclassname">outrigger.commandline.</code><code class="descname">Psi</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/commandline.html#Psi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.commandline.Psi" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#outrigger.commandline.SubcommandAfterIndex" title="outrigger.commandline.SubcommandAfterIndex"><code class="xref py py-class docutils literal"><span class="pre">outrigger.commandline.SubcommandAfterIndex</span></code></a></p>
+<dl class="method">
+<dt id="outrigger.commandline.Psi.execute">
+<code class="descname">execute</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/commandline.html#Psi.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.commandline.Psi.execute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate percent spliced in (psi) of splicing events</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="outrigger.commandline.Psi.folders">
+<code class="descname">folders</code><a class="headerlink" href="#outrigger.commandline.Psi.folders" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="outrigger.commandline.Psi.junction_id_col">
+<code class="descname">junction_id_col</code><em class="property"> = None</em><a class="headerlink" href="#outrigger.commandline.Psi.junction_id_col" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="outrigger.commandline.Psi.maybe_get_validated_events">
+<code class="descname">maybe_get_validated_events</code><span class="sig-paren">(</span><em>splice_abbrev</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/commandline.html#Psi.maybe_get_validated_events"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.commandline.Psi.maybe_get_validated_events" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="outrigger.commandline.Psi.maybe_read_junction_reads">
+<code class="descname">maybe_read_junction_reads</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/commandline.html#Psi.maybe_read_junction_reads"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.commandline.Psi.maybe_read_junction_reads" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="outrigger.commandline.Psi.psi_folder">
+<code class="descname">psi_folder</code><a class="headerlink" href="#outrigger.commandline.Psi.psi_folder" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="outrigger.commandline.Psi.reads_col">
+<code class="descname">reads_col</code><em class="property"> = None</em><a class="headerlink" href="#outrigger.commandline.Psi.reads_col" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="outrigger.commandline.Psi.required_cols">
+<code class="descname">required_cols</code><em class="property"> = {'--sample-id-col': None, '--junction-id-col': None, '--reads-col': None}</em><a class="headerlink" href="#outrigger.commandline.Psi.required_cols" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="outrigger.commandline.Psi.sample_id_col">
+<code class="descname">sample_id_col</code><em class="property"> = None</em><a class="headerlink" href="#outrigger.commandline.Psi.sample_id_col" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="outrigger.commandline.Psi.splice_type_folders">
+<code class="descname">splice_type_folders</code><a class="headerlink" href="#outrigger.commandline.Psi.splice_type_folders" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="outrigger.commandline.Psi.validate_junction_reads_data">
+<code class="descname">validate_junction_reads_data</code><span class="sig-paren">(</span><em>junction_reads</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/commandline.html#Psi.validate_junction_reads_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.commandline.Psi.validate_junction_reads_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="outrigger.commandline.Subcommand">
+<em class="property">class </em><code class="descclassname">outrigger.commandline.</code><code class="descname">Subcommand</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/commandline.html#Subcommand"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.commandline.Subcommand" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="outrigger.commandline.Subcommand.csv">
+<code class="descname">csv</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/commandline.html#Subcommand.csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.commandline.Subcommand.csv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a csv file of compiled splice junctions</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="outrigger.commandline.Subcommand.debug">
+<code class="descname">debug</code><em class="property"> = False</em><a class="headerlink" href="#outrigger.commandline.Subcommand.debug" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="outrigger.commandline.Subcommand.filter_junctions_on_reads">
+<code class="descname">filter_junctions_on_reads</code><span class="sig-paren">(</span><em>spliced_reads</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/commandline.html#Subcommand.filter_junctions_on_reads"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.commandline.Subcommand.filter_junctions_on_reads" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="outrigger.commandline.Subcommand.folders">
+<code class="descname">folders</code><a class="headerlink" href="#outrigger.commandline.Subcommand.folders" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="outrigger.commandline.Subcommand.force">
+<code class="descname">force</code><em class="property"> = False</em><a class="headerlink" href="#outrigger.commandline.Subcommand.force" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="outrigger.commandline.Subcommand.gffutils_db">
+<code class="descname">gffutils_db</code><em class="property"> = None</em><a class="headerlink" href="#outrigger.commandline.Subcommand.gffutils_db" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="outrigger.commandline.Subcommand.gtf_filename">
+<code class="descname">gtf_filename</code><em class="property"> = None</em><a class="headerlink" href="#outrigger.commandline.Subcommand.gtf_filename" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="outrigger.commandline.Subcommand.gtf_folder">
+<code class="descname">gtf_folder</code><a class="headerlink" href="#outrigger.commandline.Subcommand.gtf_folder" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="outrigger.commandline.Subcommand.ignore_multimapping">
+<code class="descname">ignore_multimapping</code><em class="property"> = False</em><a class="headerlink" href="#outrigger.commandline.Subcommand.ignore_multimapping" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="outrigger.commandline.Subcommand.index_folder">
+<code class="descname">index_folder</code><a class="headerlink" href="#outrigger.commandline.Subcommand.index_folder" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="outrigger.commandline.Subcommand.junction_metadata">
+<em class="property">static </em><code class="descname">junction_metadata</code><span class="sig-paren">(</span><em>spliced_reads</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/commandline.html#Subcommand.junction_metadata"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.commandline.Subcommand.junction_metadata" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get just the junction info from the concatenated read files</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="outrigger.commandline.Subcommand.junction_reads">
+<code class="descname">junction_reads</code><a class="headerlink" href="#outrigger.commandline.Subcommand.junction_reads" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="outrigger.commandline.Subcommand.junctions_folder">
+<code class="descname">junctions_folder</code><a class="headerlink" href="#outrigger.commandline.Subcommand.junctions_folder" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="outrigger.commandline.Subcommand.make_junction_reads_file">
+<code class="descname">make_junction_reads_file</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/commandline.html#Subcommand.make_junction_reads_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.commandline.Subcommand.make_junction_reads_file" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="outrigger.commandline.Subcommand.maybe_make_db">
+<code class="descname">maybe_make_db</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/commandline.html#Subcommand.maybe_make_db"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.commandline.Subcommand.maybe_make_db" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get GFFutils database from file or create from a gtf</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="outrigger.commandline.Subcommand.maybe_make_folder">
+<code class="descname">maybe_make_folder</code><span class="sig-paren">(</span><em>folder</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/commandline.html#Subcommand.maybe_make_folder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.commandline.Subcommand.maybe_make_folder" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="outrigger.commandline.Subcommand.maybe_overwrite">
+<code class="descname">maybe_overwrite</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/commandline.html#Subcommand.maybe_overwrite"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.commandline.Subcommand.maybe_overwrite" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ensures that filename is not overwritten unless user-specified</p>
+<ul class="simple">
+<li>If the file doesn&#8217;t exist, return &#8220;True&#8221;, as in &#8220;yes, please
+overwrite&#8221; even though there wasn&#8217;t really a file there, but the
+action is still to create the file in the next step</li>
+<li>If the file exists and the user specified nothing, exit the program
+and complain that either &#8211;force or &#8211;resume must be specified</li>
+<li>If the file exists and the user specified &#8211;force, then return True</li>
+<li>If the file exists and the user specified &#8211;resume, then return False
+so that the file is not overwritten</li>
+</ul>
+<dl class="docutils">
+<dt>filename <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd>Path to a file that you may want to overwrite</dd>
+</dl>
+<dl class="docutils">
+<dt>if_overwrite <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd>If True, then the next step in the program has the go-ahead to
+&#8220;overwrite&#8221; or create the file. If False, the file exists and the
+user doesn&#8217;t want to overwrite it</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="outrigger.commandline.Subcommand.min_reads">
+<code class="descname">min_reads</code><em class="property"> = 10</em><a class="headerlink" href="#outrigger.commandline.Subcommand.min_reads" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="outrigger.commandline.Subcommand.output_folder">
+<code class="descname">output_folder</code><a class="headerlink" href="#outrigger.commandline.Subcommand.output_folder" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="outrigger.commandline.Subcommand.reads_col">
+<code class="descname">reads_col</code><em class="property"> = 'reads'</em><a class="headerlink" href="#outrigger.commandline.Subcommand.reads_col" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="outrigger.commandline.Subcommand.resume">
+<code class="descname">resume</code><em class="property"> = False</em><a class="headerlink" href="#outrigger.commandline.Subcommand.resume" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="outrigger.commandline.Subcommand.sj_out_tab">
+<code class="descname">sj_out_tab</code><em class="property"> = None</em><a class="headerlink" href="#outrigger.commandline.Subcommand.sj_out_tab" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="outrigger.commandline.SubcommandAfterIndex">
+<em class="property">class </em><code class="descclassname">outrigger.commandline.</code><code class="descname">SubcommandAfterIndex</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/commandline.html#SubcommandAfterIndex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.commandline.SubcommandAfterIndex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#outrigger.commandline.Subcommand" title="outrigger.commandline.Subcommand"><code class="xref py py-class docutils literal"><span class="pre">outrigger.commandline.Subcommand</span></code></a></p>
+<p>Can use different index folder than outrigger_output/index</p>
+<dl class="attribute">
+<dt id="outrigger.commandline.SubcommandAfterIndex.folders">
+<code class="descname">folders</code><a class="headerlink" href="#outrigger.commandline.SubcommandAfterIndex.folders" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="outrigger.commandline.SubcommandAfterIndex.input_index">
+<code class="descname">input_index</code><a class="headerlink" href="#outrigger.commandline.SubcommandAfterIndex.input_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Where to read the index from</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="outrigger.commandline.Usage">
+<em class="property">exception </em><code class="descclassname">outrigger.commandline.</code><code class="descname">Usage</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/commandline.html#Usage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.commandline.Usage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></p>
+<p>Used to signal a Usage error, evoking a usage statement and eventual
+exit when raised</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="outrigger.commandline.Validate">
+<em class="property">class </em><code class="descclassname">outrigger.commandline.</code><code class="descname">Validate</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/commandline.html#Validate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.commandline.Validate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#outrigger.commandline.SubcommandAfterIndex" title="outrigger.commandline.SubcommandAfterIndex"><code class="xref py py-class docutils literal"><span class="pre">outrigger.commandline.SubcommandAfterIndex</span></code></a></p>
+<dl class="method">
+<dt id="outrigger.commandline.Validate.execute">
+<code class="descname">execute</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/commandline.html#Validate.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.commandline.Validate.execute" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="outrigger.commandline.Validate.exon_pair_splice_sites">
+<code class="descname">exon_pair_splice_sites</code><span class="sig-paren">(</span><em>exonA</em>, <em>exonB</em>, <em>splice_abbrev</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/commandline.html#Validate.exon_pair_splice_sites"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.commandline.Validate.exon_pair_splice_sites" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="outrigger.commandline.Validate.individual_exon_splice_sites">
+<code class="descname">individual_exon_splice_sites</code><span class="sig-paren">(</span><em>exon</em>, <em>splice_abbrev</em>, <em>direction</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/commandline.html#Validate.individual_exon_splice_sites"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.commandline.Validate.individual_exon_splice_sites" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="outrigger.commandline.main">
+<code class="descclassname">outrigger.commandline.</code><code class="descname">main</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/commandline.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.commandline.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/outrigger.commandline.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">BED annotator 0.2.9 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Olga Botvinnik.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

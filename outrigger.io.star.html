@@ -1,0 +1,173 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>outrigger.io.star module &mdash; BED annotator 0.2.9 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.2.9',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="BED annotator 0.2.9 documentation" href="index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">BED annotator 0.2.9 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-outrigger.io.star">
+<span id="outrigger-io-star-module"></span><h1>outrigger.io.star module<a class="headerlink" href="#module-outrigger.io.star" title="Permalink to this headline">¶</a></h1>
+<p>Read splice junction output files from STAR aligner (SJ.out.tab)</p>
+<dl class="function">
+<dt id="outrigger.io.star.int_to_junction_motif">
+<code class="descclassname">outrigger.io.star.</code><code class="descname">int_to_junction_motif</code><span class="sig-paren">(</span><em>n</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/io/star.html#int_to_junction_motif"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.io.star.int_to_junction_motif" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="outrigger.io.star.make_metadata">
+<code class="descclassname">outrigger.io.star.</code><code class="descname">make_metadata</code><span class="sig-paren">(</span><em>spliced_reads</em>, <em>columns=('junction_id'</em>, <em>'chrom'</em>, <em>'junction_start'</em>, <em>'junction_stop'</em>, <em>'strand'</em>, <em>'annotated'</em>, <em>'exon_start'</em>, <em>'exon_stop')</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/io/star.html#make_metadata"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.io.star.make_metadata" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get barebones junction chrom, start, stop, strand information</p>
+<dl class="docutils">
+<dt>spliced_reads <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd>Concatenated SJ.out.tab files created by read_sj_out_tab</dd>
+<dt>columns <span class="classifier-delimiter">:</span> <span class="classifier">iterable</span></dt>
+<dd>Which columns to use to make the metadata</dd>
+</dl>
+<dl class="docutils">
+<dt>junctions <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd><dl class="first last docutils">
+<dt>A (n_junctions, 9) dataframe containing the columns:</dt>
+<dd><ul class="first last simple">
+<li>junction_id</li>
+<li>chrom</li>
+<li>intron_start</li>
+<li>intron_stop</li>
+<li>exon_start</li>
+<li>exon_stop</li>
+<li>strand</li>
+<li>intron_motif</li>
+<li>annotated</li>
+</ul>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="outrigger.io.star.read_multiple_sj_out_tab">
+<code class="descclassname">outrigger.io.star.</code><code class="descname">read_multiple_sj_out_tab</code><span class="sig-paren">(</span><em>filenames</em>, <em>ignore_multimapping=False</em>, <em>sample_id_func=&lt;function basename&gt;</em>, <em>n_jobs=-1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/io/star.html#read_multiple_sj_out_tab"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.io.star.read_multiple_sj_out_tab" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read the splice junction files and return a tall, tidy dataframe</p>
+<p>Adds a column called &#8220;sample_id&#8221; based on the basename of the file, minus
+&#8220;SJ.out.tab&#8221;</p>
+<dl class="docutils">
+<dt>filenames <span class="classifier-delimiter">:</span> <span class="classifier">iterator</span></dt>
+<dd>A list or other iterator of filenames to read</dd>
+<dt>multimapping <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd>If True, include the multimapped reads in total read count</dd>
+<dt>sample_id_func <span class="classifier-delimiter">:</span> <span class="classifier">function</span></dt>
+<dd>A function to extract the sample id from the filenames</dd>
+</dl>
+<dl class="docutils">
+<dt>metadata <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd>A tidy dataframe, where each row has the observed reads for a sample</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="outrigger.io.star.read_sj_out_tab">
+<code class="descclassname">outrigger.io.star.</code><code class="descname">read_sj_out_tab</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/io/star.html#read_sj_out_tab"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.io.star.read_sj_out_tab" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read an SJ.out.tab file as produced by the RNA-STAR aligner into a
+pandas Dataframe</p>
+<dl class="docutils">
+<dt>filename <span class="classifier-delimiter">:</span> <span class="classifier">str of filename or file handle</span></dt>
+<dd>Filename of the SJ.out.tab file you want to read in</dd>
+</dl>
+<dl class="docutils">
+<dt>sj <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd>Dataframe of splice junctions with the columns,
+(&#8216;chrom&#8217;, &#8216;junction_start&#8217;, &#8216;junction_stop&#8217;, &#8216;strand&#8217;,
+&#8216;junction_motif&#8217;, &#8216;exon_start&#8217;, &#8216;exon_stop&#8217;, &#8216;annotated&#8217;,
+&#8216;unique_junction_reads&#8217;, &#8216;multimap_junction_reads&#8217;, &#8216;max_overhang&#8217;)</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/outrigger.io.star.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">BED annotator 0.2.9 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Olga Botvinnik.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

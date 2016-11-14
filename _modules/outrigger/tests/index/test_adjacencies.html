@@ -1,0 +1,232 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>outrigger.tests.index.test_adjacencies &mdash; BED annotator 0.2.9 documentation</title>
+    
+    <link rel="stylesheet" href="../../../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '0.2.9',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="top" title="BED annotator 0.2.9 documentation" href="../../../../index.html" />
+    <link rel="up" title="Module code" href="../../../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">BED annotator 0.2.9 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for outrigger.tests.index.test_adjacencies</h1><div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">pandas.util.testing</span> <span class="kn">as</span> <span class="nn">pdt</span>
+<span class="kn">import</span> <span class="nn">pytest</span>
+
+
+<div class="viewcode-block" id="TestExonJunctionAdjacencies"><a class="viewcode-back" href="../../../../outrigger.tests.index.test_adjacencies.html#outrigger.tests.index.test_adjacencies.TestExonJunctionAdjacencies">[docs]</a><span class="k">class</span> <span class="nc">TestExonJunctionAdjacencies</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="nd">@pytest.fixture</span>
+<div class="viewcode-block" id="TestExonJunctionAdjacencies.snap25_exon"><a class="viewcode-back" href="../../../../outrigger.tests.index.test_adjacencies.html#outrigger.tests.index.test_adjacencies.TestExonJunctionAdjacencies.snap25_exon">[docs]</a>    <span class="k">def</span> <span class="nf">snap25_exon</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db</span><span class="p">,</span> <span class="n">snap25_exon_id</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">db</span><span class="p">[</span><span class="n">snap25_exon_id</span><span class="p">]</span>
+</div>
+    <span class="nd">@pytest.fixture</span>
+<div class="viewcode-block" id="TestExonJunctionAdjacencies.adjacencies"><a class="viewcode-back" href="../../../../outrigger.tests.index.test_adjacencies.html#outrigger.tests.index.test_adjacencies.TestExonJunctionAdjacencies.adjacencies">[docs]</a>    <span class="k">def</span> <span class="nf">adjacencies</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">junction_metadata</span><span class="p">,</span> <span class="n">db</span><span class="p">):</span>
+        <span class="kn">from</span> <span class="nn">outrigger.index.adjacencies</span> <span class="kn">import</span> <span class="n">ExonJunctionAdjacencies</span>
+
+        <span class="k">return</span> <span class="n">ExonJunctionAdjacencies</span><span class="p">(</span><span class="n">junction_metadata</span><span class="p">,</span> <span class="n">db</span><span class="p">)</span>
+</div>
+    <span class="nd">@pytest.fixture</span>
+<div class="viewcode-block" id="TestExonJunctionAdjacencies.adjacent_in_genome_template"><a class="viewcode-back" href="../../../../outrigger.tests.index.test_adjacencies.html#outrigger.tests.index.test_adjacencies.TestExonJunctionAdjacencies.adjacent_in_genome_template">[docs]</a>    <span class="k">def</span> <span class="nf">adjacent_in_genome_template</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tasic2016_intermediate</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">tasic2016_intermediate</span><span class="p">,</span>
+            <span class="s">&#39;junctions_genome_adjacent_to_exon_{}stream.csv&#39;</span><span class="p">)</span>
+</div>
+    <span class="nd">@pytest.fixture</span>
+<div class="viewcode-block" id="TestExonJunctionAdjacencies.adjacent_in_genome_upstream"><a class="viewcode-back" href="../../../../outrigger.tests.index.test_adjacencies.html#outrigger.tests.index.test_adjacencies.TestExonJunctionAdjacencies.adjacent_in_genome_upstream">[docs]</a>    <span class="k">def</span> <span class="nf">adjacent_in_genome_upstream</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">adjacent_in_genome_template</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">adjacent_in_genome_template</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s">&#39;up&#39;</span><span class="p">),</span>
+                           <span class="n">squeeze</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</div>
+    <span class="nd">@pytest.fixture</span>
+<div class="viewcode-block" id="TestExonJunctionAdjacencies.adjacent_in_genome_downstream"><a class="viewcode-back" href="../../../../outrigger.tests.index.test_adjacencies.html#outrigger.tests.index.test_adjacencies.TestExonJunctionAdjacencies.adjacent_in_genome_downstream">[docs]</a>    <span class="k">def</span> <span class="nf">adjacent_in_genome_downstream</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">adjacent_in_genome_template</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">adjacent_in_genome_template</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s">&#39;down&#39;</span><span class="p">),</span>
+                           <span class="n">squeeze</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</div>
+    <span class="nd">@pytest.fixture</span>
+<div class="viewcode-block" id="TestExonJunctionAdjacencies.adjacent_in_genome"><a class="viewcode-back" href="../../../../outrigger.tests.index.test_adjacencies.html#outrigger.tests.index.test_adjacencies.TestExonJunctionAdjacencies.adjacent_in_genome">[docs]</a>    <span class="k">def</span> <span class="nf">adjacent_in_genome</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">adjacent_in_genome_upstream</span><span class="p">,</span>
+                           <span class="n">adjacent_in_genome_downstream</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Dict of upstream and downstream boolean junctions&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s">&#39;upstream&#39;</span><span class="p">:</span> <span class="n">adjacent_in_genome_upstream</span><span class="p">,</span>
+                <span class="s">&#39;downstream&#39;</span><span class="p">:</span> <span class="n">adjacent_in_genome_downstream</span><span class="p">}</span>
+</div>
+<div class="viewcode-block" id="TestExonJunctionAdjacencies.test___init"><a class="viewcode-back" href="../../../../outrigger.tests.index.test_adjacencies.html#outrigger.tests.index.test_adjacencies.TestExonJunctionAdjacencies.test___init">[docs]</a>    <span class="k">def</span> <span class="nf">test___init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">junction_metadata</span><span class="p">,</span> <span class="n">db</span><span class="p">):</span>
+        <span class="kn">from</span> <span class="nn">outrigger.index.adjacencies</span> <span class="kn">import</span> <span class="n">ExonJunctionAdjacencies</span>
+        <span class="kn">from</span> <span class="nn">outrigger.common</span> <span class="kn">import</span> <span class="p">(</span><span class="n">JUNCTION_ID</span><span class="p">,</span> <span class="n">EXON_START</span><span class="p">,</span> <span class="n">EXON_STOP</span><span class="p">,</span>
+                                      <span class="n">CHROM</span><span class="p">,</span> <span class="n">STRAND</span><span class="p">)</span>
+
+        <span class="n">adjacencies</span> <span class="o">=</span> <span class="n">ExonJunctionAdjacencies</span><span class="p">(</span><span class="n">junction_metadata</span><span class="p">,</span> <span class="n">db</span><span class="p">)</span>
+
+        <span class="n">true_metadata</span> <span class="o">=</span> <span class="n">junction_metadata</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">true_metadata</span> <span class="o">=</span> <span class="n">true_metadata</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">JUNCTION_ID</span><span class="p">)</span>
+        <span class="n">true_metadata</span> <span class="o">=</span> <span class="n">true_metadata</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
+
+        <span class="n">pdt</span><span class="o">.</span><span class="n">assert_frame_equal</span><span class="p">(</span><span class="n">adjacencies</span><span class="o">.</span><span class="n">metadata</span><span class="p">,</span> <span class="n">true_metadata</span><span class="p">)</span>
+
+        <span class="k">assert</span> <span class="n">adjacencies</span><span class="o">.</span><span class="n">junction_id</span> <span class="o">==</span> <span class="n">JUNCTION_ID</span>
+        <span class="k">assert</span> <span class="n">adjacencies</span><span class="o">.</span><span class="n">exon_start</span> <span class="o">==</span> <span class="n">EXON_START</span>
+        <span class="k">assert</span> <span class="n">adjacencies</span><span class="o">.</span><span class="n">exon_stop</span> <span class="o">==</span> <span class="n">EXON_STOP</span>
+        <span class="k">assert</span> <span class="n">adjacencies</span><span class="o">.</span><span class="n">chrom</span> <span class="o">==</span> <span class="n">CHROM</span>
+        <span class="k">assert</span> <span class="n">adjacencies</span><span class="o">.</span><span class="n">strand</span> <span class="o">==</span> <span class="n">STRAND</span>
+
+        <span class="k">assert</span> <span class="n">adjacencies</span><span class="o">.</span><span class="n">db</span> <span class="o">==</span> <span class="n">db</span>
+</div>
+    <span class="nd">@pytest.mark.xfail</span>
+<div class="viewcode-block" id="TestExonJunctionAdjacencies.test___init_missing_required_column"><a class="viewcode-back" href="../../../../outrigger.tests.index.test_adjacencies.html#outrigger.tests.index.test_adjacencies.TestExonJunctionAdjacencies.test___init_missing_required_column">[docs]</a>    <span class="k">def</span> <span class="nf">test___init_missing_required_column</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">junction_metadata</span><span class="p">,</span> <span class="n">db</span><span class="p">):</span>
+        <span class="kn">from</span> <span class="nn">outrigger.index.adjacencies</span> <span class="kn">import</span> <span class="n">ExonJunctionAdjacencies</span>
+        <span class="kn">from</span> <span class="nn">outrigger.common</span> <span class="kn">import</span> <span class="n">JUNCTION_ID</span>
+
+        <span class="n">test_metadata</span> <span class="o">=</span> <span class="n">junction_metadata</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">test_metadata</span> <span class="o">=</span> <span class="n">test_metadata</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">JUNCTION_ID</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">ExonJunctionAdjacencies</span><span class="p">(</span><span class="n">test_metadata</span><span class="p">,</span> <span class="n">db</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TestExonJunctionAdjacencies.test__junctions_genome_adjacent_to_exon"><a class="viewcode-back" href="../../../../outrigger.tests.index.test_adjacencies.html#outrigger.tests.index.test_adjacencies.TestExonJunctionAdjacencies.test__junctions_genome_adjacent_to_exon">[docs]</a>    <span class="k">def</span> <span class="nf">test__junctions_genome_adjacent_to_exon</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">adjacencies</span><span class="p">,</span> <span class="n">snap25_exon</span><span class="p">,</span>
+                                                <span class="n">adjacent_in_genome</span><span class="p">):</span>
+        <span class="n">true</span> <span class="o">=</span> <span class="n">adjacent_in_genome</span>
+        <span class="n">test</span> <span class="o">=</span> <span class="n">adjacencies</span><span class="o">.</span><span class="n">_junctions_genome_adjacent_to_exon</span><span class="p">(</span><span class="n">snap25_exon</span><span class="p">)</span>
+
+        <span class="n">pdt</span><span class="o">.</span><span class="n">assert_dict_equal</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="n">true</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TestExonJunctionAdjacencies.test__to_stranded_transcript_adjacency"><a class="viewcode-back" href="../../../../outrigger.tests.index.test_adjacencies.html#outrigger.tests.index.test_adjacencies.TestExonJunctionAdjacencies.test__to_stranded_transcript_adjacency">[docs]</a>    <span class="k">def</span> <span class="nf">test__to_stranded_transcript_adjacency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">adjacencies</span><span class="p">,</span> <span class="n">strand</span><span class="p">,</span>
+                                               <span class="n">adjacent_in_genome</span><span class="p">):</span>
+        <span class="n">true</span> <span class="o">=</span> <span class="n">adjacent_in_genome</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">test</span> <span class="o">=</span> <span class="n">adjacencies</span><span class="o">.</span><span class="n">_to_stranded_transcript_adjacency</span><span class="p">(</span>
+            <span class="n">adjacent_in_genome</span><span class="p">,</span> <span class="n">strand</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">strand</span> <span class="o">==</span> <span class="s">&#39;-&#39;</span><span class="p">:</span>
+            <span class="n">pdt</span><span class="o">.</span><span class="n">assert_series_equal</span><span class="p">(</span><span class="n">test</span><span class="p">[</span><span class="s">&#39;upstream&#39;</span><span class="p">],</span>
+                                    <span class="n">true</span><span class="p">[</span><span class="s">&#39;downstream&#39;</span><span class="p">])</span>
+            <span class="n">pdt</span><span class="o">.</span><span class="n">assert_series_equal</span><span class="p">(</span><span class="n">test</span><span class="p">[</span><span class="s">&#39;downstream&#39;</span><span class="p">],</span>
+                                    <span class="n">true</span><span class="p">[</span><span class="s">&#39;upstream&#39;</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="n">strand</span> <span class="o">==</span> <span class="s">&#39;+&#39;</span><span class="p">:</span>
+            <span class="n">pdt</span><span class="o">.</span><span class="n">assert_series_equal</span><span class="p">(</span><span class="n">test</span><span class="p">[</span><span class="s">&#39;upstream&#39;</span><span class="p">],</span>
+                                    <span class="n">true</span><span class="p">[</span><span class="s">&#39;upstream&#39;</span><span class="p">])</span>
+            <span class="n">pdt</span><span class="o">.</span><span class="n">assert_series_equal</span><span class="p">(</span><span class="n">test</span><span class="p">[</span><span class="s">&#39;downstream&#39;</span><span class="p">],</span>
+                                    <span class="n">true</span><span class="p">[</span><span class="s">&#39;downstream&#39;</span><span class="p">])</span>
+</div>
+<div class="viewcode-block" id="TestExonJunctionAdjacencies.test__single_junction_exon_triple"><a class="viewcode-back" href="../../../../outrigger.tests.index.test_adjacencies.html#outrigger.tests.index.test_adjacencies.TestExonJunctionAdjacencies.test__single_junction_exon_triple">[docs]</a>    <span class="k">def</span> <span class="nf">test__single_junction_exon_triple</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">adjacencies</span><span class="p">,</span>
+                                          <span class="n">snap25_exon_id</span><span class="p">,</span>
+                                          <span class="n">tasic2016_intermediate</span><span class="p">,</span>
+                                          <span class="n">adjacent_in_genome_upstream</span><span class="p">):</span>
+        <span class="n">test</span> <span class="o">=</span> <span class="n">adjacencies</span><span class="o">.</span><span class="n">_single_junction_exon_triple</span><span class="p">(</span>
+            <span class="n">adjacent_in_genome_upstream</span><span class="p">,</span> <span class="s">&#39;downstream&#39;</span><span class="p">,</span> <span class="n">snap25_exon_id</span><span class="p">)</span>
+        <span class="n">test</span> <span class="o">=</span> <span class="n">test</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s">&#39;junction&#39;</span><span class="p">)</span>
+        <span class="n">test</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">test</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="n">csv</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tasic2016_intermediate</span><span class="p">,</span>
+                           <span class="s">&#39;single_junction_exon_triple.csv&#39;</span><span class="p">)</span>
+        <span class="n">true</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">csv</span><span class="p">)</span>
+        <span class="n">true</span> <span class="o">=</span> <span class="n">true</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s">&#39;junction&#39;</span><span class="p">)</span>
+        <span class="n">true</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">true</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="n">pdt</span><span class="o">.</span><span class="n">assert_frame_equal</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="n">true</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TestExonJunctionAdjacencies.test__adjacent_junctions_single_exon"><a class="viewcode-back" href="../../../../outrigger.tests.index.test_adjacencies.html#outrigger.tests.index.test_adjacencies.TestExonJunctionAdjacencies.test__adjacent_junctions_single_exon">[docs]</a>    <span class="k">def</span> <span class="nf">test__adjacent_junctions_single_exon</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">adjacencies</span><span class="p">,</span> <span class="n">snap25_exon</span><span class="p">,</span>
+                                             <span class="n">tasic2016_intermediate</span><span class="p">):</span>
+
+        <span class="n">test</span> <span class="o">=</span> <span class="n">adjacencies</span><span class="o">.</span><span class="n">junctions_adjacent_to_this_exon</span><span class="p">(</span><span class="n">snap25_exon</span><span class="p">)</span>
+        <span class="n">test</span> <span class="o">=</span> <span class="n">test</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s">&#39;junction&#39;</span><span class="p">)</span>
+        <span class="n">test</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">test</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="n">csv</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tasic2016_intermediate</span><span class="p">,</span>
+                           <span class="s">&#39;adjacent_junctions_single_exon.csv&#39;</span><span class="p">)</span>
+
+        <span class="n">true</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">csv</span><span class="p">)</span>
+        <span class="n">true</span> <span class="o">=</span> <span class="n">true</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s">&#39;junction&#39;</span><span class="p">)</span>
+        <span class="n">true</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">true</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">pdt</span><span class="o">.</span><span class="n">assert_frame_equal</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="n">true</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TestExonJunctionAdjacencies.test_neighboring_exons"><a class="viewcode-back" href="../../../../outrigger.tests.index.test_adjacencies.html#outrigger.tests.index.test_adjacencies.TestExonJunctionAdjacencies.test_neighboring_exons">[docs]</a>    <span class="k">def</span> <span class="nf">test_neighboring_exons</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">adjacencies</span><span class="p">,</span> <span class="n">tasic2016_intermediate</span><span class="p">):</span>
+        <span class="n">test</span> <span class="o">=</span> <span class="n">adjacencies</span><span class="o">.</span><span class="n">upstream_downstream_exons</span><span class="p">()</span>
+        <span class="n">test</span> <span class="o">=</span> <span class="n">test</span><span class="o">.</span><span class="n">sort_values</span><span class="p">([</span><span class="s">&#39;junction&#39;</span><span class="p">,</span> <span class="s">&#39;exon&#39;</span><span class="p">])</span>
+        <span class="n">test</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">test</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="n">csv</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tasic2016_intermediate</span><span class="p">,</span>
+                           <span class="s">&#39;neighboring_exons.csv&#39;</span><span class="p">)</span>
+        <span class="n">true</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">csv</span><span class="p">)</span>
+        <span class="n">true</span> <span class="o">=</span> <span class="n">true</span><span class="o">.</span><span class="n">sort_values</span><span class="p">([</span><span class="s">&#39;junction&#39;</span><span class="p">,</span> <span class="s">&#39;exon&#39;</span><span class="p">])</span>
+        <span class="n">true</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">true</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">pdt</span><span class="o">.</span><span class="n">assert_frame_equal</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="n">true</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">BED annotator 0.2.9 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Olga Botvinnik.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

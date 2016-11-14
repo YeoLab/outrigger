@@ -1,0 +1,163 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>outrigger.tests.test_commandline module &mdash; BED annotator 0.2.9 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.2.9',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="BED annotator 0.2.9 documentation" href="index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">BED annotator 0.2.9 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-outrigger.tests.test_commandline">
+<span id="outrigger-tests-test-commandline-module"></span><h1>outrigger.tests.test_commandline module<a class="headerlink" href="#module-outrigger.tests.test_commandline" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="outrigger.tests.test_commandline.TestCommandLine">
+<em class="property">class </em><code class="descclassname">outrigger.tests.test_commandline.</code><code class="descname">TestCommandLine</code><a class="reference internal" href="_modules/outrigger/tests/test_commandline.html#TestCommandLine"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.tests.test_commandline.TestCommandLine" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="outrigger.tests.test_commandline.TestCommandLine.test_help">
+<code class="descname">test_help</code><span class="sig-paren">(</span><em>capsys</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/tests/test_commandline.html#TestCommandLine.test_help"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.tests.test_commandline.TestCommandLine.test_help" title="Permalink to this definition">¶</a></dt>
+<dd><p>User asks for help, should SystemExit and give helpful output</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="outrigger.tests.test_commandline.TestCommandLine.test_main_index">
+<code class="descname">test_main_index</code><span class="sig-paren">(</span><em>tmpdir</em>, <em>tasic2016_unprocessed</em>, <em>sj_filenames</em>, <em>tasic2016_outrigger_output_index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/tests/test_commandline.html#TestCommandLine.test_main_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.tests.test_commandline.TestCommandLine.test_main_index" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="outrigger.tests.test_commandline.TestCommandLine.test_main_index_bam">
+<code class="descname">test_main_index_bam</code><span class="sig-paren">(</span><em>tmpdir</em>, <em>tasic2016_unprocessed</em>, <em>bam_filenames</em>, <em>tasic2016_outrigger_output_bam</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/tests/test_commandline.html#TestCommandLine.test_main_index_bam"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.tests.test_commandline.TestCommandLine.test_main_index_bam" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="outrigger.tests.test_commandline.TestCommandLine.test_main_psi">
+<code class="descname">test_main_psi</code><span class="sig-paren">(</span><em>tmpdir</em>, <em>tasic2016_unprocessed</em>, <em>tasic2016_outrigger_output</em>, <em>sj_filenames</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/tests/test_commandline.html#TestCommandLine.test_main_psi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.tests.test_commandline.TestCommandLine.test_main_psi" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="outrigger.tests.test_commandline.TestCommandLine.test_main_psi_bam">
+<code class="descname">test_main_psi_bam</code><span class="sig-paren">(</span><em>tmpdir</em>, <em>tasic2016_outrigger_output_index</em>, <em>tasic2016_outrigger_output_bam</em>, <em>bam_filenames</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/tests/test_commandline.html#TestCommandLine.test_main_psi_bam"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.tests.test_commandline.TestCommandLine.test_main_psi_bam" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="outrigger.tests.test_commandline.TestCommandLine.test_main_validate">
+<code class="descname">test_main_validate</code><span class="sig-paren">(</span><em>tmpdir</em>, <em>negative_control_folder</em>, <em>negative_control_output</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/tests/test_commandline.html#TestCommandLine.test_main_validate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.tests.test_commandline.TestCommandLine.test_main_validate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="outrigger.tests.test_commandline.TestCommandLine.test_main_version">
+<code class="descname">test_main_version</code><span class="sig-paren">(</span><em>capsys</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/tests/test_commandline.html#TestCommandLine.test_main_version"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.tests.test_commandline.TestCommandLine.test_main_version" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="outrigger.tests.test_commandline.TestCommandLine.test_no_arguments">
+<code class="descname">test_no_arguments</code><span class="sig-paren">(</span><em>capsys</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/tests/test_commandline.html#TestCommandLine.test_no_arguments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.tests.test_commandline.TestCommandLine.test_no_arguments" title="Permalink to this definition">¶</a></dt>
+<dd><p>User passes no args, should fail with SystemExit</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="outrigger.tests.test_commandline.TestSubcommand">
+<em class="property">class </em><code class="descclassname">outrigger.tests.test_commandline.</code><code class="descname">TestSubcommand</code><a class="reference internal" href="_modules/outrigger/tests/test_commandline.html#TestSubcommand"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.tests.test_commandline.TestSubcommand" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="outrigger.tests.test_commandline.TestSubcommand.test___init__">
+<code class="descname">test___init__</code><span class="sig-paren">(</span><em>tmpdir</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/tests/test_commandline.html#TestSubcommand.test___init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.tests.test_commandline.TestSubcommand.test___init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="outrigger.tests.test_commandline.assert_directories_equal">
+<code class="descclassname">outrigger.tests.test_commandline.</code><code class="descname">assert_directories_equal</code><span class="sig-paren">(</span><em>dir1</em>, <em>dir2</em>, <em>ignore=None</em>, <em>sortables=('exon'</em>, <em>'junction')</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/tests/test_commandline.html#assert_directories_equal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.tests.test_commandline.assert_directories_equal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compare contents of subdirectories to assert they are equal</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/outrigger.tests.test_commandline.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">BED annotator 0.2.9 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Olga Botvinnik.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

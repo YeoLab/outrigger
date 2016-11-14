@@ -1,0 +1,262 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>outrigger.tests.io.test_bam &mdash; BED annotator 0.2.9 documentation</title>
+    
+    <link rel="stylesheet" href="../../../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../../',
+        VERSION:     '0.2.9',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <link rel="top" title="BED annotator 0.2.9 documentation" href="../../../../index.html" />
+    <link rel="up" title="Module code" href="../../../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">BED annotator 0.2.9 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for outrigger.tests.io.test_bam</h1><div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">collections</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">pandas.util.testing</span> <span class="kn">as</span> <span class="nn">pdt</span>
+<span class="kn">import</span> <span class="nn">pysam</span>
+<span class="kn">import</span> <span class="nn">pytest</span>
+
+
+<span class="nd">@pytest.fixture</span>
+<div class="viewcode-block" id="bamfile"><a class="viewcode-back" href="../../../../outrigger.tests.io.test_bam.html#outrigger.tests.io.test_bam.bamfile">[docs]</a><span class="k">def</span> <span class="nf">bamfile</span><span class="p">(</span><span class="n">tasic2016_bam</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="n">tasic2016_bam</span><span class="p">,</span>
+        <span class="s">&#39;CAV_LP_Ipsi_tdTpos_cell_1-SRR2140356-GSM1840944_R1.polyATrim.&#39;</span>
+        <span class="s">&#39;adapterTrim.rmRep.sorted.rg.subset.sorted.bam&#39;</span><span class="p">)</span>
+
+</div>
+<span class="nd">@pytest.fixture</span>
+<div class="viewcode-block" id="single_bam_final_junction_reads_table_csv"><a class="viewcode-back" href="../../../../outrigger.tests.io.test_bam.html#outrigger.tests.io.test_bam.single_bam_final_junction_reads_table_csv">[docs]</a><span class="k">def</span> <span class="nf">single_bam_final_junction_reads_table_csv</span><span class="p">(</span><span class="n">bamfile</span><span class="p">,</span>
+                                              <span class="n">tasic2016_intermediate_bam</span><span class="p">,</span>
+                                              <span class="n">ignore_multimapping</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;csv for bamfile (singular)&quot;&quot;&quot;</span>
+    <span class="n">basename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">bamfile</span><span class="p">)</span>
+    <span class="n">suffix</span> <span class="o">=</span> <span class="s">&#39;.outrigger_junction_reads_ignore-multimapping{}.csv&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">ignore_multimapping</span><span class="p">)</span>
+    <span class="n">basename2</span> <span class="o">=</span> <span class="n">basename</span> <span class="o">+</span> <span class="n">suffix</span>
+    <span class="n">csv</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tasic2016_intermediate_bam</span><span class="p">,</span> <span class="n">basename2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">csv</span>
+
+</div>
+<span class="nd">@pytest.fixture</span>
+<div class="viewcode-block" id="suffix_template"><a class="viewcode-back" href="../../../../outrigger.tests.io.test_bam.html#outrigger.tests.io.test_bam.suffix_template">[docs]</a><span class="k">def</span> <span class="nf">suffix_template</span><span class="p">(</span><span class="n">bamfile</span><span class="p">,</span> <span class="p">):</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">bamfile</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+        <span class="s">&#39;.bam&#39;</span><span class="p">,</span> <span class="s">&#39;.junction_reads_{}mapped.csv&#39;</span><span class="p">)</span>
+
+</div>
+<span class="nd">@pytest.fixture</span>
+<div class="viewcode-block" id="uniquely_csv"><a class="viewcode-back" href="../../../../outrigger.tests.io.test_bam.html#outrigger.tests.io.test_bam.uniquely_csv">[docs]</a><span class="k">def</span> <span class="nf">uniquely_csv</span><span class="p">(</span><span class="n">suffix_template</span><span class="p">,</span> <span class="n">tasic2016_intermediate_bam</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tasic2016_intermediate_bam</span><span class="p">,</span>
+                        <span class="n">suffix_template</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s">&#39;uniquely&#39;</span><span class="p">))</span>
+
+</div>
+<span class="nd">@pytest.fixture</span>
+<div class="viewcode-block" id="multi_csv"><a class="viewcode-back" href="../../../../outrigger.tests.io.test_bam.html#outrigger.tests.io.test_bam.multi_csv">[docs]</a><span class="k">def</span> <span class="nf">multi_csv</span><span class="p">(</span><span class="n">suffix_template</span><span class="p">,</span> <span class="n">tasic2016_intermediate_bam</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tasic2016_intermediate_bam</span><span class="p">,</span>
+                        <span class="n">suffix_template</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s">&#39;multi&#39;</span><span class="p">))</span>
+
+</div>
+<div class="viewcode-block" id="read_intermediate_junctions"><a class="viewcode-back" href="../../../../outrigger.tests.io.test_bam.html#outrigger.tests.io.test_bam.read_intermediate_junctions">[docs]</a><span class="k">def</span> <span class="nf">read_intermediate_junctions</span><span class="p">(</span><span class="n">csv</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">csv</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+                       <span class="n">squeeze</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                       <span class="c"># names=[None, None, None, None]</span>
+                       <span class="p">)</span>
+
+</div>
+<span class="nd">@pytest.fixture</span>
+<div class="viewcode-block" id="multi"><a class="viewcode-back" href="../../../../outrigger.tests.io.test_bam.html#outrigger.tests.io.test_bam.multi">[docs]</a><span class="k">def</span> <span class="nf">multi</span><span class="p">(</span><span class="n">multi_csv</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">read_intermediate_junctions</span><span class="p">(</span><span class="n">multi_csv</span><span class="p">)</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+
+</div>
+<span class="nd">@pytest.fixture</span>
+<div class="viewcode-block" id="uniquely"><a class="viewcode-back" href="../../../../outrigger.tests.io.test_bam.html#outrigger.tests.io.test_bam.uniquely">[docs]</a><span class="k">def</span> <span class="nf">uniquely</span><span class="p">(</span><span class="n">uniquely_csv</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">read_intermediate_junctions</span><span class="p">(</span><span class="n">uniquely_csv</span><span class="p">)</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+
+</div>
+<span class="nd">@pytest.fixture</span>
+<div class="viewcode-block" id="uniquely_summed_csv"><a class="viewcode-back" href="../../../../outrigger.tests.io.test_bam.html#outrigger.tests.io.test_bam.uniquely_summed_csv">[docs]</a><span class="k">def</span> <span class="nf">uniquely_summed_csv</span><span class="p">(</span><span class="n">bamfile</span><span class="p">,</span> <span class="n">tasic2016_intermediate_bam</span><span class="p">):</span>
+    <span class="n">basename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">bamfile</span><span class="p">)</span>
+    <span class="n">basename</span> <span class="o">=</span> <span class="n">basename</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;.bam&#39;</span><span class="p">,</span> <span class="s">&#39;.uniquely_mapped_summed.csv&#39;</span><span class="p">)</span>
+
+    <span class="n">csv</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tasic2016_intermediate_bam</span><span class="p">,</span> <span class="n">basename</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">csv</span>
+
+</div>
+<span class="nd">@pytest.fixture</span>
+<div class="viewcode-block" id="single_bam_combined_uniquely_multi_csv"><a class="viewcode-back" href="../../../../outrigger.tests.io.test_bam.html#outrigger.tests.io.test_bam.single_bam_combined_uniquely_multi_csv">[docs]</a><span class="k">def</span> <span class="nf">single_bam_combined_uniquely_multi_csv</span><span class="p">(</span><span class="n">tasic2016_intermediate_bam</span><span class="p">,</span> <span class="n">bamfile</span><span class="p">,</span>
+                                           <span class="n">ignore_multimapping</span><span class="p">):</span>
+    <span class="n">basename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">bamfile</span><span class="p">)</span>
+    <span class="n">basename</span> <span class="o">=</span> <span class="n">basename</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+        <span class="s">&#39;.bam&#39;</span><span class="p">,</span> <span class="s">&#39;.junction_reads_ignore-multimapping{}.csv&#39;</span><span class="p">)</span>
+    <span class="n">basename</span> <span class="o">=</span> <span class="n">basename</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ignore_multimapping</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tasic2016_intermediate_bam</span><span class="p">,</span> <span class="n">basename</span><span class="p">)</span>
+
+</div>
+<span class="nd">@pytest.fixture</span>
+<div class="viewcode-block" id="multiple_bams_reads_table_csvs"><a class="viewcode-back" href="../../../../outrigger.tests.io.test_bam.html#outrigger.tests.io.test_bam.multiple_bams_reads_table_csvs">[docs]</a><span class="k">def</span> <span class="nf">multiple_bams_reads_table_csvs</span><span class="p">(</span><span class="n">tasic2016_intermediate_bam</span><span class="p">,</span>
+                                   <span class="n">ignore_multimapping</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;csvs for bamfiles (multiple)&quot;&quot;&quot;</span>
+    <span class="n">suffix</span> <span class="o">=</span> <span class="s">&#39;*.outrigger_junction_reads_ignore-multimapping{}.csv&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">ignore_multimapping</span><span class="p">)</span>
+    <span class="n">csvs</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tasic2016_intermediate_bam</span><span class="p">,</span> <span class="n">suffix</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">csvs</span>
+
+</div>
+<div class="viewcode-block" id="test__report_read_positions"><a class="viewcode-back" href="../../../../outrigger.tests.io.test_bam.html#outrigger.tests.io.test_bam.test__report_read_positions">[docs]</a><span class="k">def</span> <span class="nf">test__report_read_positions</span><span class="p">(</span><span class="n">bamfile</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">outrigger.io.bam</span> <span class="kn">import</span> <span class="n">_report_read_positions</span>
+
+    <span class="n">bam</span> <span class="o">=</span> <span class="n">pysam</span><span class="o">.</span><span class="n">AlignmentFile</span><span class="p">(</span><span class="n">bamfile</span><span class="p">,</span> <span class="s">&#39;rb&#39;</span><span class="p">)</span>
+
+    <span class="n">test</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">Counter</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">read</span> <span class="ow">in</span> <span class="n">bam</span><span class="p">:</span>
+        <span class="n">_report_read_positions</span><span class="p">(</span><span class="n">read</span><span class="p">,</span> <span class="n">test</span><span class="p">)</span>
+        <span class="k">break</span>
+    <span class="n">bam</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="n">true</span> <span class="o">=</span> <span class="p">{(</span><span class="s">&#39;chr2&#39;</span><span class="p">,</span> <span class="mi">136713559</span><span class="p">,</span> <span class="mi">136713559</span><span class="p">,</span> <span class="s">&#39;+&#39;</span><span class="p">):</span> <span class="mi">1</span><span class="p">}</span>
+    <span class="n">pdt</span><span class="o">.</span><span class="n">assert_dict_equal</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="n">true</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="test__choose_strand_and_sum"><a class="viewcode-back" href="../../../../outrigger.tests.io.test_bam.html#outrigger.tests.io.test_bam.test__choose_strand_and_sum">[docs]</a><span class="k">def</span> <span class="nf">test__choose_strand_and_sum</span><span class="p">(</span><span class="n">uniquely</span><span class="p">,</span> <span class="n">uniquely_summed_csv</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">outrigger.io.bam</span> <span class="kn">import</span> <span class="n">UNIQUE_READS</span><span class="p">,</span> <span class="n">_choose_strand_and_sum</span>
+
+    <span class="n">uniquely_s</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">uniquely</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">UNIQUE_READS</span><span class="p">)</span>
+
+    <span class="n">test</span> <span class="o">=</span> <span class="n">_choose_strand_and_sum</span><span class="p">(</span><span class="n">uniquely_s</span><span class="p">)</span>
+    <span class="n">true</span> <span class="o">=</span> <span class="n">read_intermediate_junctions</span><span class="p">(</span><span class="n">uniquely_summed_csv</span><span class="p">)</span>
+
+    <span class="c"># Have to adjust the column and level names from what gets auto-created</span>
+    <span class="c"># upon pandas reading</span>
+    <span class="n">true</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span> <span class="o">=</span> <span class="n">test</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span>
+    <span class="n">true</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">test</span><span class="o">.</span><span class="n">name</span>
+    <span class="n">pdt</span><span class="o">.</span><span class="n">assert_series_equal</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="n">true</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="test__combine_uniquely_multi"><a class="viewcode-back" href="../../../../outrigger.tests.io.test_bam.html#outrigger.tests.io.test_bam.test__combine_uniquely_multi">[docs]</a><span class="k">def</span> <span class="nf">test__combine_uniquely_multi</span><span class="p">(</span><span class="n">uniquely</span><span class="p">,</span> <span class="n">multi</span><span class="p">,</span> <span class="n">ignore_multimapping</span><span class="p">,</span>
+                                 <span class="n">single_bam_combined_uniquely_multi_csv</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">outrigger.io.bam</span> <span class="kn">import</span> <span class="n">_combine_uniquely_multi</span>
+
+    <span class="n">test</span> <span class="o">=</span> <span class="n">_combine_uniquely_multi</span><span class="p">(</span><span class="n">uniquely</span><span class="p">,</span> <span class="n">multi</span><span class="p">,</span> <span class="n">ignore_multimapping</span><span class="p">)</span>
+    <span class="n">true</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">single_bam_combined_uniquely_multi_csv</span><span class="p">)</span>
+
+    <span class="n">pdt</span><span class="o">.</span><span class="n">assert_frame_equal</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="n">true</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="test__get_junction_reads"><a class="viewcode-back" href="../../../../outrigger.tests.io.test_bam.html#outrigger.tests.io.test_bam.test__get_junction_reads">[docs]</a><span class="k">def</span> <span class="nf">test__get_junction_reads</span><span class="p">(</span><span class="n">bamfile</span><span class="p">,</span> <span class="n">uniquely</span><span class="p">,</span> <span class="n">multi</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">outrigger.io.bam</span> <span class="kn">import</span> <span class="n">_get_junction_reads</span>
+
+    <span class="n">test_uniquely</span><span class="p">,</span> <span class="n">test_multi</span> <span class="o">=</span> <span class="n">_get_junction_reads</span><span class="p">(</span><span class="n">bamfile</span><span class="p">)</span>
+
+    <span class="n">true_uniquely</span> <span class="o">=</span> <span class="n">uniquely</span>
+    <span class="n">true_multi</span> <span class="o">=</span> <span class="n">multi</span>
+
+    <span class="n">pdt</span><span class="o">.</span><span class="n">assert_dict_equal</span><span class="p">(</span><span class="n">test_uniquely</span><span class="p">,</span> <span class="n">true_uniquely</span><span class="p">)</span>
+    <span class="n">pdt</span><span class="o">.</span><span class="n">assert_dict_equal</span><span class="p">(</span><span class="n">test_multi</span><span class="p">,</span> <span class="n">true_multi</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="test_bam_to_junction_reads_table"><a class="viewcode-back" href="../../../../outrigger.tests.io.test_bam.html#outrigger.tests.io.test_bam.test_bam_to_junction_reads_table">[docs]</a><span class="k">def</span> <span class="nf">test_bam_to_junction_reads_table</span><span class="p">(</span>
+        <span class="n">bamfile</span><span class="p">,</span> <span class="n">single_bam_final_junction_reads_table_csv</span><span class="p">,</span>
+        <span class="n">ignore_multimapping</span><span class="p">):</span>
+
+    <span class="kn">from</span> <span class="nn">outrigger.io.bam</span> <span class="kn">import</span> <span class="n">bam_to_junction_reads_table</span>
+
+    <span class="n">test</span> <span class="o">=</span> <span class="n">bam_to_junction_reads_table</span><span class="p">(</span><span class="n">bamfile</span><span class="p">,</span> <span class="n">ignore_multimapping</span><span class="p">)</span>
+    <span class="n">true</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">single_bam_final_junction_reads_table_csv</span><span class="p">)</span>
+
+    <span class="n">pdt</span><span class="o">.</span><span class="n">assert_frame_equal</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="n">true</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="test_read_multiple_bams"><a class="viewcode-back" href="../../../../outrigger.tests.io.test_bam.html#outrigger.tests.io.test_bam.test_read_multiple_bams">[docs]</a><span class="k">def</span> <span class="nf">test_read_multiple_bams</span><span class="p">(</span><span class="n">bam_filenames</span><span class="p">,</span> <span class="n">multiple_bams_reads_table_csvs</span><span class="p">,</span>
+                            <span class="n">ignore_multimapping</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">outrigger.io.bam</span> <span class="kn">import</span> <span class="n">read_multiple_bams</span>
+
+    <span class="n">test</span> <span class="o">=</span> <span class="n">read_multiple_bams</span><span class="p">(</span><span class="n">bam_filenames</span><span class="p">,</span> <span class="n">ignore_multimapping</span><span class="p">)</span>
+
+    <span class="n">dfs</span> <span class="o">=</span> <span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">csv</span><span class="p">)</span> <span class="k">for</span> <span class="n">csv</span> <span class="ow">in</span> <span class="n">multiple_bams_reads_table_csvs</span><span class="p">]</span>
+    <span class="n">true</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">dfs</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+    <span class="n">pdt</span><span class="o">.</span><span class="n">assert_frame_equal</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="n">true</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">BED annotator 0.2.9 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Olga Botvinnik.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

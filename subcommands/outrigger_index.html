@@ -1,0 +1,363 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>index: Build a de novo splicing annotation index of events custom to your data &mdash; BED annotator 0.2.9 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.2.9',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="BED annotator 0.2.9 documentation" href="../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">BED annotator 0.2.9 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="index-build-a-de-novo-splicing-annotation-index-of-events-custom-to-your-data">
+<h1><code class="docutils literal"><span class="pre">index</span></code>: Build a <em>de novo</em> splicing annotation index of events custom to <em>your</em> data<a class="headerlink" href="#index-build-a-de-novo-splicing-annotation-index-of-events-custom-to-your-data" title="Permalink to this headline">¶</a></h1>
+<p>The &#8220;help&#8221; output of the two programs tries to be explicit about what is
+required to run <code class="docutils literal"><span class="pre">outrigger</span></code>. Below is the output of when you use the
+command, <code class="docutils literal"><span class="pre">outrigger</span> <span class="pre">index</span> <span class="pre">--help</span></code></p>
+<div class="highlight-python"><div class="highlight"><pre>$ outrigger index --help
+usage: outrigger index [-h] [-o OUTPUT]
+                       (-j [SJ_OUT_TAB [SJ_OUT_TAB ...]] | -c COMPILED_JUNCTION_READS | -b [BAMS [BAMS ...]])
+                       [-m MIN_READS] [--ignore-multimapping]
+                       [-l MAX_DE_NOVO_EXON_LENGTH]
+                       (-g GTF_FILENAME | -d GFFUTILS_DB) [--debug]
+                       [--n-jobs N_JOBS] [--force | --resume]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -o OUTPUT, --output OUTPUT
+                        Name of the folder where you saved the output from
+                        &quot;outrigger index&quot; (default is ./outrigger_output,
+                        which is relative to the directory where you called
+                        the program)&quot;. You will need this file for the next
+                        step, &quot;outrigger psi&quot;
+  -j [SJ_OUT_TAB [SJ_OUT_TAB ...]], --sj-out-tab [SJ_OUT_TAB [SJ_OUT_TAB ...]]
+                        SJ.out.tab files from STAR aligner output. Not
+                        required if you specify &quot;--compiled-junction-reads&quot;
+  -c COMPILED_JUNCTION_READS, --compiled-junction-reads COMPILED_JUNCTION_READS
+                        Name of the splice junction files to detect novel
+                        exons and build an index of alternative splicing
+                        events from. Not required if you specify SJ.out.tab
+                        file with &#39;--sj-out-tab&#39;
+  -b [BAMS [BAMS ...]], --bams [BAMS [BAMS ...]]
+                        Location of bam files to use for finding events.
+  -m MIN_READS, --min-reads MIN_READS
+                        Minimum number of reads per junction for that junction
+                        to count in creating the index of splicing events
+                        (default=10)
+  --ignore-multimapping
+                        Applies to STAR SJ.out.tab files only. If this flag is
+                        used, then do not include reads that mapped to
+                        multiple locations in the genome, not uniquely to a
+                        locus, in the read count for a junction. If inputting
+                        &quot;bam&quot; files, then this means that reads with a mapping
+                        quality (MAPQ) of less than 255 are considered
+                        &quot;multimapped.&quot; This is the same thing as what the STAR
+                        aligner does. By default, this is off, and all reads
+                        are used.
+  -l MAX_DE_NOVO_EXON_LENGTH, --max-de-novo-exon-length MAX_DE_NOVO_EXON_LENGTH
+                        Maximum length of an exon detected *de novo* from the
+                        dataset. This is to prevent multiple kilobase long
+                        exons from being accidentally created. (default=100)
+  -g GTF_FILENAME, --gtf-filename GTF_FILENAME
+                        Name of the gtf file you want to use. If a gffutils
+                        feature database doesn&#39;t already exist at this
+                        location plus &#39;.db&#39; (e.g. if your gtf is
+                        gencode.v19.annotation.gtf, then the database is
+                        inferred to be gencode.v19.annotation.gtf.db), then a
+                        database will be auto-created. Not required if you
+                        provide a pre-built database with &#39;--gffutils-db&#39;
+  -d GFFUTILS_DB, --gffutils-db GFFUTILS_DB
+                        Name of the gffutils database file you want to use.
+                        The exon IDs defined here will be used in the function
+                        when creating splicing event names. Not required if
+                        you provide a gtf file with &#39;--gtf-filename&#39;
+  --debug               If given, print debugging logging information to
+                        standard out (Warning: LOTS of output. Not recommended
+                        unless you think something is going wrong)
+  --n-jobs N_JOBS       Number of threads to use when parallelizing exon
+                        finding and file reading. Default is -1, which means
+                        to use as many threads as are available.
+  --force               If the &#39;outrigger index&#39; command was interrupted,
+                        there will be intermediate files remaining. If you
+                        wish to restart outrigger and overwrite them all, use
+                        this flag. If you want to continue from where you left
+                        off, use the &#39;--resume&#39; flag. If neither is specified,
+                        the program exits and complains to the user.
+  --resume              If the &#39;outrigger index&#39; command was interrupted,
+                        there will be intermediate files remaining. If you
+                        want to continue from where you left off, use this
+                        flag. The default action is to do nothing and ask the
+                        user for input.
+</pre></div>
+</div>
+<div class="section" id="example-outrigger-index-command">
+<h2>Example <code class="docutils literal"><span class="pre">outrigger</span> <span class="pre">index</span></code> command<a class="headerlink" href="#example-outrigger-index-command" title="Permalink to this headline">¶</a></h2>
+<p>Included in this repository is a subset of the 1809 cells from <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pubmed/26727548">&#8220;Adult
+mouse cortical cell taxonomy revealed by single cell transcriptomics.&#8221;
+by Tasic et al, Nature Neuroscience
+(2016)</a>. There splice
+junction output files from the <a class="reference external" href="https://github.com/alexdobin/STAR">STAR
+aligner</a> from the 43
+&#8220;<code class="docutils literal"><span class="pre">CAV_LP_Ipsi_tdTpos</span></code>&#8221; cells, plus a subset of the <a class="reference external" href="http://www.gencodegenes.org/mouse_releases/10.html">GENCODE
+M10</a> (Version M10
+(January 2016 freeze, GRCm38) - Ensembl 85) mouse annotation.</p>
+<p>To run this program with the included example data, from the
+<code class="docutils literal"><span class="pre">outrigger</span></code> directory where you cloned <code class="docutils literal"><span class="pre">outrigger</span></code> (this is
+important because the locations of the files is relative to that
+directory), run this command:</p>
+<div class="highlight-python"><div class="highlight"><pre>outrigger index \
+    --sj-out-tab outrigger/tests/data/tasic2016/unprocessed/sj_out_tab/* \
+    --gtf outrigger/tests/data/tasic2016/unprocessed/gtf/gencode.vM10.annotation.snap25.myl6.gtf
+</pre></div>
+</div>
+<p><em>Note: the backslashes (````, like a tree that&#8217;s falling backwards
+relative to right-to-left reading) to tell the computer that you&#8217;re not
+done telling it what to do, so the line continues, and to help the code
+be a little more human-readable. The above code is read by the computer
+exactly the same as the one-liner below, but is easier for us humans to
+read.</em></p>
+<div class="highlight-python"><div class="highlight"><pre>outrigger index --sj-out-tab outrigger/tests/data/tasic2016/unprocessed/sj_out_tab/* --gtf outrigger/tests/data/tasic2016/unprocessed/gtf/gencode.vM10.annotation.snap25.myl6.gtf
+</pre></div>
+</div>
+<p>This is equivalent to the below command, which specifies all the other
+arguments with the default values.</p>
+<div class="highlight-python"><div class="highlight"><pre>outrigger index \
+    --sj-out-tab outrigger/tests/data/tasic2016/unprocessed/sj_out_tab/* \
+    --gtf outrigger/tests/data/tasic2016/unprocessed/gtf/gencode.vM10.annotation.snap25.myl6.gtf \
+    --output ./outrigger_output --min-reads 10
+</pre></div>
+</div>
+<p>The output of this command is:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ outrigger index --sj-out-tab example_data/tasic2016/unprocessed/sj_out_tab/* --gtf example_data/tasic2016/unprocessed/gtf/snap25_myl6.gtf
+2016-08-12 11:24:03 Reading SJ.out.files and creating a big splice junction table of reads spanning exon-exon junctions...
+2016-08-12 11:24:03 Writing ./outrigger_output/junction_reads/reads.csv ...
+
+2016-08-12 11:24:03     Done.
+2016-08-12 11:24:03 Creating splice junction metadata of merely where junctions start and stop
+2016-08-12 11:24:03     Done.
+2016-08-12 11:24:03 Getting junction-direction-exon triples for graph database ...
+2016-08-12 11:24:03 Starting annotation of all junctions with known neighboring exons ...
+2016-08-12 11:24:04     Done.
+2016-08-12 11:24:04     Done.
+2016-08-12 11:24:04 Writing junction-exon-direction triples to ./outrigger_output/index/junction_exon_direction_triples.csv...
+2016-08-12 11:24:04     Done.
+2016-08-12 11:24:04 Populating graph database of the junction-direction-exon triples ...
+2016-08-12 11:24:04     Done.
+2016-08-12 11:24:04 Finding all skipped exon (SE) events ...
+2016-08-12 11:24:04 Trying out 25 exons ...
+2016-08-12 11:24:04     1/25 exons tested (4.0%)
+2016-08-12 11:24:04     2/25 exons tested (8.0%)
+2016-08-12 11:24:04     3/25 exons tested (12.0%)
+2016-08-12 11:24:04     4/25 exons tested (16.0%)
+2016-08-12 11:24:04     5/25 exons tested (20.0%)
+2016-08-12 11:24:04     6/25 exons tested (24.0%)
+2016-08-12 11:24:04     7/25 exons tested (28.0%)
+2016-08-12 11:24:04     8/25 exons tested (32.0%)
+2016-08-12 11:24:04     9/25 exons tested (36.0%)
+2016-08-12 11:24:04     10/25 exons tested (40.0%)
+2016-08-12 11:24:04     11/25 exons tested (44.0%)
+2016-08-12 11:24:04     12/25 exons tested (48.0%)
+2016-08-12 11:24:04     13/25 exons tested (52.0%)
+2016-08-12 11:24:04     14/25 exons tested (56.0%)
+2016-08-12 11:24:04     15/25 exons tested (60.0%)
+2016-08-12 11:24:04     16/25 exons tested (64.0%)
+2016-08-12 11:24:04     17/25 exons tested (68.0%)
+2016-08-12 11:24:04     18/25 exons tested (72.0%)
+2016-08-12 11:24:04     19/25 exons tested (76.0%)
+2016-08-12 11:24:04     20/25 exons tested (80.0%)
+2016-08-12 11:24:04     21/25 exons tested (84.0%)
+2016-08-12 11:24:04     22/25 exons tested (88.0%)
+2016-08-12 11:24:04     23/25 exons tested (92.0%)
+2016-08-12 11:24:04     24/25 exons tested (96.0%)
+2016-08-12 11:24:04     25/25 exons tested (100.0%)
+2016-08-12 11:24:04     Done.
+2016-08-12 11:24:04 Writing 1 SE events to ./outrigger_output/index/se/events.csv ...
+2016-08-12 11:24:04     Done.
+2016-08-12 11:24:04 Making metadata file of SE events, annotating them with GTF attributes ...
+2016-08-12 11:24:04     Done.
+2016-08-12 11:24:04 Getting exon and intron lengths of alternative events ...
+2016-08-12 11:24:04     Done.
+2016-08-12 11:24:04 Combining lengths and attributes into one big dataframe ...
+2016-08-12 11:24:04     Done.
+2016-08-12 11:24:04 Writing SE metadata to ./outrigger_output/index/se/metadata.csv ...
+2016-08-12 11:24:04     Done.
+2016-08-12 11:24:04 Finding all mutually exclusive exon (MXE) events ...
+2016-08-12 11:24:04 Trying out 25 exons ...
+2016-08-12 11:24:04     1/25 exons tested (4.0%)
+2016-08-12 11:24:04     2/25 exons tested (8.0%)
+2016-08-12 11:24:04     3/25 exons tested (12.0%)
+2016-08-12 11:24:04     4/25 exons tested (16.0%)
+2016-08-12 11:24:04     5/25 exons tested (20.0%)
+2016-08-12 11:24:04     6/25 exons tested (24.0%)
+2016-08-12 11:24:04     7/25 exons tested (28.0%)
+2016-08-12 11:24:04     8/25 exons tested (32.0%)
+2016-08-12 11:24:04     9/25 exons tested (36.0%)
+2016-08-12 11:24:04     10/25 exons tested (40.0%)
+2016-08-12 11:24:04     11/25 exons tested (44.0%)
+2016-08-12 11:24:04     12/25 exons tested (48.0%)
+2016-08-12 11:24:04     13/25 exons tested (52.0%)
+2016-08-12 11:24:04     14/25 exons tested (56.0%)
+2016-08-12 11:24:04     15/25 exons tested (60.0%)
+2016-08-12 11:24:04     16/25 exons tested (64.0%)
+2016-08-12 11:24:04     17/25 exons tested (68.0%)
+2016-08-12 11:24:04     18/25 exons tested (72.0%)
+2016-08-12 11:24:04     19/25 exons tested (76.0%)
+2016-08-12 11:24:04     20/25 exons tested (80.0%)
+2016-08-12 11:24:04     21/25 exons tested (84.0%)
+2016-08-12 11:24:04     22/25 exons tested (88.0%)
+2016-08-12 11:24:04     23/25 exons tested (92.0%)
+2016-08-12 11:24:04     24/25 exons tested (96.0%)
+2016-08-12 11:24:04     25/25 exons tested (100.0%)
+2016-08-12 11:24:04     Done.
+2016-08-12 11:24:04 Writing 1 MXE events to ./outrigger_output/index/mxe/events.csv ...
+2016-08-12 11:24:04     Done.
+2016-08-12 11:24:04 Making metadata file of MXE events, annotating them with GTF attributes ...
+2016-08-12 11:24:04     Done.
+2016-08-12 11:24:04 Getting exon and intron lengths of alternative events ...
+2016-08-12 11:24:04     Done.
+2016-08-12 11:24:04 Combining lengths and attributes into one big dataframe ...
+2016-08-12 11:24:04     Done.
+2016-08-12 11:24:04 Writing MXE metadata to ./outrigger_output/index/mxe/metadata.csv ...
+2016-08-12 11:24:04     Done.
+</pre></div>
+</div>
+<div class="section" id="example-outrigger-index-with-bam-files">
+<h3>Example <code class="docutils literal"><span class="pre">outrigger</span> <span class="pre">index</span></code> with <code class="docutils literal"><span class="pre">bam</span></code> files<a class="headerlink" href="#example-outrigger-index-with-bam-files" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python"><div class="highlight"><pre>outrigger index \
+    --bams outrigger/tests/data/tasic2016/unprocessed/bam/* \
+    --gtf outrigger/tests/data/tasic2016/unprocessed/gtf/gencode.vM10.annotation.snap25.myl6.gtf
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="outrigger-index-outputs">
+<h2><code class="docutils literal"><span class="pre">outrigger_index</span></code> Outputs<a class="headerlink" href="#outrigger-index-outputs" title="Permalink to this headline">¶</a></h2>
+<p>The above commands will create a folder called <code class="docutils literal"><span class="pre">outrigger_index</span></code> in
+the folder you ran the command from, with the following structure</p>
+<div class="highlight-python"><div class="highlight"><pre>$ tree outrigger_output
+outrigger_output
+├── index
+│   ├── gtf
+│   │   ├── gencode.vM10.annotation.snap25.myl6.gtf
+│   │   ├── gencode.vM10.annotation.snap25.myl6.gtf.db
+│   │   ├── gencode.vM10.annotation.snap25.myl6.gtf.db.bak
+│   │   └── novel_exons.gtf
+│   ├── junction_exon_direction_triples.csv
+│   ├── mxe
+│   │   ├── events.csv
+│   │   ├── exon1.bed
+│   │   ├── exon2.bed
+│   │   ├── exon3.bed
+│   │   ├── exon4.bed
+│   │   └── metadata.csv
+│   └── se
+│       ├── events.csv
+│       ├── exon1.bed
+│       ├── exon2.bed
+│       ├── exon3.bed
+│       └── metadata.csv
+└── junctions
+    ├── metadata.csv
+    └── reads.csv
+
+5 directories, 18 files
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><code class="docutils literal"><span class="pre">index</span></code>: Build a <em>de novo</em> splicing annotation index of events custom to <em>your</em> data</a><ul>
+<li><a class="reference internal" href="#example-outrigger-index-command">Example <code class="docutils literal"><span class="pre">outrigger</span> <span class="pre">index</span></code> command</a><ul>
+<li><a class="reference internal" href="#example-outrigger-index-with-bam-files">Example <code class="docutils literal"><span class="pre">outrigger</span> <span class="pre">index</span></code> with <code class="docutils literal"><span class="pre">bam</span></code> files</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#outrigger-index-outputs"><code class="docutils literal"><span class="pre">outrigger_index</span></code> Outputs</a></li>
+</ul>
+</li>
+</ul>
+
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/subcommands/outrigger_index.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">BED annotator 0.2.9 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Olga Botvinnik.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

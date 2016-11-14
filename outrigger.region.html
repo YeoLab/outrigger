@@ -1,0 +1,153 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>outrigger.region module &mdash; BED annotator 0.2.9 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.2.9',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="BED annotator 0.2.9 documentation" href="index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">BED annotator 0.2.9 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-outrigger.region">
+<span id="outrigger-region-module"></span><h1>outrigger.region module<a class="headerlink" href="#module-outrigger.region" title="Permalink to this headline">¶</a></h1>
+<p>Define locations in the genome</p>
+<dl class="class">
+<dt id="outrigger.region.Region">
+<em class="property">class </em><code class="descclassname">outrigger.region.</code><code class="descname">Region</code><span class="sig-paren">(</span><em>name=None</em>, <em>region=None</em>, <em>chrom=None</em>, <em>start=None</em>, <em>stop=None</em>, <em>strand=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/region.html#Region"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.region.Region" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dl class="attribute">
+<dt id="outrigger.region.Region.chrom">
+<code class="descname">chrom</code><a class="headerlink" href="#outrigger.region.Region.chrom" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="outrigger.region.Region.name">
+<code class="descname">name</code><a class="headerlink" href="#outrigger.region.Region.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="outrigger.region.Region.overlaps">
+<code class="descname">overlaps</code><span class="sig-paren">(</span><em>other</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/region.html#Region.overlaps"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.region.Region.overlaps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns true if any part of other region is contained in this one</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="outrigger.region.Region.region">
+<code class="descname">region</code><a class="headerlink" href="#outrigger.region.Region.region" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="outrigger.region.Region.start">
+<code class="descname">start</code><a class="headerlink" href="#outrigger.region.Region.start" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="outrigger.region.Region.stop">
+<code class="descname">stop</code><a class="headerlink" href="#outrigger.region.Region.stop" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="outrigger.region.Region.strand">
+<code class="descname">strand</code><a class="headerlink" href="#outrigger.region.Region.strand" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="outrigger.region.Region.to_bed_format">
+<code class="descname">to_bed_format</code><span class="sig-paren">(</span><em>name=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/region.html#Region.to_bed_format"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.region.Region.to_bed_format" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="outrigger.region.Region.to_zero_based">
+<code class="descname">to_zero_based</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/region.html#Region.to_zero_based"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.region.Region.to_zero_based" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert genome coordinates to 0-based</p>
+<p>Assumes that this event is one-based.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/outrigger.region.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">BED annotator 0.2.9 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Olga Botvinnik.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

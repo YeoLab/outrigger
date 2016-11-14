@@ -1,0 +1,170 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>outrigger.psi.compute module &mdash; BED annotator 0.2.9 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.2.9',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="BED annotator 0.2.9 documentation" href="index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">BED annotator 0.2.9 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-outrigger.psi.compute">
+<span id="outrigger-psi-compute-module"></span><h1>outrigger.psi.compute module<a class="headerlink" href="#module-outrigger.psi.compute" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="outrigger.psi.compute.calculate_psi">
+<code class="descclassname">outrigger.psi.compute.</code><code class="descname">calculate_psi</code><span class="sig-paren">(</span><em>event_annotation</em>, <em>splice_junction_reads</em>, <em>isoform1_junctions</em>, <em>isoform2_junctions</em>, <em>reads_col='reads'</em>, <em>min_reads=10</em>, <em>n_jobs=-1</em>, <em>debug=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/psi/compute.html#calculate_psi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.psi.compute.calculate_psi" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute percent-spliced-in of events based on junction reads</p>
+<dl class="docutils">
+<dt>event_annotation <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd><blockquote class="first">
+<div>A table where each row represents a single splicing event. The required</div></blockquote>
+<dl class="last docutils">
+<dt>columns are the ones specified in <cite>isoform1_junctions</cite>,</dt>
+<dd><cite>isoform2_junctions</cite>, and <cite>event_col</cite>.</dd>
+</dl>
+</dd>
+<dt>splice_junction_reads <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd>A table of the number of junction reads observed in each sample.
+<em>Important:</em> This must be multi-indexed by the junction and sample id</dd>
+<dt>reads_col <span class="classifier-delimiter">:</span> <span class="classifier">str, optional (default &#8220;reads&#8221;)</span></dt>
+<dd>The name of the column in <cite>splice_junction_reads</cite> which represents the
+number of reads observed at a splice junction of a particular sample.</dd>
+<dt>min_reads <span class="classifier-delimiter">:</span> <span class="classifier">int, optional (default 10)</span></dt>
+<dd>The minimum number of reads that need to be observed at each junction
+for an event to be counted.</dd>
+<dt>isoform1_junctions <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
+<dd>Columns in <cite>event_annotation</cite> which represent junctions that
+correspond to isoform1, the Psi=0 isoform, e.g. [&#8216;junction13&#8217;] for SE
+(junctions between exon1 and exon3)</dd>
+<dt>isoform2_junctions <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
+<dd>Columns in <cite>event_annotation</cite> which represent junctions that
+correspond to isoform2, the Psi=1 isoform, e.g.
+[&#8216;junction12&#8217;, &#8216;junction23&#8217;] (junctions between exon1, exon2, and
+junction between exon2 and exon3)</dd>
+<dt>event_col <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd>Column in <cite>event_annotation</cite> which is a unique identifier for each
+row, e.g.</dd>
+</dl>
+<dl class="docutils">
+<dt>psi <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd>An (samples, events) dataframe of the percent spliced-in values</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="outrigger.psi.compute.filter_and_sum">
+<code class="descclassname">outrigger.psi.compute.</code><code class="descname">filter_and_sum</code><span class="sig-paren">(</span><em>reads</em>, <em>min_reads</em>, <em>junctions</em>, <em>debug=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/psi/compute.html#filter_and_sum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.psi.compute.filter_and_sum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Require minimum reads and sum junctions from the same sample</p>
+<p>Remove all samples that don&#8217;t have enough reads</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="outrigger.psi.compute.maybe_get_isoform_reads">
+<code class="descclassname">outrigger.psi.compute.</code><code class="descname">maybe_get_isoform_reads</code><span class="sig-paren">(</span><em>splice_junction_reads</em>, <em>junction_locations</em>, <em>isoform_junctions</em>, <em>reads_col</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/psi/compute.html#maybe_get_isoform_reads"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.psi.compute.maybe_get_isoform_reads" title="Permalink to this definition">¶</a></dt>
+<dd><p>If there are junction reads at a junction_locations, return the reads</p>
+<dl class="docutils">
+<dt>splice_junction_reads <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
+<dd>A table of the number of junction reads observed in each sample.
+<em>Important:</em> This must be multi-indexed by the junction and sample id</dd>
+<dt>junction_locations <span class="classifier-delimiter">:</span> <span class="classifier">pandas.Series</span></dt>
+<dd>Mapping of junction names (from var:<cite>isoform_junctions</cite>) to their
+chromosomal locations</dd>
+<dt>isoform_junctions <span class="classifier-delimiter">:</span> <span class="classifier">list of str</span></dt>
+<dd>Names of the isoform_junctions in question, e.g.
+[&#8216;junction12&#8217;, &#8216;junction13&#8217;]</dd>
+<dt>reads_col <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd>Name of the column containing the number of reads in
+<cite>splice_junction_reads</cite></dd>
+</dl>
+<dl class="docutils">
+<dt>reads <span class="classifier-delimiter">:</span> <span class="classifier">pandas.Series</span></dt>
+<dd>Number of reads at each junction for this isoform</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/outrigger.psi.compute.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">BED annotator 0.2.9 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Olga Botvinnik.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

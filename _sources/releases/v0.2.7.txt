@@ -1,0 +1,33 @@
+v0.2.7 (October 23rd, 2016)
+---------------------------
+
+New features
+~~~~~~~~~~~~
+
+- Added ``outrigger validate`` command to check for canonical splice sites
+  by default: ``GT/AG`` (U1, major spliceosome) and ``AT/AC``
+  (U12, minor spliceosome). Both of these are user-adjustable as they are only
+  the standard for mammalian genomes.
+
+API changes
+~~~~~~~~~~~
+
+- Added ``--resume`` and ``--force`` options to ``outrigger index`` to prevent
+  the overwriting of interrupted indexing operations, or to force overwriting.
+  By default, ``outrigger`` complains and cowardly exits.
+
+Bug fixes
+~~~~~~~~~
+
+- Support ENSEMBL gtf files which specify chromsome names with a number, e.g.
+``4`` instead of ``chr4``. Thank you to lcscs12345_ for pointing this out!
+
+Miscellaneous
+~~~~~~~~~~~~~
+
+- Added version info with ``outrigger --version``
+- Sped up gffutils queries and event finding by running ``ANALYZE`` on SQLite
+  databases.
+
+
+.. _lcscs12345: https://github.com/lcscs12345

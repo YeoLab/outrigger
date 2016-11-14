@@ -1,0 +1,225 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>psi: Calculate percent spliced-in (Psi/Ψ) scores for your data from the splicing events you created &mdash; BED annotator 0.2.9 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.2.9',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="BED annotator 0.2.9 documentation" href="../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">BED annotator 0.2.9 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="psi-calculate-percent-spliced-in-psi-scores-for-your-data-from-the-splicing-events-you-created">
+<h1><code class="docutils literal"><span class="pre">psi</span></code>: Calculate percent spliced-in (Psi/Ψ) scores for your data from the splicing events you created<a class="headerlink" href="#psi-calculate-percent-spliced-in-psi-scores-for-your-data-from-the-splicing-events-you-created" title="Permalink to this headline">¶</a></h1>
+<div class="highlight-python"><div class="highlight"><pre>usage: outrigger psi [-h] [-i INDEX] [-o OUTPUT]
+                     [-c COMPILED_JUNCTION_READS | -j [SJ_OUT_TAB [SJ_OUT_TAB ...]]
+                     | -b [BAMS [BAMS ...]]] [-m MIN_READS]
+                     [--ignore-multimapping] [--reads-col READS_COL]
+                     [--sample-id-col SAMPLE_ID_COL]
+                     [--junction-id-col JUNCTION_ID_COL] [--debug]
+                     [--n-jobs N_JOBS]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -i INDEX, --index INDEX
+                        Name of the folder where you saved the output from
+                        &quot;outrigger index&quot; (default is
+                        ./outrigger_output/index, which is relative to the
+                        directory where you called this program, assuming you
+                        have called &quot;outrigger psi&quot; in the same folder as you
+                        called &quot;outrigger index&quot;)
+  -o OUTPUT, --output OUTPUT
+                        Name of the folder where you saved the output from
+                        &quot;outrigger index&quot; (default is ./outrigger_output,
+                        which is relative to the directory where you called
+                        the program). Cannot specify both an --index and
+                        --output with &quot;psi&quot;
+  -c COMPILED_JUNCTION_READS, --compiled-junction-reads COMPILED_JUNCTION_READS
+                        Name of the compiled splice junction file to calculate
+                        psi scores on. Default is the &#39;--output&#39; folder&#39;s
+                        junctions/reads.csv file. Not required if you specify
+                        SJ.out.tab files with &#39;--sj-out-tab&#39;
+  -j [SJ_OUT_TAB [SJ_OUT_TAB ...]], --sj-out-tab [SJ_OUT_TAB [SJ_OUT_TAB ...]]
+                        SJ.out.tab files from STAR aligner output. Not
+                        required if you specify a file with &quot;--compiled-
+                        junction-reads&quot;
+  -b [BAMS [BAMS ...]], --bams [BAMS [BAMS ...]]
+                        Bam files to use to calculate psi on
+  -m MIN_READS, --min-reads MIN_READS
+                        Minimum number of reads per junction for calculating
+                        Psi (default=10)
+  --ignore-multimapping
+                        Applies to STAR SJ.out.tab files only. If this flag is
+                        used, then do not include reads that mapped to
+                        multiple locations in the genome, not uniquely to a
+                        locus, in the read count for a junction. If inputting
+                        &quot;bam&quot; files, then this means that reads with a mapping
+                        quality (MAPQ) of less than 255 are considered
+                        &quot;multimapped.&quot; This is the same thing as what the STAR
+                        aligner does. By default, this is off, and all reads
+                        are used.
+  --reads-col READS_COL
+                        Name of column in --splice-junction-csv containing
+                        reads to use. (default=&#39;reads&#39;)
+  --sample-id-col SAMPLE_ID_COL
+                        Name of column in --splice-junction-csv containing
+                        sample ids to use. (default=&#39;sample_id&#39;)
+  --junction-id-col JUNCTION_ID_COL
+                        Name of column in --splice-junction-csv containing the
+                        ID of the junction to use. Must match exactly with the
+                        junctions in the index.(default=&#39;junction_id&#39;)
+  --debug               If given, print debugging logging information to
+                        standard out
+  --n-jobs N_JOBS       Number of threads to use when parallelizing psi
+                        calculation and file reading. Default is -1, which
+                        means to use as many threads as are available.
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre>outrigger psi
+</pre></div>
+</div>
+<p>The above command is equivalent to specifying all the arguments with
+their default values:</p>
+<div class="highlight-python"><div class="highlight"><pre>outrigger psi --index ./outrigger_index --min-reads 10
+</pre></div>
+</div>
+<div class="section" id="outrigger-psi-outputs">
+<h2><code class="docutils literal"><span class="pre">outrigger_psi</span></code> Outputs<a class="headerlink" href="#outrigger-psi-outputs" title="Permalink to this headline">¶</a></h2>
+<p>Now the <code class="docutils literal"><span class="pre">outrigger_output</span></code> folder has <code class="docutils literal"><span class="pre">psi</span></code> subfolder, with the MXE
+and SE events separate.</p>
+<div class="highlight-python"><div class="highlight"><pre>$ tree outrigger_output
+outrigger_output
+├── index
+│   ├── gtf
+│   │   ├── gencode.vM10.annotation.subset.gtf
+│   │   ├── gencode.vM10.annotation.subset.gtf.db
+│   │   └── novel_exons.gtf
+│   ├── junction_exon_direction_triples.csv
+│   ├── mxe
+│   │   ├── event.bed
+│   │   ├── events.csv
+│   │   ├── exon1.bed
+│   │   ├── exon2.bed
+│   │   ├── exon3.bed
+│   │   ├── exon4.bed
+│   │   ├── intron.bed
+│   │   ├── splice_sites.csv
+│   │   └── validated
+│   │       └── events.csv
+│   └── se
+│       ├── event.bed
+│       ├── events.csv
+│       ├── exon1.bed
+│       ├── exon2.bed
+│       ├── exon3.bed
+│       ├── intron.bed
+│       ├── splice_sites.csv
+│       └── validated
+│           └── events.csv
+├── junctions
+│   ├── metadata.csv
+│   └── reads.csv
+└── psi
+    ├── mxe
+    │   └── psi.csv
+    ├── outrigger_psi.csv
+    └── se
+        └── psi.csv
+
+10 directories, 26 files
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><code class="docutils literal"><span class="pre">psi</span></code>: Calculate percent spliced-in (Psi/Ψ) scores for your data from the splicing events you created</a><ul>
+<li><a class="reference internal" href="#outrigger-psi-outputs"><code class="docutils literal"><span class="pre">outrigger_psi</span></code> Outputs</a></li>
+</ul>
+</li>
+</ul>
+
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/subcommands/outrigger_psi.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">BED annotator 0.2.9 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Olga Botvinnik.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,11 @@
+v0.2.0 (September 9th, 2016)
+----------------------------
+
+This is the second release of ``outrigger``!
+
+New features
+~~~~~~~~~~~~
+
+- Parallelized exon finding for novel exons
+- Added ``outrigger validate`` command to check that your new exons have proper splice sites (e.g. GT/AG and AT/AC)
+- Added more test data for other event types (even though we don't detect them yet)

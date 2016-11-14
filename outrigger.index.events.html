@@ -1,0 +1,205 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>outrigger.index.events module &mdash; BED annotator 0.2.9 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.2.9',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="BED annotator 0.2.9 documentation" href="index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">BED annotator 0.2.9 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-outrigger.index.events">
+<span id="outrigger-index-events-module"></span><h1>outrigger.index.events module<a class="headerlink" href="#module-outrigger.index.events" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="outrigger.index.events.EventMaker">
+<em class="property">class </em><code class="descclassname">outrigger.index.events.</code><code class="descname">EventMaker</code><span class="sig-paren">(</span><em>junction_exon_triples</em>, <em>db=None</em>, <em>junction_col='junction'</em>, <em>exon_col='exon'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/index/events.html#EventMaker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.index.events.EventMaker" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="outrigger.index.events.EventMaker.add_event_id_col">
+<code class="descname">add_event_id_col</code><span class="sig-paren">(</span><em>events</em>, <em>splice_type</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/index/events.html#EventMaker.add_event_id_col"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.index.events.EventMaker.add_event_id_col" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="outrigger.index.events.EventMaker.add_illegal_junctions">
+<code class="descname">add_illegal_junctions</code><span class="sig-paren">(</span><em>events</em>, <em>splice_type</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/index/events.html#EventMaker.add_illegal_junctions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.index.events.EventMaker.add_illegal_junctions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add junctions that are incompatible with splice type definition</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="outrigger.index.events.EventMaker.event_dict_to_df">
+<code class="descname">event_dict_to_df</code><span class="sig-paren">(</span><em>events</em>, <em>exon_names</em>, <em>junction_names</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/index/events.html#EventMaker.event_dict_to_df"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.index.events.EventMaker.event_dict_to_df" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="outrigger.index.events.EventMaker.exon_progress_interval">
+<code class="descname">exon_progress_interval</code><a class="headerlink" href="#outrigger.index.events.EventMaker.exon_progress_interval" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="outrigger.index.events.EventMaker.exons_one_junction_downstream">
+<code class="descname">exons_one_junction_downstream</code><span class="sig-paren">(</span><em>exon_i</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/index/events.html#EventMaker.exons_one_junction_downstream"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.index.events.EventMaker.exons_one_junction_downstream" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the exon(s) that are immediately downstream of this one</p>
+<p>Get exons that are downstream from this one, separated by one
+junction</p>
+<dl class="docutils">
+<dt>exon_i <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Integer identifier of the exon whose downstream exons you want.
+This is the exon&#8217;s index location in self.exon_cols</dd>
+</dl>
+<dl class="docutils">
+<dt>downstream_exons <span class="classifier-delimiter">:</span> <span class="classifier">graphlite.Query</span></dt>
+<dd>Integer identfiers of exons which are one junction downstream
+of the provided one</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="outrigger.index.events.EventMaker.exons_one_junction_upstream">
+<code class="descname">exons_one_junction_upstream</code><span class="sig-paren">(</span><em>exon_query</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/index/events.html#EventMaker.exons_one_junction_upstream"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.index.events.EventMaker.exons_one_junction_upstream" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the exon(s) that are immediately upstream of this one</p>
+<p>Get exons that are upstream from this one, separated by one
+junction</p>
+<dl class="docutils">
+<dt>exon_query <span class="classifier-delimiter">:</span> <span class="classifier">graphlite.Query</span></dt>
+<dd>Integer identifier of the exon whose upstream exons you want.
+This is the exon&#8217;s index location in self.exons</dd>
+</dl>
+<dl class="docutils">
+<dt>upstream_exons <span class="classifier-delimiter">:</span> <span class="classifier">graphlite.Query</span></dt>
+<dd>Integer identfiers of exon_cols which are one junction upstream
+of the provided one</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="outrigger.index.events.EventMaker.exons_two_junctions_downstream">
+<code class="descname">exons_two_junctions_downstream</code><span class="sig-paren">(</span><em>exon_i</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/index/events.html#EventMaker.exons_two_junctions_downstream"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.index.events.EventMaker.exons_two_junctions_downstream" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the exon(s) that are two junction hops downstream</p>
+<p>Go one exon downstream, then one more exon. This is all the 2nd level
+exon_cols</p>
+<dl class="docutils">
+<dt>exon_i <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Integer identifier of the exon whose downstream exon_cols you want.
+This is the exon&#8217;s index location in self.exon_cols</dd>
+</dl>
+<dl class="docutils">
+<dt>downstream_exons <span class="classifier-delimiter">:</span> <span class="classifier">graphlite.Query</span></dt>
+<dd>Integer identfiers of exon_cols which are separated from the
+original exon by a junction, exon, and another junction</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="outrigger.index.events.EventMaker.junctions_between_exons">
+<code class="descname">junctions_between_exons</code><span class="sig-paren">(</span><em>exon_a</em>, <em>exon_b</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/index/events.html#EventMaker.junctions_between_exons"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.index.events.EventMaker.junctions_between_exons" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the junctions between exonA and exonB</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="outrigger.index.events.EventMaker.mutually_exclusive_exon">
+<code class="descname">mutually_exclusive_exon</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/index/events.html#EventMaker.mutually_exclusive_exon"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.index.events.EventMaker.mutually_exclusive_exon" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="outrigger.index.events.EventMaker.skipped_exon">
+<code class="descname">skipped_exon</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/index/events.html#EventMaker.skipped_exon"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.index.events.EventMaker.skipped_exon" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="outrigger.index.events.opposite">
+<code class="descclassname">outrigger.index.events.</code><code class="descname">opposite</code><span class="sig-paren">(</span><em>direction</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/index/events.html#opposite"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.index.events.opposite" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="outrigger.index.events.stringify_location">
+<code class="descclassname">outrigger.index.events.</code><code class="descname">stringify_location</code><span class="sig-paren">(</span><em>chrom</em>, <em>start</em>, <em>stop</em>, <em>strand</em>, <em>region=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/index/events.html#stringify_location"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.index.events.stringify_location" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/outrigger.index.events.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">BED annotator 0.2.9 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Olga Botvinnik.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

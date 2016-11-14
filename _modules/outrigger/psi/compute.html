@@ -1,0 +1,314 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>outrigger.psi.compute &mdash; BED annotator 0.2.9 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.2.9',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="BED annotator 0.2.9 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">BED annotator 0.2.9 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for outrigger.psi.compute</h1><div class="highlight"><pre>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">import</span> <span class="nn">joblib</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+
+<span class="kn">from</span> <span class="nn">..common</span> <span class="kn">import</span> <span class="n">ILLEGAL_JUNCTIONS</span><span class="p">,</span> <span class="n">MIN_READS</span><span class="p">,</span> <span class="n">READS</span>
+<span class="kn">from</span> <span class="nn">..util</span> <span class="kn">import</span> <span class="n">progress</span><span class="p">,</span> <span class="n">done</span>
+
+
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">()</span>
+
+<span class="n">idx</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">IndexSlice</span>
+
+
+<div class="viewcode-block" id="filter_and_sum"><a class="viewcode-back" href="../../../outrigger.psi.compute.html#outrigger.psi.compute.filter_and_sum">[docs]</a><span class="k">def</span> <span class="nf">filter_and_sum</span><span class="p">(</span><span class="n">reads</span><span class="p">,</span> <span class="n">min_reads</span><span class="p">,</span> <span class="n">junctions</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Require minimum reads and sum junctions from the same sample</span>
+
+<span class="sd">    Remove all samples that don&#39;t have enough reads</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s">&#39;outrigger.psi.filter_and_sum&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">reads</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">reads</span>
+
+    <span class="c"># Remove all samples that don&#39;t have enough reads in all required junctions</span>
+    <span class="n">reads</span> <span class="o">=</span> <span class="n">reads</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="n">x</span> <span class="o">&gt;=</span> <span class="n">min_reads</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">junctions</span><span class="p">))</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;filtered reads:</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">reads</span><span class="o">.</span><span class="n">head</span><span class="p">()))</span>
+
+    <span class="c"># Sum all reads from junctions in the same samples (level=1), remove NAs</span>
+    <span class="n">reads</span> <span class="o">=</span> <span class="n">reads</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;summed reads:</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">reads</span><span class="o">.</span><span class="n">head</span><span class="p">()))</span>
+
+    <span class="k">return</span> <span class="n">reads</span>
+
+</div>
+<div class="viewcode-block" id="maybe_get_isoform_reads"><a class="viewcode-back" href="../../../outrigger.psi.compute.html#outrigger.psi.compute.maybe_get_isoform_reads">[docs]</a><span class="k">def</span> <span class="nf">maybe_get_isoform_reads</span><span class="p">(</span><span class="n">splice_junction_reads</span><span class="p">,</span> <span class="n">junction_locations</span><span class="p">,</span>
+                            <span class="n">isoform_junctions</span><span class="p">,</span> <span class="n">reads_col</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;If there are junction reads at a junction_locations, return the reads</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    splice_junction_reads : pandas.DataFrame</span>
+<span class="sd">        A table of the number of junction reads observed in each sample.</span>
+<span class="sd">        *Important:* This must be multi-indexed by the junction and sample id</span>
+<span class="sd">    junction_locations : pandas.Series</span>
+<span class="sd">        Mapping of junction names (from var:`isoform_junctions`) to their</span>
+<span class="sd">        chromosomal locations</span>
+<span class="sd">    isoform_junctions : list of str</span>
+<span class="sd">        Names of the isoform_junctions in question, e.g.</span>
+<span class="sd">        [&#39;junction12&#39;, &#39;junction13&#39;]</span>
+<span class="sd">    reads_col : str</span>
+<span class="sd">        Name of the column containing the number of reads in</span>
+<span class="sd">        `splice_junction_reads`</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    reads : pandas.Series</span>
+<span class="sd">        Number of reads at each junction for this isoform</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">junctions</span> <span class="o">=</span> <span class="n">junction_locations</span><span class="p">[</span><span class="n">isoform_junctions</span><span class="p">]</span>
+    <span class="n">junction_names</span> <span class="o">=</span> <span class="n">splice_junction_reads</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">levels</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="c"># Get junctions that can&#39;t exist for this to be a valid event</span>
+    <span class="n">illegal_junctions</span> <span class="o">=</span> <span class="n">junction_locations</span><span class="p">[</span><span class="n">ILLEGAL_JUNCTIONS</span><span class="p">]</span>
+    <span class="n">illegal_samples</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">illegal_junctions</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">illegal_junctions</span> <span class="o">=</span> <span class="n">illegal_junctions</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;|&#39;</span><span class="p">)</span>
+
+        <span class="c"># Get samples that have illegal junctions</span>
+        <span class="k">if</span> <span class="n">junction_names</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">illegal_junctions</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">illegal_reads</span> <span class="o">=</span> <span class="n">splice_junction_reads</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+                <span class="n">idx</span><span class="p">[</span><span class="n">illegal_junctions</span><span class="p">,</span> <span class="p">:],</span> <span class="n">reads_col</span><span class="p">]</span>
+            <span class="n">illegal_samples</span> <span class="o">=</span> <span class="n">illegal_reads</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s">&#39;sample_id&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">junction_names</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">junctions</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">reads_subset</span> <span class="o">=</span> <span class="n">splice_junction_reads</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idx</span><span class="p">[</span><span class="n">junctions</span><span class="p">,</span> <span class="p">:],</span> <span class="n">reads_col</span><span class="p">]</span>
+        <span class="n">legal_samples</span> <span class="o">=</span> <span class="n">reads_subset</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s">&#39;sample_id&#39;</span><span class="p">)</span>
+        <span class="n">legal_samples</span> <span class="o">=</span> <span class="n">legal_samples</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">illegal_samples</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">reads_subset</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idx</span><span class="p">[:,</span> <span class="n">legal_samples</span><span class="p">]]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">()</span>
+
+</div>
+<span class="k">def</span> <span class="nf">_single_event_psi</span><span class="p">(</span><span class="n">event_id</span><span class="p">,</span> <span class="n">event_df</span><span class="p">,</span> <span class="n">splice_junction_reads</span><span class="p">,</span>
+                      <span class="n">isoform1_junctions</span><span class="p">,</span> <span class="n">isoform2_junctions</span><span class="p">,</span> <span class="n">reads_col</span><span class="o">=</span><span class="n">READS</span><span class="p">,</span>
+                      <span class="n">min_reads</span><span class="o">=</span><span class="n">MIN_READS</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="n">junction_locations</span> <span class="o">=</span> <span class="n">event_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">isoform1</span> <span class="o">=</span> <span class="n">maybe_get_isoform_reads</span><span class="p">(</span><span class="n">splice_junction_reads</span><span class="p">,</span>
+                                       <span class="n">junction_locations</span><span class="p">,</span>
+                                       <span class="n">isoform1_junctions</span><span class="p">,</span> <span class="n">reads_col</span><span class="p">)</span>
+    <span class="n">isoform2</span> <span class="o">=</span> <span class="n">maybe_get_isoform_reads</span><span class="p">(</span><span class="n">splice_junction_reads</span><span class="p">,</span>
+                                       <span class="n">junction_locations</span><span class="p">,</span>
+                                       <span class="n">isoform2_junctions</span><span class="p">,</span> <span class="n">reads_col</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">debug</span> <span class="ow">and</span> <span class="n">log</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">junction_cols</span> <span class="o">=</span> <span class="n">isoform1_junctions</span> <span class="o">+</span> <span class="n">isoform2_junctions</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;--- junction columns of event ---</span><span class="se">\n</span><span class="si">%s</span><span class="s">&#39;</span><span class="p">,</span>
+                  <span class="nb">repr</span><span class="p">(</span><span class="n">junction_locations</span><span class="p">[</span><span class="n">junction_cols</span><span class="p">]))</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;--- isoform1 ---</span><span class="se">\n</span><span class="si">%s</span><span class="s">&#39;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">isoform1</span><span class="p">))</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;--- isoform2 ---</span><span class="se">\n</span><span class="si">%s</span><span class="s">&#39;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">isoform2</span><span class="p">))</span>
+
+    <span class="n">isoform1</span> <span class="o">=</span> <span class="n">filter_and_sum</span><span class="p">(</span><span class="n">isoform1</span><span class="p">,</span> <span class="n">min_reads</span><span class="p">,</span> <span class="n">isoform1_junctions</span><span class="p">)</span>
+    <span class="n">isoform2</span> <span class="o">=</span> <span class="n">filter_and_sum</span><span class="p">(</span><span class="n">isoform2</span><span class="p">,</span> <span class="n">min_reads</span><span class="p">,</span> <span class="n">isoform2_junctions</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">isoform1</span><span class="o">.</span><span class="n">empty</span> <span class="ow">and</span> <span class="n">isoform2</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="c"># If both are empty after filtering this event --&gt; don&#39;t calculate</span>
+        <span class="k">return</span>
+
+    <span class="k">if</span> <span class="n">debug</span> <span class="ow">and</span> <span class="n">log</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">- After filter and sum -&#39;</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;--- isoform1 ---</span><span class="se">\n</span><span class="si">%s</span><span class="s">&#39;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">isoform1</span><span class="p">))</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;--- isoform2 ---</span><span class="se">\n</span><span class="si">%s</span><span class="s">&#39;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">isoform2</span><span class="p">))</span>
+
+    <span class="n">isoform1</span><span class="p">,</span> <span class="n">isoform2</span> <span class="o">=</span> <span class="n">isoform1</span><span class="o">.</span><span class="n">align</span><span class="p">(</span><span class="n">isoform2</span><span class="p">,</span> <span class="s">&#39;outer&#39;</span><span class="p">)</span>
+
+    <span class="n">isoform1</span> <span class="o">=</span> <span class="n">isoform1</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">isoform2</span> <span class="o">=</span> <span class="n">isoform2</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">multiplier</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">isoform2_junctions</span><span class="p">))</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">isoform1_junctions</span><span class="p">)</span>
+    <span class="n">psi</span> <span class="o">=</span> <span class="n">isoform2</span> <span class="o">/</span> <span class="p">(</span><span class="n">isoform2</span> <span class="o">+</span> <span class="n">multiplier</span> <span class="o">*</span> <span class="n">isoform1</span><span class="p">)</span>
+    <span class="n">psi</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">event_id</span>
+
+    <span class="k">if</span> <span class="n">debug</span> <span class="ow">and</span> <span class="n">log</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&#39;--- Psi ---</span><span class="se">\n</span><span class="si">%s</span><span class="s">&#39;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">psi</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">psi</span>
+
+
+<span class="k">def</span> <span class="nf">_maybe_parallelize_psi</span><span class="p">(</span><span class="n">event_annotation</span><span class="p">,</span> <span class="n">splice_junction_reads</span><span class="p">,</span>
+                           <span class="n">isoform1_junctions</span><span class="p">,</span> <span class="n">isoform2_junctions</span><span class="p">,</span>
+                           <span class="n">reads_col</span><span class="o">=</span><span class="n">READS</span><span class="p">,</span> <span class="n">min_reads</span><span class="o">=</span><span class="n">MIN_READS</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
+                           <span class="n">debug</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="c"># There are multiple rows with the same event id because the junctions</span>
+    <span class="c"># are the same, but the flanking exons may be a little wider or shorter,</span>
+    <span class="c"># but ultimately the event Psi is calculated only on the junctions so the</span>
+    <span class="c"># flanking exons don&#39;t matter for this. But, all the exons are in</span>
+    <span class="c"># exon\d.bed in the index! And you, the lovely user, can decide what you</span>
+    <span class="c"># want to do with them!</span>
+    <span class="n">grouped</span> <span class="o">=</span> <span class="n">event_annotation</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">n_events</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">grouped</span><span class="o">.</span><span class="n">size</span><span class="p">())</span>
+
+    <span class="k">if</span> <span class="n">n_jobs</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">progress</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\t</span><span class="s">Iterating over {} events ...</span><span class="se">\n</span><span class="s">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">n_events</span><span class="p">))</span>
+        <span class="n">psis</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">event_id</span><span class="p">,</span> <span class="n">event_df</span> <span class="ow">in</span> <span class="n">grouped</span><span class="p">:</span>
+            <span class="n">psi</span> <span class="o">=</span> <span class="n">_single_event_psi</span><span class="p">(</span><span class="n">event_id</span><span class="p">,</span> <span class="n">event_df</span><span class="p">,</span> <span class="n">splice_junction_reads</span><span class="p">,</span>
+                                    <span class="n">isoform1_junctions</span><span class="p">,</span> <span class="n">isoform2_junctions</span><span class="p">,</span>
+                                    <span class="n">reads_col</span><span class="p">,</span> <span class="n">min_reads</span><span class="p">,</span> <span class="n">debug</span><span class="p">,</span> <span class="n">log</span><span class="p">)</span>
+            <span class="n">psis</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">psi</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">processors</span> <span class="o">=</span> <span class="n">n_jobs</span> <span class="k">if</span> <span class="n">n_jobs</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">joblib</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span>
+        <span class="n">progress</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="s">Parallelizing {} events&#39; Psi calculation across {} &quot;</span>
+                 <span class="s">&quot;CPUs ...</span><span class="se">\n</span><span class="s">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">n_events</span><span class="p">,</span> <span class="n">processors</span><span class="p">))</span>
+        <span class="n">psis</span> <span class="o">=</span> <span class="n">joblib</span><span class="o">.</span><span class="n">Parallel</span><span class="p">(</span><span class="n">n_jobs</span><span class="o">=</span><span class="n">n_jobs</span><span class="p">)(</span>
+            <span class="n">joblib</span><span class="o">.</span><span class="n">delayed</span><span class="p">(</span><span class="n">_single_event_psi</span><span class="p">)(</span>
+                <span class="n">event_id</span><span class="p">,</span> <span class="n">event_df</span><span class="p">,</span> <span class="n">splice_junction_reads</span><span class="p">,</span>
+                <span class="n">isoform1_junctions</span><span class="p">,</span> <span class="n">isoform2_junctions</span><span class="p">,</span> <span class="n">reads_col</span><span class="p">,</span>
+                <span class="n">min_reads</span><span class="p">)</span> <span class="k">for</span> <span class="n">event_id</span><span class="p">,</span> <span class="n">event_df</span> <span class="ow">in</span> <span class="n">grouped</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">psis</span>
+
+
+<div class="viewcode-block" id="calculate_psi"><a class="viewcode-back" href="../../../outrigger.psi.compute.html#outrigger.psi.compute.calculate_psi">[docs]</a><span class="k">def</span> <span class="nf">calculate_psi</span><span class="p">(</span><span class="n">event_annotation</span><span class="p">,</span> <span class="n">splice_junction_reads</span><span class="p">,</span>
+                  <span class="n">isoform1_junctions</span><span class="p">,</span> <span class="n">isoform2_junctions</span><span class="p">,</span> <span class="n">reads_col</span><span class="o">=</span><span class="n">READS</span><span class="p">,</span>
+                  <span class="n">min_reads</span><span class="o">=</span><span class="n">MIN_READS</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Compute percent-spliced-in of events based on junction reads</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    event_annotation : pandas.DataFrame</span>
+<span class="sd">        A table where each row represents a single splicing event. The required</span>
+<span class="sd">       columns are the ones specified in `isoform1_junctions`,</span>
+<span class="sd">        `isoform2_junctions`, and `event_col`.</span>
+<span class="sd">    splice_junction_reads : pandas.DataFrame</span>
+<span class="sd">        A table of the number of junction reads observed in each sample.</span>
+<span class="sd">        *Important:* This must be multi-indexed by the junction and sample id</span>
+<span class="sd">    reads_col : str, optional (default &quot;reads&quot;)</span>
+<span class="sd">        The name of the column in `splice_junction_reads` which represents the</span>
+<span class="sd">        number of reads observed at a splice junction of a particular sample.</span>
+<span class="sd">    min_reads : int, optional (default 10)</span>
+<span class="sd">        The minimum number of reads that need to be observed at each junction</span>
+<span class="sd">        for an event to be counted.</span>
+<span class="sd">    isoform1_junctions : list</span>
+<span class="sd">        Columns in `event_annotation` which represent junctions that</span>
+<span class="sd">        correspond to isoform1, the Psi=0 isoform, e.g. [&#39;junction13&#39;] for SE</span>
+<span class="sd">        (junctions between exon1 and exon3)</span>
+<span class="sd">    isoform2_junctions : list</span>
+<span class="sd">        Columns in `event_annotation` which represent junctions that</span>
+<span class="sd">        correspond to isoform2, the Psi=1 isoform, e.g.</span>
+<span class="sd">        [&#39;junction12&#39;, &#39;junction23&#39;] (junctions between exon1, exon2, and</span>
+<span class="sd">        junction between exon2 and exon3)</span>
+<span class="sd">    event_col : str</span>
+<span class="sd">        Column in `event_annotation` which is a unique identifier for each</span>
+<span class="sd">        row, e.g.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    psi : pandas.DataFrame</span>
+<span class="sd">        An (samples, events) dataframe of the percent spliced-in values</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s">&#39;outrigger.psi.calculate_psi&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+
+    <span class="n">psis</span> <span class="o">=</span> <span class="n">_maybe_parallelize_psi</span><span class="p">(</span><span class="n">event_annotation</span><span class="p">,</span> <span class="n">splice_junction_reads</span><span class="p">,</span>
+                                  <span class="n">isoform1_junctions</span><span class="p">,</span> <span class="n">isoform2_junctions</span><span class="p">,</span>
+                                  <span class="n">reads_col</span><span class="p">,</span> <span class="n">min_reads</span><span class="p">,</span> <span class="n">n_jobs</span><span class="p">,</span> <span class="n">debug</span><span class="p">,</span> <span class="n">log</span><span class="p">)</span>
+
+    <span class="c"># use only non-empty psi outputs</span>
+    <span class="n">psis</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">,</span> <span class="n">psis</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">psi_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">psis</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="n">psi_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="n">splice_junction_reads</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">levels</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">done</span><span class="p">(</span><span class="n">n_tabs</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+    <span class="n">psi_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">splice_junction_reads</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">psi_df</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">BED annotator 0.2.9 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2015, Olga Botvinnik.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>
