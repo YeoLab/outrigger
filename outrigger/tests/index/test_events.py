@@ -226,6 +226,8 @@ class TestEventMaker(object):
         test_events = event_maker.find_events()
 
         out, err = capsys.readouterr()
+        assert 'Combining all events into large dataframes' in out
+        assert 'Done.' in out
 
         for splice_abbrev in SPLICE_ABBREVS:
             test = test_events[splice_abbrev]
@@ -360,26 +362,103 @@ class TestSpliceGraph(object):
 
         assert_graph_items_equal(test.graph, test.items, graph, items)
 
-    def test_exons_one_junction_upstream(self, splice_graph):
-        test = splice_graph.exons_one_junction_downstream(0)
-        assert False
 
-    def test_exons_two_junctions_downstream(self, splice_graph):
-        test = splice_graph.exons_two_junctions_downstream(0)
-        assert False
+    @pytest.fixture
+    def exon1_i(self, strand):
+        if strand == '+':
+            return 0
+        if strand == '-':
+            return 3
 
-    def test_junctions_between_exons(self, splice_graph):
-        test = splice_graph._junctions_between_exons(0, 1)
-        assert False
+    @pytest.fixture
+    def exon1_name(self, splice_graph, exon1_i):
+        return splice_graph.exons[exon1_i]
 
-    def test__skipped_exon(self, splice_graph):
-        test = splice_graph._skipped_exon(0)
-        assert False
+    def test_exons_one_junction_upstream(self, splice_graph, exon1_i, strand):
+        test = tuple(splice_graph.exons_one_junction_downstream(exon1_i))
+        if strand == '+':
+            true = (1, 2, 5, 6, 3)
+        if strand == '-':
+            true = (2, 1, 0)
+        assert test == true
 
-    def test__mutually_exclusive_exon(self, splice_graph):
-        test = splice_graph._mutually_exclusive_exon(0)
-        assert False
+    def test_exons_two_junctions_downstream(self, splice_graph, exon1_i, strand):
+        test = tuple(splice_graph.exons_two_junctions_downstream(exon1_i))
+        if strand == '+':
+            true = (2, 3, 2, 3, 7)
+        if strand == '-':
+            true = (0, 1, 4, 0, 5, 6)
+        assert test == true
 
-    def test_single_exon_alternative_events(self, splice_graph):
-        assert False
-        # test = splice_graph.single_exon_alternative_events(1)
+    def test_junctions_between_exons(self, splice_graph, strand, exon1_i):
+        if strand == '+':
+            test = tuple(splice_graph.junctions_between_exons(exon1_i, 1))
+            true = (8,)
+        if strand == '-':
+            test = tuple(splice_graph.junctions_between_exons(exon1_i, 0))
+            true = (16,)
+        assert test == true
+
+    @pytest.fixture
+    def skipped_exon_events(self, strand):
+        if strand == '+':
+            return {('exon:chr1:150-175:+', 'exon:chr1:200-250:+', 'exon:chr1:300-350:+'): ['junction:chr1:176-299:+',  # noqa
+                                                                         'junction:chr1:176-199:+',  # noqa
+                                                                         'junction:chr1:251-299:+'],  # noqa
+ ('exon:chr1:150-175:+', 'exon:chr1:225-250:+', 'exon:chr1:300-350:+'): ['junction:chr1:176-299:+',  # noqa
+                                                                         'junction:chr1:176-224:+',  # noqa
+                                                                         'junction:chr1:251-299:+'],  # noqa
+ ('exon:chr1:150-175:+', 'exon:chr1:225-250:+', 'exon:chr1:400-425:+'): ['junction:chr1:176-399:+',  # noqa
+                                                                         'junction:chr1:176-224:+',  # noqa
+                                                                         'junction:chr1:251-399:+'],  # noqa
+ ('exon:chr1:150-175:+', 'exon:chr1:225-275:+', 'exon:chr1:300-350:+'): ['junction:chr1:176-299:+',  # noqa
+                                                                         'junction:chr1:176-224:+',  # noqa
+                                                                         'junction:chr1:276-299:+'],  # noqa
+ ('exon:chr1:150-175:+', 'exon:chr1:300-350:+', 'exon:chr1:400-425:+'): ['junction:chr1:176-399:+',  # noqa
+                                                                         'junction:chr1:176-299:+',  # noqa
+                                                                         'junction:chr1:351-399:+']}  # noqa
+        if strand == '-':
+            return {('exon:chr1:400-425:-', 'exon:chr1:225-250:-', 'exon:chr1:150-175:-'): ['junction:chr1:176-399:-',  # noqa
+                                                                         'junction:chr1:251-399:-',  # noqa
+                                                                         'junction:chr1:176-224:-'],  # noqa
+ ('exon:chr1:400-425:-', 'exon:chr1:300-350:-', 'exon:chr1:150-175:-'): ['junction:chr1:176-399:-',  # noqa
+                                                                         'junction:chr1:351-399:-',  # noqa
+                                                                         'junction:chr1:176-299:-'],  # noqa
+ ('exon:chr1:400-425:-', 'exon:chr1:300-350:-', 'exon:chr1:225-250:-'): ['junction:chr1:251-399:-',  # noqa
+                                                                         'junction:chr1:351-399:-',  # noqa
+                                                                         'junction:chr1:251-299:-']}  # noqa
+
+
+    @pytest.fixture
+    def mutually_exclusive_events(self, strand):
+        if strand == '+':
+            return {('exon:chr1:150-175:+', 'exon:chr1:225-250:+', 'exon:chr1:300-350:+', 'exon:chr1:400-425:+'): ['junction:chr1:176-299:+',  # noqa
+                                                                                                'junction:chr1:351-399:+',  # noqa
+                                                                                                'junction:chr1:176-224:+',  # noqa
+                                                                                                'junction:chr1:251-399:+']}  # noqa
+        if strand == '-':
+            return {('exon:chr1:400-425:-', 'exon:chr1:300-350:-', 'exon:chr1:225-250:-', 'exon:chr1:150-175:-'): ['junction:chr1:251-399:-',  # noqa
+                                                                                                'junction:chr1:176-224:-',  # noqa
+                                                                                                'junction:chr1:351-399:-',  # noqa
+                                                                                                'junction:chr1:176-299:-']}  # noqa
+
+    def test__skipped_exon(self, splice_graph, exon1_i, exon1_name,
+                           skipped_exon_events):
+        test = splice_graph._skipped_exon(exon1_i, exon1_name)
+        true = skipped_exon_events
+        pdt.assert_dict_equal(test, true)
+
+    def test__mutually_exclusive_exon(self, splice_graph, exon1_i, exon1_name,
+                                      mutually_exclusive_events):
+        test = splice_graph._mutually_exclusive_exon(exon1_i, exon1_name)
+        true = mutually_exclusive_events
+        pdt.assert_dict_equal(test, true)
+
+    def test_single_exon_alternative_events(self, splice_graph, exon1_i,
+                                            exon1_name,
+                                            mutually_exclusive_events,
+                                            skipped_exon_events):
+        test = splice_graph.single_exon_alternative_events(
+            exon1_i, exon1_name)
+        true = {'se': skipped_exon_events, 'mxe': mutually_exclusive_events}
+        pdt.assert_dict_equal(test, true)
