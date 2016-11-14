@@ -207,7 +207,7 @@ class SpliceGraph(object):
                 try:
                     for exon4_i in exon4_is:
                         exon4_name = self.items[exon4_i]
-                        print(exon1_name, exon2.name, exon3.name, exon4_name)
+                        # print(exon1_name, exon2.name, exon3.name, exon4_name)
                         # Isoform 1 - corresponds to Psi=0. Inclusion of
                         # exon3
                         exon13_junction = self.junctions_between_exons(
