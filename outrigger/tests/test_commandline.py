@@ -213,7 +213,7 @@ class TestCommandLine(object):
 
         dir1 = output_folder
         dir2 = tasic2016_outrigger_output
-        assert_directories_equal(dir1, dir2, ignore=['.DS_Store', 'psi'])
+        assert_directories_equal(dir1, dir2, ignore=['.DS_Store'])
 
     def test_main_psi_bam(self, tmpdir, tasic2016_outrigger_output_index,
                           tasic2016_outrigger_output_bam, bam_filenames):
