@@ -8,3 +8,4 @@ pybedtools
 biopython
 joblib
 pysam
+pyflakes
