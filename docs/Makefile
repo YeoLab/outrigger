@@ -58,8 +58,6 @@ clean:
 	rm -rf apidoc
 
 html:
-	cp ../examples/*.ipynb tutorial/;
-	cd tutorial ; make notebooks ; cd ..
 	sphinx-apidoc -l -d 4 -e --force -o . ../outrigger
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 	@echo
