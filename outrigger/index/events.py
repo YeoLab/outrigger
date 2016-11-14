@@ -389,15 +389,11 @@ class EventMaker(object):
     def find_events(self, n_jobs=-1):
         """For each exon, test if it is part of an alternative event"""
 
-        def make_splice_graph_find_events(df, junction_col=self.junction_col,
-                                          exon_col=self.exon_col):
-            splice_graph = SpliceGraph(df, junction_col, exon_col)
-            return splice_graph.alternative_events()
-
         events = {abbrev: {} for abbrev in SPLICE_ABBREVS}
 
         new_events = joblib.Parallel(n_jobs)(
-            joblib.delayed(make_splice_graph_find_events)(df)
+            joblib.delayed(make_splice_graph_find_events)(
+                df, self.junction_col, self.exon_col)
             for chrom, df in self.junction_exon_triples.groupby(CHROM))
 
         for chrom_events in new_events:
@@ -419,3 +415,8 @@ class EventMaker(object):
             events_dfs[event_type] = events_df
         done()
         return events_dfs
+
+
+def make_splice_graph_find_events(df, junction_col, exon_col):
+    splice_graph = SpliceGraph(df, junction_col, exon_col)
+    return splice_graph.alternative_events()
