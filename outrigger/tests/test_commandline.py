@@ -63,6 +63,9 @@ def assert_directories_equal(dir1, dir2, ignore=None,
                 df1.index = range(len(df1.index))
                 df2.index = range(len(df2.index))
 
+                df1.sort_index(axis=1, inplace=True)
+                df2.sort_index(axis=1, inplace=True)
+
                 pdt.assert_frame_equal(df1, df2)
                 continue
 
@@ -210,7 +213,7 @@ class TestCommandLine(object):
 
         dir1 = output_folder
         dir2 = tasic2016_outrigger_output
-        assert_directories_equal(dir1, dir2, ignore=['.DS_Store', 'psi'])
+        assert_directories_equal(dir1, dir2, ignore=['.DS_Store'])
 
     def test_main_psi_bam(self, tmpdir, tasic2016_outrigger_output_index,
                           tasic2016_outrigger_output_bam, bam_filenames):

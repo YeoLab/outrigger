@@ -13,6 +13,9 @@ help:
 	@echo "release - package and upload a release"
 	@echo "dist - package"
 	@echo "install - install the package to the active Python's site-packages"
+	@echo "tasic2016 - Run outrigger on mouse brain single-cell dataset"
+	@echo "treutlein2014 - Run outrigger on mouse lung single-cell dataset"
+	@echo "arabdopsis - Run outrigger to check for ENSEMBL compatability"
 
 clean: clean-build clean-pyc clean-test clean-output
 
@@ -67,11 +70,13 @@ dist: clean
 install: clean
 	python setup.py install
 
+N_JOBS = -1
+
 tasic2016:
 	rm -rf tasic2016_outrigger_output
-	outrigger index --sj-out-tab outrigger/tests/data/tasic2016/unprocessed/sj_out_tab/*SJ.out.tab --gtf outrigger/tests/data/tasic2016/unprocessed/gtf/gencode.vM10.annotation.subset.gtf --output tasic2016_outrigger_output
+	outrigger index --sj-out-tab outrigger/tests/data/tasic2016/unprocessed/sj_out_tab/*SJ.out.tab --gtf outrigger/tests/data/tasic2016/unprocessed/gtf/gencode.vM10.annotation.subset.gtf --output tasic2016_outrigger_output --n-jobs $(N_JOBS)
 	outrigger validate --genome ~/genomes/mm10/mm10.chrom.sizes --fasta ~/genomes/mm10/gencode/m10/GRCm38.primary_assembly.genome.fa --output tasic2016_outrigger_output
-	outrigger psi --output tasic2016_outrigger_output
+	outrigger psi --output tasic2016_outrigger_output --n-jobs $(N_JOBS)
 
 treutlein2014: clean-output
 	rm -rf treutlein2014
@@ -84,5 +89,6 @@ arabdopsis: clean-output
 	outrigger index \
 		--sj-out-tab outrigger/tests/data/arabdopsis/unprocessed/rna.chr4.subset.SJ.out.tab \
 		--gtf outrigger/tests/data/arabdopsis/unprocessed/Arabidopsis_thaliana.TAIR10.31.chr4.subset.gtf \
-		--min-reads 1
-	outrigger psi
+		--min-reads 1 --n-jobs $(N_JOBS) \
+		--output arabdopsis_outrigger_output
+	outrigger psi --n-jobs $(N_JOBS) --output arabdopsis_outrigger_output

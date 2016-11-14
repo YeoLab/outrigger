@@ -7,8 +7,6 @@ import pandas.util.testing as pdt
 import pytest
 from graphlite import connect, V
 
-from outrigger.common import SPLICE_TYPES
-
 logging.basicConfig(level=logging.DEBUG)
 
 
@@ -190,23 +188,19 @@ class TestEventMaker(object):
         from outrigger.index.events import EventMaker
         return EventMaker(junction_exon_triples)
 
-    def test_init(self, junction_exon_triples, graph_items):
-        from outrigger.index.events import EventMaker
+    def test_init(self, junction_exon_triples):
+        from outrigger.index.events import EventMaker, CHROM
 
-        graph, items = graph_items
+        junction_exon_triples_chrom = junction_exon_triples.copy()
+        junction_exon_triples_chrom[CHROM] = \
+            junction_exon_triples_chrom['junction'].str.split(':').str[1]
 
         test = EventMaker(junction_exon_triples)
         pdt.assert_frame_equal(test.junction_exon_triples,
-                               junction_exon_triples)
+                               junction_exon_triples_chrom)
         assert test.db is None
-        exons = tuple(junction_exon_triples.exon.unique())
-        junctions = tuple(junction_exon_triples.junction.unique())
-
-        pdt.assert_equal(test.exons, exons)
-        pdt.assert_equal(test.junctions, junctions)
-        pdt.assert_equal(sorted(test.items), sorted(items))
-
-        assert_graph_items_equal(test.graph, test.items, graph, items)
+        assert test.junction_col == 'junction'
+        assert test.exon_col == 'exon'
 
     @pytest.fixture
     def strand_name(self, strand):
@@ -215,34 +209,35 @@ class TestEventMaker(object):
         else:
             return "negative"
 
-    @pytest.fixture(params=SPLICE_TYPES)
-    def splice_type(self, request):
-        """Possible splice types, returned with both long names and abbrevs"""
-        longname, abbrev = request.param
-        return longname, abbrev
+    @pytest.fixture
+    def events_csv(self, simulated_outrigger_index, strand_name):
+        return os.path.join(simulated_outrigger_index, strand_name,
+                            'events.csv')
 
     def test_finding_events(self, event_maker, capsys, strand_name,
                             splice_type, simulated_outrigger_index):
         """Test finding SE and MXE events in one function"""
-        longname, abbrev = splice_type
-        test = getattr(event_maker, longname)()
+        from outrigger.common import SPLICE_ABBREVS
+
+        test_events = event_maker.find_events()
+
         out, err = capsys.readouterr()
-        assert 'Trying out' in out
-        assert 'exons tested' in out
-        assert '%' in out
+        assert 'Combining all events into large dataframes' in out
+        assert 'Done.' in out
 
-        longname, abbrev = splice_type
-        template = os.path.join(simulated_outrigger_index,
-                                abbrev, 'events_{}_strand.csv')
-        csv = template.format(strand_name)
+        for splice_abbrev in SPLICE_ABBREVS:
+            test = test_events[splice_abbrev]
 
-        true = pd.read_csv(csv, index_col=0)
+            events_csv = os.path.join(
+                simulated_outrigger_index, splice_abbrev,
+                'events_{}_strand.csv'.format(strand_name))
+            true = pd.read_csv(events_csv, index_col=0)
 
-        sort_by = [x for x in true.columns if re.match('exon\d', x)]
-        test = test.sort_values(by=sort_by)
-        true = true.sort_values(by=sort_by)
+            sort_by = [x for x in true.columns if re.match('exon\d', x)]
+            test.sort_values(by=sort_by, inplace=True)
+            true.sort_values(by=sort_by, inplace=True)
 
-        pdt.assert_frame_equal(test, true)
+            pdt.assert_frame_equal(test, true)
 
     def test_a5ss(self, event_maker, strand):
         true = {('exon:chr1:225-250:+',  # Exon 2
@@ -337,3 +332,128 @@ def graph_items(exon_start_stop, transcripts, chrom, strand):
                         continue
     items = tuple(items)
     return graph, items
+
+
+class TestSpliceGraph(object):
+
+    @pytest.fixture
+    def splice_graph(self, junction_exon_triples):
+        from outrigger.index.events import SpliceGraph
+
+        return SpliceGraph(junction_exon_triples)
+
+    def test___init__(self, junction_exon_triples, graph_items):
+        from outrigger.index.events import SpliceGraph
+
+        test = SpliceGraph(junction_exon_triples)
+
+        graph, items = graph_items
+
+        exons = tuple(junction_exon_triples.exon.unique())
+        junctions = tuple(junction_exon_triples.junction.unique())
+
+        pdt.assert_equal(test.exons, exons)
+        pdt.assert_equal(test.junctions, junctions)
+        pdt.assert_equal(sorted(test.items), sorted(items))
+
+        assert_graph_items_equal(test.graph, test.items, graph, items)
+
+    @pytest.fixture
+    def exon1_i(self, strand):
+        if strand == '+':
+            return 0
+        if strand == '-':
+            return 3
+
+    @pytest.fixture
+    def exon1_name(self, splice_graph, exon1_i):
+        return splice_graph.exons[exon1_i]
+
+    def test_exons_one_junction_upstream(self, splice_graph, exon1_i, strand):
+        test = tuple(splice_graph.exons_one_junction_downstream(exon1_i))
+        if strand == '+':
+            true = (1, 2, 5, 6, 3)
+        if strand == '-':
+            true = (2, 1, 0)
+        assert test == true
+
+    def test_exons_two_junctions_downstream(self, splice_graph, exon1_i,
+                                            strand):
+        test = tuple(splice_graph.exons_two_junctions_downstream(exon1_i))
+        if strand == '+':
+            true = (2, 3, 2, 3, 7)
+        if strand == '-':
+            true = (0, 1, 4, 0, 5, 6)
+        assert test == true
+
+    def test_junctions_between_exons(self, splice_graph, strand, exon1_i):
+        if strand == '+':
+            test = tuple(splice_graph.junctions_between_exons(exon1_i, 1))
+            true = (8,)
+        if strand == '-':
+            test = tuple(splice_graph.junctions_between_exons(exon1_i, 0))
+            true = (16,)
+        assert test == true
+
+    @pytest.fixture
+    def skipped_exon_events(self, strand):
+        if strand == '+':
+            return {('exon:chr1:150-175:+', 'exon:chr1:200-250:+', 'exon:chr1:300-350:+'): ['junction:chr1:176-299:+',  # noqa
+                                                                         'junction:chr1:176-199:+',  # noqa
+                                                                         'junction:chr1:251-299:+'],  # noqa
+ ('exon:chr1:150-175:+', 'exon:chr1:225-250:+', 'exon:chr1:300-350:+'): ['junction:chr1:176-299:+',  # noqa
+                                                                         'junction:chr1:176-224:+',  # noqa
+                                                                         'junction:chr1:251-299:+'],  # noqa
+ ('exon:chr1:150-175:+', 'exon:chr1:225-250:+', 'exon:chr1:400-425:+'): ['junction:chr1:176-399:+',  # noqa
+                                                                         'junction:chr1:176-224:+',  # noqa
+                                                                         'junction:chr1:251-399:+'],  # noqa
+ ('exon:chr1:150-175:+', 'exon:chr1:225-275:+', 'exon:chr1:300-350:+'): ['junction:chr1:176-299:+',  # noqa
+                                                                         'junction:chr1:176-224:+',  # noqa
+                                                                         'junction:chr1:276-299:+'],  # noqa
+ ('exon:chr1:150-175:+', 'exon:chr1:300-350:+', 'exon:chr1:400-425:+'): ['junction:chr1:176-399:+',  # noqa
+                                                                         'junction:chr1:176-299:+',  # noqa
+                                                                         'junction:chr1:351-399:+']}  # noqa
+        if strand == '-':
+            return {('exon:chr1:400-425:-', 'exon:chr1:225-250:-', 'exon:chr1:150-175:-'): ['junction:chr1:176-399:-',  # noqa
+                                                                         'junction:chr1:251-399:-',  # noqa
+                                                                         'junction:chr1:176-224:-'],  # noqa
+ ('exon:chr1:400-425:-', 'exon:chr1:300-350:-', 'exon:chr1:150-175:-'): ['junction:chr1:176-399:-',  # noqa
+                                                                         'junction:chr1:351-399:-',  # noqa
+                                                                         'junction:chr1:176-299:-'],  # noqa
+ ('exon:chr1:400-425:-', 'exon:chr1:300-350:-', 'exon:chr1:225-250:-'): ['junction:chr1:251-399:-',  # noqa
+                                                                         'junction:chr1:351-399:-',  # noqa
+                                                                         'junction:chr1:251-299:-']}  # noqa
+
+    @pytest.fixture
+    def mutually_exclusive_events(self, strand):
+        if strand == '+':
+            return {('exon:chr1:150-175:+', 'exon:chr1:225-250:+', 'exon:chr1:300-350:+', 'exon:chr1:400-425:+'): ['junction:chr1:176-299:+',  # noqa
+                                                                                                'junction:chr1:351-399:+',  # noqa
+                                                                                                'junction:chr1:176-224:+',  # noqa
+                                                                                                'junction:chr1:251-399:+']}  # noqa
+        if strand == '-':
+            return {('exon:chr1:400-425:-', 'exon:chr1:300-350:-', 'exon:chr1:225-250:-', 'exon:chr1:150-175:-'): ['junction:chr1:251-399:-',  # noqa
+                                                                                                'junction:chr1:176-224:-',  # noqa
+                                                                                                'junction:chr1:351-399:-',  # noqa
+                                                                                                'junction:chr1:176-299:-']}  # noqa
+
+    def test__skipped_exon(self, splice_graph, exon1_i, exon1_name,
+                           skipped_exon_events):
+        test = splice_graph._skipped_exon(exon1_i, exon1_name)
+        true = skipped_exon_events
+        pdt.assert_dict_equal(test, true)
+
+    def test__mutually_exclusive_exon(self, splice_graph, exon1_i, exon1_name,
+                                      mutually_exclusive_events):
+        test = splice_graph._mutually_exclusive_exon(exon1_i, exon1_name)
+        true = mutually_exclusive_events
+        pdt.assert_dict_equal(test, true)
+
+    def test_single_exon_alternative_events(self, splice_graph, exon1_i,
+                                            exon1_name,
+                                            mutually_exclusive_events,
+                                            skipped_exon_events):
+        test = splice_graph.single_exon_alternative_events(
+            exon1_i, exon1_name)
+        true = {'se': skipped_exon_events, 'mxe': mutually_exclusive_events}
+        pdt.assert_dict_equal(test, true)

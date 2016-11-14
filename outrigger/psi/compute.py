@@ -88,6 +88,14 @@ def maybe_get_isoform_reads(splice_junction_reads, junction_locations,
 def _single_event_psi(event_id, event_df, splice_junction_reads,
                       isoform1_junctions, isoform2_junctions, reads_col=READS,
                       min_reads=MIN_READS, debug=False, log=None):
+    """Calculate percent spliced in for a single event across all samples
+
+    Returns
+    -------
+    psi : pandas.Series or None
+        If unable to calculate psi for this event due to insufficient junctions
+        then None is returned.
+    """
     junction_locations = event_df.iloc[0]
 
     isoform1 = maybe_get_isoform_reads(splice_junction_reads,
@@ -127,7 +135,8 @@ def _single_event_psi(event_id, event_df, splice_junction_reads,
     if debug and log is not None:
         log.debug('--- Psi ---\n%s', repr(psi))
 
-    return psi
+    if not psi.empty:
+        return psi
 
 
 def _maybe_parallelize_psi(event_annotation, splice_junction_reads,
@@ -161,6 +170,7 @@ def _maybe_parallelize_psi(event_annotation, splice_junction_reads,
                 event_id, event_df, splice_junction_reads,
                 isoform1_junctions, isoform2_junctions, reads_col,
                 min_reads) for event_id, event_df in grouped)
+
     return psis
 
 
