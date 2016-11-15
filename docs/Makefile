@@ -63,6 +63,7 @@ install:
 html:
 	sphinx-apidoc -l -d 4 -e --force -o . ../outrigger
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
+	cp figures/*png _static/
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
 
