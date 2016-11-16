@@ -6,9 +6,9 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>outrigger.index.events module &mdash; BED annotator 0.2.9 documentation</title>
+    <title>outrigger.index.events module &#8212; Outrigger 0.2.9 documentation</title>
     
-    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
@@ -23,21 +23,19 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="BED annotator 0.2.9 documentation" href="index.html" /> 
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="top" title="Outrigger 0.2.9 documentation" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
   </head>
   <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">BED annotator 0.2.9 documentation</a> &raquo;</li> 
-      </ul>
-    </div>  
+  
 
     <div class="document">
       <div class="documentwrapper">
@@ -50,6 +48,75 @@
 <dt id="outrigger.index.events.EventMaker">
 <em class="property">class </em><code class="descclassname">outrigger.index.events.</code><code class="descname">EventMaker</code><span class="sig-paren">(</span><em>junction_exon_triples</em>, <em>db=None</em>, <em>junction_col='junction'</em>, <em>exon_col='exon'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/index/events.html#EventMaker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.index.events.EventMaker" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Combine splice junctions into splicing events</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>junction_exon_triples</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>of &#8220;exon, direction, junction&#8221;, e.g.:
+exon1, upstream, junction12</p>
+</div></blockquote>
+<p><strong>db</strong> : gffutils.FeatureDB</p>
+<blockquote class="last">
+<div><p>Gffutils Database of gene, transcript, and exon features. The exons
+must be accessible by the id provided on the <cite>exon_col</cite>
+columns. If not provided, certain splice types which require
+information about the transcript (AFE, ALE) cannot be annotated.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#outrigger.index.events.EventMaker.exon_progress_interval" title="outrigger.index.events.EventMaker.exon_progress_interval"><code class="xref py py-obj docutils literal"><span class="pre">exon_progress_interval</span></code></a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#outrigger.index.events.EventMaker.add_event_id_col" title="outrigger.index.events.EventMaker.add_event_id_col"><code class="xref py py-obj docutils literal"><span class="pre">add_event_id_col</span></code></a>(events,&nbsp;splice_type)</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#outrigger.index.events.EventMaker.add_illegal_junctions" title="outrigger.index.events.EventMaker.add_illegal_junctions"><code class="xref py py-obj docutils literal"><span class="pre">add_illegal_junctions</span></code></a>(events,&nbsp;splice_type)</td>
+<td>Add junctions that are incompatible with splice type definition</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#outrigger.index.events.EventMaker.event_dict_to_df" title="outrigger.index.events.EventMaker.event_dict_to_df"><code class="xref py py-obj docutils literal"><span class="pre">event_dict_to_df</span></code></a>(events,&nbsp;exon_names,&nbsp;...)</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#outrigger.index.events.EventMaker.exons_one_junction_downstream" title="outrigger.index.events.EventMaker.exons_one_junction_downstream"><code class="xref py py-obj docutils literal"><span class="pre">exons_one_junction_downstream</span></code></a>(exon_i)</td>
+<td>Get the exon(s) that are immediately downstream of this one</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#outrigger.index.events.EventMaker.exons_one_junction_upstream" title="outrigger.index.events.EventMaker.exons_one_junction_upstream"><code class="xref py py-obj docutils literal"><span class="pre">exons_one_junction_upstream</span></code></a>(exon_query)</td>
+<td>Get the exon(s) that are immediately upstream of this one</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#outrigger.index.events.EventMaker.exons_two_junctions_downstream" title="outrigger.index.events.EventMaker.exons_two_junctions_downstream"><code class="xref py py-obj docutils literal"><span class="pre">exons_two_junctions_downstream</span></code></a>(exon_i)</td>
+<td>Get the exon(s) that are two junction hops downstream</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#outrigger.index.events.EventMaker.junctions_between_exons" title="outrigger.index.events.EventMaker.junctions_between_exons"><code class="xref py py-obj docutils literal"><span class="pre">junctions_between_exons</span></code></a>(exon_a,&nbsp;exon_b)</td>
+<td>Get the junctions between exonA and exonB</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#outrigger.index.events.EventMaker.mutually_exclusive_exon" title="outrigger.index.events.EventMaker.mutually_exclusive_exon"><code class="xref py py-obj docutils literal"><span class="pre">mutually_exclusive_exon</span></code></a>()</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#outrigger.index.events.EventMaker.skipped_exon" title="outrigger.index.events.EventMaker.skipped_exon"><code class="xref py py-obj docutils literal"><span class="pre">skipped_exon</span></code></a>()</td>
+<td></td>
+</tr>
+</tbody>
+</table>
 <dl class="method">
 <dt id="outrigger.index.events.EventMaker.add_event_id_col">
 <code class="descname">add_event_id_col</code><span class="sig-paren">(</span><em>events</em>, <em>splice_type</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/index/events.html#EventMaker.add_event_id_col"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.index.events.EventMaker.add_event_id_col" title="Permalink to this definition">¶</a></dt>
@@ -77,16 +144,26 @@
 <dd><p>Get the exon(s) that are immediately downstream of this one</p>
 <p>Get exons that are downstream from this one, separated by one
 junction</p>
-<dl class="docutils">
-<dt>exon_i <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
-<dd>Integer identifier of the exon whose downstream exons you want.
-This is the exon&#8217;s index location in self.exon_cols</dd>
-</dl>
-<dl class="docutils">
-<dt>downstream_exons <span class="classifier-delimiter">:</span> <span class="classifier">graphlite.Query</span></dt>
-<dd>Integer identfiers of exons which are one junction downstream
-of the provided one</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>exon_i</strong> : int</p>
+<blockquote>
+<div><p>Integer identifier of the exon whose downstream exons you want.
+This is the exon&#8217;s index location in self.exon_cols</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>downstream_exons</strong> : graphlite.Query</p>
+<blockquote class="last">
+<div><p>Integer identfiers of exons which are one junction downstream
+of the provided one</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -95,16 +172,26 @@ of the provided one</dd>
 <dd><p>Get the exon(s) that are immediately upstream of this one</p>
 <p>Get exons that are upstream from this one, separated by one
 junction</p>
-<dl class="docutils">
-<dt>exon_query <span class="classifier-delimiter">:</span> <span class="classifier">graphlite.Query</span></dt>
-<dd>Integer identifier of the exon whose upstream exons you want.
-This is the exon&#8217;s index location in self.exons</dd>
-</dl>
-<dl class="docutils">
-<dt>upstream_exons <span class="classifier-delimiter">:</span> <span class="classifier">graphlite.Query</span></dt>
-<dd>Integer identfiers of exon_cols which are one junction upstream
-of the provided one</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>exon_query</strong> : graphlite.Query</p>
+<blockquote>
+<div><p>Integer identifier of the exon whose upstream exons you want.
+This is the exon&#8217;s index location in self.exons</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>upstream_exons</strong> : graphlite.Query</p>
+<blockquote class="last">
+<div><p>Integer identfiers of exon_cols which are one junction upstream
+of the provided one</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -113,16 +200,26 @@ of the provided one</dd>
 <dd><p>Get the exon(s) that are two junction hops downstream</p>
 <p>Go one exon downstream, then one more exon. This is all the 2nd level
 exon_cols</p>
-<dl class="docutils">
-<dt>exon_i <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
-<dd>Integer identifier of the exon whose downstream exon_cols you want.
-This is the exon&#8217;s index location in self.exon_cols</dd>
-</dl>
-<dl class="docutils">
-<dt>downstream_exons <span class="classifier-delimiter">:</span> <span class="classifier">graphlite.Query</span></dt>
-<dd>Integer identfiers of exon_cols which are separated from the
-original exon by a junction, exon, and another junction</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>exon_i</strong> : int</p>
+<blockquote>
+<div><p>Integer identifier of the exon whose downstream exon_cols you want.
+This is the exon&#8217;s index location in self.exon_cols</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>downstream_exons</strong> : graphlite.Query</p>
+<blockquote class="last">
+<div><p>Integer identfiers of exon_cols which are separated from the
+original exon by a junction, exon, and another junction</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -160,7 +257,13 @@ original exon by a junction, exon, and another junction</dd>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -171,35 +274,31 @@ original exon by a junction, exon, and another junction</dd>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">BED annotator 0.2.9 documentation</a> &raquo;</li> 
-      </ul>
+    <div class="footer">
+      &copy;2015-2016, Olga Botvinnik.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/outrigger.index.events.txt"
+          rel="nofollow">Page source</a>
     </div>
-    <div class="footer" role="contentinfo">
-        &copy; Copyright 2015, Olga Botvinnik.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
-    </div>
+
+    
+
+    
   </body>
 </html>

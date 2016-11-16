@@ -6,9 +6,9 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>outrigger.io.star &mdash; BED annotator 0.2.9 documentation</title>
+    <title>outrigger.io.star &#8212; Outrigger 0.2.9 documentation</title>
     
-    <link rel="stylesheet" href="../../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
@@ -23,23 +23,20 @@
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <link rel="top" title="BED annotator 0.2.9 documentation" href="../../../index.html" />
-    <link rel="up" title="Module code" href="../../index.html" /> 
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="top" title="Outrigger 0.2.9 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
   </head>
   <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../../../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="../../../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">BED annotator 0.2.9 documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
-      </ul>
-    </div>  
+  
 
     <div class="document">
       <div class="documentwrapper">
@@ -47,20 +44,20 @@
           <div class="body" role="main">
             
   <h1>Source code for outrigger.io.star</h1><div class="highlight"><pre>
-<span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Read splice junction output files from STAR aligner (SJ.out.tab)</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">os</span>
 
 <span class="kn">import</span> <span class="nn">joblib</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
-<span class="kn">from</span> <span class="nn">..common</span> <span class="kn">import</span> <span class="n">JUNCTION_ID</span><span class="p">,</span> <span class="n">JUNCTION_START</span><span class="p">,</span> <span class="n">JUNCTION_STOP</span><span class="p">,</span> <span class="n">READS</span><span class="p">,</span> \
+<span class="kn">from</span> <span class="nn">..common</span> <span class="k">import</span> <span class="n">JUNCTION_ID</span><span class="p">,</span> <span class="n">JUNCTION_START</span><span class="p">,</span> <span class="n">JUNCTION_STOP</span><span class="p">,</span> <span class="n">READS</span><span class="p">,</span> \
     <span class="n">JUNCTION_MOTIF</span><span class="p">,</span> <span class="n">EXON_START</span><span class="p">,</span> <span class="n">EXON_STOP</span><span class="p">,</span> <span class="n">CHROM</span><span class="p">,</span> <span class="n">STRAND</span><span class="p">,</span> <span class="n">ANNOTATED</span><span class="p">,</span> \
     <span class="n">SAMPLE_ID</span><span class="p">,</span> <span class="n">UNIQUE_READS</span><span class="p">,</span> <span class="n">MULTIMAP_READS</span><span class="p">,</span> <span class="n">MAX_OVERHANG</span>
 
-<span class="kn">from</span> <span class="nn">.core</span> <span class="kn">import</span> <span class="n">add_exons_and_junction_ids</span>
+<span class="kn">from</span> <span class="nn">.core</span> <span class="k">import</span> <span class="n">add_exons_and_junction_ids</span>
 
 <span class="n">COLUMN_NAMES</span> <span class="o">=</span> <span class="p">(</span><span class="n">CHROM</span><span class="p">,</span> <span class="n">JUNCTION_START</span><span class="p">,</span> <span class="n">JUNCTION_STOP</span><span class="p">,</span> <span class="n">STRAND</span><span class="p">,</span>
                 <span class="n">JUNCTION_MOTIF</span><span class="p">,</span> <span class="n">ANNOTATED</span><span class="p">,</span> <span class="n">UNIQUE_READS</span><span class="p">,</span> <span class="n">MULTIMAP_READS</span><span class="p">,</span>
@@ -69,24 +66,24 @@
 
 <div class="viewcode-block" id="int_to_junction_motif"><a class="viewcode-back" href="../../../outrigger.io.star.html#outrigger.io.star.int_to_junction_motif">[docs]</a><span class="k">def</span> <span class="nf">int_to_junction_motif</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s">&#39;non-canonical&#39;</span>
+        <span class="k">return</span> <span class="s1">&#39;non-canonical&#39;</span>
     <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s">&#39;GT/AG&#39;</span>
+        <span class="k">return</span> <span class="s1">&#39;GT/AG&#39;</span>
     <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="c"># Negative strand: CT/AC</span>
-        <span class="k">return</span> <span class="s">&#39;GT/AG&#39;</span>
+        <span class="c1"># Negative strand: CT/AC</span>
+        <span class="k">return</span> <span class="s1">&#39;GT/AG&#39;</span>
     <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s">&#39;GC/AG&#39;</span>
+        <span class="k">return</span> <span class="s1">&#39;GC/AG&#39;</span>
     <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
-        <span class="c"># Negative strand: CT/GC</span>
-        <span class="k">return</span> <span class="s">&#39;GC/AG&#39;</span>
+        <span class="c1"># Negative strand: CT/GC</span>
+        <span class="k">return</span> <span class="s1">&#39;GC/AG&#39;</span>
     <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s">&#39;AT/AC&#39;</span>
+        <span class="k">return</span> <span class="s1">&#39;AT/AC&#39;</span>
     <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">6</span><span class="p">:</span>
-        <span class="c"># Negative strand: GT/AT</span>
-        <span class="k">return</span> <span class="s">&#39;AT/AC&#39;</span>
+        <span class="c1"># Negative strand: GT/AT</span>
+        <span class="k">return</span> <span class="s1">&#39;AT/AC&#39;</span></div>
 
-</div>
+
 <div class="viewcode-block" id="read_sj_out_tab"><a class="viewcode-back" href="../../../outrigger.io.star.html#outrigger.io.star.read_sj_out_tab">[docs]</a><span class="k">def</span> <span class="nf">read_sj_out_tab</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Read an SJ.out.tab file as produced by the RNA-STAR aligner into a</span>
 <span class="sd">    pandas Dataframe</span>
@@ -105,34 +102,34 @@
 <span class="sd">        &#39;unique_junction_reads&#39;, &#39;multimap_junction_reads&#39;, &#39;max_overhang&#39;)</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">sj</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_table</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="n">COLUMN_NAMES</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s">&#39;\s+&#39;</span><span class="p">)</span>
+    <span class="n">sj</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_table</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="n">COLUMN_NAMES</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;\s+&#39;</span><span class="p">)</span>
     <span class="n">sj</span><span class="p">[</span><span class="n">JUNCTION_MOTIF</span><span class="p">]</span> <span class="o">=</span> <span class="n">sj</span><span class="p">[</span><span class="n">JUNCTION_MOTIF</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">int_to_junction_motif</span><span class="p">)</span>
 
-    <span class="c"># Convert unknown strands to explicitly say &quot;undefined&quot;</span>
-    <span class="n">sj</span><span class="p">[</span><span class="n">STRAND</span><span class="p">]</span> <span class="o">=</span> <span class="n">sj</span><span class="p">[</span><span class="n">STRAND</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s">&#39;undefined&#39;</span><span class="p">)</span>
+    <span class="c1"># Convert unknown strands to explicitly say &quot;undefined&quot;</span>
+    <span class="n">sj</span><span class="p">[</span><span class="n">STRAND</span><span class="p">]</span> <span class="o">=</span> <span class="n">sj</span><span class="p">[</span><span class="n">STRAND</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;undefined&#39;</span><span class="p">)</span>
 
-    <span class="c"># Convert integer strand to symbol</span>
-    <span class="c"># Use index-based replacement because it&#39;s 100x faster than map</span>
+    <span class="c1"># Convert integer strand to symbol</span>
+    <span class="c1"># Use index-based replacement because it&#39;s 100x faster than map</span>
     <span class="n">rows</span> <span class="o">=</span> <span class="n">sj</span><span class="o">.</span><span class="n">strand</span> <span class="o">==</span> <span class="mi">1</span>
-    <span class="n">sj</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">rows</span><span class="p">,</span> <span class="n">STRAND</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;+&#39;</span>
+    <span class="n">sj</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">rows</span><span class="p">,</span> <span class="n">STRAND</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;+&#39;</span>
     <span class="n">rows</span> <span class="o">=</span> <span class="n">sj</span><span class="o">.</span><span class="n">strand</span> <span class="o">==</span> <span class="mi">2</span>
-    <span class="n">sj</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">rows</span><span class="p">,</span> <span class="n">STRAND</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;-&#39;</span>
+    <span class="n">sj</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">rows</span><span class="p">,</span> <span class="n">STRAND</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;-&#39;</span>
 
-    <span class="c"># Translate negative strand intron motifs</span>
-    <span class="c"># rows = sj.strand == &#39;-&#39;</span>
-    <span class="c"># sj.loc[rows, &#39;intron_motif&#39;] = sj.intron_motif[rows].map(</span>
-    <span class="c">#     lambda x: NEG_STRAND_INTRON_MOTIF[x])</span>
+    <span class="c1"># Translate negative strand intron motifs</span>
+    <span class="c1"># rows = sj.strand == &#39;-&#39;</span>
+    <span class="c1"># sj.loc[rows, &#39;intron_motif&#39;] = sj.intron_motif[rows].map(</span>
+    <span class="c1">#     lambda x: NEG_STRAND_INTRON_MOTIF[x])</span>
     <span class="n">sj</span><span class="o">.</span><span class="n">annotated</span> <span class="o">=</span> <span class="n">sj</span><span class="o">.</span><span class="n">annotated</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
 
     <span class="n">sj</span> <span class="o">=</span> <span class="n">add_exons_and_junction_ids</span><span class="p">(</span><span class="n">sj</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">sj</span>
+    <span class="k">return</span> <span class="n">sj</span></div>
 
-</div>
-<span class="k">def</span> <span class="nf">_read_single_filename</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">sample_id_func</span><span class="p">,</span> <span class="n">ignore_multimapping</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+
+<span class="k">def</span> <span class="nf">_read_single_filename</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">sample_id_func</span><span class="p">,</span> <span class="n">ignore_multimapping</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="n">splice_junction</span> <span class="o">=</span> <span class="n">read_sj_out_tab</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
     <span class="n">sample_id</span> <span class="o">=</span> <span class="n">sample_id_func</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
-    <span class="n">sample_id</span> <span class="o">=</span> <span class="n">sample_id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;SJ.out.tab&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)</span>
+    <span class="n">sample_id</span> <span class="o">=</span> <span class="n">sample_id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;SJ.out.tab&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
     <span class="n">splice_junction</span><span class="p">[</span><span class="n">SAMPLE_ID</span><span class="p">]</span> <span class="o">=</span> <span class="n">sample_id</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">ignore_multimapping</span><span class="p">:</span>
@@ -143,7 +140,7 @@
     <span class="k">return</span> <span class="n">splice_junction</span>
 
 
-<div class="viewcode-block" id="read_multiple_sj_out_tab"><a class="viewcode-back" href="../../../outrigger.io.star.html#outrigger.io.star.read_multiple_sj_out_tab">[docs]</a><span class="k">def</span> <span class="nf">read_multiple_sj_out_tab</span><span class="p">(</span><span class="n">filenames</span><span class="p">,</span> <span class="n">ignore_multimapping</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+<div class="viewcode-block" id="read_multiple_sj_out_tab"><a class="viewcode-back" href="../../../outrigger.io.star.html#outrigger.io.star.read_multiple_sj_out_tab">[docs]</a><span class="k">def</span> <span class="nf">read_multiple_sj_out_tab</span><span class="p">(</span><span class="n">filenames</span><span class="p">,</span> <span class="n">ignore_multimapping</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                              <span class="n">sample_id_func</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Read the splice junction files and return a tall, tidy dataframe</span>
 
@@ -168,15 +165,15 @@
         <span class="n">joblib</span><span class="o">.</span><span class="n">delayed</span><span class="p">(</span><span class="n">_read_single_filename</span><span class="p">)(</span>
             <span class="n">filename</span><span class="p">,</span> <span class="n">sample_id_func</span><span class="p">,</span> <span class="n">ignore_multimapping</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">filenames</span><span class="p">)</span>
-    <span class="n">splice_junctions</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">dfs</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">splice_junctions</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">dfs</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="n">splice_junctions</span><span class="p">[</span><span class="n">CHROM</span><span class="p">]</span> <span class="o">=</span> <span class="n">splice_junctions</span><span class="p">[</span><span class="n">CHROM</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
     <span class="n">splice_junctions</span> <span class="o">=</span> <span class="n">splice_junctions</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span>
         <span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="n">SAMPLE_ID</span><span class="p">,</span> <span class="n">CHROM</span><span class="p">,</span> <span class="n">JUNCTION_START</span><span class="p">,</span> <span class="n">JUNCTION_STOP</span><span class="p">])</span>
     <span class="n">splice_junctions</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">splice_junctions</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-    <span class="k">return</span> <span class="n">splice_junctions</span>
+    <span class="k">return</span> <span class="n">splice_junctions</span></div>
 
-</div>
+
 <div class="viewcode-block" id="make_metadata"><a class="viewcode-back" href="../../../outrigger.io.star.html#outrigger.io.star.make_metadata">[docs]</a><span class="k">def</span> <span class="nf">make_metadata</span><span class="p">(</span><span class="n">spliced_reads</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">(</span><span class="n">JUNCTION_ID</span><span class="p">,</span> <span class="n">CHROM</span><span class="p">,</span> <span class="n">JUNCTION_START</span><span class="p">,</span>
                                           <span class="n">JUNCTION_STOP</span><span class="p">,</span> <span class="n">STRAND</span><span class="p">,</span> <span class="n">ANNOTATED</span><span class="p">,</span>
                                           <span class="n">EXON_START</span><span class="p">,</span> <span class="n">EXON_STOP</span><span class="p">)):</span>
@@ -208,8 +205,8 @@
     <span class="n">metadata</span> <span class="o">=</span> <span class="n">metadata</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
     <span class="n">metadata</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">metadata</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
-    <span class="c"># Force all chromosomes to be strings to be compatible with ENSEMBL&#39;s</span>
-    <span class="c"># integer chromosomes</span>
+    <span class="c1"># Force all chromosomes to be strings to be compatible with ENSEMBL&#39;s</span>
+    <span class="c1"># integer chromosomes</span>
     <span class="n">metadata</span><span class="p">[</span><span class="n">CHROM</span><span class="p">]</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="n">CHROM</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">metadata</span></div>
@@ -219,40 +216,40 @@
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../../../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="../../../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">BED annotator 0.2.9 documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &raquo;</li> 
-      </ul>
+    <div class="footer">
+      &copy;2015-2016, Olga Botvinnik.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
     </div>
-    <div class="footer" role="contentinfo">
-        &copy; Copyright 2015, Olga Botvinnik.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
-    </div>
+
+    
+
+    
   </body>
 </html>

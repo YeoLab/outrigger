@@ -6,9 +6,9 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>outrigger.tests.validate.test_check_splice_sites &mdash; BED annotator 0.2.9 documentation</title>
+    <title>outrigger.tests.validate.test_check_splice_sites &#8212; Outrigger 0.2.9 documentation</title>
     
-    <link rel="stylesheet" href="../../../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
@@ -23,23 +23,20 @@
     <script type="text/javascript" src="../../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../../_static/doctools.js"></script>
-    <link rel="top" title="BED annotator 0.2.9 documentation" href="../../../../index.html" />
-    <link rel="up" title="Module code" href="../../../index.html" /> 
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link rel="top" title="Outrigger 0.2.9 documentation" href="../../../../index.html" />
+    <link rel="up" title="Module code" href="../../../index.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
   </head>
   <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../../../../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="../../../../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">BED annotator 0.2.9 documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="../../../index.html" accesskey="U">Module code</a> &raquo;</li> 
-      </ul>
-    </div>  
+  
 
     <div class="document">
       <div class="documentwrapper">
@@ -47,159 +44,159 @@
           <div class="body" role="main">
             
   <h1>Source code for outrigger.tests.validate.test_check_splice_sites</h1><div class="highlight"><pre>
-<span class="kn">import</span> <span class="nn">collections</span>
+<span></span><span class="kn">import</span> <span class="nn">collections</span>
 <span class="kn">import</span> <span class="nn">os</span>
 
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">pandas.util.testing</span> <span class="kn">as</span> <span class="nn">pdt</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">pandas.util.testing</span> <span class="k">as</span> <span class="nn">pdt</span>
 <span class="kn">import</span> <span class="nn">pytest</span>
 
 
-<span class="nd">@pytest.fixture</span>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
 <div class="viewcode-block" id="exon2_bed"><a class="viewcode-back" href="../../../../outrigger.tests.validate.test_check_splice_sites.html#outrigger.tests.validate.test_check_splice_sites.exon2_bed">[docs]</a><span class="k">def</span> <span class="nf">exon2_bed</span><span class="p">(</span><span class="n">negative_control_folder</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">negative_control_folder</span><span class="p">,</span> <span class="s">&#39;outrigger_output&#39;</span><span class="p">,</span> <span class="s">&#39;index&#39;</span><span class="p">,</span>
-                        <span class="s">&#39;se&#39;</span><span class="p">,</span> <span class="s">&#39;exon2.bed&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">negative_control_folder</span><span class="p">,</span> <span class="s1">&#39;outrigger_output&#39;</span><span class="p">,</span> <span class="s1">&#39;index&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;se&#39;</span><span class="p">,</span> <span class="s1">&#39;exon2.bed&#39;</span><span class="p">)</span></div>
 
-</div>
-<span class="nd">@pytest.fixture</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
 <div class="viewcode-block" id="do_not_have_mysql"><a class="viewcode-back" href="../../../../outrigger.tests.validate.test_check_splice_sites.html#outrigger.tests.validate.test_check_splice_sites.do_not_have_mysql">[docs]</a><span class="k">def</span> <span class="nf">do_not_have_mysql</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;Checks if mysql exists on this platform&quot;&quot;&quot;</span>
-    <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s">&quot;PATH&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">pathsep</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s">&#39;msql&#39;</span><span class="p">)):</span>
-                <span class="k">return</span> <span class="bp">True</span>
-    <span class="k">return</span> <span class="bp">False</span>
+    <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;PATH&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">pathsep</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;msql&#39;</span><span class="p">)):</span>
+                <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="kc">False</span></div>
 
-</div>
-<span class="nd">@pytest.fixture</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
 <div class="viewcode-block" id="genome_name"><a class="viewcode-back" href="../../../../outrigger.tests.validate.test_check_splice_sites.html#outrigger.tests.validate.test_check_splice_sites.genome_name">[docs]</a><span class="k">def</span> <span class="nf">genome_name</span><span class="p">():</span>
-    <span class="k">return</span> <span class="s">&#39;mm10&#39;</span>
+    <span class="k">return</span> <span class="s1">&#39;mm10&#39;</span></div>
 
-</div>
-<span class="nd">@pytest.fixture</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;upstream&#39;</span><span class="p">,</span> <span class="s">&#39;downstream&#39;</span><span class="p">])</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;upstream&#39;</span><span class="p">,</span> <span class="s1">&#39;downstream&#39;</span><span class="p">])</span>
 <div class="viewcode-block" id="direction"><a class="viewcode-back" href="../../../../outrigger.tests.validate.test_check_splice_sites.html#outrigger.tests.validate.test_check_splice_sites.direction">[docs]</a><span class="k">def</span> <span class="nf">direction</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">request</span><span class="o">.</span><span class="n">param</span>
+    <span class="k">return</span> <span class="n">request</span><span class="o">.</span><span class="n">param</span></div>
 
-</div>
-<span class="nd">@pytest.fixture</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
 <div class="viewcode-block" id="simulated_chromsizes"><a class="viewcode-back" href="../../../../outrigger.tests.validate.test_check_splice_sites.html#outrigger.tests.validate.test_check_splice_sites.simulated_chromsizes">[docs]</a><span class="k">def</span> <span class="nf">simulated_chromsizes</span><span class="p">(</span><span class="n">negative_control_folder</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">negative_control_folder</span><span class="p">,</span> <span class="s">&#39;chromsizes&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">negative_control_folder</span><span class="p">,</span> <span class="s1">&#39;chromsizes&#39;</span><span class="p">)</span></div>
 
-</div>
-<span class="nd">@pytest.fixture</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
 <div class="viewcode-block" id="simulated_fasta"><a class="viewcode-back" href="../../../../outrigger.tests.validate.test_check_splice_sites.html#outrigger.tests.validate.test_check_splice_sites.simulated_fasta">[docs]</a><span class="k">def</span> <span class="nf">simulated_fasta</span><span class="p">(</span><span class="n">negative_control_folder</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">negative_control_folder</span><span class="p">,</span> <span class="s">&#39;genome.fasta&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">negative_control_folder</span><span class="p">,</span> <span class="s1">&#39;genome.fasta&#39;</span><span class="p">)</span></div>
 
-</div>
-<span class="nd">@pytest.fixture</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="p">[</span>
-    <span class="n">pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">skipif</span><span class="p">(</span><span class="s">&#39;do_not_have_mysql&#39;</span><span class="p">)(</span><span class="s">&#39;genome_name&#39;</span><span class="p">),</span>
-    <span class="s">&#39;filename&#39;</span><span class="p">])</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="p">[</span>
+    <span class="n">pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">skipif</span><span class="p">(</span><span class="s1">&#39;do_not_have_mysql&#39;</span><span class="p">)(</span><span class="s1">&#39;genome_name&#39;</span><span class="p">),</span>
+    <span class="s1">&#39;filename&#39;</span><span class="p">])</span>
 <div class="viewcode-block" id="maybe_chromsizes"><a class="viewcode-back" href="../../../../outrigger.tests.validate.test_check_splice_sites.html#outrigger.tests.validate.test_check_splice_sites.maybe_chromsizes">[docs]</a><span class="k">def</span> <span class="nf">maybe_chromsizes</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">simulated_chromsizes</span><span class="p">,</span> <span class="n">genome_name</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">param</span> <span class="o">==</span> <span class="s">&#39;genome_name&#39;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">param</span> <span class="o">==</span> <span class="s1">&#39;genome_name&#39;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">genome_name</span>
-    <span class="k">elif</span> <span class="n">request</span><span class="o">.</span><span class="n">param</span> <span class="o">==</span> <span class="s">&#39;filename&#39;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">simulated_chromsizes</span>
+    <span class="k">elif</span> <span class="n">request</span><span class="o">.</span><span class="n">param</span> <span class="o">==</span> <span class="s1">&#39;filename&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">simulated_chromsizes</span></div>
 
-</div>
+
 <div class="viewcode-block" id="test_splice_site_str_to_tuple"><a class="viewcode-back" href="../../../../outrigger.tests.validate.test_check_splice_sites.html#outrigger.tests.validate.test_check_splice_sites.test_splice_site_str_to_tuple">[docs]</a><span class="k">def</span> <span class="nf">test_splice_site_str_to_tuple</span><span class="p">():</span>
-    <span class="kn">from</span> <span class="nn">outrigger.validate.check_splice_sites</span> <span class="kn">import</span> <span class="n">splice_site_str_to_tuple</span>
+    <span class="kn">from</span> <span class="nn">outrigger.validate.check_splice_sites</span> <span class="k">import</span> <span class="n">splice_site_str_to_tuple</span>
 
-    <span class="n">test</span> <span class="o">=</span> <span class="n">splice_site_str_to_tuple</span><span class="p">(</span><span class="s">&#39;GT/AG,AT/AC&#39;</span><span class="p">)</span>
-    <span class="n">true</span> <span class="o">=</span> <span class="s">&#39;GT/AG&#39;</span><span class="p">,</span> <span class="s">&#39;AT/AC&#39;</span>
+    <span class="n">test</span> <span class="o">=</span> <span class="n">splice_site_str_to_tuple</span><span class="p">(</span><span class="s1">&#39;GT/AG,AT/AC&#39;</span><span class="p">)</span>
+    <span class="n">true</span> <span class="o">=</span> <span class="s1">&#39;GT/AG&#39;</span><span class="p">,</span> <span class="s1">&#39;AT/AC&#39;</span>
 
-    <span class="k">assert</span> <span class="n">test</span> <span class="o">==</span> <span class="n">true</span>
+    <span class="k">assert</span> <span class="n">test</span> <span class="o">==</span> <span class="n">true</span></div>
 
-</div>
+
 <div class="viewcode-block" id="test_maybe_read_chromsizes"><a class="viewcode-back" href="../../../../outrigger.tests.validate.test_check_splice_sites.html#outrigger.tests.validate.test_check_splice_sites.test_maybe_read_chromsizes">[docs]</a><span class="k">def</span> <span class="nf">test_maybe_read_chromsizes</span><span class="p">(</span><span class="n">maybe_chromsizes</span><span class="p">,</span> <span class="n">genome_name</span><span class="p">):</span>
-    <span class="kn">from</span> <span class="nn">outrigger.validate.check_splice_sites</span> <span class="kn">import</span> <span class="n">maybe_read_chromsizes</span>
+    <span class="kn">from</span> <span class="nn">outrigger.validate.check_splice_sites</span> <span class="k">import</span> <span class="n">maybe_read_chromsizes</span>
     <span class="n">test</span> <span class="o">=</span> <span class="n">maybe_read_chromsizes</span><span class="p">(</span><span class="n">maybe_chromsizes</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">maybe_chromsizes</span> <span class="o">!=</span> <span class="n">genome_name</span><span class="p">:</span>
-        <span class="n">true</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="p">({</span><span class="s">&#39;simulated&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)})</span>
+        <span class="n">true</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="p">({</span><span class="s1">&#39;simulated&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)})</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">chromsizes</span> <span class="o">=</span> <span class="s">&#39;&#39;&#39;chr1	195471971</span>
-<span class="s">chr2	182113224</span>
-<span class="s">chrX	171031299</span>
-<span class="s">chr3	160039680</span>
-<span class="s">chr4	156508116</span>
-<span class="s">chr5	151834684</span>
-<span class="s">chr6	149736546</span>
-<span class="s">chr7	145441459</span>
-<span class="s">chr10	130694993</span>
-<span class="s">chr8	129401213</span>
-<span class="s">chr14	124902244</span>
-<span class="s">chr9	124595110</span>
-<span class="s">chr11	122082543</span>
-<span class="s">chr13	120421639</span>
-<span class="s">chr12	120129022</span>
-<span class="s">chr15	104043685</span>
-<span class="s">chr16	98207768</span>
-<span class="s">chr17	94987271</span>
-<span class="s">chrY	91744698</span>
-<span class="s">chr18	90702639</span>
-<span class="s">chr19	61431566</span>
-<span class="s">chr5_JH584299_random	953012</span>
-<span class="s">chrX_GL456233_random	336933</span>
-<span class="s">chrY_JH584301_random	259875</span>
-<span class="s">chr1_GL456211_random	241735</span>
-<span class="s">chr4_GL456350_random	227966</span>
-<span class="s">chr4_JH584293_random	207968</span>
-<span class="s">chr1_GL456221_random	206961</span>
-<span class="s">chr5_JH584297_random	205776</span>
-<span class="s">chr5_JH584296_random	199368</span>
-<span class="s">chr5_GL456354_random	195993</span>
-<span class="s">chr4_JH584294_random	191905</span>
-<span class="s">chr5_JH584298_random	184189</span>
-<span class="s">chrY_JH584300_random	182347</span>
-<span class="s">chr7_GL456219_random	175968</span>
-<span class="s">chr1_GL456210_random	169725</span>
-<span class="s">chrY_JH584303_random	158099</span>
-<span class="s">chrY_JH584302_random	155838</span>
-<span class="s">chr1_GL456212_random	153618</span>
-<span class="s">chrUn_JH584304	114452</span>
-<span class="s">chrUn_GL456379	72385</span>
-<span class="s">chr4_GL456216_random	66673</span>
-<span class="s">chrUn_GL456393	55711</span>
-<span class="s">chrUn_GL456366	47073</span>
-<span class="s">chrUn_GL456367	42057</span>
-<span class="s">chrUn_GL456239	40056</span>
-<span class="s">chr1_GL456213_random	39340</span>
-<span class="s">chrUn_GL456383	38659</span>
-<span class="s">chrUn_GL456385	35240</span>
-<span class="s">chrUn_GL456360	31704</span>
-<span class="s">chrUn_GL456378	31602</span>
-<span class="s">chrUn_GL456389	28772</span>
-<span class="s">chrUn_GL456372	28664</span>
-<span class="s">chrUn_GL456370	26764</span>
-<span class="s">chrUn_GL456381	25871</span>
-<span class="s">chrUn_GL456387	24685</span>
-<span class="s">chrUn_GL456390	24668</span>
-<span class="s">chrUn_GL456394	24323</span>
-<span class="s">chrUn_GL456392	23629</span>
-<span class="s">chrUn_GL456382	23158</span>
-<span class="s">chrUn_GL456359	22974</span>
-<span class="s">chrUn_GL456396	21240</span>
-<span class="s">chrUn_GL456368	20208</span>
-<span class="s">chrM	16299</span>
-<span class="s">chr4_JH584292_random	14945</span>
-<span class="s">chr4_JH584295_random	1976&#39;&#39;&#39;</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
+        <span class="n">chromsizes</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;chr1	195471971</span>
+<span class="s1">chr2	182113224</span>
+<span class="s1">chrX	171031299</span>
+<span class="s1">chr3	160039680</span>
+<span class="s1">chr4	156508116</span>
+<span class="s1">chr5	151834684</span>
+<span class="s1">chr6	149736546</span>
+<span class="s1">chr7	145441459</span>
+<span class="s1">chr10	130694993</span>
+<span class="s1">chr8	129401213</span>
+<span class="s1">chr14	124902244</span>
+<span class="s1">chr9	124595110</span>
+<span class="s1">chr11	122082543</span>
+<span class="s1">chr13	120421639</span>
+<span class="s1">chr12	120129022</span>
+<span class="s1">chr15	104043685</span>
+<span class="s1">chr16	98207768</span>
+<span class="s1">chr17	94987271</span>
+<span class="s1">chrY	91744698</span>
+<span class="s1">chr18	90702639</span>
+<span class="s1">chr19	61431566</span>
+<span class="s1">chr5_JH584299_random	953012</span>
+<span class="s1">chrX_GL456233_random	336933</span>
+<span class="s1">chrY_JH584301_random	259875</span>
+<span class="s1">chr1_GL456211_random	241735</span>
+<span class="s1">chr4_GL456350_random	227966</span>
+<span class="s1">chr4_JH584293_random	207968</span>
+<span class="s1">chr1_GL456221_random	206961</span>
+<span class="s1">chr5_JH584297_random	205776</span>
+<span class="s1">chr5_JH584296_random	199368</span>
+<span class="s1">chr5_GL456354_random	195993</span>
+<span class="s1">chr4_JH584294_random	191905</span>
+<span class="s1">chr5_JH584298_random	184189</span>
+<span class="s1">chrY_JH584300_random	182347</span>
+<span class="s1">chr7_GL456219_random	175968</span>
+<span class="s1">chr1_GL456210_random	169725</span>
+<span class="s1">chrY_JH584303_random	158099</span>
+<span class="s1">chrY_JH584302_random	155838</span>
+<span class="s1">chr1_GL456212_random	153618</span>
+<span class="s1">chrUn_JH584304	114452</span>
+<span class="s1">chrUn_GL456379	72385</span>
+<span class="s1">chr4_GL456216_random	66673</span>
+<span class="s1">chrUn_GL456393	55711</span>
+<span class="s1">chrUn_GL456366	47073</span>
+<span class="s1">chrUn_GL456367	42057</span>
+<span class="s1">chrUn_GL456239	40056</span>
+<span class="s1">chr1_GL456213_random	39340</span>
+<span class="s1">chrUn_GL456383	38659</span>
+<span class="s1">chrUn_GL456385	35240</span>
+<span class="s1">chrUn_GL456360	31704</span>
+<span class="s1">chrUn_GL456378	31602</span>
+<span class="s1">chrUn_GL456389	28772</span>
+<span class="s1">chrUn_GL456372	28664</span>
+<span class="s1">chrUn_GL456370	26764</span>
+<span class="s1">chrUn_GL456381	25871</span>
+<span class="s1">chrUn_GL456387	24685</span>
+<span class="s1">chrUn_GL456390	24668</span>
+<span class="s1">chrUn_GL456394	24323</span>
+<span class="s1">chrUn_GL456392	23629</span>
+<span class="s1">chrUn_GL456382	23158</span>
+<span class="s1">chrUn_GL456359	22974</span>
+<span class="s1">chrUn_GL456396	21240</span>
+<span class="s1">chrUn_GL456368	20208</span>
+<span class="s1">chrM	16299</span>
+<span class="s1">chr4_JH584292_random	14945</span>
+<span class="s1">chr4_JH584295_random	1976&#39;&#39;&#39;</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="n">chromsizes</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">split</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">chromsizes</span><span class="p">]</span>
         <span class="n">true</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="p">(</span>
             <span class="p">[(</span><span class="n">chrom</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">length</span><span class="p">)))</span> <span class="k">for</span> <span class="n">chrom</span><span class="p">,</span> <span class="n">length</span> <span class="ow">in</span> <span class="n">chromsizes</span><span class="p">])</span>
-    <span class="n">pdt</span><span class="o">.</span><span class="n">assert_dict_equal</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="n">true</span><span class="p">)</span>
+    <span class="n">pdt</span><span class="o">.</span><span class="n">assert_dict_equal</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="n">true</span><span class="p">)</span></div>
 
-</div>
+
 <div class="viewcode-block" id="test_read_splice_sites"><a class="viewcode-back" href="../../../../outrigger.tests.validate.test_check_splice_sites.html#outrigger.tests.validate.test_check_splice_sites.test_read_splice_sites">[docs]</a><span class="k">def</span> <span class="nf">test_read_splice_sites</span><span class="p">(</span><span class="n">exon2_bed</span><span class="p">,</span> <span class="n">direction</span><span class="p">,</span> <span class="n">simulated_fasta</span><span class="p">,</span>
                            <span class="n">simulated_chromsizes</span><span class="p">,</span> <span class="n">negative_control_folder</span><span class="p">):</span>
-    <span class="kn">from</span> <span class="nn">outrigger.validate.check_splice_sites</span> <span class="kn">import</span> <span class="n">read_splice_sites</span>
+    <span class="kn">from</span> <span class="nn">outrigger.validate.check_splice_sites</span> <span class="k">import</span> <span class="n">read_splice_sites</span>
 
     <span class="n">test</span> <span class="o">=</span> <span class="n">read_splice_sites</span><span class="p">(</span><span class="n">exon2_bed</span><span class="p">,</span> <span class="n">simulated_chromsizes</span><span class="p">,</span> <span class="n">simulated_fasta</span><span class="p">,</span>
                              <span class="n">direction</span><span class="p">)</span>
 
     <span class="n">csv</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">negative_control_folder</span><span class="p">,</span>
-                       <span class="s">&#39;exon2_{}_splice_sites.csv&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">direction</span><span class="p">))</span>
-    <span class="n">true</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">csv</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">squeeze</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
-    <span class="n">true</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">None</span>
-    <span class="n">true</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">None</span>
+                       <span class="s1">&#39;exon2_</span><span class="si">{}</span><span class="s1">_splice_sites.csv&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">direction</span><span class="p">))</span>
+    <span class="n">true</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">csv</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">squeeze</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">true</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">true</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="n">pdt</span><span class="o">.</span><span class="n">assert_series_equal</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="n">true</span><span class="p">)</span></div>
 </pre></div>
@@ -208,40 +205,40 @@
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../../../../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../../../../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="../../../../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../../index.html">BED annotator 0.2.9 documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &raquo;</li> 
-      </ul>
+    <div class="footer">
+      &copy;2015-2016, Olga Botvinnik.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
     </div>
-    <div class="footer" role="contentinfo">
-        &copy; Copyright 2015, Olga Botvinnik.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
-    </div>
+
+    
+
+    
   </body>
 </html>

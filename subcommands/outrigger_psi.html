@@ -6,9 +6,9 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>psi: Calculate percent spliced-in (Psi/Ψ) scores for your data from the splicing events you created &mdash; BED annotator 0.2.9 documentation</title>
+    <title>psi: Calculate percent spliced-in (Psi/Ψ) scores for your data from the splicing events you created &#8212; Outrigger 0.2.9 documentation</title>
     
-    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
@@ -23,21 +23,19 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="BED annotator 0.2.9 documentation" href="../index.html" /> 
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="top" title="Outrigger 0.2.9 documentation" href="../index.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
   </head>
   <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">BED annotator 0.2.9 documentation</a> &raquo;</li> 
-      </ul>
-    </div>  
+  
 
     <div class="document">
       <div class="documentwrapper">
@@ -46,7 +44,27 @@
             
   <div class="section" id="psi-calculate-percent-spliced-in-psi-scores-for-your-data-from-the-splicing-events-you-created">
 <h1><code class="docutils literal"><span class="pre">psi</span></code>: Calculate percent spliced-in (Psi/Ψ) scores for your data from the splicing events you created<a class="headerlink" href="#psi-calculate-percent-spliced-in-psi-scores-for-your-data-from-the-splicing-events-you-created" title="Permalink to this headline">¶</a></h1>
-<div class="highlight-python"><div class="highlight"><pre>usage: outrigger psi [-h] [-i INDEX] [-o OUTPUT]
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal"><span class="pre">outrigger</span> <span class="pre">psi</span></code> uses the splicing events created by <a class="reference external" href="outrigger_index.html">outrigger index</a>, or,
+if <a class="reference external" href="outrigger_validate.html">outrigger validate</a> has been run, only the valid alternative splicing
+events with appropriate splice sites.</p>
+</div>
+<div class="section" id="inputs">
+<h2>Inputs<a class="headerlink" href="#inputs" title="Permalink to this headline">¶</a></h2>
+<p>If you used the default output folders for <code class="docutils literal"><span class="pre">outrigger</span> <span class="pre">index</span></code> and <code class="docutils literal"><span class="pre">outrigger</span> <span class="pre">validate</span></code>, then you can use the command,</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">outrigger</span> <span class="n">psi</span>
+</pre></div>
+</div>
+<p>To run the percent spliced-in calculation.</p>
+<p>The above command is equivalent to specifying all the arguments with
+their default values:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">outrigger</span> <span class="n">psi</span> <span class="o">--</span><span class="n">index</span> <span class="o">./</span><span class="n">outrigger_index</span> <span class="o">--</span><span class="nb">min</span><span class="o">-</span><span class="n">reads</span> <span class="mi">10</span>
+</pre></div>
+</div>
+<p>Below is the full usage output when you <code class="docutils literal"><span class="pre">outrigger</span> <span class="pre">psi</span> <span class="pre">-h</span></code>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ outrigger psi -h
+usage: outrigger psi [-h] [-i INDEX] [-o OUTPUT]
                      [-c COMPILED_JUNCTION_READS | -j [SJ_OUT_TAB [SJ_OUT_TAB ...]]
                      | -b [BAMS [BAMS ...]]] [-m MIN_READS]
                      [--ignore-multimapping] [--reads-col READS_COL]
@@ -110,19 +128,12 @@ optional arguments:
                         means to use as many threads as are available.
 </pre></div>
 </div>
-<div class="highlight-python"><div class="highlight"><pre>outrigger psi
-</pre></div>
 </div>
-<p>The above command is equivalent to specifying all the arguments with
-their default values:</p>
-<div class="highlight-python"><div class="highlight"><pre>outrigger psi --index ./outrigger_index --min-reads 10
-</pre></div>
-</div>
-<div class="section" id="outrigger-psi-outputs">
-<h2><code class="docutils literal"><span class="pre">outrigger_psi</span></code> Outputs<a class="headerlink" href="#outrigger-psi-outputs" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="outputs">
+<h2>Outputs<a class="headerlink" href="#outputs" title="Permalink to this headline">¶</a></h2>
 <p>Now the <code class="docutils literal"><span class="pre">outrigger_output</span></code> folder has <code class="docutils literal"><span class="pre">psi</span></code> subfolder, with the MXE
 and SE events separate.</p>
-<div class="highlight-python"><div class="highlight"><pre>$ tree outrigger_output
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ tree outrigger_output
 outrigger_output
 ├── index
 │   ├── gtf
@@ -176,11 +187,19 @@ outrigger_output
   <h3><a href="../index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#"><code class="docutils literal"><span class="pre">psi</span></code>: Calculate percent spliced-in (Psi/Ψ) scores for your data from the splicing events you created</a><ul>
-<li><a class="reference internal" href="#outrigger-psi-outputs"><code class="docutils literal"><span class="pre">outrigger_psi</span></code> Outputs</a></li>
+<li><a class="reference internal" href="#overview">Overview</a></li>
+<li><a class="reference internal" href="#inputs">Inputs</a></li>
+<li><a class="reference internal" href="#outputs">Outputs</a></li>
 </ul>
 </li>
 </ul>
-
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -191,35 +210,31 @@ outrigger_output
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">BED annotator 0.2.9 documentation</a> &raquo;</li> 
-      </ul>
+    <div class="footer">
+      &copy;2015-2016, Olga Botvinnik.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="../_sources/subcommands/outrigger_psi.txt"
+          rel="nofollow">Page source</a>
     </div>
-    <div class="footer" role="contentinfo">
-        &copy; Copyright 2015, Olga Botvinnik.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
-    </div>
+
+    
+
+    
   </body>
 </html>

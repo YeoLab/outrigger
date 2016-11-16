@@ -1,8 +1,39 @@
 ``psi``: Calculate percent spliced-in (Psi/Ψ) scores for your data from the splicing events you created
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+=======================================================================================================
+
+Overview
+--------
+
+``outrigger psi`` uses the splicing events created by `outrigger index`_, or,
+if `outrigger validate`_ has been run, only the valid alternative splicing
+events with appropriate splice sites.
+
+.. |OutriggerPsi| image:: /_static/outrigger_psi-300ppi.png
+
+
+Inputs
+------
+
+If you used the default output folders for ``outrigger index`` and ``outrigger validate``, then you can use the command,
 
 ::
 
+    outrigger psi
+
+To run the percent spliced-in calculation.
+
+The above command is equivalent to specifying all the arguments with
+their default values:
+
+::
+
+    outrigger psi --index ./outrigger_index --min-reads 10
+
+Below is the full usage output when you ``outrigger psi -h``:
+
+::
+
+    $ outrigger psi -h
     usage: outrigger psi [-h] [-i INDEX] [-o OUTPUT]
                          [-c COMPILED_JUNCTION_READS | -j [SJ_OUT_TAB [SJ_OUT_TAB ...]]
                          | -b [BAMS [BAMS ...]]] [-m MIN_READS]
@@ -66,19 +97,10 @@
                             calculation and file reading. Default is -1, which
                             means to use as many threads as are available.
 
-::
 
-    outrigger psi
 
-The above command is equivalent to specifying all the arguments with
-their default values:
-
-::
-
-    outrigger psi --index ./outrigger_index --min-reads 10
-
-``outrigger_psi`` Outputs
-^^^^^^^^^^^^^^^^^^^^^^^^^
+Outputs
+-------
 
 Now the ``outrigger_output`` folder has ``psi`` subfolder, with the MXE
 and SE events separate.
@@ -125,3 +147,6 @@ and SE events separate.
             └── psi.csv
 
     10 directories, 26 files
+
+.. _outrigger index: outrigger_index.html
+.. _outrigger validate: outrigger_validate.html

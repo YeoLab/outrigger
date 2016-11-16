@@ -6,9 +6,9 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>outrigger.index.adjacencies &mdash; BED annotator 0.2.9 documentation</title>
+    <title>outrigger.index.adjacencies &#8212; Outrigger 0.2.9 documentation</title>
     
-    <link rel="stylesheet" href="../../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
@@ -23,23 +23,20 @@
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <link rel="top" title="BED annotator 0.2.9 documentation" href="../../../index.html" />
-    <link rel="up" title="Module code" href="../../index.html" /> 
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="top" title="Outrigger 0.2.9 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
   </head>
   <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../../../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="../../../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">BED annotator 0.2.9 documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
-      </ul>
-    </div>  
+  
 
     <div class="document">
       <div class="documentwrapper">
@@ -47,46 +44,46 @@
           <div class="body" role="main">
             
   <h1>Source code for outrigger.index.adjacencies</h1><div class="highlight"><pre>
-<span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Find exons adjacent to junctions</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">sqlite3</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 
 <span class="kn">import</span> <span class="nn">gffutils</span>
-<span class="kn">from</span> <span class="nn">gffutils.helpers</span> <span class="kn">import</span> <span class="n">merge_attributes</span>
+<span class="kn">from</span> <span class="nn">gffutils.helpers</span> <span class="k">import</span> <span class="n">merge_attributes</span>
 <span class="kn">import</span> <span class="nn">joblib</span>
 
-<span class="kn">from</span> <span class="nn">..common</span> <span class="kn">import</span> <span class="n">JUNCTION_ID</span><span class="p">,</span> <span class="n">EXON_START</span><span class="p">,</span> <span class="n">EXON_STOP</span><span class="p">,</span> <span class="n">CHROM</span><span class="p">,</span> <span class="n">STRAND</span><span class="p">,</span> \
+<span class="kn">from</span> <span class="nn">..common</span> <span class="k">import</span> <span class="n">JUNCTION_ID</span><span class="p">,</span> <span class="n">EXON_START</span><span class="p">,</span> <span class="n">EXON_STOP</span><span class="p">,</span> <span class="n">CHROM</span><span class="p">,</span> <span class="n">STRAND</span><span class="p">,</span> \
     <span class="n">ORDER_BY</span>
-<span class="kn">from</span> <span class="nn">..io.gtf</span> <span class="kn">import</span> <span class="n">transform</span><span class="p">,</span> <span class="n">maybe_analyze</span>
-<span class="kn">from</span> <span class="nn">..region</span> <span class="kn">import</span> <span class="n">Region</span><span class="p">,</span> <span class="n">STRANDS</span>
-<span class="kn">from</span> <span class="nn">..util</span> <span class="kn">import</span> <span class="n">done</span><span class="p">,</span> <span class="n">progress</span>
+<span class="kn">from</span> <span class="nn">..io.gtf</span> <span class="k">import</span> <span class="n">transform</span><span class="p">,</span> <span class="n">maybe_analyze</span>
+<span class="kn">from</span> <span class="nn">..region</span> <span class="k">import</span> <span class="n">Region</span><span class="p">,</span> <span class="n">STRANDS</span>
+<span class="kn">from</span> <span class="nn">..util</span> <span class="k">import</span> <span class="n">done</span><span class="p">,</span> <span class="n">progress</span>
 
 
 <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>
-    <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s">&quot;ignore&quot;</span><span class="p">)</span>
-    <span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
+    <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
 
-<span class="n">UPSTREAM</span> <span class="o">=</span> <span class="s">&#39;upstream&#39;</span>
-<span class="n">DOWNSTREAM</span> <span class="o">=</span> <span class="s">&#39;downstream&#39;</span>
+<span class="n">UPSTREAM</span> <span class="o">=</span> <span class="s1">&#39;upstream&#39;</span>
+<span class="n">DOWNSTREAM</span> <span class="o">=</span> <span class="s1">&#39;downstream&#39;</span>
 <span class="n">DIRECTIONS</span> <span class="o">=</span> <span class="n">UPSTREAM</span><span class="p">,</span> <span class="n">DOWNSTREAM</span>
-<span class="n">NOVEL_EXON</span> <span class="o">=</span> <span class="s">&#39;novel_exon&#39;</span>
-<span class="n">OUTRIGGER_DE_NOVO</span> <span class="o">=</span> <span class="s">&#39;outrigger_de_novo&#39;</span>
+<span class="n">NOVEL_EXON</span> <span class="o">=</span> <span class="s1">&#39;novel_exon&#39;</span>
+<span class="n">OUTRIGGER_DE_NOVO</span> <span class="o">=</span> <span class="s1">&#39;outrigger_de_novo&#39;</span>
 <span class="n">MAX_DE_NOVO_EXON_LENGTH</span> <span class="o">=</span> <span class="mi">100</span>
 
 
 <span class="k">def</span> <span class="nf">_unify_strand</span><span class="p">(</span><span class="n">strand1</span><span class="p">,</span> <span class="n">strand2</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;If strands are equal, return the strand, otherwise return None&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">strand1</span> <span class="o">!=</span> <span class="n">strand2</span><span class="p">:</span>
-        <span class="n">strand</span> <span class="o">=</span> <span class="s">&#39;.&#39;</span>
+        <span class="n">strand</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">strand</span> <span class="o">=</span> <span class="n">strand1</span>
     <span class="k">return</span> <span class="n">strand</span>
 
 
-<span class="k">def</span> <span class="nf">_exons_from_neighboring_junctions</span><span class="p">(</span><span class="n">junction</span><span class="p">,</span> <span class="n">neighbors</span><span class="p">,</span> <span class="n">side</span><span class="o">=</span><span class="s">&#39;left&#39;</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_exons_from_neighboring_junctions</span><span class="p">(</span><span class="n">junction</span><span class="p">,</span> <span class="n">neighbors</span><span class="p">,</span> <span class="n">side</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Returns (chrom, start, stop, strand) of neighboring exons from junctions</span>
 
 <span class="sd">    Parameters</span>
@@ -103,17 +100,17 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">neighbors</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">side</span> <span class="o">==</span> <span class="s">&#39;left&#39;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">side</span> <span class="o">==</span> <span class="s1">&#39;left&#39;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">neighbors</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span>
             <span class="n">x</span><span class="o">.</span><span class="n">chrom</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">stop</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">junction</span><span class="o">.</span><span class="n">start</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
             <span class="n">_unify_strand</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">strand</span><span class="p">,</span> <span class="n">junction</span><span class="o">.</span><span class="n">strand</span><span class="p">)),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">side</span> <span class="o">==</span> <span class="s">&#39;right&#39;</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">side</span> <span class="o">==</span> <span class="s1">&#39;right&#39;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">neighbors</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span>
             <span class="n">x</span><span class="o">.</span><span class="n">chrom</span><span class="p">,</span> <span class="n">junction</span><span class="o">.</span><span class="n">stop</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">start</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
             <span class="n">_unify_strand</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">strand</span><span class="p">,</span> <span class="n">junction</span><span class="o">.</span><span class="n">strand</span><span class="p">)),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_neighboring_exons</span><span class="p">(</span><span class="n">junction</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">side</span><span class="o">=</span><span class="s">&#39;left&#39;</span><span class="p">,</span>
+<span class="k">def</span> <span class="nf">_neighboring_exons</span><span class="p">(</span><span class="n">junction</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">side</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span>
                        <span class="n">max_de_novo_exon_length</span><span class="o">=</span><span class="n">MAX_DE_NOVO_EXON_LENGTH</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Get either the left or right neighbors of a particular junction</span>
 
@@ -136,9 +133,9 @@
 <span class="sd">    neighboring_exon_locations : pandas.Series</span>
 <span class="sd">        A column containing (chrom, start, stop, strand) for each detected exon</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">side</span> <span class="o">==</span> <span class="s">&#39;left&#39;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">side</span> <span class="o">==</span> <span class="s1">&#39;left&#39;</span><span class="p">:</span>
         <span class="n">rows</span> <span class="o">=</span> <span class="n">junction</span><span class="o">.</span><span class="n">start</span> <span class="o">-</span> <span class="n">df</span><span class="o">.</span><span class="n">stop</span>
-    <span class="k">elif</span> <span class="n">side</span> <span class="o">==</span> <span class="s">&#39;right&#39;</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">side</span> <span class="o">==</span> <span class="s1">&#39;right&#39;</span><span class="p">:</span>
         <span class="n">rows</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">start</span> <span class="o">-</span> <span class="n">junction</span><span class="o">.</span><span class="n">stop</span>
     <span class="n">rows</span> <span class="o">=</span> <span class="n">rows</span><span class="p">[</span><span class="n">rows</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
     <span class="n">rows</span> <span class="o">=</span> <span class="n">rows</span><span class="p">[</span><span class="n">rows</span> <span class="o">&lt;=</span> <span class="n">max_de_novo_exon_length</span><span class="p">]</span>
@@ -164,11 +161,11 @@
 <span class="sd">        Start and stop of the new exon if it exists, else False, False</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">junction1</span><span class="o">.</span><span class="n">overlaps</span><span class="p">(</span><span class="n">junction2</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">False</span><span class="p">,</span> <span class="bp">False</span>
+        <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span>
 
-    <span class="c"># These are junction start/stops, not exon start/stops</span>
-    <span class="c"># Move one nt upstream of starts for exon stops,</span>
-    <span class="c"># and one nt downstream of stops for exon starts.</span>
+    <span class="c1"># These are junction start/stops, not exon start/stops</span>
+    <span class="c1"># Move one nt upstream of starts for exon stops,</span>
+    <span class="c1"># and one nt downstream of stops for exon starts.</span>
     <span class="n">option1</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">junction1</span><span class="o">.</span><span class="n">stop</span> <span class="o">-</span> <span class="n">junction2</span><span class="o">.</span><span class="n">start</span><span class="p">)</span> \
         <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_de_novo_exon_length</span>
     <span class="n">option2</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">junction2</span><span class="o">.</span><span class="n">stop</span> <span class="o">-</span> <span class="n">junction1</span><span class="o">.</span><span class="n">start</span><span class="p">)</span> \
@@ -178,13 +175,13 @@
         <span class="k">return</span> <span class="n">junction1</span><span class="o">.</span><span class="n">stop</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">junction2</span><span class="o">.</span><span class="n">start</span> <span class="o">-</span> <span class="mi">1</span>
     <span class="k">elif</span> <span class="n">option2</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">junction2</span><span class="o">.</span><span class="n">stop</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">junction1</span><span class="o">.</span><span class="n">start</span> <span class="o">-</span> <span class="mi">1</span>
-    <span class="k">return</span> <span class="bp">False</span><span class="p">,</span> <span class="bp">False</span>
+    <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span></div>
 
-</div>
+
 <div class="viewcode-block" id="ExonJunctionAdjacencies"><a class="viewcode-back" href="../../../outrigger.index.adjacencies.html#outrigger.index.adjacencies.ExonJunctionAdjacencies">[docs]</a><span class="k">class</span> <span class="nc">ExonJunctionAdjacencies</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Annotate junctions with neighboring exons (upstream or downstream)&quot;&quot;&quot;</span>
 
-    <span class="n">exon_types</span> <span class="o">=</span> <span class="s">&#39;exon&#39;</span><span class="p">,</span> <span class="n">NOVEL_EXON</span>
+    <span class="n">exon_types</span> <span class="o">=</span> <span class="s1">&#39;exon&#39;</span><span class="p">,</span> <span class="n">NOVEL_EXON</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">db</span><span class="p">,</span> <span class="n">junction_id</span><span class="o">=</span><span class="n">JUNCTION_ID</span><span class="p">,</span>
                  <span class="n">exon_start</span><span class="o">=</span><span class="n">EXON_START</span><span class="p">,</span> <span class="n">exon_stop</span><span class="o">=</span><span class="n">EXON_STOP</span><span class="p">,</span>
@@ -209,8 +206,8 @@
 
         <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">column</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">metadata</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;The required column {} is not in the splice &#39;</span>
-                                 <span class="s">&#39;junction dataframe&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">column</span><span class="p">))</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;The required column </span><span class="si">{}</span><span class="s1"> is not in the splice &#39;</span>
+                                 <span class="s1">&#39;junction dataframe&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">column</span><span class="p">))</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="n">metadata</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">junction_id</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
@@ -222,10 +219,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">strand</span> <span class="o">=</span> <span class="n">strand</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">db</span> <span class="o">=</span> <span class="n">db</span>
-        <span class="n">progress</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\t</span><span class="s">Looking up which exons are already defined ...&#39;</span><span class="p">)</span>
+        <span class="n">progress</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">Looking up which exons are already defined ...&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">existing_exons</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span>
-            <span class="n">i</span><span class="p">[</span><span class="s">&#39;id&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
-                <span class="s">&#39;select id from features where featuretype = &quot;exon&quot;&#39;</span><span class="p">))</span>
+            <span class="n">i</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+                <span class="s1">&#39;select id from features where featuretype = &quot;exon&quot;&#39;</span><span class="p">))</span>
         <span class="n">done</span><span class="p">(</span><span class="n">n_tabs</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_de_novo_exon_length</span> <span class="o">=</span> <span class="n">max_de_novo_exon_length</span>
 
@@ -234,63 +231,63 @@
 <div class="viewcode-block" id="ExonJunctionAdjacencies.detect_exons_from_junctions"><a class="viewcode-back" href="../../../outrigger.index.adjacencies.html#outrigger.index.adjacencies.ExonJunctionAdjacencies.detect_exons_from_junctions">[docs]</a>    <span class="k">def</span> <span class="nf">detect_exons_from_junctions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Find exons based on gaps in junctions&quot;&quot;&quot;</span>
         <span class="n">junctions</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">Region</span><span class="p">),</span>
-                              <span class="n">name</span><span class="o">=</span><span class="s">&#39;region&#39;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+                              <span class="n">name</span><span class="o">=</span><span class="s1">&#39;region&#39;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
         <span class="n">junctions</span> <span class="o">=</span> <span class="n">junctions</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span>
-        <span class="n">junctions</span><span class="p">[</span><span class="s">&#39;chrom&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">junctions</span><span class="p">[</span><span class="s">&#39;region&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">chrom</span><span class="p">)</span>
-        <span class="n">junctions</span><span class="p">[</span><span class="s">&#39;start&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">junctions</span><span class="p">[</span><span class="s">&#39;region&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">start</span><span class="p">)</span>
-        <span class="n">junctions</span><span class="p">[</span><span class="s">&#39;stop&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">junctions</span><span class="p">[</span><span class="s">&#39;region&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">stop</span><span class="p">)</span>
-        <span class="n">junctions</span><span class="p">[</span><span class="s">&#39;strand&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">junctions</span><span class="p">[</span><span class="s">&#39;region&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">strand</span><span class="p">)</span>
+        <span class="n">junctions</span><span class="p">[</span><span class="s1">&#39;chrom&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">junctions</span><span class="p">[</span><span class="s1">&#39;region&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">chrom</span><span class="p">)</span>
+        <span class="n">junctions</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">junctions</span><span class="p">[</span><span class="s1">&#39;region&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">start</span><span class="p">)</span>
+        <span class="n">junctions</span><span class="p">[</span><span class="s1">&#39;stop&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">junctions</span><span class="p">[</span><span class="s1">&#39;region&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">stop</span><span class="p">)</span>
+        <span class="n">junctions</span><span class="p">[</span><span class="s1">&#39;strand&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">junctions</span><span class="p">[</span><span class="s1">&#39;region&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">strand</span><span class="p">)</span>
 
-        <span class="k">for</span> <span class="n">chrom</span><span class="p">,</span> <span class="n">df</span> <span class="ow">in</span> <span class="n">junctions</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s">&#39;chrom&#39;</span><span class="p">):</span>
-            <span class="c"># Only get left-adjacent novel exons since there has to be a</span>
-            <span class="c"># junction on both sides, and since we iterate over ALL junctions,</span>
-            <span class="c"># if we get all left and right exons for all junctions, we&#39;re</span>
-            <span class="c"># double-counting exons</span>
-            <span class="n">progress</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\t</span><span class="s">Finding all exons on chromosome {chrom} &#39;</span>
-                     <span class="s">&#39;...&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">chrom</span><span class="o">=</span><span class="n">chrom</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">chrom</span><span class="p">,</span> <span class="n">df</span> <span class="ow">in</span> <span class="n">junctions</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;chrom&#39;</span><span class="p">):</span>
+            <span class="c1"># Only get left-adjacent novel exons since there has to be a</span>
+            <span class="c1"># junction on both sides, and since we iterate over ALL junctions,</span>
+            <span class="c1"># if we get all left and right exons for all junctions, we&#39;re</span>
+            <span class="c1"># double-counting exons</span>
+            <span class="n">progress</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">Finding all exons on chromosome </span><span class="si">{chrom}</span><span class="s1"> &#39;</span>
+                     <span class="s1">&#39;...&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">chrom</span><span class="o">=</span><span class="n">chrom</span><span class="p">))</span>
             <span class="n">exon_locations</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">joblib</span><span class="o">.</span><span class="n">Parallel</span><span class="p">(</span><span class="n">n_jobs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span><span class="p">)(</span>
-                <span class="n">joblib</span><span class="o">.</span><span class="n">delayed</span><span class="p">(</span><span class="n">_neighboring_exons</span><span class="p">)(</span><span class="n">junction</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="s">&#39;left&#39;</span><span class="p">)</span>
+                <span class="n">joblib</span><span class="o">.</span><span class="n">delayed</span><span class="p">(</span><span class="n">_neighboring_exons</span><span class="p">)(</span><span class="n">junction</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="s1">&#39;left&#39;</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">junction</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">region</span><span class="p">))</span>
             <span class="n">done</span><span class="p">(</span><span class="n">n_tabs</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
 
-            <span class="n">progress</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\t\t</span><span class="s">Filtering for only novel exons on chromosome &#39;</span>
-                     <span class="s">&#39;{chrom} ...&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">chrom</span><span class="o">=</span><span class="n">chrom</span><span class="p">))</span>
+            <span class="n">progress</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t\t</span><span class="s1">Filtering for only novel exons on chromosome &#39;</span>
+                     <span class="s1">&#39;</span><span class="si">{chrom}</span><span class="s1"> ...&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">chrom</span><span class="o">=</span><span class="n">chrom</span><span class="p">))</span>
             <span class="n">novel_exons</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">exon_locations</span> <span class="k">if</span>
-                              <span class="s">&#39;exon:{}:{}-{}:{}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">x</span><span class="p">)</span>
+                              <span class="s1">&#39;exon:</span><span class="si">{}</span><span class="s1">:</span><span class="si">{}</span><span class="s1">-</span><span class="si">{}</span><span class="s1">:</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">x</span><span class="p">)</span>
                               <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">existing_exons</span><span class="p">)</span>
             <span class="n">done</span><span class="p">(</span><span class="n">n_tabs</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
 
-            <span class="n">progress</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\t\t</span><span class="s">Creating gffutils.Feature objects for each novel &#39;</span>
-                     <span class="s">&#39;exon, plus potentially its overlapping gene&#39;</span><span class="p">)</span>
+            <span class="n">progress</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t\t</span><span class="s1">Creating gffutils.Feature objects for each novel &#39;</span>
+                     <span class="s1">&#39;exon, plus potentially its overlapping gene&#39;</span><span class="p">)</span>
             <span class="n">exon_features</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">exon_location_to_feature</span><span class="p">(</span><span class="o">*</span><span class="n">x</span><span class="p">)</span>
                              <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">novel_exons</span><span class="p">]</span>
             <span class="n">done</span><span class="p">(</span><span class="n">n_tabs</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
 
-            <span class="n">progress</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\t\t</span><span class="s">Updating gffutils database with {n} novel exons on &#39;</span>
-                     <span class="s">&#39;chromosome {chrom} ...&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">chrom</span><span class="o">=</span><span class="n">chrom</span><span class="p">,</span>
+            <span class="n">progress</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t\t</span><span class="s1">Updating gffutils database with </span><span class="si">{n}</span><span class="s1"> novel exons on &#39;</span>
+                     <span class="s1">&#39;chromosome </span><span class="si">{chrom}</span><span class="s1"> ...&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">chrom</span><span class="o">=</span><span class="n">chrom</span><span class="p">,</span>
                                                      <span class="n">n</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">novel_exons</span><span class="p">)))</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">exon_features</span><span class="p">,</span>
-                               <span class="n">make_backup</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
-                               <span class="n">id_spec</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;novel_exon&#39;</span><span class="p">:</span> <span class="s">&#39;location_id&#39;</span><span class="p">},</span>
+                               <span class="n">make_backup</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                               <span class="n">id_spec</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;novel_exon&#39;</span><span class="p">:</span> <span class="s1">&#39;location_id&#39;</span><span class="p">},</span>
                                <span class="n">transform</span><span class="o">=</span><span class="n">transform</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-                <span class="n">progress</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\t</span><span class="s">No novel exons found on chromosome &#39;</span>
-                         <span class="s">&#39;{chrom}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">chrom</span><span class="o">=</span><span class="n">chrom</span><span class="p">))</span>
+                <span class="n">progress</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">No novel exons found on chromosome &#39;</span>
+                         <span class="s1">&#39;</span><span class="si">{chrom}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">chrom</span><span class="o">=</span><span class="n">chrom</span><span class="p">))</span>
             <span class="n">done</span><span class="p">(</span><span class="n">n_tabs</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
 
-        <span class="c"># For up to 1000x faster queries, re-Analyze the database now that it</span>
-        <span class="c"># has been updated</span>
-        <span class="n">maybe_analyze</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="p">)</span>
-</div>
+        <span class="c1"># For up to 1000x faster queries, re-Analyze the database now that it</span>
+        <span class="c1"># has been updated</span>
+        <span class="n">maybe_analyze</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="ExonJunctionAdjacencies.exon_location_to_feature"><a class="viewcode-back" href="../../../outrigger.index.adjacencies.html#outrigger.index.adjacencies.ExonJunctionAdjacencies.exon_location_to_feature">[docs]</a>    <span class="k">def</span> <span class="nf">exon_location_to_feature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chrom</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">,</span> <span class="n">strand</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">strand</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">STRANDS</span><span class="p">:</span>
-            <span class="n">strand</span> <span class="o">=</span> <span class="s">&#39;.&#39;</span>
+            <span class="n">strand</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span>
         <span class="n">overlapping_genes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">region</span><span class="p">(</span><span class="n">seqid</span><span class="o">=</span><span class="n">chrom</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span>
                                            <span class="n">end</span><span class="o">=</span><span class="n">stop</span><span class="p">,</span> <span class="n">strand</span><span class="o">=</span><span class="n">strand</span><span class="p">,</span>
-                                           <span class="n">featuretype</span><span class="o">=</span><span class="s">&#39;gene&#39;</span><span class="p">)</span>
+                                           <span class="n">featuretype</span><span class="o">=</span><span class="s1">&#39;gene&#39;</span><span class="p">)</span>
 
-        <span class="n">exon_id</span> <span class="o">=</span> <span class="s">&#39;exon:{chrom}:{start}-{stop}:{strand}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">exon_id</span> <span class="o">=</span> <span class="s1">&#39;exon:</span><span class="si">{chrom}</span><span class="s1">:</span><span class="si">{start}</span><span class="s1">-</span><span class="si">{stop}</span><span class="s1">:</span><span class="si">{strand}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
             <span class="n">chrom</span><span class="o">=</span><span class="n">chrom</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="o">=</span><span class="n">stop</span><span class="p">,</span> <span class="n">strand</span><span class="o">=</span><span class="n">strand</span><span class="p">)</span>
 
         <span class="n">attributes</span> <span class="o">=</span> <span class="p">{}</span>
@@ -301,33 +298,33 @@
                                 <span class="n">featuretype</span><span class="o">=</span><span class="n">NOVEL_EXON</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span>
                                 <span class="n">end</span><span class="o">=</span><span class="n">stop</span><span class="p">,</span> <span class="n">strand</span><span class="o">=</span><span class="n">strand</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">exon_id</span><span class="p">,</span>
                                 <span class="n">attributes</span><span class="o">=</span><span class="n">attributes</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">exon</span>
-</div>
-<div class="viewcode-block" id="ExonJunctionAdjacencies.write_de_novo_exons"><a class="viewcode-back" href="../../../outrigger.index.adjacencies.html#outrigger.index.adjacencies.ExonJunctionAdjacencies.write_de_novo_exons">[docs]</a>    <span class="k">def</span> <span class="nf">write_de_novo_exons</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s">&#39;novel_exons.gtf&#39;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">exon</span></div>
+
+<div class="viewcode-block" id="ExonJunctionAdjacencies.write_de_novo_exons"><a class="viewcode-back" href="../../../outrigger.index.adjacencies.html#outrigger.index.adjacencies.ExonJunctionAdjacencies.write_de_novo_exons">[docs]</a>    <span class="k">def</span> <span class="nf">write_de_novo_exons</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;novel_exons.gtf&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Write all de novo exons to a gtf&quot;&quot;&quot;</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">novel_exons</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">features_of_type</span><span class="p">(</span><span class="n">NOVEL_EXON</span><span class="p">,</span>
                                                    <span class="n">order_by</span><span class="o">=</span><span class="n">ORDER_BY</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">noveL_exon</span> <span class="ow">in</span> <span class="n">novel_exons</span><span class="p">:</span>
-                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">noveL_exon</span><span class="p">)</span> <span class="o">+</span> <span class="s">&#39;</span><span class="se">\n</span><span class="s">&#39;</span><span class="p">)</span>
-</div>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">noveL_exon</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="ExonJunctionAdjacencies.add_exon_to_db"><a class="viewcode-back" href="../../../outrigger.index.adjacencies.html#outrigger.index.adjacencies.ExonJunctionAdjacencies.add_exon_to_db">[docs]</a>    <span class="k">def</span> <span class="nf">add_exon_to_db</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chrom</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">,</span> <span class="n">strand</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">strand</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">STRANDS</span><span class="p">:</span>
-            <span class="n">strand</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="n">strand</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">overlapping_genes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">region</span><span class="p">(</span><span class="n">seqid</span><span class="o">=</span><span class="n">chrom</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span>
                                                 <span class="n">end</span><span class="o">=</span><span class="n">stop</span><span class="p">,</span> <span class="n">strand</span><span class="o">=</span><span class="n">strand</span><span class="p">,</span>
-                                                <span class="n">featuretype</span><span class="o">=</span><span class="s">&#39;gene&#39;</span><span class="p">))</span>
+                                                <span class="n">featuretype</span><span class="o">=</span><span class="s1">&#39;gene&#39;</span><span class="p">))</span>
 
-        <span class="n">exon_id</span> <span class="o">=</span> <span class="s">&#39;exon:{chrom}:{start}-{stop}:{strand}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">exon_id</span> <span class="o">=</span> <span class="s1">&#39;exon:</span><span class="si">{chrom}</span><span class="s1">:</span><span class="si">{start}</span><span class="s1">-</span><span class="si">{stop}</span><span class="s1">:</span><span class="si">{strand}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
             <span class="n">chrom</span><span class="o">=</span><span class="n">chrom</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="o">=</span><span class="n">stop</span><span class="p">,</span> <span class="n">strand</span><span class="o">=</span><span class="n">strand</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">overlapping_genes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">exon</span> <span class="o">=</span> <span class="n">gffutils</span><span class="o">.</span><span class="n">Feature</span><span class="p">(</span><span class="n">chrom</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="n">OUTRIGGER_DE_NOVO</span><span class="p">,</span>
                                     <span class="n">featuretype</span><span class="o">=</span><span class="n">NOVEL_EXON</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span>
                                     <span class="n">end</span><span class="o">=</span><span class="n">stop</span><span class="p">,</span> <span class="n">strand</span><span class="o">=</span><span class="n">strand</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">exon_id</span><span class="p">)</span>
-            <span class="n">progress</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\t</span><span class="s">Added a novel exon ({}), located in an unannotated&#39;</span>
-                     <span class="s">&#39; gene&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">exon</span><span class="o">.</span><span class="n">id</span><span class="p">))</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">update</span><span class="p">([</span><span class="n">exon</span><span class="p">],</span> <span class="n">id_spec</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;novel_exon&#39;</span><span class="p">:</span> <span class="s">&#39;location_id&#39;</span><span class="p">},</span>
+            <span class="n">progress</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">Added a novel exon (</span><span class="si">{}</span><span class="s1">), located in an unannotated&#39;</span>
+                     <span class="s1">&#39; gene&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">exon</span><span class="o">.</span><span class="n">id</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">update</span><span class="p">([</span><span class="n">exon</span><span class="p">],</span> <span class="n">id_spec</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;novel_exon&#39;</span><span class="p">:</span> <span class="s1">&#39;location_id&#39;</span><span class="p">},</span>
                            <span class="n">transform</span><span class="o">=</span><span class="n">transform</span><span class="p">)</span>
             <span class="k">return</span>
 
@@ -337,31 +334,31 @@
             <span class="n">attributes</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">attributes</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
                          <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">overlapping_genes</span><span class="p">]</span>
 
-        <span class="c"># Add all exons that aren&#39;t already there</span>
+        <span class="c1"># Add all exons that aren&#39;t already there</span>
         <span class="k">for</span> <span class="n">exon</span> <span class="ow">in</span> <span class="n">de_novo_exons</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="k">try</span><span class="p">:</span>
-                    <span class="n">gene_name</span> <span class="o">=</span> <span class="s">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">exon</span><span class="o">.</span><span class="n">attributes</span><span class="p">[</span><span class="s">&#39;gene_name&#39;</span><span class="p">])</span>
+                    <span class="n">gene_name</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">exon</span><span class="o">.</span><span class="n">attributes</span><span class="p">[</span><span class="s1">&#39;gene_name&#39;</span><span class="p">])</span>
                 <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
                     <span class="k">try</span><span class="p">:</span>
-                        <span class="n">gene_name</span> <span class="o">=</span> <span class="s">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">exon</span><span class="o">.</span><span class="n">attributes</span><span class="p">[</span><span class="s">&#39;gene_id&#39;</span><span class="p">])</span>
+                        <span class="n">gene_name</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">exon</span><span class="o">.</span><span class="n">attributes</span><span class="p">[</span><span class="s1">&#39;gene_id&#39;</span><span class="p">])</span>
                     <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-                        <span class="n">gene_name</span> <span class="o">=</span> <span class="s">&#39;unknown_gene&#39;</span>
+                        <span class="n">gene_name</span> <span class="o">=</span> <span class="s1">&#39;unknown_gene&#39;</span>
                 <span class="k">try</span><span class="p">:</span>
-                    <span class="c"># Check that the non-novel exon doesn&#39;t exist already</span>
+                    <span class="c1"># Check that the non-novel exon doesn&#39;t exist already</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="n">exon_id</span> <span class="o">+</span> <span class="n">exon</span><span class="o">.</span><span class="n">strand</span><span class="p">]</span>
                 <span class="k">except</span> <span class="n">gffutils</span><span class="o">.</span><span class="n">FeatureNotFoundError</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">update</span><span class="p">([</span><span class="n">exon</span><span class="p">],</span>
-                                   <span class="n">id_spec</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;novel_exon&#39;</span><span class="p">:</span> <span class="s">&#39;location_id&#39;</span><span class="p">},</span>
+                                   <span class="n">id_spec</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;novel_exon&#39;</span><span class="p">:</span> <span class="s1">&#39;location_id&#39;</span><span class="p">},</span>
                                    <span class="n">transform</span><span class="o">=</span><span class="n">transform</span><span class="p">)</span>
                     <span class="n">progress</span><span class="p">(</span>
-                        <span class="s">&#39;</span><span class="se">\t</span><span class="s">Added a novel exon ({}) in the gene {} &#39;</span>
-                        <span class="s">&#39;({})&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                            <span class="n">exon</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="s">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">exon</span><span class="o">.</span><span class="n">attributes</span><span class="p">[</span><span class="s">&#39;gene_id&#39;</span><span class="p">]),</span>
+                        <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">Added a novel exon (</span><span class="si">{}</span><span class="s1">) in the gene </span><span class="si">{}</span><span class="s1"> &#39;</span>
+                        <span class="s1">&#39;(</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                            <span class="n">exon</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">exon</span><span class="o">.</span><span class="n">attributes</span><span class="p">[</span><span class="s1">&#39;gene_id&#39;</span><span class="p">]),</span>
                             <span class="n">gene_name</span><span class="p">))</span>
             <span class="k">except</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">IntegrityError</span><span class="p">:</span>
-                <span class="k">continue</span>
-</div>
+                <span class="k">continue</span></div>
+
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_single_junction_exon_triple</span><span class="p">(</span><span class="n">direction_ind</span><span class="p">,</span> <span class="n">direction</span><span class="p">,</span> <span class="n">exon_id</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Create exon, direction, junction triples for an exon + its junctions</span>
@@ -388,7 +385,7 @@
         <span class="n">directions</span> <span class="o">=</span> <span class="p">[</span><span class="n">direction</span><span class="p">]</span> <span class="o">*</span> <span class="n">length</span>
         <span class="n">junctions</span> <span class="o">=</span> <span class="n">direction_ind</span><span class="p">[</span><span class="n">direction_ind</span><span class="p">]</span><span class="o">.</span><span class="n">index</span>
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">exons</span><span class="p">,</span> <span class="n">directions</span><span class="p">,</span> <span class="n">junctions</span><span class="p">)),</span>
-                            <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;exon&#39;</span><span class="p">,</span> <span class="s">&#39;direction&#39;</span><span class="p">,</span> <span class="s">&#39;junction&#39;</span><span class="p">])</span>
+                            <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;exon&#39;</span><span class="p">,</span> <span class="s1">&#39;direction&#39;</span><span class="p">,</span> <span class="s1">&#39;junction&#39;</span><span class="p">])</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_to_stranded_transcript_adjacency</span><span class="p">(</span><span class="n">adjacent_in_genome</span><span class="p">,</span> <span class="n">strand</span><span class="p">):</span>
@@ -403,15 +400,15 @@
 <span class="sd">        strand : &quot;-&quot; | &quot;+&quot;</span>
 <span class="sd">            Positive or negative strand</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">strand</span> <span class="o">==</span> <span class="s">&#39;+&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">strand</span> <span class="o">==</span> <span class="s1">&#39;+&#39;</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">{</span><span class="n">UPSTREAM</span><span class="p">:</span> <span class="n">adjacent_in_genome</span><span class="p">[</span><span class="n">UPSTREAM</span><span class="p">],</span>
                     <span class="n">DOWNSTREAM</span><span class="p">:</span> <span class="n">adjacent_in_genome</span><span class="p">[</span><span class="n">DOWNSTREAM</span><span class="p">]}</span>
-        <span class="k">elif</span> <span class="n">strand</span> <span class="o">==</span> <span class="s">&#39;-&#39;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">strand</span> <span class="o">==</span> <span class="s1">&#39;-&#39;</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">{</span><span class="n">UPSTREAM</span><span class="p">:</span> <span class="n">adjacent_in_genome</span><span class="p">[</span><span class="n">DOWNSTREAM</span><span class="p">],</span>
                     <span class="n">DOWNSTREAM</span><span class="p">:</span> <span class="n">adjacent_in_genome</span><span class="p">[</span><span class="n">UPSTREAM</span><span class="p">]}</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="c"># If strand is unknown, put both upstream and downstream for each</span>
-            <span class="c"># side</span>
+            <span class="c1"># If strand is unknown, put both upstream and downstream for each</span>
+            <span class="c1"># side</span>
             <span class="n">adjacent</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">adjacent_in_genome</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
             <span class="k">return</span> <span class="p">{</span><span class="n">UPSTREAM</span><span class="p">:</span> <span class="n">adjacent</span><span class="p">,</span> <span class="n">DOWNSTREAM</span><span class="p">:</span> <span class="n">adjacent</span><span class="p">}</span>
 
@@ -449,10 +446,10 @@
                 <span class="n">dfs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">dfs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">dfs</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">dfs</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
-</div>
+            <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span></div>
+
 <div class="viewcode-block" id="ExonJunctionAdjacencies.upstream_downstream_exons"><a class="viewcode-back" href="../../../outrigger.index.adjacencies.html#outrigger.index.adjacencies.ExonJunctionAdjacencies.upstream_downstream_exons">[docs]</a>    <span class="k">def</span> <span class="nf">upstream_downstream_exons</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get upstream and downstream exons of each junction</span>
 
@@ -495,14 +492,14 @@
 
         <span class="n">dfs</span> <span class="o">=</span> <span class="p">[]</span>
 
-        <span class="n">progress</span><span class="p">(</span><span class="s">&#39;Starting annotation of all junctions with known &#39;</span>
-                 <span class="s">&#39;neighboring exons ...&#39;</span><span class="p">)</span>
+        <span class="n">progress</span><span class="p">(</span><span class="s1">&#39;Starting annotation of all junctions with known &#39;</span>
+                 <span class="s1">&#39;neighboring exons ...&#39;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">exon</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">features_of_type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exon_types</span><span class="p">)):</span>
             <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="mi">10000</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">progress</span><span class="p">(</span><span class="s">&#39;</span><span class="se">\t</span><span class="s">{}/{} exons completed&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">n_exons</span><span class="p">))</span>
+                <span class="n">progress</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="si">{}</span><span class="s1">/</span><span class="si">{}</span><span class="s1"> exons completed&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">n_exons</span><span class="p">))</span>
             <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">junctions_adjacent_to_this_exon</span><span class="p">(</span><span class="n">exon</span><span class="p">)</span>
             <span class="n">dfs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
-        <span class="n">junction_exon_triples</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">dfs</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">junction_exon_triples</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">dfs</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">done</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">junction_exon_triples</span></div></div>
 </pre></div>
@@ -511,40 +508,40 @@
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../../../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="../../../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../../index.html">BED annotator 0.2.9 documentation</a> &raquo;</li>
-          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &raquo;</li> 
-      </ul>
+    <div class="footer">
+      &copy;2015-2016, Olga Botvinnik.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
     </div>
-    <div class="footer" role="contentinfo">
-        &copy; Copyright 2015, Olga Botvinnik.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
-    </div>
+
+    
+
+    
   </body>
 </html>

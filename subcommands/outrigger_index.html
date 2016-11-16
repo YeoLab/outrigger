@@ -6,9 +6,9 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>index: Build a de novo splicing annotation index of events custom to your data &mdash; BED annotator 0.2.9 documentation</title>
+    <title>index: Build a de novo splicing annotation index of events custom to your data &#8212; Outrigger 0.2.9 documentation</title>
     
-    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
@@ -23,21 +23,19 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="BED annotator 0.2.9 documentation" href="../index.html" /> 
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="top" title="Outrigger 0.2.9 documentation" href="../index.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
   </head>
   <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">BED annotator 0.2.9 documentation</a> &raquo;</li> 
-      </ul>
-    </div>  
+  
 
     <div class="document">
       <div class="documentwrapper">
@@ -49,7 +47,7 @@
 <p>The &#8220;help&#8221; output of the two programs tries to be explicit about what is
 required to run <code class="docutils literal"><span class="pre">outrigger</span></code>. Below is the output of when you use the
 command, <code class="docutils literal"><span class="pre">outrigger</span> <span class="pre">index</span> <span class="pre">--help</span></code></p>
-<div class="highlight-python"><div class="highlight"><pre>$ outrigger index --help
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ outrigger index --help
 usage: outrigger index [-h] [-o OUTPUT]
                        (-j [SJ_OUT_TAB [SJ_OUT_TAB ...]] | -c COMPILED_JUNCTION_READS | -b [BAMS [BAMS ...]])
                        [-m MIN_READS] [--ignore-multimapping]
@@ -140,9 +138,9 @@ M10</a> (Version M10
 <code class="docutils literal"><span class="pre">outrigger</span></code> directory where you cloned <code class="docutils literal"><span class="pre">outrigger</span></code> (this is
 important because the locations of the files is relative to that
 directory), run this command:</p>
-<div class="highlight-python"><div class="highlight"><pre>outrigger index \
-    --sj-out-tab outrigger/tests/data/tasic2016/unprocessed/sj_out_tab/* \
-    --gtf outrigger/tests/data/tasic2016/unprocessed/gtf/gencode.vM10.annotation.snap25.myl6.gtf
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">outrigger</span> <span class="n">index</span> \
+    <span class="o">--</span><span class="n">sj</span><span class="o">-</span><span class="n">out</span><span class="o">-</span><span class="n">tab</span> <span class="n">outrigger</span><span class="o">/</span><span class="n">tests</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">tasic2016</span><span class="o">/</span><span class="n">unprocessed</span><span class="o">/</span><span class="n">sj_out_tab</span><span class="o">/*</span> \
+    <span class="o">--</span><span class="n">gtf</span> <span class="n">outrigger</span><span class="o">/</span><span class="n">tests</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">tasic2016</span><span class="o">/</span><span class="n">unprocessed</span><span class="o">/</span><span class="n">gtf</span><span class="o">/</span><span class="n">gencode</span><span class="o">.</span><span class="n">vM10</span><span class="o">.</span><span class="n">annotation</span><span class="o">.</span><span class="n">snap25</span><span class="o">.</span><span class="n">myl6</span><span class="o">.</span><span class="n">gtf</span>
 </pre></div>
 </div>
 <p><em>Note: the backslashes (````, like a tree that&#8217;s falling backwards
@@ -151,19 +149,19 @@ done telling it what to do, so the line continues, and to help the code
 be a little more human-readable. The above code is read by the computer
 exactly the same as the one-liner below, but is easier for us humans to
 read.</em></p>
-<div class="highlight-python"><div class="highlight"><pre>outrigger index --sj-out-tab outrigger/tests/data/tasic2016/unprocessed/sj_out_tab/* --gtf outrigger/tests/data/tasic2016/unprocessed/gtf/gencode.vM10.annotation.snap25.myl6.gtf
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">outrigger</span> <span class="n">index</span> <span class="o">--</span><span class="n">sj</span><span class="o">-</span><span class="n">out</span><span class="o">-</span><span class="n">tab</span> <span class="n">outrigger</span><span class="o">/</span><span class="n">tests</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">tasic2016</span><span class="o">/</span><span class="n">unprocessed</span><span class="o">/</span><span class="n">sj_out_tab</span><span class="o">/*</span> <span class="o">--</span><span class="n">gtf</span> <span class="n">outrigger</span><span class="o">/</span><span class="n">tests</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">tasic2016</span><span class="o">/</span><span class="n">unprocessed</span><span class="o">/</span><span class="n">gtf</span><span class="o">/</span><span class="n">gencode</span><span class="o">.</span><span class="n">vM10</span><span class="o">.</span><span class="n">annotation</span><span class="o">.</span><span class="n">snap25</span><span class="o">.</span><span class="n">myl6</span><span class="o">.</span><span class="n">gtf</span>
 </pre></div>
 </div>
 <p>This is equivalent to the below command, which specifies all the other
 arguments with the default values.</p>
-<div class="highlight-python"><div class="highlight"><pre>outrigger index \
-    --sj-out-tab outrigger/tests/data/tasic2016/unprocessed/sj_out_tab/* \
-    --gtf outrigger/tests/data/tasic2016/unprocessed/gtf/gencode.vM10.annotation.snap25.myl6.gtf \
-    --output ./outrigger_output --min-reads 10
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">outrigger</span> <span class="n">index</span> \
+    <span class="o">--</span><span class="n">sj</span><span class="o">-</span><span class="n">out</span><span class="o">-</span><span class="n">tab</span> <span class="n">outrigger</span><span class="o">/</span><span class="n">tests</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">tasic2016</span><span class="o">/</span><span class="n">unprocessed</span><span class="o">/</span><span class="n">sj_out_tab</span><span class="o">/*</span> \
+    <span class="o">--</span><span class="n">gtf</span> <span class="n">outrigger</span><span class="o">/</span><span class="n">tests</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">tasic2016</span><span class="o">/</span><span class="n">unprocessed</span><span class="o">/</span><span class="n">gtf</span><span class="o">/</span><span class="n">gencode</span><span class="o">.</span><span class="n">vM10</span><span class="o">.</span><span class="n">annotation</span><span class="o">.</span><span class="n">snap25</span><span class="o">.</span><span class="n">myl6</span><span class="o">.</span><span class="n">gtf</span> \
+    <span class="o">--</span><span class="n">output</span> <span class="o">./</span><span class="n">outrigger_output</span> <span class="o">--</span><span class="nb">min</span><span class="o">-</span><span class="n">reads</span> <span class="mi">10</span>
 </pre></div>
 </div>
 <p>The output of this command is:</p>
-<div class="highlight-python"><div class="highlight"><pre>$ outrigger index --sj-out-tab example_data/tasic2016/unprocessed/sj_out_tab/* --gtf example_data/tasic2016/unprocessed/gtf/snap25_myl6.gtf
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ outrigger index --sj-out-tab example_data/tasic2016/unprocessed/sj_out_tab/* --gtf example_data/tasic2016/unprocessed/gtf/snap25_myl6.gtf
 2016-08-12 11:24:03 Reading SJ.out.files and creating a big splice junction table of reads spanning exon-exon junctions...
 2016-08-12 11:24:03 Writing ./outrigger_output/junction_reads/reads.csv ...
 
@@ -258,9 +256,9 @@ arguments with the default values.</p>
 </div>
 <div class="section" id="example-outrigger-index-with-bam-files">
 <h3>Example <code class="docutils literal"><span class="pre">outrigger</span> <span class="pre">index</span></code> with <code class="docutils literal"><span class="pre">bam</span></code> files<a class="headerlink" href="#example-outrigger-index-with-bam-files" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-python"><div class="highlight"><pre>outrigger index \
-    --bams outrigger/tests/data/tasic2016/unprocessed/bam/* \
-    --gtf outrigger/tests/data/tasic2016/unprocessed/gtf/gencode.vM10.annotation.snap25.myl6.gtf
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">outrigger</span> <span class="n">index</span> \
+    <span class="o">--</span><span class="n">bams</span> <span class="n">outrigger</span><span class="o">/</span><span class="n">tests</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">tasic2016</span><span class="o">/</span><span class="n">unprocessed</span><span class="o">/</span><span class="n">bam</span><span class="o">/*</span> \
+    <span class="o">--</span><span class="n">gtf</span> <span class="n">outrigger</span><span class="o">/</span><span class="n">tests</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">tasic2016</span><span class="o">/</span><span class="n">unprocessed</span><span class="o">/</span><span class="n">gtf</span><span class="o">/</span><span class="n">gencode</span><span class="o">.</span><span class="n">vM10</span><span class="o">.</span><span class="n">annotation</span><span class="o">.</span><span class="n">snap25</span><span class="o">.</span><span class="n">myl6</span><span class="o">.</span><span class="n">gtf</span>
 </pre></div>
 </div>
 </div>
@@ -269,7 +267,7 @@ arguments with the default values.</p>
 <h2><code class="docutils literal"><span class="pre">outrigger_index</span></code> Outputs<a class="headerlink" href="#outrigger-index-outputs" title="Permalink to this headline">¶</a></h2>
 <p>The above commands will create a folder called <code class="docutils literal"><span class="pre">outrigger_index</span></code> in
 the folder you ran the command from, with the following structure</p>
-<div class="highlight-python"><div class="highlight"><pre>$ tree outrigger_output
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ tree outrigger_output
 outrigger_output
 ├── index
 │   ├── gtf
@@ -318,7 +316,13 @@ outrigger_output
 </ul>
 </li>
 </ul>
-
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -329,35 +333,31 @@ outrigger_output
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">BED annotator 0.2.9 documentation</a> &raquo;</li> 
-      </ul>
+    <div class="footer">
+      &copy;2015-2016, Olga Botvinnik.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="../_sources/subcommands/outrigger_index.txt"
+          rel="nofollow">Page source</a>
     </div>
-    <div class="footer" role="contentinfo">
-        &copy; Copyright 2015, Olga Botvinnik.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
-    </div>
+
+    
+
+    
   </body>
 </html>

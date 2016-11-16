@@ -6,17 +6,19 @@
 Welcome to ``outrigger``'s documentation!
 =========================================
 
+.. include:: ../README.rst
+
+
 Contents:
 
 .. toctree::
    :maxdepth: 2
 
-   readme
-   installation
-   usage
-   contributing
-   authors
-   history
+    installation
+    usage
+    contributing
+    authors
+    history
 
 Indices and tables
 ==================
@@ -25,3 +27,14 @@ Indices and tables
 * :ref:`modindex`
 * :ref:`search`
 
+.. |OutriggerLogo| image:: https://raw.githubusercontent.com/YeoLab/outrigger/master/logo/logo_v1.png
+.. |BuildStatus| image:: https://travis-ci.org/YeoLab/outrigger.svg?branch=master
+   :target: https://travis-ci.org/YeoLab/outrigger
+.. |codecov| image:: https://codecov.io/gh/YeoLab/outrigger/branch/master/graph/badge.svg
+   :target: https://codecov.io/gh/YeoLab/outrigger
+.. |PyPI versions| image:: https://img.shields.io/pypi/v/outrigger.svg
+   :target: https://pypi.python.org/pypi/outrigger
+.. |PythonVersionCompatibility| image:: https://img.shields.io/pypi/pyversions/outrigger.svg
+   :target: https://pypi.python.org/pypi/outrigger
+.. |license| image:: https://img.shields.io/github/pypi/l/outrigger.svg
+   :target:

@@ -6,9 +6,9 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>outrigger.index.adjacencies module &mdash; BED annotator 0.2.9 documentation</title>
+    <title>outrigger.index.adjacencies module &#8212; Outrigger 0.2.9 documentation</title>
     
-    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
@@ -23,21 +23,19 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="BED annotator 0.2.9 documentation" href="index.html" /> 
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="top" title="Outrigger 0.2.9 documentation" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
   </head>
   <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">BED annotator 0.2.9 documentation</a> &raquo;</li> 
-      </ul>
-    </div>  
+  
 
     <div class="document">
       <div class="documentwrapper">
@@ -52,6 +50,83 @@
 <em class="property">class </em><code class="descclassname">outrigger.index.adjacencies.</code><code class="descname">ExonJunctionAdjacencies</code><span class="sig-paren">(</span><em>metadata</em>, <em>db</em>, <em>junction_id='junction_id'</em>, <em>exon_start='exon_start'</em>, <em>exon_stop='exon_stop'</em>, <em>chrom='chrom'</em>, <em>strand='strand'</em>, <em>max_de_novo_exon_length=100</em>, <em>n_jobs=-1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/index/adjacencies.html#ExonJunctionAdjacencies"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.index.adjacencies.ExonJunctionAdjacencies" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>Annotate junctions with neighboring exons (upstream or downstream)</p>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#outrigger.index.adjacencies.ExonJunctionAdjacencies.add_exon_to_db" title="outrigger.index.adjacencies.ExonJunctionAdjacencies.add_exon_to_db"><code class="xref py py-obj docutils literal"><span class="pre">add_exon_to_db</span></code></a>(chrom,&nbsp;start,&nbsp;stop,&nbsp;strand)</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#outrigger.index.adjacencies.ExonJunctionAdjacencies.detect_exons_from_junctions" title="outrigger.index.adjacencies.ExonJunctionAdjacencies.detect_exons_from_junctions"><code class="xref py py-obj docutils literal"><span class="pre">detect_exons_from_junctions</span></code></a>()</td>
+<td>Find exons based on gaps in junctions</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#outrigger.index.adjacencies.ExonJunctionAdjacencies.exon_location_to_feature" title="outrigger.index.adjacencies.ExonJunctionAdjacencies.exon_location_to_feature"><code class="xref py py-obj docutils literal"><span class="pre">exon_location_to_feature</span></code></a>(chrom,&nbsp;start,&nbsp;stop,&nbsp;...)</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#outrigger.index.adjacencies.ExonJunctionAdjacencies.junctions_adjacent_to_this_exon" title="outrigger.index.adjacencies.ExonJunctionAdjacencies.junctions_adjacent_to_this_exon"><code class="xref py py-obj docutils literal"><span class="pre">junctions_adjacent_to_this_exon</span></code></a>(exon)</td>
+<td>Get junctions adjacent to this exon</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#outrigger.index.adjacencies.ExonJunctionAdjacencies.upstream_downstream_exons" title="outrigger.index.adjacencies.ExonJunctionAdjacencies.upstream_downstream_exons"><code class="xref py py-obj docutils literal"><span class="pre">upstream_downstream_exons</span></code></a>()</td>
+<td>Get upstream and downstream exons of each junction</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#outrigger.index.adjacencies.ExonJunctionAdjacencies.write_de_novo_exons" title="outrigger.index.adjacencies.ExonJunctionAdjacencies.write_de_novo_exons"><code class="xref py py-obj docutils literal"><span class="pre">write_de_novo_exons</span></code></a>([filename])</td>
+<td>Write all de novo exons to a gtf</td>
+</tr>
+</tbody>
+</table>
+<p>Initialize class to get upstream/downstream exons of junctions</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>metadata</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>A table of splice junctions with the columns indicated by the
+variables <cite>junction_id</cite>, <cite>exon_start</cite>, <cite>exon_stop</cite>, <cite>chrom</cite>,
+<cite>strand</cite></p>
+</div></blockquote>
+<p><strong>db</strong> : gffutils.FeatureDB</p>
+<blockquote>
+<div><p>Gffutils Database of gene, transcript, and exon features.</p>
+</div></blockquote>
+<p><strong>junction_id, exon_start, exon_stop, chrom, strand</strong> : str</p>
+<blockquote class="last">
+<div><p>Columns in <cite>metadata</cite></p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#outrigger.index.adjacencies.ExonJunctionAdjacencies.add_exon_to_db" title="outrigger.index.adjacencies.ExonJunctionAdjacencies.add_exon_to_db"><code class="xref py py-obj docutils literal"><span class="pre">add_exon_to_db</span></code></a>(chrom,&nbsp;start,&nbsp;stop,&nbsp;strand)</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#outrigger.index.adjacencies.ExonJunctionAdjacencies.detect_exons_from_junctions" title="outrigger.index.adjacencies.ExonJunctionAdjacencies.detect_exons_from_junctions"><code class="xref py py-obj docutils literal"><span class="pre">detect_exons_from_junctions</span></code></a>()</td>
+<td>Find exons based on gaps in junctions</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#outrigger.index.adjacencies.ExonJunctionAdjacencies.exon_location_to_feature" title="outrigger.index.adjacencies.ExonJunctionAdjacencies.exon_location_to_feature"><code class="xref py py-obj docutils literal"><span class="pre">exon_location_to_feature</span></code></a>(chrom,&nbsp;start,&nbsp;stop,&nbsp;...)</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#outrigger.index.adjacencies.ExonJunctionAdjacencies.junctions_adjacent_to_this_exon" title="outrigger.index.adjacencies.ExonJunctionAdjacencies.junctions_adjacent_to_this_exon"><code class="xref py py-obj docutils literal"><span class="pre">junctions_adjacent_to_this_exon</span></code></a>(exon)</td>
+<td>Get junctions adjacent to this exon</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#outrigger.index.adjacencies.ExonJunctionAdjacencies.upstream_downstream_exons" title="outrigger.index.adjacencies.ExonJunctionAdjacencies.upstream_downstream_exons"><code class="xref py py-obj docutils literal"><span class="pre">upstream_downstream_exons</span></code></a>()</td>
+<td>Get upstream and downstream exons of each junction</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#outrigger.index.adjacencies.ExonJunctionAdjacencies.write_de_novo_exons" title="outrigger.index.adjacencies.ExonJunctionAdjacencies.write_de_novo_exons"><code class="xref py py-obj docutils literal"><span class="pre">write_de_novo_exons</span></code></a>([filename])</td>
+<td>Write all de novo exons to a gtf</td>
+</tr>
+</tbody>
+</table>
 <dl class="method">
 <dt id="outrigger.index.adjacencies.ExonJunctionAdjacencies.add_exon_to_db">
 <code class="descname">add_exon_to_db</code><span class="sig-paren">(</span><em>chrom</em>, <em>start</em>, <em>stop</em>, <em>strand</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/index/adjacencies.html#ExonJunctionAdjacencies.add_exon_to_db"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.index.adjacencies.ExonJunctionAdjacencies.add_exon_to_db" title="Permalink to this definition">¶</a></dt>
@@ -77,10 +152,18 @@
 <dt id="outrigger.index.adjacencies.ExonJunctionAdjacencies.junctions_adjacent_to_this_exon">
 <code class="descname">junctions_adjacent_to_this_exon</code><span class="sig-paren">(</span><em>exon</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/index/adjacencies.html#ExonJunctionAdjacencies.junctions_adjacent_to_this_exon"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.index.adjacencies.ExonJunctionAdjacencies.junctions_adjacent_to_this_exon" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get junctions adjacent to this exon</p>
-<dl class="docutils">
-<dt>exon <span class="classifier-delimiter">:</span> <span class="classifier">gffutils.Feature</span></dt>
-<dd>An item in a gffutils database</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>exon</strong> : gffutils.Feature</p>
+<blockquote class="last">
+<div><p>An item in a gffutils database</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -97,26 +180,42 @@ downstream of junctionX&#8221;</p>
 create triples of (exon, direction, junction), which are read like
 (subject, object, verb) e.g. (&#8216;exon1&#8217;, &#8216;upstream&#8217;, &#8216;junction12&#8217;), for
 creation of a graph database.</p>
-<dl class="docutils">
-<dt>sj_metadata <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
-<dd>A splice junction metadata dataframe with the junction id as the
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>sj_metadata</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>A splice junction metadata dataframe with the junction id as the
 index, with  columns defined by variables <code class="docutils literal"><span class="pre">exon_start</span></code> and
-<code class="docutils literal"><span class="pre">exon_stop</span></code>.</dd>
-<dt>db <span class="classifier-delimiter">:</span> <span class="classifier">gffutils.FeatureDB</span></dt>
-<dd>A database of gene annotations created by gffutils. Must have
-features of type &#8220;exon&#8221;</dd>
-<dt>exon_start <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
-<dd>Name of the column in sj_metadata corresponding to the start of the
-exon</dd>
-<dt>exon_stop <span class="classifier-delimiter">:</span> <span class="classifier">str, optional</span></dt>
-<dd>Name of the column in sj_metadata corresponding to the end of the
-exon</dd>
-</dl>
-<dl class="docutils">
-<dt>junction_exon_triples <span class="classifier-delimiter">:</span> <span class="classifier">pandas.DataFrame</span></dt>
-<dd>A three-column dataframe describing the relationship of where an
-exon is relative to junctions</dd>
-</dl>
+<code class="docutils literal"><span class="pre">exon_stop</span></code>.</p>
+</div></blockquote>
+<p><strong>db</strong> : gffutils.FeatureDB</p>
+<blockquote>
+<div><p>A database of gene annotations created by gffutils. Must have
+features of type &#8220;exon&#8221;</p>
+</div></blockquote>
+<p><strong>exon_start</strong> : str, optional</p>
+<blockquote>
+<div><p>Name of the column in sj_metadata corresponding to the start of the
+exon</p>
+</div></blockquote>
+<p><strong>exon_stop</strong> : str, optional</p>
+<blockquote>
+<div><p>Name of the column in sj_metadata corresponding to the end of the
+exon</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>junction_exon_triples</strong> : pandas.DataFrame</p>
+<blockquote class="last">
+<div><p>A three-column dataframe describing the relationship of where an
+exon is relative to junctions</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -131,14 +230,24 @@ exon is relative to junctions</dd>
 <dt id="outrigger.index.adjacencies.is_there_an_exon_here">
 <code class="descclassname">outrigger.index.adjacencies.</code><code class="descname">is_there_an_exon_here</code><span class="sig-paren">(</span><em>self</em>, <em>junction1</em>, <em>junction2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/index/adjacencies.html#is_there_an_exon_here"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.index.adjacencies.is_there_an_exon_here" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check if there could be an exon between these two junctions</p>
-<dl class="docutils">
-<dt>junction{1,2} <span class="classifier-delimiter">:</span> <span class="classifier">outrigger.Region</span></dt>
-<dd>Outrigger.Region objects</dd>
-</dl>
-<dl class="docutils">
-<dt>start, stop <span class="classifier-delimiter">:</span> <span class="classifier">(int, int) or (False, False)</span></dt>
-<dd>Start and stop of the new exon if it exists, else False, False</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>junction{1,2}</strong> : outrigger.Region</p>
+<blockquote>
+<div><p>Outrigger.Region objects</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>start, stop</strong> : (int, int) or (False, False)</p>
+<blockquote class="last">
+<div><p>Start and stop of the new exon if it exists, else False, False</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </div>
@@ -148,7 +257,13 @@ exon is relative to junctions</dd>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -159,35 +274,31 @@ exon is relative to junctions</dd>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">BED annotator 0.2.9 documentation</a> &raquo;</li> 
-      </ul>
+    <div class="footer">
+      &copy;2015-2016, Olga Botvinnik.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/outrigger.index.adjacencies.txt"
+          rel="nofollow">Page source</a>
     </div>
-    <div class="footer" role="contentinfo">
-        &copy; Copyright 2015, Olga Botvinnik.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
-    </div>
+
+    
+
+    
   </body>
 </html>

@@ -6,9 +6,9 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>outrigger.commandline module &mdash; BED annotator 0.2.9 documentation</title>
+    <title>outrigger.commandline module &#8212; Outrigger 0.2.9 documentation</title>
     
-    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
@@ -23,21 +23,19 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="BED annotator 0.2.9 documentation" href="index.html" /> 
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="top" title="Outrigger 0.2.9 documentation" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
   </head>
   <body role="document">
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">BED annotator 0.2.9 documentation</a> &raquo;</li> 
-      </ul>
-    </div>  
+  
 
     <div class="document">
       <div class="documentwrapper">
@@ -50,6 +48,27 @@
 <dt id="outrigger.commandline.CommandLine">
 <em class="property">class </em><code class="descclassname">outrigger.commandline.</code><code class="descname">CommandLine</code><span class="sig-paren">(</span><em>input_options=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/commandline.html#CommandLine"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.commandline.CommandLine" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#outrigger.commandline.CommandLine.do_usage_and_die" title="outrigger.commandline.CommandLine.do_usage_and_die"><code class="xref py py-obj docutils literal"><span class="pre">do_usage_and_die</span></code></a>(str)</td>
+<td>Cleanly exit if incorrect parameters are given</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#outrigger.commandline.CommandLine.index" title="outrigger.commandline.CommandLine.index"><code class="xref py py-obj docutils literal"><span class="pre">index</span></code></a>()</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#outrigger.commandline.CommandLine.psi" title="outrigger.commandline.CommandLine.psi"><code class="xref py py-obj docutils literal"><span class="pre">psi</span></code></a>()</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#outrigger.commandline.CommandLine.validate" title="outrigger.commandline.CommandLine.validate"><code class="xref py py-obj docutils literal"><span class="pre">validate</span></code></a>()</td>
+<td></td>
+</tr>
+</tbody>
+</table>
 <dl class="method">
 <dt id="outrigger.commandline.CommandLine.do_usage_and_die">
 <code class="descname">do_usage_and_die</code><span class="sig-paren">(</span><em>str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/commandline.html#CommandLine.do_usage_and_die"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.commandline.CommandLine.do_usage_and_die" title="Permalink to this definition">¶</a></dt>
@@ -81,6 +100,98 @@ of the program.</p>
 <dt id="outrigger.commandline.Index">
 <em class="property">class </em><code class="descclassname">outrigger.commandline.</code><code class="descname">Index</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/commandline.html#Index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.commandline.Index" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#outrigger.commandline.Subcommand" title="outrigger.commandline.Subcommand"><code class="xref py py-class docutils literal"><span class="pre">outrigger.commandline.Subcommand</span></code></a></p>
+<p class="rubric">Attributes</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">folders</span></code></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">gtf_folder</span></code></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">index_folder</span></code></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">junction_reads</span></code></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">junctions_folder</span></code></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">output_folder</span></code></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<table border="1" class="docutils">
+<colgroup>
+<col width="55%" />
+<col width="45%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>gffutils_db</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>gtf_filename</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>sj_out_tab</td>
+<td>&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">csv</span></code>()</td>
+<td>Create a csv file of compiled splice junctions</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#outrigger.commandline.Index.execute" title="outrigger.commandline.Index.execute"><code class="xref py py-obj docutils literal"><span class="pre">execute</span></code></a>()</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">filter_junctions_on_reads</span></code>(spliced_reads)</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#outrigger.commandline.Index.get_event_attributes" title="outrigger.commandline.Index.get_event_attributes"><code class="xref py py-obj docutils literal"><span class="pre">get_event_attributes</span></code></a>(db,&nbsp;event_df,&nbsp;splice_type)</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">junction_metadata</span></code>(spliced_reads)</td>
+<td>Get just the junction info from the concatenated read files</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#outrigger.commandline.Index.make_events_by_traversing_graph" title="outrigger.commandline.Index.make_events_by_traversing_graph"><code class="xref py py-obj docutils literal"><span class="pre">make_events_by_traversing_graph</span></code></a>(event_maker,&nbsp;db)</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#outrigger.commandline.Index.make_exon_junction_adjacencies" title="outrigger.commandline.Index.make_exon_junction_adjacencies"><code class="xref py py-obj docutils literal"><span class="pre">make_exon_junction_adjacencies</span></code></a>(metadata,&nbsp;db)</td>
+<td>Get annotated exon_cols next to junctions in data</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#outrigger.commandline.Index.make_graph" title="outrigger.commandline.Index.make_graph"><code class="xref py py-obj docutils literal"><span class="pre">make_graph</span></code></a>(junction_exon_triples,&nbsp;db)</td>
+<td>Create graph database of exon-junction adjacencies</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">make_junction_reads_file</span></code>()</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">maybe_make_db</span></code>()</td>
+<td>Get GFFutils database from file or create from a gtf</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">maybe_make_folder</span></code>(folder)</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">maybe_overwrite</span></code>(filename)</td>
+<td>Ensures that filename is not overwritten unless user-specified</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#outrigger.commandline.Index.write_new_gtf" title="outrigger.commandline.Index.write_new_gtf"><code class="xref py py-obj docutils literal"><span class="pre">write_new_gtf</span></code></a>(db)</td>
+<td></td>
+</tr>
+</tbody>
+</table>
 <dl class="method">
 <dt id="outrigger.commandline.Index.execute">
 <code class="descname">execute</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/commandline.html#Index.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.commandline.Index.execute" title="Permalink to this definition">¶</a></dt>
@@ -124,6 +235,110 @@ of the program.</p>
 <dt id="outrigger.commandline.Psi">
 <em class="property">class </em><code class="descclassname">outrigger.commandline.</code><code class="descname">Psi</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/commandline.html#Psi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.commandline.Psi" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#outrigger.commandline.SubcommandAfterIndex" title="outrigger.commandline.SubcommandAfterIndex"><code class="xref py py-class docutils literal"><span class="pre">outrigger.commandline.SubcommandAfterIndex</span></code></a></p>
+<p class="rubric">Attributes</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#outrigger.commandline.Psi.folders" title="outrigger.commandline.Psi.folders"><code class="xref py py-obj docutils literal"><span class="pre">folders</span></code></a></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">gtf_folder</span></code></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">index_folder</span></code></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">input_index</span></code></td>
+<td>Where to read the index from</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">junction_reads</span></code></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">junctions_folder</span></code></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">output_folder</span></code></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#outrigger.commandline.Psi.psi_folder" title="outrigger.commandline.Psi.psi_folder"><code class="xref py py-obj docutils literal"><span class="pre">psi_folder</span></code></a></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#outrigger.commandline.Psi.splice_type_folders" title="outrigger.commandline.Psi.splice_type_folders"><code class="xref py py-obj docutils literal"><span class="pre">splice_type_folders</span></code></a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<table border="1" class="docutils">
+<colgroup>
+<col width="60%" />
+<col width="40%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>gffutils_db</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>gtf_filename</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>junction_id_col</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>reads_col</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>sample_id_col</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>sj_out_tab</td>
+<td>&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">csv</span></code>()</td>
+<td>Create a csv file of compiled splice junctions</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#outrigger.commandline.Psi.execute" title="outrigger.commandline.Psi.execute"><code class="xref py py-obj docutils literal"><span class="pre">execute</span></code></a>()</td>
+<td>Calculate percent spliced in (psi) of splicing events</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">filter_junctions_on_reads</span></code>(spliced_reads)</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">junction_metadata</span></code>(spliced_reads)</td>
+<td>Get just the junction info from the concatenated read files</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">make_junction_reads_file</span></code>()</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#outrigger.commandline.Psi.maybe_get_validated_events" title="outrigger.commandline.Psi.maybe_get_validated_events"><code class="xref py py-obj docutils literal"><span class="pre">maybe_get_validated_events</span></code></a>(splice_abbrev)</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">maybe_make_db</span></code>()</td>
+<td>Get GFFutils database from file or create from a gtf</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">maybe_make_folder</span></code>(folder)</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">maybe_overwrite</span></code>(filename)</td>
+<td>Ensures that filename is not overwritten unless user-specified</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#outrigger.commandline.Psi.maybe_read_junction_reads" title="outrigger.commandline.Psi.maybe_read_junction_reads"><code class="xref py py-obj docutils literal"><span class="pre">maybe_read_junction_reads</span></code></a>()</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#outrigger.commandline.Psi.validate_junction_reads_data" title="outrigger.commandline.Psi.validate_junction_reads_data"><code class="xref py py-obj docutils literal"><span class="pre">validate_junction_reads_data</span></code></a>(junction_reads)</td>
+<td></td>
+</tr>
+</tbody>
+</table>
 <dl class="method">
 <dt id="outrigger.commandline.Psi.execute">
 <code class="descname">execute</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/commandline.html#Psi.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.commandline.Psi.execute" title="Permalink to this definition">¶</a></dt>
@@ -186,6 +401,80 @@ of the program.</p>
 <dt id="outrigger.commandline.Subcommand">
 <em class="property">class </em><code class="descclassname">outrigger.commandline.</code><code class="descname">Subcommand</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/commandline.html#Subcommand"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.commandline.Subcommand" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p class="rubric">Attributes</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#outrigger.commandline.Subcommand.folders" title="outrigger.commandline.Subcommand.folders"><code class="xref py py-obj docutils literal"><span class="pre">folders</span></code></a></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#outrigger.commandline.Subcommand.gtf_folder" title="outrigger.commandline.Subcommand.gtf_folder"><code class="xref py py-obj docutils literal"><span class="pre">gtf_folder</span></code></a></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#outrigger.commandline.Subcommand.index_folder" title="outrigger.commandline.Subcommand.index_folder"><code class="xref py py-obj docutils literal"><span class="pre">index_folder</span></code></a></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#outrigger.commandline.Subcommand.junction_reads" title="outrigger.commandline.Subcommand.junction_reads"><code class="xref py py-obj docutils literal"><span class="pre">junction_reads</span></code></a></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#outrigger.commandline.Subcommand.junctions_folder" title="outrigger.commandline.Subcommand.junctions_folder"><code class="xref py py-obj docutils literal"><span class="pre">junctions_folder</span></code></a></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#outrigger.commandline.Subcommand.output_folder" title="outrigger.commandline.Subcommand.output_folder"><code class="xref py py-obj docutils literal"><span class="pre">output_folder</span></code></a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<table border="1" class="docutils">
+<colgroup>
+<col width="55%" />
+<col width="45%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>gffutils_db</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>gtf_filename</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>sj_out_tab</td>
+<td>&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#outrigger.commandline.Subcommand.csv" title="outrigger.commandline.Subcommand.csv"><code class="xref py py-obj docutils literal"><span class="pre">csv</span></code></a>()</td>
+<td>Create a csv file of compiled splice junctions</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#outrigger.commandline.Subcommand.filter_junctions_on_reads" title="outrigger.commandline.Subcommand.filter_junctions_on_reads"><code class="xref py py-obj docutils literal"><span class="pre">filter_junctions_on_reads</span></code></a>(spliced_reads)</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#outrigger.commandline.Subcommand.junction_metadata" title="outrigger.commandline.Subcommand.junction_metadata"><code class="xref py py-obj docutils literal"><span class="pre">junction_metadata</span></code></a>(spliced_reads)</td>
+<td>Get just the junction info from the concatenated read files</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#outrigger.commandline.Subcommand.make_junction_reads_file" title="outrigger.commandline.Subcommand.make_junction_reads_file"><code class="xref py py-obj docutils literal"><span class="pre">make_junction_reads_file</span></code></a>()</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#outrigger.commandline.Subcommand.maybe_make_db" title="outrigger.commandline.Subcommand.maybe_make_db"><code class="xref py py-obj docutils literal"><span class="pre">maybe_make_db</span></code></a>()</td>
+<td>Get GFFutils database from file or create from a gtf</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#outrigger.commandline.Subcommand.maybe_make_folder" title="outrigger.commandline.Subcommand.maybe_make_folder"><code class="xref py py-obj docutils literal"><span class="pre">maybe_make_folder</span></code></a>(folder)</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#outrigger.commandline.Subcommand.maybe_overwrite" title="outrigger.commandline.Subcommand.maybe_overwrite"><code class="xref py py-obj docutils literal"><span class="pre">maybe_overwrite</span></code></a>(filename)</td>
+<td>Ensures that filename is not overwritten unless user-specified</td>
+</tr>
+</tbody>
+</table>
 <dl class="method">
 <dt id="outrigger.commandline.Subcommand.csv">
 <code class="descname">csv</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/commandline.html#Subcommand.csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.commandline.Subcommand.csv" title="Permalink to this definition">¶</a></dt>
@@ -283,16 +572,26 @@ and complain that either &#8211;force or &#8211;resume must be specified</li>
 <li>If the file exists and the user specified &#8211;resume, then return False
 so that the file is not overwritten</li>
 </ul>
-<dl class="docutils">
-<dt>filename <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
-<dd>Path to a file that you may want to overwrite</dd>
-</dl>
-<dl class="docutils">
-<dt>if_overwrite <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
-<dd>If True, then the next step in the program has the go-ahead to
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>filename</strong> : str</p>
+<blockquote>
+<div><p>Path to a file that you may want to overwrite</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>if_overwrite</strong> : bool</p>
+<blockquote class="last">
+<div><p>If True, then the next step in the program has the go-ahead to
 &#8220;overwrite&#8221; or create the file. If False, the file exists and the
-user doesn&#8217;t want to overwrite it</dd>
-</dl>
+user doesn&#8217;t want to overwrite it</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="attribute">
@@ -327,6 +626,83 @@ user doesn&#8217;t want to overwrite it</dd>
 <em class="property">class </em><code class="descclassname">outrigger.commandline.</code><code class="descname">SubcommandAfterIndex</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/commandline.html#SubcommandAfterIndex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.commandline.SubcommandAfterIndex" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#outrigger.commandline.Subcommand" title="outrigger.commandline.Subcommand"><code class="xref py py-class docutils literal"><span class="pre">outrigger.commandline.Subcommand</span></code></a></p>
 <p>Can use different index folder than outrigger_output/index</p>
+<p class="rubric">Attributes</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#outrigger.commandline.SubcommandAfterIndex.folders" title="outrigger.commandline.SubcommandAfterIndex.folders"><code class="xref py py-obj docutils literal"><span class="pre">folders</span></code></a></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">gtf_folder</span></code></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">index_folder</span></code></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#outrigger.commandline.SubcommandAfterIndex.input_index" title="outrigger.commandline.SubcommandAfterIndex.input_index"><code class="xref py py-obj docutils literal"><span class="pre">input_index</span></code></a></td>
+<td>Where to read the index from</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">junction_reads</span></code></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">junctions_folder</span></code></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">output_folder</span></code></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<table border="1" class="docutils">
+<colgroup>
+<col width="55%" />
+<col width="45%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>gffutils_db</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>gtf_filename</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>sj_out_tab</td>
+<td>&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">csv</span></code>()</td>
+<td>Create a csv file of compiled splice junctions</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">filter_junctions_on_reads</span></code>(spliced_reads)</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">junction_metadata</span></code>(spliced_reads)</td>
+<td>Get just the junction info from the concatenated read files</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">make_junction_reads_file</span></code>()</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">maybe_make_db</span></code>()</td>
+<td>Get GFFutils database from file or create from a gtf</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">maybe_make_folder</span></code>(folder)</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">maybe_overwrite</span></code>(filename)</td>
+<td>Ensures that filename is not overwritten unless user-specified</td>
+</tr>
+</tbody>
+</table>
 <dl class="attribute">
 <dt id="outrigger.commandline.SubcommandAfterIndex.folders">
 <code class="descname">folders</code><a class="headerlink" href="#outrigger.commandline.SubcommandAfterIndex.folders" title="Permalink to this definition">¶</a></dt>
@@ -352,6 +728,92 @@ exit when raised</p>
 <dt id="outrigger.commandline.Validate">
 <em class="property">class </em><code class="descclassname">outrigger.commandline.</code><code class="descname">Validate</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/commandline.html#Validate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.commandline.Validate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#outrigger.commandline.SubcommandAfterIndex" title="outrigger.commandline.SubcommandAfterIndex"><code class="xref py py-class docutils literal"><span class="pre">outrigger.commandline.SubcommandAfterIndex</span></code></a></p>
+<p class="rubric">Attributes</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">folders</span></code></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">gtf_folder</span></code></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">index_folder</span></code></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">input_index</span></code></td>
+<td>Where to read the index from</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">junction_reads</span></code></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">junctions_folder</span></code></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">output_folder</span></code></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<table border="1" class="docutils">
+<colgroup>
+<col width="55%" />
+<col width="45%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>gffutils_db</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>gtf_filename</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>sj_out_tab</td>
+<td>&nbsp;</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">csv</span></code>()</td>
+<td>Create a csv file of compiled splice junctions</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#outrigger.commandline.Validate.execute" title="outrigger.commandline.Validate.execute"><code class="xref py py-obj docutils literal"><span class="pre">execute</span></code></a>()</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#outrigger.commandline.Validate.exon_pair_splice_sites" title="outrigger.commandline.Validate.exon_pair_splice_sites"><code class="xref py py-obj docutils literal"><span class="pre">exon_pair_splice_sites</span></code></a>(exonA,&nbsp;exonB,&nbsp;...)</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">filter_junctions_on_reads</span></code>(spliced_reads)</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#outrigger.commandline.Validate.individual_exon_splice_sites" title="outrigger.commandline.Validate.individual_exon_splice_sites"><code class="xref py py-obj docutils literal"><span class="pre">individual_exon_splice_sites</span></code></a>(exon,&nbsp;...)</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">junction_metadata</span></code>(spliced_reads)</td>
+<td>Get just the junction info from the concatenated read files</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">make_junction_reads_file</span></code>()</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">maybe_make_db</span></code>()</td>
+<td>Get GFFutils database from file or create from a gtf</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">maybe_make_folder</span></code>(folder)</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">maybe_overwrite</span></code>(filename)</td>
+<td>Ensures that filename is not overwritten unless user-specified</td>
+</tr>
+</tbody>
+</table>
 <dl class="method">
 <dt id="outrigger.commandline.Validate.execute">
 <code class="descname">execute</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/commandline.html#Validate.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.commandline.Validate.execute" title="Permalink to this definition">¶</a></dt>
@@ -381,7 +843,13 @@ exit when raised</p>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -392,35 +860,31 @@ exit when raised</p>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">BED annotator 0.2.9 documentation</a> &raquo;</li> 
-      </ul>
+    <div class="footer">
+      &copy;2015-2016, Olga Botvinnik.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/outrigger.commandline.txt"
+          rel="nofollow">Page source</a>
     </div>
-    <div class="footer" role="contentinfo">
-        &copy; Copyright 2015, Olga Botvinnik.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
-    </div>
+
+    
+
+    
   </body>
 </html>
