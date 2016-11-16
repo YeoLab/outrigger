@@ -138,24 +138,28 @@ $ tree outrigger_output
 outrigger_output
 ├── index
 │   ├── gtf
-│   │   ├── gencode.vM10.annotation.gtf
-│   │   ├── gencode.vM10.annotation.gtf.db
+│   │   ├── gencode.vM10.annotation.subset.gtf
+│   │   ├── gencode.vM10.annotation.subset.gtf.db
 │   │   └── novel_exons.gtf
 │   ├── junction_exon_direction_triples.csv
 │   ├── mxe
+│   │   ├── event.bed
 │   │   ├── events.csv
 │   │   ├── exon1.bed
 │   │   ├── exon2.bed
 │   │   ├── exon3.bed
 │   │   ├── exon4.bed
+│   │   ├── intron.bed
 │   │   ├── splice_sites.csv
 │   │   └── validated
 │   │       └── events.csv
 │   └── se
+│       ├── event.bed
 │       ├── events.csv
 │       ├── exon1.bed
 │       ├── exon2.bed
 │       ├── exon3.bed
+│       ├── intron.bed
 │       ├── splice_sites.csv
 │       └── validated
 │           └── events.csv
@@ -169,7 +173,7 @@ outrigger_output
     └── se
         └── psi.csv
 
-10 directories, 22 files
+10 directories, 26 files
 ```
 
 
