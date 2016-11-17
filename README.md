@@ -2,7 +2,7 @@
 
 ![OutriggerLogo](https://raw.githubusercontent.com/YeoLab/outrigger/master/logo/logo_v1.png)
 
-[![BuildStatus](https://travis-ci.org/YeoLab/outrigger.svg?branch=master)](https://travis-ci.org/YeoLab/outrigger)[![codecov](https://codecov.io/gh/YeoLab/outrigger/branch/master/graph/badge.svg)](https://codecov.io/gh/YeoLab/outrigger)[![PyPI versions](https://img.shields.io/pypi/v/outrigger.svg)](https://pypi.python.org/pypi/outrigger)[![PythonVersionCompatibility](https://img.shields.io/pypi/pyversions/outrigger.svg)](https://pypi.python.org/pypi/outrigger)[![license](https://img.shields.io/github/pypi/l/outrigger.svg)]()
+[![BuildStatus](https://travis-ci.org/YeoLab/outrigger.svg?branch=master)](https://travis-ci.org/YeoLab/outrigger)[![codecov](https://codecov.io/gh/YeoLab/outrigger/branch/master/graph/badge.svg)](https://codecov.io/gh/YeoLab/outrigger)[![PyPI versions](https://img.shields.io/pypi/v/outrigger.svg)](https://pypi.python.org/pypi/outrigger)[![PythonVersionCompatibility](https://img.shields.io/pypi/pyversions/outrigger.svg)](https://pypi.python.org/pypi/outrigger)
 
 
 Outrigger is a program which uses junction reads from RNA seq data, and a graph database to create a *de novo* alternative splicing annotation with a graph database, and quantify percent spliced-in (Psi) of the events.
@@ -20,7 +20,7 @@ Outrigger is a program which uses junction reads from RNA seq data, and a graph 
 
 To install `outrigger`, we recommend using the [Anaconda Python Distribution](http://anaconda.org/) and creating an environment.
 
-You'll want to add the [`bioconda`](https://bioconda.github.io/) channel to make installing [`bedtools`](bedtools.readthedocs.io) and its Python wrapper, [`pybedtools`](https://daler.github.io/pybedtools/) easy.
+You'll want to add the [bioconda](https://bioconda.github.io/) channel to make installing [bedtools](bedtools.readthedocs.io) and its Python wrapper, [pybedtools](https://daler.github.io/pybedtools/) easy (these programs are necessary for both `outrigger index` and `outrigger validate`).
 
 ```
 conda config --add channels r
@@ -72,13 +72,13 @@ For advanced users, if you have [git](https://git-scm.com/) and [Anaconda Python
 2. Change into that directory
 3. Create an environment with the necessary packages from Anaconda
 4. Activate the environment
-5. Install remaining packages from PyPI ([`graphlite`](https://github.com/eugene-eeo/graphlite) is only available on PyPI, not as a `conda` package)
+5. Install remaining packages from PyPI ([graphlite](https://github.com/eugene-eeo/graphlite) is only available on PyPI, not as a `conda` package)
 6. Install this package
 
 These steps are shown in code below.
 
 ```
-git clone git@github.com:YeoLab/outrigger
+git clone https://github.com/YeoLab/outrigger.git
 cd outrigger
 conda create --name outrigger --yes --file conda_requirements.txt --channel bioconda
 source activate outrigger
