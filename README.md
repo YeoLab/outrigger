@@ -208,6 +208,20 @@ an overall percentage of test coverage, run:
 make coverage
 ```
 
+If you want to run a smallish example with GENCODE GTF files and a mouse genome, do:
+
+```
+make tasic2016
+```
+
+To run this with different numbers of parallel processing cores, do:
+
+If you want to run a smallish example with GENCODE GTF files and a mouse genome, specify with `N_JOBS=X`, where `X` is the number of jobs you want. By default, this uses `-1` jobs, which means to use the maximum number of processors available.
+
+```
+make tasic2016 N_JOBS=8
+```
+
 If you want to run an example with ENSEMBL GTF files, do:
 
 ```
