@@ -19,5 +19,6 @@ dependencies:
 - sphinx_rtd_theme
 - pip:
     - graphlite
+    - pyflakes
     - recommonmark==0.4.0
     - nbsphinx
