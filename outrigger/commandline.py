@@ -137,6 +137,11 @@ class CommandLine(object):
                                        'reading. Default is -1, which means '
                                        'to use as many threads as are '
                                        'available.')
+        index_parser.add_argument('--low-memory', required=False,
+                                  default=False,
+                                  action='store_true',
+                                  help='If set, then use a smaller memory '
+                                       'footprint. By default, this is off.')
         overwrite_parser = index_parser.add_mutually_exclusive_group(
             required=False)
         overwrite_parser.add_argument('--force', action='store_true',
@@ -208,6 +213,11 @@ class CommandLine(object):
                                      action='store_true',
                                      help='If given, print debugging logging '
                                           'information to standard out')
+        validate_parser.add_argument('--low-memory', required=False,
+                                     default=False, action='store_true',
+                                     help='If set, then use a smaller memory '
+                                          'footprint. By default, this is '
+                                          'off.')
         validate_parser.set_defaults(func=self.validate)
 
         # --- Subcommand to calculate psi on the built index --- #
@@ -291,6 +301,11 @@ class CommandLine(object):
                                      'reading. Default is -1, which means '
                                      'to use as many threads as are '
                                      'available.')
+        psi_parser.add_argument('--low-memory', required=False,
+                                default=False,
+                                action='store_true',
+                                help='If set, then use a smaller memory '
+                                     'footprint. By default, this is off.')
         psi_parser.set_defaults(func=self.psi)
 
         if input_options is None or len(input_options) == 0:
@@ -440,7 +455,7 @@ class Subcommand(object):
             util.progress('Found compiled junction reads file in {} and '
                           'reading it in ...'.format(self.junction_reads))
             splice_junctions = pd.read_csv(self.junction_reads,
-                                           **common.READ_CSV_KWS)
+                                           low_memory=self.low_memory)
             util.done()
         splice_junctions = self.filter_junctions_on_reads(splice_junctions)
 
@@ -600,7 +615,8 @@ class Index(Subcommand):
             junction_exon_triples.to_csv(csv, index=False)
             util.done()
         elif self.resume:
-            junction_exon_triples = pd.read_csv(csv, **common.READ_CSV_KWS)
+            junction_exon_triples = pd.read_csv(csv,
+                                                low_memory=self.low_memory)
         else:
             raise ValueError("Found existing junction-exon-triples file "
                              "({csv}) but don't "
@@ -880,7 +896,7 @@ class Psi(SubcommandAfterIndex):
                 'Reading splice junction reads from {} ...'.format(
                     self.junction_reads))
             junction_reads = pd.read_csv(
-                self.junction_reads, dtype=dtype, **common.READ_CSV_KWS)
+                self.junction_reads, dtype=dtype, low_memory=self.low_memory)
             util.done()
         except OSError:
             raise IOError(
@@ -936,7 +952,7 @@ class Psi(SubcommandAfterIndex):
                                         filename=filename))
 
             event_annotation = pd.read_csv(filename, index_col=0,
-                                           **common.READ_CSV_KWS)
+                                           low_memory=self.low_memory)
             util.done()
 
             isoform_junctions = outrigger.common.ISOFORM_JUNCTIONS[
