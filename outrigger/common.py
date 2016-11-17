@@ -57,3 +57,5 @@ ORDER_BY = ('seqid', 'start', 'end', 'frame', 'source', 'strand', 'attributes')
 UNIQUE_READS = 'unique_junction_reads'
 MULTIMAP_READS = 'multimap_junction_reads'
 MAX_OVERHANG = 'max_overhang'
+
+READ_CSV_KWS = dict(low_memory=False)

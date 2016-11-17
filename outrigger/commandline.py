@@ -439,7 +439,8 @@ class Subcommand(object):
         else:
             util.progress('Found compiled junction reads file in {} and '
                           'reading it in ...'.format(self.junction_reads))
-            splice_junctions = pd.read_csv(self.junction_reads)
+            splice_junctions = pd.read_csv(self.junction_reads,
+                                           **common.READ_CSV_KWS)
             util.done()
         splice_junctions = self.filter_junctions_on_reads(splice_junctions)
 
@@ -599,7 +600,7 @@ class Index(Subcommand):
             junction_exon_triples.to_csv(csv, index=False)
             util.done()
         elif self.resume:
-            junction_exon_triples = pd.read_csv(csv)
+            junction_exon_triples = pd.read_csv(csv, **common.READ_CSV_KWS)
         else:
             raise ValueError("Found existing junction-exon-triples file "
                              "({csv}) but don't "
@@ -879,7 +880,7 @@ class Psi(SubcommandAfterIndex):
                 'Reading splice junction reads from {} ...'.format(
                     self.junction_reads))
             junction_reads = pd.read_csv(
-                self.junction_reads, dtype=dtype)
+                self.junction_reads, dtype=dtype, **common.READ_CSV_KWS)
             util.done()
         except OSError:
             raise IOError(
@@ -934,7 +935,8 @@ class Psi(SubcommandAfterIndex):
                           ' ...'.format(name=splice_name, abbrev=splice_abbrev,
                                         filename=filename))
 
-            event_annotation = pd.read_csv(filename, index_col=0)
+            event_annotation = pd.read_csv(filename, index_col=0,
+                                           **common.READ_CSV_KWS)
             util.done()
 
             isoform_junctions = outrigger.common.ISOFORM_JUNCTIONS[
