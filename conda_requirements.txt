@@ -1,10 +1,9 @@
 pytest
 pandas>=0.17.0
-flake8
 coverage
 gffutils
 pybedtools
 biopython
-bedtools
 joblib
 pysam
+bedtools
