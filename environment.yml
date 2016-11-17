@@ -20,3 +20,4 @@ dependencies:
 - pip:
     - graphlite
     - recommonmark==0.4.0
+    - nbsphinx
