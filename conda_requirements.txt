@@ -5,6 +5,6 @@ coverage
 gffutils
 pybedtools
 biopython
-bedtools
 joblib
 pysam
+bedtools
