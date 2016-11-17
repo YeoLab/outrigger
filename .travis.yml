@@ -31,8 +31,11 @@ before_script:
 
 script:
 - make coverage
-- make lint
 - make arabdopsis
+- conda create -n lint-env --yes flake8
+- source activate lint-env
+- make lint
+- deactivate lint-env
 
 after_success:
   - which -a curl
