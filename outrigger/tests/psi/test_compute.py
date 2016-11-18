@@ -238,16 +238,12 @@ def test_dummy_calculate_psi(dummy_splice_junction_reads,
     from outrigger.psi.compute import calculate_psi, MIN_READS
 
     isoform_reads = dummy_isoform_reads.copy()
-    isoform_reads[isoform_reads < MIN_READS] = np.nan
+    # isoform_reads[isoform_reads < MIN_READS] = np.nan
 
-    if (isoform_reads[dummy_isoform1_junction_ids].isnull()).any():
-        isoform1_reads = 0
-    else:
-        isoform1_reads = isoform_reads[dummy_isoform1_junction_ids].sum()
-    if (isoform_reads[dummy_isoform2_junction_ids].isnull()).any():
-        isoform2_reads = 0
-    else:
-        isoform2_reads = isoform_reads[dummy_isoform2_junction_ids].sum()
+
+    isoform1_reads = isoform_reads[dummy_isoform1_junction_ids].sum()
+
+    isoform2_reads = isoform_reads[dummy_isoform2_junction_ids].sum()
 
     # This tests whether both are greater than zero
     if isoform1_reads or isoform2_reads:
