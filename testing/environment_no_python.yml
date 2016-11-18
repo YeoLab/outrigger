@@ -1,0 +1,21 @@
+name: outrigger-env
+channels:
+  - conda-forge
+  - r
+  - bioconda
+dependencies:
+- pytest
+- pandas>=0.17.0
+- coverage
+- gffutils
+- pybedtools
+- biopython
+- bedtools
+- joblib
+- pysam
+- sphinx>=1.3.6
+- sphinx_rtd_theme
+- pip:
+    - graphlite
+    - recommonmark==0.4.0
+    - nbsphinx

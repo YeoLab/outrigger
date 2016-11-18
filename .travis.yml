@@ -17,10 +17,8 @@ before_install:
 - which -a curl
 
 install:
-- conda create -n testenv --yes python=$TRAVIS_PYTHON_VERSION pip
-- source activate testenv
-- conda install --yes --file conda_requirements.txt --channel bioconda
-- pip install -r requirements.txt
+- conda env create --file testing/environment_no_python.yml python=2.7
+- source activate outrigger-env
 - pip install .
 
 before_script:
