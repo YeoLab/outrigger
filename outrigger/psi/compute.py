@@ -93,14 +93,15 @@ def _remove_insufficient_reads(isoform1, isoform2, n_junctions1,
     Use junctions with individually sufficient reads or sufficient total
     junction reads
     """
-
     n_junctions = n_junctions1 + n_junctions2
     sufficient_isoform1 = isoform1 >= (min_reads * n_junctions1)
     sufficient_isoform2 = isoform2 >= (min_reads * n_junctions2)
     sufficient_total = (isoform1 + isoform2) >= (min_reads * n_junctions)
 
+    # import pdb ; pdb.set_trace()
     isoform1 = isoform1[sufficient_total | sufficient_isoform1]
     isoform2 = isoform2[sufficient_total | sufficient_isoform2]
+    isoform1, isoform2 = isoform1.align(isoform2, 'inner')
     return isoform1, isoform2
 
 
@@ -146,7 +147,6 @@ def _single_event_psi(event_id, event_df, splice_junction_reads,
 
     isoform1 = isoform1.fillna(0)
     isoform2 = isoform2.fillna(0)
-
 
     n_junctions1 = len(isoform1_junctions)
     n_junctions2 = len(isoform2_junctions)

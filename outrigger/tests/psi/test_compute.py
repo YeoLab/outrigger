@@ -290,14 +290,18 @@ sample1,{1}""".format(','.join(dummy_events), true_psi)
                        {'isoform1': 2, 'isoform2': 2, 'result':
                            (np.nan, np.nan)}))
 def maybe_sufficient_isoforms(request):
-    index1 = pd.MultiIndex.from_arrays(('junction1', 'sample1'))
-    index2 = pd.MultiIndex.from_arrays(('junction2', 'sample1'))
+    # index1 = pd.MultiIndex.from_arrays(('junction1', 'sample1'))
+    # index2 = pd.MultiIndex.from_arrays(('junction2', 'sample1'))
+    index = ['sample1']
 
-    isoform1 = pd.Series(request.param['isoform1'], index=index1)
-    isoform2 = pd.Series(request.param['isoform2'], index=index2)
+    isoform1 = pd.Series(request.param['isoform1'], index=index)
+    isoform2 = pd.Series(request.param['isoform2'], index=index)
 
-    expected1 = pd.Series(request.param['result'][0], index=index1).dropna()
-    expected2 = pd.Series(request.param['result'][0], index=index2).dropna()
+    expected1 = pd.Series(request.param['result'][0], index=index).dropna()
+    expected2 = pd.Series(request.param['result'][1], index=index).dropna()
+
+    expected1 = expected1.astype(int)
+    expected2 = expected2.astype(int)
     return isoform1, isoform2, expected1, expected2
 
 
