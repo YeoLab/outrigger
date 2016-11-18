@@ -153,7 +153,6 @@ def _single_event_psi(event_id, event_df, splice_junction_reads,
     isoform1, isoform2 = _remove_insufficient_reads(isoform1, isoform2,
                                                     n_junctions1,
                                                     n_junctions2, min_reads)
-    import pdb; pdb.set_trace()
 
     multiplier = float(n_junctions2) / n_junctions1
     psi = isoform2 / (isoform2 + multiplier * isoform1)
