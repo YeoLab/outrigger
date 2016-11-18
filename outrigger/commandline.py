@@ -471,9 +471,10 @@ class Subcommand(object):
         metadata = star.make_metadata(spliced_reads)
         util.done()
 
-        util.progress('Writing metadata of junctions to {csv}'
-                      ' ...'.format(csv=csv))
-        metadata.to_csv(csv, index=False)
+        if not os.path.exists(csv):
+            util.progress('Writing metadata of junctions to {csv}'
+                          ' ...'.format(csv=csv))
+            metadata.to_csv(csv, index=False)
 
         return metadata
 
@@ -710,10 +711,9 @@ class Index(Subcommand):
 
         spliced_reads = self.csv()
 
+        spliced_reads = self.filter_junctions_on_reads(spliced_reads)
         metadata_csv = os.path.join(self.junctions_folder, METADATA_CSV)
         metadata = self.junction_metadata(spliced_reads, metadata_csv)
-
-        spliced_reads = self.filter_junctions_on_reads(spliced_reads)
 
 
         db = self.maybe_make_db()
@@ -936,6 +936,9 @@ class Psi(SubcommandAfterIndex):
             logger.setLevel(10)
 
         junction_reads = self.csv()
+
+        metadata_csv = os.path.join(self.junctions_folder, METADATA_CSV)
+        self.junction_metadata(junction_reads, metadata_csv)
 
         junction_reads = junction_reads.set_index(
             [self.junction_id_col, self.sample_id_col])
