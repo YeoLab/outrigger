@@ -36,8 +36,8 @@ is open to whoever wants to implement it.
 Write Documentation
 ~~~~~~~~~~~~~~~~~~~
 
-BED annotator could always use more documentation, whether as part of the
-official BED annotator docs, in docstrings, or even on the web in blog posts,
+Outrigger could always use more documentation, whether as part of the
+official Outrigger docs, in docstrings, or even on the web in blog posts,
 articles, and such.
 
 Submit Feedback
