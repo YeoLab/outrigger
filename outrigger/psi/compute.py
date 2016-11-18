@@ -86,10 +86,9 @@ def _maybe_get_isoform_reads(splice_junction_reads, junction_locations,
         return pd.Series()
 
 
-def _remove_insufficient_reads(isoform1, isoform2, isoform1_junctions,
-                               isoform2_junctions, min_reads):
-    n_junctions1 = len(isoform1_junctions)
-    n_junctions2 = len(isoform2_junctions)
+def _remove_insufficient_reads(isoform1, isoform2, n_junctions1,
+                               n_junctions2, min_reads):
+
     n_junctions = n_junctions1 + n_junctions2
     sufficient_isoform1 = isoform1 >= min_reads * n_junctions1
     sufficient_isoform2 = isoform2 >= min_reads * n_junctions2
@@ -143,13 +142,15 @@ def _single_event_psi(event_id, event_df, splice_junction_reads,
     isoform1 = isoform1.fillna(0)
     isoform2 = isoform2.fillna(0)
 
+
+    n_junctions1 = len(isoform1_junctions)
+    n_junctions2 = len(isoform2_junctions)
     isoform1, isoform2 = _remove_insufficient_reads(isoform1, isoform2,
-                                                    isoform1_junctions,
-                                                    isoform2_junctions,
-                                                    min_reads)
+                                                    n_junctions1,
+                                                    n_junctions2, min_reads)
     import pdb; pdb.set_trace()
 
-    multiplier = float(len(isoform2_junctions)) / len(isoform1_junctions)
+    multiplier = float(n_junctions2) / n_junctions1
     psi = isoform2 / (isoform2 + multiplier * isoform1)
     psi.name = event_id
 
