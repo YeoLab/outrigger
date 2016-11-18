@@ -12,8 +12,8 @@ logging.basicConfig()
 idx = pd.IndexSlice
 
 
-def filter_and_sum(reads, min_reads, junctions, debug=False):
-    """Require minimum reads and sum junctions from the same sample
+def filter_and_sum(reads, junctions, debug=False):
+    """Remove samples without reads on all junctions and sum across junctions
 
     Remove all samples that don't have enough reads
 
@@ -25,10 +25,11 @@ def filter_and_sum(reads, min_reads, junctions, debug=False):
     if reads.empty:
         return reads
 
-    # Remove all samples that don't have enough reads in all required junctions
-    reads = reads.groupby(level=1).filter(
-        lambda x: (x >= min_reads).all() and len(x) == len(junctions))
-    logger.debug('filtered reads:\n' + repr(reads.head()))
+    if len(junctions) > 1:
+        # Remove all samples that don't have all required junctions
+        reads = reads.groupby(level=1).filter(
+            lambda x: len(x) == len(junctions))
+        logger.debug('filtered reads:\n' + repr(reads.head()))
 
     # Sum all reads from junctions in the same samples (level=1), remove NAs
     reads = reads.groupby(level=1).sum().dropna()
@@ -85,6 +86,20 @@ def maybe_get_isoform_reads(splice_junction_reads, junction_locations,
         return pd.Series()
 
 
+def remove_insufficient_reads(isoform1, isoform2, isoform1_junctions,
+                              isoform2_junctions, min_reads):
+    n_junctions1 = len(isoform1_junctions)
+    n_junctions2 = len(isoform2_junctions)
+    n_junctions = n_junctions1 + n_junctions2
+    sufficient_isoform1 = isoform1 >= min_reads * n_junctions1
+    sufficient_isoform2 = isoform2 >= min_reads * n_junctions2
+    sufficient_all = (isoform1 + isoform2) >= (min_reads * n_junctions)
+
+    isoform1 = isoform1[sufficient_all | sufficient_isoform1]
+    isoform2 = isoform1[sufficient_all | sufficient_isoform2]
+    return isoform1, isoform2
+
+
 def _single_event_psi(event_id, event_df, splice_junction_reads,
                       isoform1_junctions, isoform2_junctions, reads_col=READS,
                       min_reads=MIN_READS, debug=False, log=None):
@@ -111,8 +126,8 @@ def _single_event_psi(event_id, event_df, splice_junction_reads,
         log.debug('--- isoform1 ---\n%s', repr(isoform1))
         log.debug('--- isoform2 ---\n%s', repr(isoform2))
 
-    isoform1 = filter_and_sum(isoform1, min_reads, isoform1_junctions)
-    isoform2 = filter_and_sum(isoform2, min_reads, isoform2_junctions)
+    isoform1 = filter_and_sum(isoform1, isoform1_junctions)
+    isoform2 = filter_and_sum(isoform2, isoform2_junctions)
 
     if isoform1.empty and isoform2.empty:
         # If both are empty after filtering this event --> don't calculate
@@ -127,6 +142,12 @@ def _single_event_psi(event_id, event_df, splice_junction_reads,
 
     isoform1 = isoform1.fillna(0)
     isoform2 = isoform2.fillna(0)
+
+    isoform1, isoform2 = remove_insufficient_reads(isoform1, isoform2,
+                                                   isoform1_junctions,
+                                                   isoform2_junctions,
+                                                   min_reads)
+    import pdb; pdb.set_trace()
 
     multiplier = float(len(isoform2_junctions)) / len(isoform1_junctions)
     psi = isoform2 / (isoform2 + multiplier * isoform1)
