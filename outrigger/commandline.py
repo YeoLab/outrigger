@@ -457,25 +457,24 @@ class Subcommand(object):
             splice_junctions = pd.read_csv(self.junction_reads,
                                            low_memory=self.low_memory)
             util.done()
-        splice_junctions = self.filter_junctions_on_reads(splice_junctions)
 
-        metadata = self.junction_metadata(splice_junctions)
-        metadata_csv = os.path.join(self.junctions_folder, METADATA_CSV)
-        util.progress('Writing metadata of junctions to {csv}'
-                      ' ...'.format(csv=metadata_csv))
-        metadata.to_csv(metadata_csv, index=False)
         util.done()
 
-        return splice_junctions, metadata
+        return splice_junctions
 
     @staticmethod
-    def junction_metadata(spliced_reads):
+    def junction_metadata(spliced_reads, csv):
         """Get just the junction info from the concatenated read files"""
         util.progress('Creating splice junction metadata of merely where '
                       'junctions start and stop')
 
         metadata = star.make_metadata(spliced_reads)
         util.done()
+
+        util.progress('Writing metadata of junctions to {csv}'
+                      ' ...'.format(csv=csv))
+        metadata.to_csv(csv, index=False)
+
         return metadata
 
     def filter_junctions_on_reads(self, spliced_reads):
@@ -709,7 +708,13 @@ class Index(Subcommand):
         if self.debug:
             logger.setLevel(10)
 
-        spliced_reads, metadata = self.csv()
+        spliced_reads = self.csv()
+
+        metadata_csv = os.path.join(self.junctions_folder, METADATA_CSV)
+        metadata = self.junction_metadata(spliced_reads, metadata_csv)
+
+        spliced_reads = self.filter_junctions_on_reads(spliced_reads)
+
 
         db = self.maybe_make_db()
 
