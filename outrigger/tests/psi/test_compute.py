@@ -186,11 +186,11 @@ def test_maybe_get_isoform_reads(dummy_splice_junction_reads,
                                  dummy_junction_locations,
                                  dummy_isoform_junctions,
                                  dummy_isoform_reads,):
-    from outrigger.psi.compute import maybe_get_isoform_reads, READS
+    from outrigger.psi.compute import _maybe_get_isoform_reads, READS
 
-    test = maybe_get_isoform_reads(dummy_splice_junction_reads,
-                                   dummy_junction_locations,
-                                   dummy_isoform_junctions, READS)
+    test = _maybe_get_isoform_reads(dummy_splice_junction_reads,
+                                    dummy_junction_locations,
+                                    dummy_isoform_junctions, READS)
     junctions = dummy_junction_locations[dummy_isoform_junctions]
     reads = dummy_isoform_reads[junctions.values]
     reads = reads.dropna()
@@ -281,6 +281,8 @@ sample1,{1}""".format(','.join(dummy_events), true_psi)
 
     pdt.assert_frame_equal(test, true)
 
+
+def test_remove_insufficient_reads()
 
 # --- Test with real data --- #
 @pytest.fixture
