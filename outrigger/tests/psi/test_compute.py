@@ -296,8 +296,8 @@ def maybe_sufficient_isoforms(request):
     isoform1 = pd.Series(request.param['isoform1'], index=index1)
     isoform2 = pd.Series(request.param['isoform2'], index=index2)
 
-    expected1 = pd.Series(request.param['result'][0], index=index1)
-    expected2 = pd.Series(request.param['result'][0], index=index2)
+    expected1 = pd.Series(request.param['result'][0], index=index1).dropna()
+    expected2 = pd.Series(request.param['result'][0], index=index2).dropna()
     return isoform1, isoform2, expected1, expected2
 
 

@@ -88,14 +88,19 @@ def _maybe_get_isoform_reads(splice_junction_reads, junction_locations,
 
 def _remove_insufficient_reads(isoform1, isoform2, n_junctions1,
                                n_junctions2, min_reads):
+    """Exclude samples whose junctions have insufficient reads
+
+    Use junctions with individually sufficient reads or sufficient total
+    junction reads
+    """
 
     n_junctions = n_junctions1 + n_junctions2
     sufficient_isoform1 = isoform1 >= (min_reads * n_junctions1)
     sufficient_isoform2 = isoform2 >= (min_reads * n_junctions2)
-    sufficient_all = (isoform1 + isoform2) >= (min_reads * n_junctions)
+    sufficient_total = (isoform1 + isoform2) >= (min_reads * n_junctions)
 
-    isoform1 = isoform1[sufficient_all | sufficient_isoform1]
-    isoform2 = isoform2[sufficient_all | sufficient_isoform2]
+    isoform1 = isoform1[sufficient_total | sufficient_isoform1]
+    isoform2 = isoform2[sufficient_total | sufficient_isoform2]
     return isoform1, isoform2
 
 
