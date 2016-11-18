@@ -3,8 +3,7 @@ Outrigger
 
 |OutriggerLogo|
 
-|BuildStatus|\ |codecov|\ |PyPI
-versions|\ |PythonVersionCompatibility|\ |license|
+|BuildStatus|\ |codecov|\ |PyPI versions|\ |PythonVersionCompatibility|
 
 Outrigger is a program which uses junction reads from RNA seq data, and
 a graph database to create a *de novo* alternative splicing annotation
@@ -30,10 +29,11 @@ Installation
 To install ``outrigger``, we recommend using the `Anaconda Python
 Distribution <http://anaconda.org/>`__ and creating an environment.
 
-You'll want to add the ```bioconda`` <https://bioconda.github.io/>`__
-channel to make installing ```bedtools`` <bedtools.readthedocs.io>`__
-and its Python wrapper,
-```pybedtools`` <https://daler.github.io/pybedtools/>`__ easy.
+You'll want to add the `bioconda <https://bioconda.github.io/>`__
+channel to make installing `bedtools <bedtools.readthedocs.io>`__ and
+its Python wrapper, `pybedtools <https://daler.github.io/pybedtools/>`__
+easy (these programs are necessary for both ``outrigger index`` and
+``outrigger validate``).
 
 ::
 
@@ -90,7 +90,7 @@ can:
 #. Create an environment with the necessary packages from Anaconda
 #. Activate the environment
 #. Install remaining packages from PyPI
-   (```graphlite`` <https://github.com/eugene-eeo/graphlite>`__ is only
+   (`graphlite <https://github.com/eugene-eeo/graphlite>`__ is only
    available on PyPI, not as a ``conda`` package)
 #. Install this package
 
@@ -98,7 +98,7 @@ These steps are shown in code below.
 
 ::
 
-    git clone git@github.com:YeoLab/outrigger
+    git clone https://github.com/YeoLab/outrigger.git
     cd outrigger
     conda create --name outrigger --yes --file conda_requirements.txt --channel bioconda
     source activate outrigger
@@ -173,24 +173,28 @@ should look like this:
     outrigger_output
     ├── index
     │   ├── gtf
-    │   │   ├── gencode.vM10.annotation.gtf
-    │   │   ├── gencode.vM10.annotation.gtf.db
+    │   │   ├── gencode.vM10.annotation.subset.gtf
+    │   │   ├── gencode.vM10.annotation.subset.gtf.db
     │   │   └── novel_exons.gtf
     │   ├── junction_exon_direction_triples.csv
     │   ├── mxe
+    │   │   ├── event.bed
     │   │   ├── events.csv
     │   │   ├── exon1.bed
     │   │   ├── exon2.bed
     │   │   ├── exon3.bed
     │   │   ├── exon4.bed
+    │   │   ├── intron.bed
     │   │   ├── splice_sites.csv
     │   │   └── validated
     │   │       └── events.csv
     │   └── se
+    │       ├── event.bed
     │       ├── events.csv
     │       ├── exon1.bed
     │       ├── exon2.bed
     │       ├── exon3.bed
+    │       ├── intron.bed
     │       ├── splice_sites.csv
     │       └── validated
     │           └── events.csv
@@ -204,7 +208,7 @@ should look like this:
         └── se
             └── psi.csv
 
-    10 directories, 22 files
+    10 directories, 26 files
 
 For Developers
 --------------
@@ -244,6 +248,24 @@ and get
 
     make coverage
 
+If you want to run a smallish example with GENCODE GTF files and a mouse
+genome, do:
+
+::
+
+    make tasic2016
+
+To run this with different numbers of parallel processing cores, do:
+
+If you want to run a smallish example with GENCODE GTF files and a mouse
+genome, specify with ``N_JOBS=X``, where ``X`` is the number of jobs you
+want. By default, this uses ``-1`` jobs, which means to use the maximum
+number of processors available.
+
+::
+
+    make tasic2016 N_JOBS=8
+
 If you want to run an example with ENSEMBL GTF files, do:
 
 ::
@@ -268,5 +290,3 @@ By default, Travis-CI does all three:
    :target: https://pypi.python.org/pypi/outrigger
 .. |PythonVersionCompatibility| image:: https://img.shields.io/pypi/pyversions/outrigger.svg
    :target: https://pypi.python.org/pypi/outrigger
-.. |license| image:: https://img.shields.io/github/pypi/l/outrigger.svg
-   :target: 
