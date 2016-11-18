@@ -100,12 +100,9 @@ can:
 
 #. Clone this repository
 #. Change into that directory
-#. Create an environment with the necessary packages from Anaconda
+#. Create an environment named ``outrigger-env`` with the necessary packages
+   from Anaconda and the Python Package Index (PyPI).
 #. Activate the environment
-#. Install remaining packages from PyPI
-   (`graphlite <https://github.com/eugene-eeo/graphlite>`__ is only
-   available on PyPI, not as a ``conda`` package)
-#. Install this package
 
 These steps are shown in code below.
 
@@ -113,10 +110,8 @@ These steps are shown in code below.
 
     git clone https://github.com/YeoLab/outrigger.git
     cd outrigger
-    conda create --name outrigger --yes --file conda_requirements.txt --channel bioconda
-    source activate outrigger
-    pip install -r requirements.txt
-    pip install .
+    conda env create --file environment.yml
+    source activate outrigger-env
 
 Quick start
 -----------
