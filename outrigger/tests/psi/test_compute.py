@@ -282,6 +282,8 @@ sample1,{1}""".format(','.join(dummy_events), true_psi)
                        {'isoform1': 2, 'isoform2': 99, 'result': (2, 99)},
                        {'isoform1': 99, 'isoform2': 2, 'result': (99, 2)},
                        {'isoform1': 99, 'isoform2': 0, 'result': (99, 0)},
+                       {'isoform1': 2, 'isoform2': 18, 'result': (np.nan,
+                                                                  np.nan)},
                        {'isoform1': 0, 'isoform2': 99, 'result': (0, 99)},
                        {'isoform1': 2, 'isoform2': 2, 'result':
                            (np.nan, np.nan)}))
