@@ -1,22 +1,24 @@
+.. -*- mode: rst -*-
 
 |OutriggerLogo|
 
-|BuildStatus|\ |codecov|\ |PyPI versions|\ |PythonVersionCompatibility|
+|BuildStatus|\ |codecov|\ |PyPIVersions|\ |PythonVersionCompatibility|
 
 .. |OutriggerLogo| image:: https://raw.githubusercontent.com/YeoLab/outrigger/master/logo/logo_v1.png
+    :target: https://github.com/YeoLab/outrigger
 .. |BuildStatus| image:: https://travis-ci.org/YeoLab/outrigger.svg?branch=master
    :target: https://travis-ci.org/YeoLab/outrigger
 .. |codecov| image:: https://codecov.io/gh/YeoLab/outrigger/branch/master/graph/badge.svg
    :target: https://codecov.io/gh/YeoLab/outrigger
-.. |PyPI versions| image:: https://img.shields.io/pypi/v/outrigger.svg
+.. |PyPIVersions| image:: https://img.shields.io/pypi/v/outrigger.svg
    :target: https://pypi.python.org/pypi/outrigger
 .. |PythonVersionCompatibility| image:: https://img.shields.io/pypi/pyversions/outrigger.svg
    :target: https://pypi.python.org/pypi/outrigger
 
-Outrigger
-=========
+Outrigger_
+==========
 
-Outrigger is a program which uses junction reads from RNA seq data, and
+Outrigger_ is a program which uses junction reads from RNA seq data, and
 a graph database to create a *de novo* alternative splicing annotation
 with a graph database, and quantify percent spliced-in (Psi) of the
 events.
@@ -57,15 +59,13 @@ and Python 3.5 are supported.
 
 ::
 
-    conda create -n outrigger-env pandas pybedtools gffutils biopython bedtools joblib
+    conda create --name outrigger-env outrigger
 
-Now activate that environment using ``source activate outrigger-env``
-and install ``outrigger`` from PyPI, using ``pip``:
+Now activate that environment:
 
 ::
 
     source activate outrigger-env
-    pip install outrigger
 
 To check that it installed properly, try the command with the help
 option (``-h``), ``outrigger -h``. The output should look like this:
@@ -73,10 +73,11 @@ option (``-h``), ``outrigger -h``. The output should look like this:
 ::
 
     $ outrigger -h
-    usage: outrigger [-h] {index,validate,psi} ...
+    usage: outrigger [-h] [--version] {index,validate,psi} ...
 
-    Calculate "percent-spliced in" (Psi) scores of alternative splicing on a *de
-    novo*, custom-built splicing index
+    outrigger (1.0.0dev). Calculate "percent-spliced in" (Psi) scores of
+    alternative splicing on a *de novo*, custom-built splicing index -- just for
+    you!
 
     positional arguments:
       {index,validate,psi}  Sub-commands
@@ -89,7 +90,7 @@ option (``-h``), ``outrigger -h``. The output should look like this:
 
     optional arguments:
       -h, --help            show this help message and exit
-
+      --version             show program's version number and exit
 Bleeding edge code from Github (here)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -222,3 +223,5 @@ should look like this:
 
     10 directories, 26 files
 
+
+.. _Outrigger: https://github.com/YeoLab/outrigger
