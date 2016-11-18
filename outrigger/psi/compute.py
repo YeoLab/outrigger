@@ -98,9 +98,11 @@ def _remove_insufficient_reads(isoform1, isoform2, n_junctions1,
     sufficient_isoform2 = isoform2 >= (min_reads * n_junctions2)
     sufficient_total = (isoform1 + isoform2) >= (min_reads * n_junctions)
 
+    sufficient = sufficient_isoform1 | sufficient_isoform2 | sufficient_total
+
     # import pdb ; pdb.set_trace()
-    isoform1 = isoform1[sufficient_total | sufficient_isoform1]
-    isoform2 = isoform2[sufficient_total | sufficient_isoform2]
+    isoform1 = isoform1[sufficient]
+    isoform2 = isoform2[sufficient]
     isoform1, isoform2 = isoform1.align(isoform2, 'inner')
     return isoform1, isoform2
 
@@ -150,9 +152,14 @@ def _single_event_psi(event_id, event_df, splice_junction_reads,
 
     n_junctions1 = len(isoform1_junctions)
     n_junctions2 = len(isoform2_junctions)
+
     isoform1, isoform2 = _remove_insufficient_reads(isoform1, isoform2,
                                                     n_junctions1,
                                                     n_junctions2, min_reads)
+    if debug and log is not None:
+        log.debug('\n- After removing insufficient reads -')
+        log.debug('--- isoform1 ---\n%s', repr(isoform1))
+        log.debug('--- isoform2 ---\n%s', repr(isoform2))
 
     multiplier = float(n_junctions2) / n_junctions1
     psi = isoform2 / (isoform2 + multiplier * isoform1)
