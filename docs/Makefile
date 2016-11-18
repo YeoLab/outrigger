@@ -61,6 +61,7 @@ install:
 	pip install -r requirements.txt
 
 html:
+	pandoc --from=markdown_github --to=rst ../README.md > ../README.rst
 	sphinx-apidoc -l -d 4 -e --force -o . ../outrigger
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 	@echo
