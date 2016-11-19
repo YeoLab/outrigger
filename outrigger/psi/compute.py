@@ -12,11 +12,14 @@ logging.basicConfig()
 idx = pd.IndexSlice
 
 
-def _scale(x, n_junctions, method='mean'):
+def _scale(x, n_junctions, method='mean', min_reads=MIN_READS):
+    if (x < min_reads).any():
+        return -1
     if method == 'mean':
         return x.sum()/float(n_junctions)
     elif method == 'min':
         return x.min()
+
 
 def _filter_and_scale(reads, n_junctions, debug=False, min_reads=MIN_READS,
                       method='mean'):
@@ -48,7 +51,7 @@ def _filter_and_scale(reads, n_junctions, debug=False, min_reads=MIN_READS,
         logger.debug('filtered reads:\n' + repr(reads.head()))
 
     reads = reads.groupby(level=1).apply(
-        lambda x: _scale(x) if (x >= min_reads).all() else -1)
+        lambda x: _scale(x, n_junctions, method, min_reads))
 
     # Sum all reads from junctions in the same samples (level=1), remove NAs
     # reads = reads.groupby(level=1).sum().dropna()
