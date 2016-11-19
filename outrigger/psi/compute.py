@@ -12,27 +12,46 @@ logging.basicConfig()
 idx = pd.IndexSlice
 
 
-def _filter_and_sum(reads, junctions, debug=False):
+def _scale(x, n_junctions, method='mean'):
+    if method == 'mean':
+        return x.sum()/float(n_junctions)
+    elif method == 'min':
+        return x.min()
+
+def _filter_and_scale(reads, n_junctions, debug=False, min_reads=MIN_READS,
+                      method='mean'):
     """Remove samples without reads on all junctions and sum across junctions
 
-    Remove all samples that don't have enough reads
+    If any junction on the isoform has fewer than the minimum reads, flag it
+    as -1
 
+    Parameters
+    ----------
+
+    method : 'mean' | 'min'
+        If there are more than 2 junctions for this isoform, then they have to
+        be consolidated somehow.
+        - "mean": Sum the reads and divide by the number of junctions
+        - "min": Use the minimum number of reads
     """
-    logger = logging.getLogger('outrigger.psi.filter_and_sum')
+    logger = logging.getLogger('outrigger.psi.filter_and_scale')
     if debug:
         logger.setLevel(10)
 
     if reads.empty:
         return reads
 
-    if len(junctions) > 1:
+    if n_junctions > 1:
         # Remove all samples that don't have all required junctions
         reads = reads.groupby(level=1).filter(
-            lambda x: len(x) == len(junctions))
+            lambda x: len(x) == n_junctions)
         logger.debug('filtered reads:\n' + repr(reads.head()))
 
+    reads = reads.groupby(level=1).apply(
+        lambda x: _scale(x) if (x >= min_reads).all() else -1)
+
     # Sum all reads from junctions in the same samples (level=1), remove NAs
-    reads = reads.groupby(level=1).sum().dropna()
+    # reads = reads.groupby(level=1).sum().dropna()
     logger.debug('summed reads:\n' + repr(reads.head()))
 
     return reads
@@ -86,30 +105,30 @@ def _maybe_get_isoform_reads(splice_junction_reads, junction_locations,
         return pd.Series()
 
 
-def _remove_insufficient_reads(isoform1, isoform2, n_junctions1,
-                               n_junctions2, min_reads):
-    """Exclude samples whose junctions have insufficient reads
+def _remove_insufficient_reads(isoform1, isoform2):
+    """Exclude samples whose junctions have insufficient reads (marked with -1)
 
-    Use junctions with individually sufficient reads or sufficient total
-    junction reads
+    In filter_and_sum, if any junction had fewer than expected reads, set it
+     to -1
+
+    ONLY Use junctions with individually sufficient reads
     """
-    n_junctions = n_junctions1 + n_junctions2
-    sufficient_isoform1 = isoform1 >= (min_reads * n_junctions1)
-    sufficient_isoform2 = isoform2 >= (min_reads * n_junctions2)
-    sufficient_total = (isoform1 + isoform2) >= (min_reads * n_junctions)
+    isoform1, isoform2 = isoform1.align(isoform2, 'outer')
 
-    sufficient = sufficient_isoform1 | sufficient_isoform2 | sufficient_total
+    isoform1 = isoform1.fillna(0)
+    isoform2 = isoform2.fillna(0)
 
-    # import pdb ; pdb.set_trace()
-    isoform1 = isoform1[sufficient]
-    isoform2 = isoform2[sufficient]
-    isoform1, isoform2 = isoform1.align(isoform2, 'inner')
+    invalid = (isoform1 < 0) | (isoform2 < 0)
+
+    isoform1 = isoform1[~invalid]
+    isoform2 = isoform2[~invalid]
     return isoform1, isoform2
 
 
 def _single_event_psi(event_id, event_df, splice_junction_reads,
                       isoform1_junctions, isoform2_junctions, reads_col=READS,
-                      min_reads=MIN_READS, debug=False, log=None):
+                      min_reads=MIN_READS, method='mean', debug=False,
+                      log=None):
     """Calculate percent spliced in for a single event across all samples
 
     Returns
@@ -120,12 +139,16 @@ def _single_event_psi(event_id, event_df, splice_junction_reads,
     """
     junction_locations = event_df.iloc[0]
 
+    n_junctions1 = len(isoform1_junctions)
+    n_junctions2 = len(isoform2_junctions)
+
     isoform1 = _maybe_get_isoform_reads(splice_junction_reads,
                                         junction_locations,
                                         isoform1_junctions, reads_col)
     isoform2 = _maybe_get_isoform_reads(splice_junction_reads,
                                         junction_locations,
                                         isoform2_junctions, reads_col)
+
     if debug and log is not None:
         junction_cols = isoform1_junctions + isoform2_junctions
         log.debug('--- junction columns of event ---\n%s',
@@ -133,8 +156,9 @@ def _single_event_psi(event_id, event_df, splice_junction_reads,
         log.debug('--- isoform1 ---\n%s', repr(isoform1))
         log.debug('--- isoform2 ---\n%s', repr(isoform2))
 
-    isoform1 = _filter_and_sum(isoform1, isoform1_junctions)
-    isoform2 = _filter_and_sum(isoform2, isoform2_junctions)
+    isoform1 = _filter_and_scale(isoform1, n_junctions1, min_reads, method)
+    isoform2 = _filter_and_scale(isoform2, n_junctions2, min_reads, method)
+    import pdb; pdb.set_trace()
 
     if isoform1.empty and isoform2.empty:
         # If both are empty after filtering this event --> don't calculate
@@ -145,37 +169,27 @@ def _single_event_psi(event_id, event_df, splice_junction_reads,
         log.debug('--- isoform1 ---\n%s', repr(isoform1))
         log.debug('--- isoform2 ---\n%s', repr(isoform2))
 
-    isoform1, isoform2 = isoform1.align(isoform2, 'outer')
+    isoform1, isoform2 = _remove_insufficient_reads(isoform1, isoform2)
 
-    isoform1 = isoform1.fillna(0)
-    isoform2 = isoform2.fillna(0)
-
-    n_junctions1 = len(isoform1_junctions)
-    n_junctions2 = len(isoform2_junctions)
-
-    isoform1, isoform2 = _remove_insufficient_reads(isoform1, isoform2,
-                                                    n_junctions1,
-                                                    n_junctions2, min_reads)
     if debug and log is not None:
         log.debug('\n- After removing insufficient reads -')
         log.debug('--- isoform1 ---\n%s', repr(isoform1))
         log.debug('--- isoform2 ---\n%s', repr(isoform2))
 
-    multiplier = float(n_junctions2) / n_junctions1
-    psi = isoform2 / (isoform2 + multiplier * isoform1)
+    psi = isoform2 / (isoform2 + isoform1)
     psi.name = event_id
 
     if debug and log is not None:
         log.debug('--- Psi ---\n%s', repr(psi))
 
     if not psi.empty:
-        return psi
+        return psi, isoform1, isoform2
 
 
 def _maybe_parallelize_psi(event_annotation, splice_junction_reads,
                            isoform1_junctions, isoform2_junctions,
-                           reads_col=READS, min_reads=MIN_READS, n_jobs=-1,
-                           debug=False, log=None):
+                           reads_col=READS, min_reads=MIN_READS, method='mean',
+                           n_jobs=-1, debug=False, log=None):
     # There are multiple rows with the same event id because the junctions
     # are the same, but the flanking exons may be a little wider or shorter,
     # but ultimately the event Psi is calculated only on the junctions so the
@@ -190,9 +204,10 @@ def _maybe_parallelize_psi(event_annotation, splice_junction_reads,
         progress('\tIterating over {} events ...\n'.format(n_events))
         psis = []
         for event_id, event_df in grouped:
-            psi = _single_event_psi(event_id, event_df, splice_junction_reads,
-                                    isoform1_junctions, isoform2_junctions,
-                                    reads_col, min_reads, debug, log)
+            psi, isoform1, isoform2 = _single_event_psi(
+                event_id, event_df, splice_junction_reads,
+                isoform1_junctions, isoform2_junctions,
+                reads_col, min_reads, method, debug, log)
             psis.append(psi)
     else:
         processors = n_jobs if n_jobs > 0 else joblib.cpu_count()
@@ -202,14 +217,15 @@ def _maybe_parallelize_psi(event_annotation, splice_junction_reads,
             joblib.delayed(_single_event_psi)(
                 event_id, event_df, splice_junction_reads,
                 isoform1_junctions, isoform2_junctions, reads_col,
-                min_reads) for event_id, event_df in grouped)
+                min_reads, method) for event_id, event_df in grouped)
 
     return psis
 
 
 def calculate_psi(event_annotation, splice_junction_reads,
                   isoform1_junctions, isoform2_junctions, reads_col=READS,
-                  min_reads=MIN_READS, n_jobs=-1, debug=False):
+                  min_reads=MIN_READS, method='method', n_jobs=-1,
+                  debug=False):
     """Compute percent-spliced-in of events based on junction reads
 
     Parameters
@@ -252,7 +268,8 @@ def calculate_psi(event_annotation, splice_junction_reads,
 
     psis = _maybe_parallelize_psi(event_annotation, splice_junction_reads,
                                   isoform1_junctions, isoform2_junctions,
-                                  reads_col, min_reads, n_jobs, debug, log)
+                                  reads_col, min_reads, method, n_jobs, debug,
+                                  log)
 
     # use only non-empty psi outputs
     psis = filter(lambda x: x is not None, psis)
