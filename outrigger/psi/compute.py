@@ -158,7 +158,6 @@ def _single_event_psi(event_id, event_df, splice_junction_reads,
 
     isoform1 = _filter_and_scale(isoform1, n_junctions1, min_reads, method)
     isoform2 = _filter_and_scale(isoform2, n_junctions2, min_reads, method)
-    import pdb; pdb.set_trace()
 
     if isoform1.empty and isoform2.empty:
         # If both are empty after filtering this event --> don't calculate
@@ -203,21 +202,26 @@ def _maybe_parallelize_psi(event_annotation, splice_junction_reads,
     if n_jobs == 1:
         progress('\tIterating over {} events ...\n'.format(n_events))
         psis = []
+        isoform1s = []
+        isoform2s = []
         for event_id, event_df in grouped:
             psi, isoform1, isoform2 = _single_event_psi(
                 event_id, event_df, splice_junction_reads,
                 isoform1_junctions, isoform2_junctions,
                 reads_col, min_reads, method, debug, log)
             psis.append(psi)
+            isoform1s.append(isoform1)
+            isoform2s.append(isoform2)
     else:
         processors = n_jobs if n_jobs > 0 else joblib.cpu_count()
         progress("\tParallelizing {} events' Psi calculation across {} "
                  "CPUs ...\n".format(n_events, processors))
-        psis = joblib.Parallel(n_jobs=n_jobs)(
+        outputs = joblib.Parallel(n_jobs=n_jobs)(
             joblib.delayed(_single_event_psi)(
                 event_id, event_df, splice_junction_reads,
                 isoform1_junctions, isoform2_junctions, reads_col,
                 min_reads, method) for event_id, event_df in grouped)
+        import pdb; pdb.set_trace()
 
     return psis
 
