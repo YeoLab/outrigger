@@ -1,4 +1,4 @@
-pytest
+pytest>=3.0.0
 pandas>=0.17.0
 coverage
 gffutils>=0.8.7.1
