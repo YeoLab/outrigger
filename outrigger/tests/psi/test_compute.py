@@ -34,7 +34,7 @@ def maybe_sufficient_isoforms(request):
     return isoform1, isoform2, expected1, expected2
 
 
-def test_remove_insufficient_reads(maybe_sufficient_isoforms):
+def test__remove_insufficient_reads(maybe_sufficient_isoforms):
     from outrigger.psi.compute import _remove_insufficient_reads
 
     isoform1, isoform2, expected1, expected2 = maybe_sufficient_isoforms
@@ -42,6 +42,43 @@ def test_remove_insufficient_reads(maybe_sufficient_isoforms):
     test1, test2 = _remove_insufficient_reads(isoform1, isoform2)
     pdt.assert_series_equal(test1, expected1)
     pdt.assert_series_equal(test2, expected2)
+
+
+@pytest.fixture
+def skipped_exon_junction_reads_for_rejecting_csv(simulated):
+    return os.path.join(simulated, 'psi', 'skipped_exon_junctions_psi.csv')
+
+
+@pytest.fixture
+def skipped_exon_junction_reads_for_rejecting(
+        skipped_exon_junction_reads_for_rejecting_csv):
+    df = pd.read_csv(skipped_exon_junction_reads_for_rejecting_csv,
+                       dtype={'junction12': int, 'junction13': int,
+                              'junction23': int, 'psi': float},
+                       comment='#', index_col=0)
+    return df
+
+
+def test__maybe_reject_events(skipped_exon_junction_reads_for_rejecting):
+    from outrigger.psi.compute import _maybe_reject_events
+
+    for i, row in skipped_exon_junction_reads_for_rejecting.iterrows():
+        isoform1, isoform2 = _maybe_reject_events(
+            row[['junction13']],
+            row[['junction12',
+                                                       'junction23']],
+                                            n_junctions=3)
+        if np.isnan(row['psi']):
+            assert isoform1 is None
+            assert isoform2 is None
+        else:
+            pdt.assert_series_equal(
+                isoform1,
+                row[['junction13']])
+            pdt.assert_series_equal(
+                isoform2,
+                row[
+                    ['junction12', 'junction23']])
 
 
 @pytest.fixture

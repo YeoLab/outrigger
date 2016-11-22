@@ -127,6 +127,57 @@ def _remove_insufficient_reads(isoform1, isoform2):
     return isoform1, isoform2
 
 
+def _maybe_reject_events(isoform1, isoform2, n_junctions, min_reads=MIN_READS):
+    """Given the junction reads of isoform1 and isoform2, remove them if they are bad"""
+
+    if (isoform1 >= min_reads).all() and (isoform2 == 0).all():
+        # Case 1: Perfect exclusion
+        return isoform1, isoform2
+    elif (isoform1 == 0).all() and (isoform2 >= min_reads).all():
+        # Case 2: Perfect inclusion
+        return isoform1, isoform2
+    elif (isoform1 >= min_reads).all() and (isoform2 >= min_reads).all():
+        # Case 3: coverage on both isoforms
+        return isoform1, isoform2
+    elif (isoform1 == 0).any() or (isoform2 == 0).any():
+        # Case 4: Any observed junction is zero and it's not all of one isoform
+        return None, None
+    elif (isoform1 >= min_reads).all() and (isoform2 < min_reads).all():
+        # Case 5: isoform1 totally covered and isoform2 not
+        if (isoform1.sum() + isoform2.sum()) >= (min_reads * n_junctions):
+            # Case 5a: There are sufficient junction reads
+            return isoform1, isoform2
+        else:
+            # Case 5b: There are insufficient junction reads
+            return None, None
+    elif (isoform1 < min_reads).all() and (isoform2 >= min_reads).all():
+        # Case 6: Isoform2 is totally covered and isoform1 is not
+        if (isoform1.sum() + isoform2.sum()) >= (min_reads * n_junctions):
+            # Case 6a: There are sufficient junction reads
+            return isoform1, isoform2
+        else:
+            # Case 6b: There are insufficient junction reads
+            return None, None
+    elif (isoform1 >= min_reads).all() and (isoform2 < min_reads).any():
+        # Case 7: Isoform 1 is fully covered and isoform2 is questionable
+        if (isoform1.sum() + isoform2.sum()) >= (min_reads * n_junctions):
+            # Case 7a: There are sufficient junction reads
+            return isoform1, isoform2
+        else:
+            # Case 7b: There are insufficient junction reads
+            return None, None
+    elif (isoform1 < min_reads).any() and (isoform2 >= min_reads).all():
+        # Case 7: Isoform 1 is fully covered and isoform2 is questionable
+        if (isoform1.sum() + isoform2.sum()) >= (min_reads * n_junctions):
+            # Case 7a: There are sufficient junction reads
+            return isoform1, isoform2
+        else:
+            # Case 7b: There are insufficient junction reads
+            return None, None
+
+    return None, None
+
+
 def _single_event_psi(event_id, event_df, splice_junction_reads,
                       isoform1_junctions, isoform2_junctions, reads_col=READS,
                       min_reads=MIN_READS, method='mean', debug=False,
