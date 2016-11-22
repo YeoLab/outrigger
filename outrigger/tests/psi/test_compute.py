@@ -9,6 +9,41 @@ import six
 idx = pd.IndexSlice
 
 
+
+@pytest.fixture(params=({'isoform1': 99, 'isoform2': 99, 'result': (99, 99)},
+                       {'isoform1': 2, 'isoform2': 99, 'result': (2, 99)},
+                       {'isoform1': 99, 'isoform2': 2, 'result': (99, 2)},
+                       {'isoform1': 99, 'isoform2': 0, 'result': (99, 0)},
+                       {'isoform1': 2, 'isoform2': 26, 'result': (np.nan,
+                                                                  np.nan)},
+                       {'isoform1': 0, 'isoform2': 15, 'result': (0, 15)},
+                       {'isoform1': 0, 'isoform2': 99, 'result': (0, 99)},
+                       {'isoform1': 2, 'isoform2': 2, 'result':
+                           (np.nan, np.nan)}))
+def maybe_sufficient_isoforms(request):
+    index = ['sample1']
+
+    isoform1 = pd.Series(request.param['isoform1'], index=index)
+    isoform2 = pd.Series(request.param['isoform2'], index=index)
+
+    expected1 = pd.Series(request.param['result'][0], index=index).dropna()
+    expected2 = pd.Series(request.param['result'][1], index=index).dropna()
+
+    expected1 = expected1.astype(int)
+    expected2 = expected2.astype(int)
+    return isoform1, isoform2, expected1, expected2
+
+
+def test_remove_insufficient_reads(maybe_sufficient_isoforms):
+    from outrigger.psi.compute import _remove_insufficient_reads
+
+    isoform1, isoform2, expected1, expected2 = maybe_sufficient_isoforms
+
+    test1, test2 = _remove_insufficient_reads(isoform1, isoform2)
+    pdt.assert_series_equal(test1, expected1)
+    pdt.assert_series_equal(test2, expected2)
+
+
 @pytest.fixture
 def dummy_junction12():
     """Junction between exons 1 and 2"""
@@ -277,40 +312,6 @@ sample1,{1}""".format(','.join(dummy_events), true_psi)
 
     pdt.assert_frame_equal(test, true)
 
-
-@pytest.fixture(params=({'isoform1': 99, 'isoform2': 99, 'result': (99, 99)},
-                       {'isoform1': 2, 'isoform2': 99, 'result': (2, 99)},
-                       {'isoform1': 99, 'isoform2': 2, 'result': (99, 2)},
-                       {'isoform1': 99, 'isoform2': 0, 'result': (99, 0)},
-                       {'isoform1': 2, 'isoform2': 26, 'result': (np.nan,
-                                                                  np.nan)},
-                       {'isoform1': 0, 'isoform2': 15, 'result': (0, 15)},
-                       {'isoform1': 0, 'isoform2': 99, 'result': (0, 99)},
-                       {'isoform1': 2, 'isoform2': 2, 'result':
-                           (np.nan, np.nan)}))
-def maybe_sufficient_isoforms(request):
-    index = ['sample1']
-
-    isoform1 = pd.Series(request.param['isoform1'], index=index)
-    isoform2 = pd.Series(request.param['isoform2'], index=index)
-
-    expected1 = pd.Series(request.param['result'][0], index=index).dropna()
-    expected2 = pd.Series(request.param['result'][1], index=index).dropna()
-
-    expected1 = expected1.astype(int)
-    expected2 = expected2.astype(int)
-    return isoform1, isoform2, expected1, expected2
-
-
-def test_remove_insufficient_reads(maybe_sufficient_isoforms):
-    from outrigger.psi.compute import _remove_insufficient_reads
-
-    isoform1, isoform2, expected1, expected2 = maybe_sufficient_isoforms
-
-    test1, test2 = _remove_insufficient_reads(isoform1, isoform2, 1, 2,
-                                              min_reads=10)
-    pdt.assert_series_equal(test1, expected1)
-    pdt.assert_series_equal(test2, expected2)
 
 
 # --- Test with real data --- #
