@@ -13,12 +13,11 @@ idx = pd.IndexSlice
 
 
 def _scale(x, n_junctions, method='mean', min_reads=MIN_READS):
-    if (x < min_reads).any():
-        return -1
+    multiplier = -1 if (x < min_reads).any() else 1
     if method == 'mean':
-        return x.sum()/float(n_junctions)
+        return multiplier * x.sum()/float(n_junctions)
     elif method == 'min':
-        return x.min()
+        return multiplier * x.min()
 
 
 def _filter_and_scale(reads, n_junctions, debug=False, min_reads=MIN_READS,
@@ -231,7 +230,7 @@ def _maybe_parallelize_psi(event_annotation, splice_junction_reads,
 
 def calculate_psi(event_annotation, splice_junction_reads,
                   isoform1_junctions, isoform2_junctions, reads_col=READS,
-                  min_reads=MIN_READS, method='method', n_jobs=-1,
+                  min_reads=MIN_READS, method='mean', n_jobs=-1,
                   debug=False):
     """Compute percent-spliced-in of events based on junction reads
 
