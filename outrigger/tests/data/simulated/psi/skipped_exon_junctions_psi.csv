@@ -6,10 +6,10 @@ junction13 < 10,2,0,0,NA
 junction12;23 < 10,0,2,2,NA
 junction13;23 < 10,2,0,2,NA
 junction13;12 < 10,2,2,0,NA
-junction12 ≥ 10; junction23 < 10, ∑ < 30,0,10,2,NA
-junction23 ≥ 10; junction12 < 10, ∑ < 30,0,2,10,NA
-junction13 ≥ 10; junction23 < 10, ∑ < 30,10,0,2,NA
-junction13 ≥ 10; junction12 < 10, ∑ < 30,10,2,0,NA
+junction12 ≥ 10; junction23 < 10; ∑ < 30,0,10,2,NA
+junction23 ≥ 10; junction12 < 10; ∑ < 30,0,2,10,NA
+junction13 ≥ 10; junction23 < 10; ∑ < 30,10,0,2,NA
+junction13 ≥ 10; junction12 < 10; ∑ < 30,10,2,0,NA
 junction12;23;13 ≥ 10,10,10,10,0.5
 junction12;23 ≥ 10; junction13 < 10; ∑ < 30,9,10,10,NA
 junction12;23;13 ≥ 10; ∑ ≥ 30,9,30,11,0.69
