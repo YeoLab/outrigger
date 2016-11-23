@@ -172,8 +172,24 @@ def _check_unequal_read_coverage(isoform, multiplier=INEQUALITY_MULTIPLIER):
         return isoform
 
 
-def _maybe_reject_events(isoform1, isoform2, n_junctions, min_reads=MIN_READS,
+def _maybe_reject_events(reads, isoform1_ids, isoform2_ids, illegal_ids,
+                         n_junctions, min_reads=MIN_READS,
                          multiplier=INEQUALITY_MULTIPLIER):
+    if not pd.isnull(illegal_ids):
+        samples_with_illegal_coverage = reads[illegal_ids] >= min_reads
+        reads = reads.loc[~samples_with_illegal_coverage]
+
+    maybe_rejected = reads.apply(
+        lambda sample: _single_sample_maybe_reject_events(
+            sample[isoform1_ids], sample[isoform2_ids],
+            n_junctions=n_junctions, min_reads=min_reads,
+            multiplier=multiplier), axis=1)
+    return maybe_rejected
+
+
+def _single_sample_maybe_reject_events(isoform1, isoform2, n_junctions,
+                                       min_reads=MIN_READS,
+                                       multiplier=INEQUALITY_MULTIPLIER):
     """Given junction reads of isoform1 and isoform2, remove if they are bad"""
 
     isoform1 = _check_unequal_read_coverage(isoform1, multiplier)
@@ -248,8 +264,8 @@ def _maybe_reject_events(isoform1, isoform2, n_junctions, min_reads=MIN_READS,
 
 def _single_event_psi(event_id, event_df, junction_reads_2d,
                       isoform1_junction_numbers, isoform2_junction_numbers,
-                      reads_col=READS, min_reads=MIN_READS, method='mean',
-                      debug=False, log=None):
+                      min_reads=MIN_READS, method='mean',
+                      multiplier=INEQUALITY_MULTIPLIER, debug=False, log=None):
     """Calculate percent spliced in for a single event across all samples
 
     Returns
@@ -262,6 +278,7 @@ def _single_event_psi(event_id, event_df, junction_reads_2d,
 
     n_junctions1 = len(isoform1_junction_numbers)
     n_junctions2 = len(isoform2_junction_numbers)
+    n_junctions = n_junctions1 + n_junctions2
 
     isoform1_junction_ids = junction_locations[isoform1_junction_numbers].tolist()
     isoform2_junction_ids = junction_locations[isoform2_junction_numbers].tolist()
@@ -274,10 +291,11 @@ def _single_event_psi(event_id, event_df, junction_reads_2d,
 
     reads = junction_reads_2d[junction_cols]
 
-    maybe_rejected = reads.apply(
-        lambda x: _maybe_reject_events(x[isoform1_junction_ids],
-                                       x[isoform2_junction_ids],
-                                       n_junctions=3), axis=1)
+    maybe_rejected = _maybe_reject_events(reads, isoform1_junction_ids,
+                                          isoform2_junction_ids,
+                                          illegal_junction_ids, n_junctions,
+                                          min_reads=min_reads,
+                                          multiplier=multiplier)
 
     import pdb; pdb.set_trace()
     return
@@ -322,7 +340,8 @@ def _single_event_psi(event_id, event_df, junction_reads_2d,
 def _maybe_parallelize_psi(event_annotation, junction_reads_2d,
                            isoform1_junctions, isoform2_junctions,
                            reads_col=READS, min_reads=MIN_READS, method='mean',
-                           n_jobs=-1, debug=False, log=None):
+                           multiplier=INEQUALITY_MULTIPLIER, n_jobs=-1,
+                           debug=False, log=None):
     # There are multiple rows with the same event id because the junctions
     # are the same, but the flanking exons may be a little wider or shorter,
     # but ultimately the event Psi is calculated only on the junctions so the
@@ -339,10 +358,11 @@ def _maybe_parallelize_psi(event_annotation, junction_reads_2d,
         isoform1s = []
         isoform2s = []
         for event_id, event_df in grouped:
-            psi = _single_event_psi(
+            outputs = _single_event_psi(
                 event_id, event_df, junction_reads_2d,
                 isoform1_junctions, isoform2_junctions,
-                reads_col, min_reads, method, debug, log)
+                min_reads=min_reads, multiplier=multiplier,
+                method=method, debug=debug, log=log)
             # psis.append(psi)
             # isoform1s.append(isoform1)
             # isoform2s.append(isoform2)
@@ -354,7 +374,8 @@ def _maybe_parallelize_psi(event_annotation, junction_reads_2d,
             joblib.delayed(_single_event_psi)(
                 event_id, event_df, junction_reads_2d,
                 isoform1_junctions, isoform2_junctions, reads_col,
-                min_reads, method) for event_id, event_df in grouped)
+                min_reads=min_reads, multiplier=multiplier, method=method)
+            for event_id, event_df in grouped)
         import pdb; pdb.set_trace()
 
     return psis
@@ -362,8 +383,9 @@ def _maybe_parallelize_psi(event_annotation, junction_reads_2d,
 
 def calculate_psi(event_annotation, junction_reads_2d,
                   isoform1_junctions, isoform2_junctions, reads_col=READS,
-                  min_reads=MIN_READS, method='mean', n_jobs=-1,
-                  debug=False):
+                  min_reads=MIN_READS, method='mean',
+                  multiplier=INEQUALITY_MULTIPLIER,
+                  n_jobs=-1, debug=False):
     """Compute percent-spliced-in of events based on junction reads
 
     Parameters
@@ -406,8 +428,8 @@ def calculate_psi(event_annotation, junction_reads_2d,
 
     psis = _maybe_parallelize_psi(event_annotation, junction_reads_2d,
                                   isoform1_junctions, isoform2_junctions,
-                                  reads_col, min_reads, method, n_jobs, debug,
-                                  log)
+                                  reads_col, min_reads, method, multiplier,
+                                  n_jobs, debug, log)
 
     # use only non-empty psi outputs
     psis = filter(lambda x: x is not None, psis)
