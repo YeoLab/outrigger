@@ -116,6 +116,7 @@ def test__maybe_reject_events(junction_reads_for_rejecting,
 @pytest.fixture(params=[({'junction12': 1000, 'junction23': 20}, 'unequal'),
                         ({'junction12': 100, 'junction23': 20}, 'similar'),
                         ({'junction12': 20, 'junction23': 1000}, 'unequal'),
+                        ({'junction23': 1000}, 'one junction'),
                         ({'junction12': 20, 'junction23': 100}, 'similar')])
 def isoform_read_coverage(request):
     return pd.Series(request.param[0]), request.param[1]
