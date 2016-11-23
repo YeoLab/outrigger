@@ -263,6 +263,18 @@ class CommandLine(object):
                                 required=False, default=10,
                                 help='Minimum number of reads per junction for'
                                      ' calculating Psi (default=10)')
+        psi_parser.add_argument('-e', '--method', type=str, action='store',
+                                required=False, default='mean',
+                                help='How to deal with multiple junctions on '
+                                     'an event - take the mean (default) or '
+                                     'the min? (the other option)')
+        psi_parser.add_argument('-u', '--inequality-multiplier',
+                                type=int, action='store',
+                                required=False, default=10,
+                                help='If a junction one one side of an exon is'
+                                     ' bigger than the other side of the exon '
+                                     'by this amount, (default is 10, so 10x '
+                                     'bigger), then do not use this event')
         psi_parser.add_argument('--ignore-multimapping', action='store_true',
                                 help='Applies to STAR SJ.out.tab files only.'
                                      ' If this flag is used, then do not '
@@ -944,7 +956,7 @@ class Psi(SubcommandAfterIndex):
                                                  columns=self.junction_id_col,
                                                  values=self.reads_col)
         junction_reads_2d.fillna(0, inplace=True)
-        junction_reads_2d.astype(int, inplace=True)
+        junction_reads_2d = junction_reads_2d.astype(int)
 
         logger.debug('\n--- Splice Junction reads ---')
         logger.debug(repr(junction_reads.head()))
@@ -979,6 +991,7 @@ class Psi(SubcommandAfterIndex):
                 event_annotation, junction_reads_2d,
                 min_reads=self.min_reads, debug=self.debug,
                 reads_col=self.reads_col, n_jobs=self.n_jobs,
+                method=self.method, multiplier=self.inequality_multiplier,
                 **isoform_junctions)
             csv = os.path.join(self.psi_folder, splice_abbrev,
                                'psi.csv'.format(splice_abbrev))
