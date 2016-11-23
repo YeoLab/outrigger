@@ -152,11 +152,13 @@ def _maybe_reject_events(isoform1, isoform2, n_junctions, min_reads=MIN_READS):
         # Case 2: Perfect inclusion
         return isoform1, isoform2, 'Case 2: Perfect inclusion'
     elif (isoform1 >= min_reads).all() and (isoform2 >= min_reads).all():
-        # Case 3: coverage on both isoforms
-        return isoform1, isoform2, 'Case 3: coverage on both isoforms'
+        # Case 3: Sufficient coverage on both isoforms
+        return isoform1, isoform2, 'Case 3: Sufficient coverage on both ' \
+                                   'isoforms'
     elif (isoform1 == 0).any() or (isoform2 == 0).any():
         # Case 4: Any observed junction is zero and it's not all of one isoform
-        return None, None, "Case 4: Any observed junction is zero and it's not all of one isoform"
+        return None, None, "Case 4: Any observed junction is zero and it's " \
+                           "not all of one isoform"
     elif (isoform1 >= min_reads).all() and (isoform2 < min_reads).all():
         # Case 5: Isoform1 totally covered and isoform2 not
         return _maybe_sufficient_reads(isoform1, isoform2, n_junctions,
@@ -180,14 +182,18 @@ def _maybe_reject_events(isoform1, isoform2, n_junctions, min_reads=MIN_READS):
                                        min_reads, 'Case 8: Isoform 1 is fully '
                                                   'covered and isoform2 is '
                                                   'questionable')
-    if (isoform1 < min_reads).any() or (isoform2 < min_reads).any():
+    elif (isoform1 < min_reads).any() or (isoform2 < min_reads).any():
         # Case 9: insufficient reads somehow
         if (isoform1 < min_reads).all() and (isoform2 < min_reads).any():
-            # Case 9a: 3 junctions have less than minimum reads (2 on iso1 and 1 on iso2)
-            return None, None, 'Case 9a: 3 junctions have less than minimum reads (2 on iso1 and 1 on iso2)'
+            # Case 9a: 3 junctions have less than minimum reads (2 on iso1
+            # and 1 on iso2)
+            return None, None, 'Case 9a: 3 junctions have less than minimum ' \
+                               'reads (2 on iso1 and 1 on iso2)'
         if (isoform1 < min_reads).any() and (isoform2 < min_reads).all():
-            # Case 9b: 3 junctions have less than minimum reads (2 on iso2 and one on iso1)
-            return None, None, 'Case 9b: 3 junctions have less than minimum reads (2 on iso2 and one on iso1)'
+            # Case 9b: 3 junctions have less than minimum reads (2 on iso2
+            # and one on iso1)
+            return None, None, 'Case 9b: 3 junctions have less than minimum ' \
+                               'reads (2 on iso2 and one on iso1)'
 
         return _maybe_sufficient_reads(isoform1, isoform2, n_junctions,
                                        min_reads, case='Case 9: Insufficient '
@@ -196,7 +202,8 @@ def _maybe_reject_events(isoform1, isoform2, n_junctions, min_reads=MIN_READS):
 
     elif (isoform1 < min_reads).any() or (isoform2 < min_reads).any():
         # Case 10: isoform1 and isoform2 don't have sufficient reads
-        return None, None, "Case 10: isoform1 and isoform2 don't have sufficient reads"
+        return None, None, "Case 10: isoform1 and isoform2 don't have " \
+                           "sufficient reads"
 
     # If none of these is true, then there's some uncaught case
     return '???', '???', "Case ???"
