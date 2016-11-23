@@ -3,7 +3,7 @@ import logging
 import joblib
 import pandas as pd
 
-from ..common import ILLEGAL_JUNCTIONS, MIN_READS, READS
+from ..common import ILLEGAL_JUNCTIONS, MIN_READS, READS, INEQUALITY_MULTIPLIER
 from ..util import progress, done
 
 
@@ -141,7 +141,7 @@ def _maybe_sufficient_reads(isoform1, isoform2, n_junctions, min_reads,
                            'junction reads'.format(case=case,
                                                    letter=letters[1])
 
-def _check_unequal_read_coverage(isoform, multiplier=10):
+def _check_unequal_read_coverage(isoform, multiplier=INEQUALITY_MULTIPLIER):
     """If one junction of an isoform is more heavily covered, reject it
 
     If the difference in read depth between two junctions of an isoform is
@@ -166,8 +166,15 @@ def _check_unequal_read_coverage(isoform, multiplier=10):
         return isoform
 
 
-def _maybe_reject_events(isoform1, isoform2, n_junctions, min_reads=MIN_READS):
-    """Given the junction reads of isoform1 and isoform2, remove them if they are bad"""
+def _maybe_reject_events(isoform1, isoform2, n_junctions, min_reads=MIN_READS,
+                         multiplier=INEQUALITY_MULTIPLIER):
+    """Given junction reads of isoform1 and isoform2, remove if they are bad"""
+
+    isoform1 = _check_unequal_read_coverage(isoform1, multiplier)
+    isoform2 = _check_unequal_read_coverage(isoform2, multiplier)
+
+    if isoform1 is None or isoform2 is None:
+        return None, None, "Case 0: Unequal read coverage"
 
     if (isoform1 >= min_reads).all() and (isoform2 == 0).all():
         # Case 1: Perfect exclusion
