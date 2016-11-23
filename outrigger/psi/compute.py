@@ -128,16 +128,18 @@ def _remove_insufficient_reads(isoform1, isoform2):
 
 
 def _maybe_sufficient_reads(isoform1, isoform2, n_junctions, min_reads,
-                            case=1):
+                            case='', letters='ab'):
     """Check if the sum of reads is enough compared to number of junctions"""
     if (isoform1.sum() + isoform2.sum()) >= (min_reads * n_junctions):
         # Case 5a: There are sufficient junction reads
-        return isoform1, isoform2, 'Case {case}a: There are sufficient ' \
-                                   'junction reads'.format(case=case)
+        return isoform1, isoform2, '{case}, option {letter}: There are ' \
+                                   'sufficient junction ' \
+                                   'reads'.format(case=case, letter=letters[0])
     else:
         # Case 5b: There are insufficient junction reads
-        return None, None, 'Case {case}b: There are insufficient ' \
-                           'junction reads'.format(case=case)
+        return None, None, '{case}, option {letter}: There are insufficient ' \
+                           'junction reads'.format(case=case,
+                                                   letter=letters[1])
 
 
 def _maybe_reject_events(isoform1, isoform2, n_junctions, min_reads=MIN_READS):
@@ -156,37 +158,28 @@ def _maybe_reject_events(isoform1, isoform2, n_junctions, min_reads=MIN_READS):
         # Case 4: Any observed junction is zero and it's not all of one isoform
         return None, None, "Case 4: Any observed junction is zero and it's not all of one isoform"
     elif (isoform1 >= min_reads).all() and (isoform2 < min_reads).all():
-        # Case 5: isoform1 totally covered and isoform2 not
-        if (isoform1.sum() + isoform2.sum()) >= (min_reads * n_junctions):
-            # Case 5a: There are sufficient junction reads
-            return isoform1, isoform2, 'Case 5a: There are sufficient junction reads'
-        else:
-            # Case 5b: There are insufficient junction reads
-            return None, None, 'Case 5b: There are insufficient junction reads'
+        # Case 5: Isoform1 totally covered and isoform2 not
+        return _maybe_sufficient_reads(isoform1, isoform2, n_junctions,
+                                       min_reads, 'Case 5: Isoform1 totally '
+                                                  'covered and isoform2 not')
     elif (isoform1 < min_reads).all() and (isoform2 >= min_reads).all():
         # Case 6: Isoform2 is totally covered and isoform1 is not
-        if (isoform1.sum() + isoform2.sum()) >= (min_reads * n_junctions):
-            # Case 6a: There are sufficient junction reads
-            return isoform1, isoform2, 'Case 6a: There are sufficient junction reads'
-        else:
-            # Case 6b: There are insufficient junction reads
-            return None, None, 'Case 6b: There are insufficient junction reads'
+        return _maybe_sufficient_reads(isoform1, isoform2, n_junctions,
+                                       min_reads, 'Case 6: Isoform2 is '
+                                                  'totally covered and '
+                                                  'isoform1 is not')
     elif (isoform1 >= min_reads).all() and (isoform2 < min_reads).any():
         # Case 7: Isoform 1 is fully covered and isoform2 is questionable
-        if (isoform1.sum() + isoform2.sum()) >= (min_reads * n_junctions):
-            # Case 7a: There are sufficient junction reads
-            return isoform1, isoform2, 'Case 7a: There are sufficient junction reads'
-        else:
-            # Case 7b: There are insufficient junction reads
-            return None, None, 'Case 7b: There are insufficient junction reads'
+        return _maybe_sufficient_reads(isoform1, isoform2, n_junctions,
+                                       min_reads, 'Case 7: Isoform 1 is fully '
+                                                  'covered and isoform2 is '
+                                                  'questionable')
     elif (isoform1 < min_reads).any() and (isoform2 >= min_reads).all():
         # Case 8: Isoform 1 is fully covered and isoform2 is questionable
-        if (isoform1.sum() + isoform2.sum()) >= (min_reads * n_junctions):
-            # Case 8a: There are sufficient junction reads
-            return isoform1, isoform2, '8a: There are sufficient junction reads'
-        else:
-            # Case 8b: There are insufficient junction reads
-            return None, None, 'Case 8b: There are insufficient junction reads'
+        return _maybe_sufficient_reads(isoform1, isoform2, n_junctions,
+                                       min_reads, 'Case 8: Isoform 1 is fully '
+                                                  'covered and isoform2 is '
+                                                  'questionable')
     if (isoform1 < min_reads).any() or (isoform2 < min_reads).any():
         # Case 9: insufficient reads somehow
         if (isoform1 < min_reads).all() and (isoform2 < min_reads).any():
@@ -196,16 +189,14 @@ def _maybe_reject_events(isoform1, isoform2, n_junctions, min_reads=MIN_READS):
             # Case 9b: 3 junctions have less than minimum reads (2 on iso2 and one on iso1)
             return None, None, 'Case 9b: 3 junctions have less than minimum reads (2 on iso2 and one on iso1)'
 
-        if (isoform1.sum() + isoform2.sum()) >= (min_reads * n_junctions):
-            # Case 9c: There are sufficient junction reads
-            return isoform1, isoform2, 'Case 9c: There are sufficient junction reads'
-        else:
-            # Case 9d: There are insufficient junction reads
-            return None, None, 'Case 9d: There are insufficient junction reads'
+        return _maybe_sufficient_reads(isoform1, isoform2, n_junctions,
+                                       min_reads, case='Case 9: Insufficient '
+                                                       'reads somehow',
+                                       letters='cd')
 
     elif (isoform1 < min_reads).any() or (isoform2 < min_reads).any():
-        # Case 9: isoform1 and isoform2 don't have sufficient reads
-        return None, None, "Case 9: isoform1 and isoform2 don't have sufficient reads"
+        # Case 10: isoform1 and isoform2 don't have sufficient reads
+        return None, None, "Case 10: isoform1 and isoform2 don't have sufficient reads"
 
     # If none of these is true, then there's some uncaught case
     return '???', '???', "Case ???"
