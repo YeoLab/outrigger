@@ -102,10 +102,11 @@ def _maybe_get_isoform_reads(splice_junction_reads, junction_locations,
     if junction_names.isin(junctions).sum() > 0:
         import pdb; pdb.set_trace()
         reads_subset = splice_junction_reads.loc[idx[junctions, :], reads_col]
-        legal_samples = reads_subset.index.get_level_values('sample_id')
-        legal_samples = legal_samples.difference(illegal_samples)
-        reads_df = reads_subset.loc[idx[:, legal_samples]].unstack(level=0)
-        reads_df = reads_df.fillna(0)
+        # legal_samples = reads_subset.index.get_level_values('sample_id')
+        # legal_samples = legal_samples.difference(illegal_samples)
+        # reads_df = reads_subset.loc[idx[:, legal_samples]].unstack(level=0)
+        reads_df = reads_subset.unstack(level=0)
+        reads_df = reads_subset.fillna(0)
         return reads_df
     else:
         return pd.Series()
@@ -245,7 +246,7 @@ def _maybe_reject_events(isoform1, isoform2, n_junctions, min_reads=MIN_READS,
     return '???', '???', "Case ???"
 
 
-def _single_event_psi(event_id, event_df, splice_junction_reads,
+def _single_event_psi(event_id, event_df, junction_reads_2d,
                       isoform1_junction_numbers, isoform2_junction_numbers,
                       reads_col=READS, min_reads=MIN_READS, method='mean',
                       debug=False, log=None):
@@ -262,17 +263,24 @@ def _single_event_psi(event_id, event_df, splice_junction_reads,
     n_junctions1 = len(isoform1_junction_numbers)
     n_junctions2 = len(isoform2_junction_numbers)
 
-    isoform1_junction_ids = junction_locations[isoform1_junction_numbers]
-    isoform2_junction_ids = junction_locations[isoform2_junction_numbers]
+    isoform1_junction_ids = junction_locations[isoform1_junction_numbers].tolist()
+    isoform2_junction_ids = junction_locations[isoform2_junction_numbers].tolist()
+    illegal_junction_ids = junction_locations[ILLEGAL_JUNCTIONS].tolist()
 
-    junction_numbers = isoform1_junction_numbers + isoform2_junction_numbers
+    junction_cols = isoform1_junction_ids + isoform2_junction_ids
 
-    isoform_reads = _maybe_get_isoform_reads(splice_junction_reads,
-                                             junction_locations,
-                                             junction_numbers, reads_col,
-                                             min_reads)
+    if not isinstance(illegal_junction_ids, float):
+        junction_cols += illegal_junction_ids
+
+    reads = junction_reads_2d[junction_cols]
+
+    maybe_rejected = reads.apply(
+        lambda x: _maybe_reject_events(x[isoform1_junction_ids],
+                                       x[isoform2_junction_ids],
+                                       n_junctions=3), axis=1)
 
     import pdb; pdb.set_trace()
+    return
     if debug and log is not None:
         junction_cols = isoform1_junction_numbers + isoform2_junction_numbers
         log.debug('--- junction columns of event ---\n%s',
@@ -311,7 +319,7 @@ def _single_event_psi(event_id, event_df, splice_junction_reads,
         return psi, isoform1, isoform2
 
 
-def _maybe_parallelize_psi(event_annotation, splice_junction_reads,
+def _maybe_parallelize_psi(event_annotation, junction_reads_2d,
                            isoform1_junctions, isoform2_junctions,
                            reads_col=READS, min_reads=MIN_READS, method='mean',
                            n_jobs=-1, debug=False, log=None):
@@ -331,20 +339,20 @@ def _maybe_parallelize_psi(event_annotation, splice_junction_reads,
         isoform1s = []
         isoform2s = []
         for event_id, event_df in grouped:
-            psi, isoform1, isoform2 = _single_event_psi(
-                event_id, event_df, splice_junction_reads,
+            psi = _single_event_psi(
+                event_id, event_df, junction_reads_2d,
                 isoform1_junctions, isoform2_junctions,
                 reads_col, min_reads, method, debug, log)
-            psis.append(psi)
-            isoform1s.append(isoform1)
-            isoform2s.append(isoform2)
+            # psis.append(psi)
+            # isoform1s.append(isoform1)
+            # isoform2s.append(isoform2)
     else:
         processors = n_jobs if n_jobs > 0 else joblib.cpu_count()
         progress("\tParallelizing {} events' Psi calculation across {} "
                  "CPUs ...\n".format(n_events, processors))
         outputs = joblib.Parallel(n_jobs=n_jobs)(
             joblib.delayed(_single_event_psi)(
-                event_id, event_df, splice_junction_reads,
+                event_id, event_df, junction_reads_2d,
                 isoform1_junctions, isoform2_junctions, reads_col,
                 min_reads, method) for event_id, event_df in grouped)
         import pdb; pdb.set_trace()
@@ -352,7 +360,7 @@ def _maybe_parallelize_psi(event_annotation, splice_junction_reads,
     return psis
 
 
-def calculate_psi(event_annotation, splice_junction_reads,
+def calculate_psi(event_annotation, junction_reads_2d,
                   isoform1_junctions, isoform2_junctions, reads_col=READS,
                   min_reads=MIN_READS, method='mean', n_jobs=-1,
                   debug=False):
@@ -364,9 +372,9 @@ def calculate_psi(event_annotation, splice_junction_reads,
         A table where each row represents a single splicing event. The required
        columns are the ones specified in `isoform1_junctions`,
         `isoform2_junctions`, and `event_col`.
-    splice_junction_reads : pandas.DataFrame
-        A table of the number of junction reads observed in each sample.
-        *Important:* This must be multi-indexed by the junction and sample id
+    junction_reads_2d : pandas.DataFrame
+        A (samples, junctions) dataframe of the junction reads found in each
+        sample
     reads_col : str, optional (default "reads")
         The name of the column in `splice_junction_reads` which represents the
         number of reads observed at a splice junction of a particular sample.
@@ -396,7 +404,7 @@ def calculate_psi(event_annotation, splice_junction_reads,
     if debug:
         log.setLevel(10)
 
-    psis = _maybe_parallelize_psi(event_annotation, splice_junction_reads,
+    psis = _maybe_parallelize_psi(event_annotation, junction_reads_2d,
                                   isoform1_junctions, isoform2_junctions,
                                   reads_col, min_reads, method, n_jobs, debug,
                                   log)
@@ -406,7 +414,7 @@ def calculate_psi(event_annotation, splice_junction_reads,
     try:
         psi_df = pd.concat(psis, axis=1)
     except ValueError:
-        psi_df = pd.DataFrame(index=splice_junction_reads.index.levels[1])
+        psi_df = pd.DataFrame(index=junction_reads_2d.index.levels[1])
     done(n_tabs=3)
-    psi_df.index.name = splice_junction_reads.index.names[1]
+    psi_df.index.name = junction_reads_2d.index.names[1]
     return psi_df

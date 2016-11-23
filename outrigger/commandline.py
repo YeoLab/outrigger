@@ -940,9 +940,12 @@ class Psi(SubcommandAfterIndex):
         metadata_csv = os.path.join(self.junctions_folder, METADATA_CSV)
         self.junction_metadata(junction_reads, metadata_csv)
 
-        junction_reads = junction_reads.set_index(
-            [self.junction_id_col, self.sample_id_col])
-        junction_reads.sort_index(inplace=True)
+        junction_reads_2d = junction_reads.pivot(index=self.sample_id_col,
+                                                 columns=self.junction_id_col,
+                                                 values=self.reads_col)
+        junction_reads_2d.fillna(0, inplace=True)
+        junction_reads_2d.astype(int, inplace=True)
+
         logger.debug('\n--- Splice Junction reads ---')
         logger.debug(repr(junction_reads.head()))
 
@@ -973,7 +976,7 @@ class Psi(SubcommandAfterIndex):
                 '{name} ({abbrev}) events ...'.format(
                     name=splice_name, abbrev=splice_abbrev))
             event_psi = compute.calculate_psi(
-                event_annotation, junction_reads,
+                event_annotation, junction_reads_2d,
                 min_reads=self.min_reads, debug=self.debug,
                 reads_col=self.reads_col, n_jobs=self.n_jobs,
                 **isoform_junctions)
