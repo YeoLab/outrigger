@@ -1,0 +1,15 @@
+title,junction13,junction34,junction12,junction24,mean_psi,min_psi
+junction13;34 ≥ 10,0,0,10,10,0,0
+junction12;24 ≥ 10,10,10,0,0,1,1
+junction12;24;13;34 ≥ 10,10,10,10,10,0.5,0.5
+junction12;24;13;34 ≥ 10,10,10,10,20,0.5,0.4
+junction12;13;34 ≥ 10,10,10,10,0,NA,NA
+junction12;13;34 ≥ 10; junction24 < 10; ∑ < 40,10,10,10,2,NA,NA
+junction12;13;34 ≥ 10; junction24 < 10; ∑ ≥ 40; ∑min < 20,100,10,10,2,0.098,NA
+junction12;13;34 ≥ 10; junction24 < 10; ∑ ≥ 40; ∑min ≥ 20,100,100,10,2,0.057,0.02
+junction12;13 ≥ 10; junction24;34 < 10; ∑ < 40,10,2,10,2,NA,NA
+junction12;13 ≥ 10; junction24;34 < 10; ∑ ≥ 40,20,2,20,2,0.5,NA
+junction12;13 ≥ 10; junction24;34 < 10; ∑ ≥ 40,100,2,10,2,0.105,NA
+junction12;13 ≥ 10; junction24;34 < 10; ∑ ≥ 40,100,2,10,2,0.105,NA
+junction13 ≥ 10; junction12;24;34 < 10; ∑ ≥ 40,100,2,2,2,NA,NA
+junction13 ≥ 10; junction12;24;34 < 10; ∑ < 40,10,2,2,2,NA,NA

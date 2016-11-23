@@ -53,32 +53,64 @@ def skipped_exon_junction_reads_for_rejecting_csv(simulated):
 def skipped_exon_junction_reads_for_rejecting(
         skipped_exon_junction_reads_for_rejecting_csv):
     df = pd.read_csv(skipped_exon_junction_reads_for_rejecting_csv,
-                       dtype={'junction12': int, 'junction13': int,
-                              'junction23': int, 'psi': float},
-                       comment='#', index_col=0)
+                     dtype={'junction12': int, 'junction13': int,
+                            'junction23': int, 'psi': float},
+                     comment='#', index_col=0)
     return df
 
 
-def test__maybe_reject_events(skipped_exon_junction_reads_for_rejecting):
+@pytest.fixture
+def mutually_exclusive_exon_junction_reads_for_rejecting_csv(simulated):
+    return os.path.join(simulated, 'psi', 'mutually_exclusive_exon_junctions_psi.csv')
+
+
+@pytest.fixture
+def mutually_exclusive_exon_junction_reads_for_rejecting(
+        mutually_exclusive_exon_junction_reads_for_rejecting_csv):
+    df = pd.read_csv(mutually_exclusive_exon_junction_reads_for_rejecting_csv,
+                     dtype={'junction12': int, 'junction13': int,
+                            'junction23': int, 'psi': float},
+                     comment='#', index_col=0)
+    return df
+
+
+@pytest.fixture
+def junction_reads_for_rejecting(
+    splice_type, skipped_exon_junction_reads_for_rejecting,
+    mutually_exclusive_exon_junction_reads_for_rejecting):
+    if splice_type == 'se':
+        return skipped_exon_junction_reads_for_rejecting
+    elif splice_type == 'mxe':
+        return mutually_exclusive_exon_junction_reads_for_rejecting
+
+
+def test__maybe_reject_events(junction_reads_for_rejecting,
+                              dummy_isoform1_junction_numbers,
+                              dummy_isoform2_junction_numbers):
     from outrigger.psi.compute import _maybe_reject_events
 
-    for i, row in skipped_exon_junction_reads_for_rejecting.iterrows():
-        isoform1, isoform2 = _maybe_reject_events(
-            row[['junction13']],
-            row[['junction12',
-                                                       'junction23']],
-                                            n_junctions=3)
-        if np.isnan(row['psi']):
-            assert isoform1 is None
-            assert isoform2 is None
-        else:
-            pdt.assert_series_equal(
-                isoform1,
-                row[['junction13']])
-            pdt.assert_series_equal(
-                isoform2,
-                row[
-                    ['junction12', 'junction23']])
+    n_junctions = len(dummy_isoform1_junction_numbers) \
+                  + len(dummy_isoform2_junction_numbers)
+
+    for i, row in junction_reads_for_rejecting.iterrows():
+        isoform1, isoform2, case = _maybe_reject_events(
+            row[dummy_isoform1_junction_numbers],
+            row[dummy_isoform2_junction_numbers],
+            n_junctions=n_junctions)
+        try:
+            if np.isnan(row['mean_psi']):
+                assert isoform1 is None
+                assert isoform2 is None
+            else:
+                pdt.assert_series_equal(isoform1,
+                                        row[dummy_isoform1_junction_numbers])
+                pdt.assert_series_equal(isoform2,
+                                        row[dummy_isoform2_junction_numbers])
+            print(row.name, 'passed')
+        except AssertionError:
+            raise AssertionError('The junction configuration [{title}] did '
+                                 'not pass ({case})'.format(
+                title=row.name, case=case))
 
 
 @pytest.fixture
