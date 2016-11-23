@@ -147,6 +147,7 @@ def _check_unequal_read_coverage(isoform, multiplier=10):
     If the difference in read depth between two junctions of an isoform is
     higher than a multiplicative amount, reject the isoform
 
+    Possible fallacy: assumes there can be at most two junctions per isoform...
     """
 
     if len(isoform) == 1:
@@ -154,9 +155,12 @@ def _check_unequal_read_coverage(isoform, multiplier=10):
 
     multiplied = isoform * multiplier
 
-    if isoform.iloc[0] > isoform.iloc[1] and isoform.iloc[0] > multiplied.iloc[1]:
+    junction0 = isoform.iloc[0]
+    junction1 = isoform.iloc[1]
+
+    if junction0 > junction1 and junction0 > multiplied.iloc[1]:
         return None
-    elif isoform.iloc[1] > isoform.iloc[0] and isoform.iloc[1] > multiplied.iloc[0]:
+    elif junction1 > junction0 and junction1 > multiplied.iloc[0]:
         return None
     else:
         return isoform
