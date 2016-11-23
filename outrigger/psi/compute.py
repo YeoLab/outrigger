@@ -13,11 +13,11 @@ idx = pd.IndexSlice
 
 
 def _scale(x, n_junctions, method='mean', min_reads=MIN_READS):
-    multiplier = -1 if (x < min_reads).any() else 1
+    # multiplier = -1 if (x < min_reads).any() else 1
     if method == 'mean':
-        return multiplier * x.sum()/float(n_junctions)
+        return x.sum()/float(n_junctions)
     elif method == 'min':
-        return multiplier * x.min()
+        return x.min()
 
 
 def _filter_and_scale(reads, n_junctions, debug=False, min_reads=MIN_READS,
@@ -60,7 +60,8 @@ def _filter_and_scale(reads, n_junctions, debug=False, min_reads=MIN_READS,
 
 
 def _maybe_get_isoform_reads(splice_junction_reads, junction_locations,
-                             isoform_junctions, reads_col):
+                             isoform_junctions, reads_col,
+                             min_reads=MIN_READS):
     """If there are junction reads at a junction_locations, return the reads
 
     Parameters
@@ -99,10 +100,13 @@ def _maybe_get_isoform_reads(splice_junction_reads, junction_locations,
             illegal_samples = illegal_reads.index.get_level_values('sample_id')
 
     if junction_names.isin(junctions).sum() > 0:
+        import pdb; pdb.set_trace()
         reads_subset = splice_junction_reads.loc[idx[junctions, :], reads_col]
         legal_samples = reads_subset.index.get_level_values('sample_id')
         legal_samples = legal_samples.difference(illegal_samples)
-        return reads_subset.loc[idx[:, legal_samples]]
+        reads_df = reads_subset.loc[idx[:, legal_samples]].unstack(level=0)
+        reads_df = reads_df.fillna(0)
+        return reads_df
     else:
         return pd.Series()
 
@@ -140,6 +144,7 @@ def _maybe_sufficient_reads(isoform1, isoform2, n_junctions, min_reads,
         return None, None, '{case}, option {letter}: There are insufficient ' \
                            'junction reads'.format(case=case,
                                                    letter=letters[1])
+
 
 def _check_unequal_read_coverage(isoform, multiplier=INEQUALITY_MULTIPLIER):
     """If one junction of an isoform is more heavily covered, reject it
@@ -241,9 +246,9 @@ def _maybe_reject_events(isoform1, isoform2, n_junctions, min_reads=MIN_READS,
 
 
 def _single_event_psi(event_id, event_df, splice_junction_reads,
-                      isoform1_junctions, isoform2_junctions, reads_col=READS,
-                      min_reads=MIN_READS, method='mean', debug=False,
-                      log=None):
+                      isoform1_junction_numbers, isoform2_junction_numbers,
+                      reads_col=READS, min_reads=MIN_READS, method='mean',
+                      debug=False, log=None):
     """Calculate percent spliced in for a single event across all samples
 
     Returns
@@ -254,25 +259,31 @@ def _single_event_psi(event_id, event_df, splice_junction_reads,
     """
     junction_locations = event_df.iloc[0]
 
-    n_junctions1 = len(isoform1_junctions)
-    n_junctions2 = len(isoform2_junctions)
+    n_junctions1 = len(isoform1_junction_numbers)
+    n_junctions2 = len(isoform2_junction_numbers)
 
-    isoform1 = _maybe_get_isoform_reads(splice_junction_reads,
-                                        junction_locations,
-                                        isoform1_junctions, reads_col)
-    isoform2 = _maybe_get_isoform_reads(splice_junction_reads,
-                                        junction_locations,
-                                        isoform2_junctions, reads_col)
+    isoform1_junction_ids = junction_locations[isoform1_junction_numbers]
+    isoform2_junction_ids = junction_locations[isoform2_junction_numbers]
 
+    junction_numbers = isoform1_junction_numbers + isoform2_junction_numbers
+
+    isoform_reads = _maybe_get_isoform_reads(splice_junction_reads,
+                                             junction_locations,
+                                             junction_numbers, reads_col,
+                                             min_reads)
+
+    import pdb; pdb.set_trace()
     if debug and log is not None:
-        junction_cols = isoform1_junctions + isoform2_junctions
+        junction_cols = isoform1_junction_numbers + isoform2_junction_numbers
         log.debug('--- junction columns of event ---\n%s',
                   repr(junction_locations[junction_cols]))
         log.debug('--- isoform1 ---\n%s', repr(isoform1))
         log.debug('--- isoform2 ---\n%s', repr(isoform2))
 
-    isoform1 = _filter_and_scale(isoform1, n_junctions1, min_reads, method)
-    isoform2 = _filter_and_scale(isoform2, n_junctions2, min_reads, method)
+    isoform1 = _filter_and_scale(isoform1, n_junctions1, min_reads=min_reads,
+                                 method=method)
+    isoform2 = _filter_and_scale(isoform2, n_junctions2, min_reads=min_reads,
+                                 method=method)
 
     if isoform1.empty and isoform2.empty:
         # If both are empty after filtering this event --> don't calculate
