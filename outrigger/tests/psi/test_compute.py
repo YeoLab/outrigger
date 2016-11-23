@@ -113,6 +113,26 @@ def test__maybe_reject_events(junction_reads_for_rejecting,
                 title=row.name, case=case))
 
 
+@pytest.fixture(params=[({'junction12': 1000, 'junction23': 20}, 'unequal'),
+                        ({'junction12': 100, 'junction23': 20}, 'similar'),
+                        ({'junction12': 20, 'junction23': 1000}, 'unequal'),
+                        ({'junction12': 20, 'junction23': 100}, 'similar')])
+def isoform_read_coverage(request):
+    return pd.Series(request.param[0]), request.param[1]
+
+
+def test__check_unequal_read_coverage(isoform_read_coverage):
+    from outrigger.psi.compute import _check_unequal_read_coverage
+
+    isoform, equality = isoform_read_coverage
+
+    test = _check_unequal_read_coverage(isoform)
+    if equality == 'unequal':
+        assert test is None
+    else:
+        pdt.assert_series_equal(isoform, test)
+
+
 @pytest.fixture
 def dummy_junction12():
     """Junction between exons 1 and 2"""

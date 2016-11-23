@@ -141,6 +141,26 @@ def _maybe_sufficient_reads(isoform1, isoform2, n_junctions, min_reads,
                            'junction reads'.format(case=case,
                                                    letter=letters[1])
 
+def _check_unequal_read_coverage(isoform, multiplier=10):
+    """If one junction of an isoform is more heavily covered, reject it
+
+    If the difference in read depth between two junctions of an isoform is
+    higher than a multiplicative amount, reject the isoform
+
+    """
+
+    if len(isoform) == 1:
+        return isoform
+
+    multiplied = isoform * multiplier
+
+    if isoform.iloc[0] > isoform.iloc[1] and isoform.iloc[0] > multiplied.iloc[1]:
+        return None
+    elif isoform.iloc[1] > isoform.iloc[0] and isoform.iloc[1] > multiplied.iloc[0]:
+        return None
+    else:
+        return isoform
+
 
 def _maybe_reject_events(isoform1, isoform2, n_junctions, min_reads=MIN_READS):
     """Given the junction reads of isoform1 and isoform2, remove them if they are bad"""
