@@ -348,6 +348,7 @@ def _single_event_psi(event_id, event_df, junction_reads_2d,
     column_renamer.update(dict(zip(isoform2_junction_ids,
                                    isoform2_junction_numbers)))
     summary = reads.rename(columns=column_renamer)
+    summary['notes'] = maybe_rejected['notes']
     summary['psi'] = psi
     summary = summary.reset_index()
     summary['event_id'] = event_id
