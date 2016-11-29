@@ -4,7 +4,8 @@ import joblib
 import pandas as pd
 
 from ..common import ILLEGAL_JUNCTIONS, MIN_READS, READS, \
-    UNEVEN_COVERAGE_MULTIPLIER
+    UNEVEN_COVERAGE_MULTIPLIER, SAMPLE_ID, EVENT_ID_COLUMN, NOTES, PSI, \
+    JUNCTION_ID
 from ..util import progress, done
 
 
@@ -60,8 +61,8 @@ def _single_sample_maybe_sufficient_reads(isoform1, isoform2, n_junctions,
                                                    letter=letters[1])
 
 
-def _single_sample_check_unequal_read_coverage(isoform,
-                                               uneven_coverage_multiplier=UNEVEN_COVERAGE_MULTIPLIER):
+def _single_sample_check_unequal_read_coverage(
+    isoform, uneven_coverage_multiplier=UNEVEN_COVERAGE_MULTIPLIER):
     """If one junction of an isoform is more heavily covered, reject it
 
     If the difference in read depth between two junctions of an isoform is
@@ -298,19 +299,20 @@ def _single_isoform_maybe_reject(
     # If none of these is true, then there's some uncaught case
     return '???', '???', "Case ???"
 
+
 def _summarize_event(event_id, reads, maybe_rejected, psi,
                      isoform1_junction_ids, isoform2_junction_ids,
-                     isoform1_junction_numbers, isoform2_junction_numbers,):
+                     isoform1_junction_numbers, isoform2_junction_numbers):
     column_renamer = dict(zip(isoform1_junction_ids,
                               isoform1_junction_numbers))
     column_renamer.update(dict(zip(isoform2_junction_ids,
                                    isoform2_junction_numbers)))
 
     summary = reads.rename(columns=column_renamer)
-    summary['notes'] = maybe_rejected['notes']
-    summary['psi'] = psi
+    summary[NOTES] = maybe_rejected[NOTES]
+    summary[PSI] = psi
     summary = summary.reset_index()
-    summary['event_id'] = event_id
+    summary[EVENT_ID_COLUMN] = event_id
     summary.columns.name = None
 
     column_order = [SAMPLE_ID, JUNCTION_ID] + isoform1_junction_numbers \
@@ -384,7 +386,10 @@ def _single_event_psi(event_id, event_df, junction_reads_2d,
 
     psi = isoform2 / (isoform2 + isoform1)
 
-
+    summary = _summarize_event(event_id, reads, maybe_rejected, psi,
+                               isoform1_junction_ids, isoform2_junction_ids,
+                               isoform1_junction_numbers,
+                               isoform2_junction_numbers)
 
     import pdb; pdb.set_trace()
     return summary

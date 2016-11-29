@@ -59,3 +59,8 @@ MULTIMAP_READS = 'multimap_junction_reads'
 MAX_OVERHANG = 'max_overhang'
 
 UNEVEN_COVERAGE_MULTIPLIER = 10
+
+
+# --- Outrigger Psi --- #
+NOTES = 'notes'
+PSI = 'psi'
