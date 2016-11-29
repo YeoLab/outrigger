@@ -180,12 +180,11 @@ def _maybe_reject(reads, isoform1_ids, isoform2_ids, illegal_ids,
         reads = reads.loc[~samples_with_illegal_coverage]
 
     # import pdb; pdb.set_trace()
-    maybe_rejected = zip(*reads.apply(
+    maybe_rejected = reads.apply(
         lambda sample: _single_maybe_reject(
             sample, isoform1_ids, isoform2_ids,
             n_junctions=n_junctions, min_reads=min_reads,
-
-            uneven_coverage_multiplier=uneven_coverage_multiplier), axis=1))
+            uneven_coverage_multiplier=uneven_coverage_multiplier), axis=1)
     return maybe_rejected
 
 
