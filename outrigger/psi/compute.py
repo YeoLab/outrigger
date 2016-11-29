@@ -20,45 +20,6 @@ def _scale(x, n_junctions, method='mean'):
         return x.min()
 
 
-def _filter_and_scale(reads, n_junctions, debug=False, min_reads=MIN_READS,
-                      method='mean'):
-    """Remove samples without reads on all junctions and sum across junctions
-
-    If any junction on the isoform has fewer than the minimum reads, flag it
-    as -1
-
-    Parameters
-    ----------
-
-    method : 'mean' | 'min'
-        If there are more than 2 junctions for this isoform, then they have to
-        be consolidated somehow.
-        - "mean": Sum the reads and divide by the number of junctions
-        - "min": Use the minimum number of reads
-    """
-    logger = logging.getLogger('outrigger.psi.filter_and_scale')
-    if debug:
-        logger.setLevel(10)
-
-    if reads.empty:
-        return reads
-
-    if n_junctions > 1:
-        # Remove all samples that don't have all required junctions
-        reads = reads.groupby(level=1).filter(
-            lambda x: len(x) == n_junctions)
-        logger.debug('filtered reads:\n' + repr(reads.head()))
-
-    reads = reads.groupby(level=1).apply(
-        lambda x: _scale(x, n_junctions, method, min_reads))
-
-    # Sum all reads from junctions in the same samples (level=1), remove NAs
-    # reads = reads.groupby(level=1).sum().dropna()
-    logger.debug('summed reads:\n' + repr(reads.head()))
-
-    return reads
-
-
 def _single_sample_maybe_sufficient_reads(isoform1, isoform2, n_junctions,
                                           min_reads, case, letters='ab'):
     """Check if the sum of reads is enough compared to number of junctions
