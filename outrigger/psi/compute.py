@@ -196,7 +196,7 @@ def _single_maybe_reject(sample, isoform1_ids, isoform2_ids,
         single_maybe_rejected = pd.Series(None, index=sample.index)
     else:
         single_maybe_rejected = sample
-    single_maybe_rejected['notes'] = case
+    single_maybe_rejected[NOTES] = case
     return single_maybe_rejected
 
 
