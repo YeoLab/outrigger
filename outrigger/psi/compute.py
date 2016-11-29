@@ -184,7 +184,7 @@ def _single_maybe_reject(sample, isoform1_ids, isoform2_ids,
     single_maybe_rejected : pandas.Series
         Unrejected reads of a single samples' splicing event. If the event was
         rejected, the reads are replaced with NAs. This series has one more
-        field than the input "sample", with the field of "Case" that explains
+        field than the input "sample", with the field of "notes" that explains
         why this event was or was not rejected.
     """
     isoform1, isoform2, case = _single_isoform_maybe_reject(
@@ -195,7 +195,7 @@ def _single_maybe_reject(sample, isoform1_ids, isoform2_ids,
         single_maybe_rejected = pd.Series(None, index=sample.index)
     else:
         single_maybe_rejected = sample
-    single_maybe_rejected['Case'] = case
+    single_maybe_rejected['notes'] = case
     return single_maybe_rejected
 
 
@@ -235,66 +235,65 @@ def _single_isoform_maybe_reject(
     isoform2 = _single_sample_check_unequal_read_coverage(isoform2, uneven_coverage_multiplier)
 
     if isoform1 is None or isoform2 is None:
-        return None, None, "Case 0: Unequal read coverage"
+        # Case 1: Unbalanced number of reads between two sides of an isoform
+        return None, None, "Case 1: Unequal read coverage"
 
+    if (isoform1 == 0).all() and (isoform2 == 0).all():
+        # Case 2: All reads are zero
+        return None, None, 'Case 2: No observed reads'
     if (isoform1 >= min_reads).all() and (isoform2 == 0).all():
-        # Case 1: Perfect exclusion
-        return isoform1, isoform2, 'Case 1: Perfect exclusion'
+        # Case 3: Perfect exclusion
+        return isoform1, isoform2, 'Case 3: Perfect exclusion'
     elif (isoform1 == 0).all() and (isoform2 >= min_reads).all():
-        # Case 2: Perfect inclusion
-        return isoform1, isoform2, 'Case 2: Perfect inclusion'
+        # Case 4: Perfect inclusion
+        return isoform1, isoform2, 'Case 4: Perfect inclusion'
     elif (isoform1 >= min_reads).all() and (isoform2 >= min_reads).all():
-        # Case 3: Sufficient coverage on both isoforms
-        return isoform1, isoform2, 'Case 3: Sufficient coverage on both ' \
+        # Case 5: Sufficient coverage on both isoforms
+        return isoform1, isoform2, 'Case 5: Sufficient coverage on both ' \
                                    'isoforms'
     elif (isoform1 == 0).any() or (isoform2 == 0).any():
-        # Case 4: Any observed junction is zero and it's not all of one isoform
-        return None, None, "Case 4: Any observed junction is zero and it's " \
+        # Case 6: Any observed junction is zero and it's not all of one isoform
+        return None, None, "Case 6: Any observed junction is zero and it's " \
                            "not all of one isoform"
     elif (isoform1 >= min_reads).all() and (isoform2 < min_reads).all():
-        # Case 5: Isoform1 totally covered and isoform2 not
-        return _single_sample_maybe_sufficient_reads(isoform1, isoform2, n_junctions,
-                                                     min_reads, 'Case 5: Isoform1 totally '
-                                                  'covered and isoform2 not')
+        # Case 7: Isoform1 totally covered and isoform2 not
+        return _single_sample_maybe_sufficient_reads(
+            isoform1, isoform2, n_junctions, min_reads,
+            'Case 7: Isoform1 totally covered and isoform2 not')
     elif (isoform1 < min_reads).all() and (isoform2 >= min_reads).all():
-        # Case 6: Isoform2 is totally covered and isoform1 is not
-        return _single_sample_maybe_sufficient_reads(isoform1, isoform2, n_junctions,
-                                                     min_reads, 'Case 6: Isoform2 is '
-                                                  'totally covered and '
-                                                  'isoform1 is not')
+        # Case 8: Isoform2 is totally covered and isoform1 is not
+        return _single_sample_maybe_sufficient_reads(
+            isoform1, isoform2, n_junctions, min_reads,
+            'Case 8: Isoform2 is totally covered and isoform1 is not')
     elif (isoform1 >= min_reads).all() and (isoform2 < min_reads).any():
-        # Case 7: Isoform 1 is fully covered and isoform2 is questionable
-        return _single_sample_maybe_sufficient_reads(isoform1, isoform2, n_junctions,
-                                                     min_reads, 'Case 7: Isoform 1 is fully '
-                                                  'covered and isoform2 is '
-                                                  'questionable')
+        # Case 9: Isoform 1 is fully covered and isoform2 is questionable
+        return _single_sample_maybe_sufficient_reads(
+            isoform1, isoform2, n_junctions, min_reads,
+            'Case 9: Isoform 1 is fully covered and isoform2 is questionable')
     elif (isoform1 < min_reads).any() and (isoform2 >= min_reads).all():
-        # Case 8: Isoform 1 is fully covered and isoform2 is questionable
-        return _single_sample_maybe_sufficient_reads(isoform1, isoform2, n_junctions,
-                                                     min_reads, 'Case 8: Isoform 1 is fully '
-                                                  'covered and isoform2 is '
-                                                  'questionable')
+        # Case 10: Isoform 1 is fully covered and isoform2 is questionable
+        return _single_sample_maybe_sufficient_reads(
+            isoform1, isoform2, n_junctions, min_reads,
+            'Case 10: Isoform 1 is fully covered and isoform2 is questionable')
     elif (isoform1 < min_reads).any() or (isoform2 < min_reads).any():
-        # Case 9: insufficient reads somehow
+        # Case 11: insufficient reads somehow
         if (isoform1 < min_reads).all() and (isoform2 < min_reads).any():
-            # Case 9a: 3 junctions have less than minimum reads (2 on iso1
+            # Case 11a: 3 junctions have less than minimum reads (2 on iso1
             # and 1 on iso2)
-            return None, None, 'Case 9a: 3 junctions have less than minimum ' \
+            return None, None, 'Case 11a: 3 junctions have less than minimum ' \
                                'reads (2 on iso1 and 1 on iso2)'
         if (isoform1 < min_reads).any() and (isoform2 < min_reads).all():
-            # Case 9b: 3 junctions have less than minimum reads (2 on iso2
+            # Case 11b: 3 junctions have less than minimum reads (2 on iso2
             # and one on iso1)
-            return None, None, 'Case 9b: 3 junctions have less than minimum ' \
+            return None, None, 'Case 11b: 3 junctions have less than minimum ' \
                                'reads (2 on iso2 and one on iso1)'
 
-        return _single_sample_maybe_sufficient_reads(isoform1, isoform2, n_junctions,
-                                                     min_reads, case='Case 9: Insufficient '
-                                                       'reads somehow',
-                                                     letters='cd')
-
+        return _single_sample_maybe_sufficient_reads(
+            isoform1, isoform2, n_junctions, min_reads,
+            case='Case 11: Insufficient reads somehow', letters='cd')
     elif (isoform1 < min_reads).any() or (isoform2 < min_reads).any():
-        # Case 10: isoform1 and isoform2 don't have sufficient reads
-        return None, None, "Case 10: isoform1 and isoform2 don't have " \
+        # Case 12: isoform1 and isoform2 don't have sufficient reads
+        return None, None, "Case 12: isoform1 and isoform2 don't have " \
                            "sufficient reads"
 
     # If none of these is true, then there's some uncaught case
@@ -336,45 +335,26 @@ def _single_event_psi(event_id, event_df, junction_reads_2d,
         illegal_junction_ids, n_junctions, min_reads=min_reads,
         uneven_coverage_multiplier=uneven_coverage_multiplier)
 
-    import pdb; pdb.set_trace()
-    return
-    if debug and log is not None:
-        junction_cols = isoform1_junction_numbers + isoform2_junction_numbers
-        log.debug('--- junction columns of event ---\n%s',
-                  repr(junction_locations[junction_cols]))
-        log.debug('--- isoform1 ---\n%s', repr(isoform1))
-        log.debug('--- isoform2 ---\n%s', repr(isoform2))
+    isoform1 = maybe_rejected[isoform1_junction_ids].apply(
+        _scale, n_junctions=n_junctions1, method=method, axis=1)
+    isoform2 = maybe_rejected[isoform2_junction_ids].apply(
+        _scale, n_junctions=n_junctions2, method=method, axis=1)
 
-    isoform1 = _filter_and_scale(isoform1, n_junctions1, min_reads=min_reads,
-                                 method=method)
-    isoform2 = _filter_and_scale(isoform2, n_junctions2, min_reads=min_reads,
-                                 method=method)
-
-    if isoform1.empty and isoform2.empty:
-        # If both are empty after filtering this event --> don't calculate
-        return
-
-    if debug and log is not None:
-        log.debug('\n- After filter and sum -')
-        log.debug('--- isoform1 ---\n%s', repr(isoform1))
-        log.debug('--- isoform2 ---\n%s', repr(isoform2))
-
-    isoform1, isoform2 = _remove_insufficient_reads(isoform1, isoform2)
-
-    if debug and log is not None:
-        log.debug('\n- After removing insufficient reads -')
-        log.debug('--- isoform1 ---\n%s', repr(isoform1))
-        log.debug('--- isoform2 ---\n%s', repr(isoform2))
 
     psi = isoform2 / (isoform2 + isoform1)
-    psi.name = event_id
 
-    if debug and log is not None:
-        log.debug('--- Psi ---\n%s', repr(psi))
+    column_renamer = dict(zip(isoform1_junction_ids,
+                              isoform1_junction_numbers))
+    column_renamer.update(dict(zip(isoform2_junction_ids,
+                                   isoform2_junction_numbers)))
+    summary = reads.rename(columns=column_renamer)
+    summary['psi'] = psi
+    summary = summary.reset_index()
+    summary['event_id'] = event_id
+    summary.columns.name = None
 
-    if not psi.empty:
-        return psi, isoform1, isoform2
-
+    import pdb; pdb.set_trace()
+    return summary
 
 def _maybe_parallelize_psi(event_annotation, junction_reads_2d,
                            isoform1_junctions, isoform2_junctions,
