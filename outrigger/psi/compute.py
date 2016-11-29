@@ -237,11 +237,10 @@ def _single_isoform_maybe_reject(
     if isoform1 is None or isoform2 is None:
         # Case 1: Unbalanced number of reads between two sides of an isoform
         return None, None, "Case 1: Unequal read coverage"
-
-    if (isoform1 == 0).all() and (isoform2 == 0).all():
+    elif (isoform1 == 0).all() and (isoform2 == 0).all():
         # Case 2: All reads are zero
         return None, None, 'Case 2: No observed reads'
-    if (isoform1 >= min_reads).all() and (isoform2 == 0).all():
+    elif (isoform1 >= min_reads).all() and (isoform2 == 0).all():
         # Case 3: Perfect exclusion
         return isoform1, isoform2, 'Case 3: Perfect exclusion'
     elif (isoform1 == 0).all() and (isoform2 >= min_reads).all():
@@ -299,6 +298,26 @@ def _single_isoform_maybe_reject(
     # If none of these is true, then there's some uncaught case
     return '???', '???', "Case ???"
 
+def _summarize_event(event_id, reads, maybe_rejected, psi,
+                     isoform1_junction_ids, isoform2_junction_ids,
+                     isoform1_junction_numbers, isoform2_junction_numbers,):
+    column_renamer = dict(zip(isoform1_junction_ids,
+                              isoform1_junction_numbers))
+    column_renamer.update(dict(zip(isoform2_junction_ids,
+                                   isoform2_junction_numbers)))
+
+    summary = reads.rename(columns=column_renamer)
+    summary['notes'] = maybe_rejected['notes']
+    summary['psi'] = psi
+    summary = summary.reset_index()
+    summary['event_id'] = event_id
+    summary.columns.name = None
+
+    column_order = [SAMPLE_ID, JUNCTION_ID] + isoform1_junction_numbers \
+                   + isoform2_junction_numbers
+
+    return summary
+
 
 def _single_event_psi(event_id, event_df, junction_reads_2d,
                       isoform1_junction_numbers, isoform2_junction_numbers,
@@ -309,9 +328,32 @@ def _single_event_psi(event_id, event_df, junction_reads_2d,
 
     Returns
     -------
-    psi : pandas.Series or None
-        If unable to calculate psi for this event due to insufficient junctions
-        then None is returned.
+    summary : pandas.DataFrame
+        A (n_samples,
+
+    >>> # Example Summary output
+    >>> summary.head()
+                                               sample_id  junction13  \
+    0  CAV_LP_Ipsi_tdTpos_cell_1-SRR2140356-GSM184094...          26
+    1  CAV_LP_Ipsi_tdTpos_cell_10-SRR2140365-GSM18409...           0
+    2  CAV_LP_Ipsi_tdTpos_cell_11-SRR2140366-GSM18409...          52
+    3  CAV_LP_Ipsi_tdTpos_cell_12-SRR2140367-GSM18409...           0
+    4  CAV_LP_Ipsi_tdTpos_cell_13-SRR2140368-GSM18409...          31
+
+       junction12  junction23                      notes  psi  \
+    0           0           0  Case 3: Perfect exclusion  0.0
+    1           0           0  Case 2: No observed reads  NaN
+    2           0           0  Case 3: Perfect exclusion  0.0
+    3           0           0  Case 2: No observed reads  NaN
+    4           0           0  Case 3: Perfect exclusion  0.0
+
+                                                event_id
+    0  isoform1=junction:chr10:128491034-128491719:-|...
+    1  isoform1=junction:chr10:128491034-128491719:-|...
+    2  isoform1=junction:chr10:128491034-128491719:-|...
+    3  isoform1=junction:chr10:128491034-128491719:-|...
+    4  isoform1=junction:chr10:128491034-128491719:-|...
+
     """
     junction_locations = event_df.iloc[0]
 
@@ -340,19 +382,9 @@ def _single_event_psi(event_id, event_df, junction_reads_2d,
     isoform2 = maybe_rejected[isoform2_junction_ids].apply(
         _scale, n_junctions=n_junctions2, method=method, axis=1)
 
-
     psi = isoform2 / (isoform2 + isoform1)
 
-    column_renamer = dict(zip(isoform1_junction_ids,
-                              isoform1_junction_numbers))
-    column_renamer.update(dict(zip(isoform2_junction_ids,
-                                   isoform2_junction_numbers)))
-    summary = reads.rename(columns=column_renamer)
-    summary['notes'] = maybe_rejected['notes']
-    summary['psi'] = psi
-    summary = summary.reset_index()
-    summary['event_id'] = event_id
-    summary.columns.name = None
+
 
     import pdb; pdb.set_trace()
     return summary
@@ -374,23 +406,19 @@ def _maybe_parallelize_psi(event_annotation, junction_reads_2d,
 
     if n_jobs == 1:
         progress('\tIterating over {} events ...\n'.format(n_events))
-        psis = []
-        isoform1s = []
-        isoform2s = []
+        summaries = []
         for event_id, event_df in grouped:
-            outputs = _single_event_psi(
+            summary = _single_event_psi(
                 event_id, event_df, junction_reads_2d,
                 isoform1_junctions, isoform2_junctions,
                 min_reads=min_reads, uneven_coverage_multiplier=uneven_coverage_multiplier,
                 method=method, debug=debug, log=log)
-            # psis.append(psi)
-            # isoform1s.append(isoform1)
-            # isoform2s.append(isoform2)
+            summaries.append(summary)
     else:
         processors = n_jobs if n_jobs > 0 else joblib.cpu_count()
         progress("\tParallelizing {} events' Psi calculation across {} "
                  "CPUs ...\n".format(n_events, processors))
-        outputs = joblib.Parallel(n_jobs=n_jobs)(
+        summaries = joblib.Parallel(n_jobs=n_jobs)(
             joblib.delayed(_single_event_psi)(
                 event_id, event_df, junction_reads_2d,
                 isoform1_junctions, isoform2_junctions, reads_col,
@@ -398,7 +426,7 @@ def _maybe_parallelize_psi(event_annotation, junction_reads_2d,
             for event_id, event_df in grouped)
         import pdb; pdb.set_trace()
 
-    return psis
+    return summaries
 
 
 def calculate_psi(event_annotation, junction_reads_2d,
