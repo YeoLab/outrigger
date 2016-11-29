@@ -12,8 +12,7 @@ logging.basicConfig()
 idx = pd.IndexSlice
 
 
-def _scale(x, n_junctions, method='mean', min_reads=MIN_READS):
-    # uneven_coverage_multiplier = -1 if (x < min_reads).any() else 1
+def _scale(x, n_junctions, method='mean'):
     if method == 'mean':
         return x.sum()/float(n_junctions)
     elif method == 'min':
