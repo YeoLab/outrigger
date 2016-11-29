@@ -217,24 +217,35 @@ def _single_maybe_reject_events(sample, isoform1_ids, isoform2_ids,
         side must be this amount bigger than the other side to be rejected.
         For example, if one side has 10x (default) more read coverage than the
         other, then reject the event.
+
+    Returns
+    -------
+    single_maybe_rejected : pandas.Series
+        Unrejected reads of a single samples' splicing event. If the event was
+        rejected, the reads are replaced with NAs. This series has one more
+        field than the input "sample", with the field of "Case" that explains
+        why this event was or was not rejected.
     """
     isoform1, isoform2, case = _single_isoform_maybe_reject_events(
             sample[isoform1_ids], sample[isoform2_ids],
             n_junctions=n_junctions, min_reads=min_reads,
             multiplier=multiplier)
     if isoform1 is None:
-        maybe_rejected = pd.Series(None, index=sample.index)
+        single_maybe_rejected = pd.Series(None, index=sample.index)
     else:
-        maybe_rejected = sample
-    maybe_rejected['Case'] = case
-    return maybe_rejected
+        single_maybe_rejected = sample
+    single_maybe_rejected['Case'] = case
+    return single_maybe_rejected
 
 
 
 def _single_isoform_maybe_reject_events(isoform1, isoform2, n_junctions,
                                         min_reads=MIN_READS,
                                         multiplier=UNEVEN_COVERAGE_MULTIPLIER):
-    """Given junction reads of isoform1 and isoform2, remove if they are bad"""
+    """Given junction reads of isoform1 and isoform2, remove if they are bad
+
+    Parameters
+    """
 
     isoform1 = _single_sample_check_unequal_read_coverage(isoform1, multiplier)
     isoform2 = _single_sample_check_unequal_read_coverage(isoform2, multiplier)
