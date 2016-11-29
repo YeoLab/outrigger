@@ -133,8 +133,29 @@ def _remove_insufficient_reads(isoform1, isoform2):
 
 
 def _single_sample_maybe_sufficient_reads(isoform1, isoform2, n_junctions,
-                                          min_reads, case='', letters='ab'):
-    """Check if the sum of reads is enough compared to number of junctions"""
+                                          min_reads, case letters='ab'):
+    """Check if the sum of reads is enough compared to number of junctions
+
+    Parameters
+    ----------
+    isoform1, isoform2 : pandas.Series
+        Number of reads found for a single sample's isoform1 and isoform2
+        junctions
+    n_junctions : int
+        Total number of junctions, also len(isoform1) + len(isoform2)
+    min_reads : int
+        Minimum number of reads per junction
+    case : str
+        English explanation with case number for why an event was rejected or
+        not
+    letters : str, optional
+        Cases could have multiple clauses, by default the case is "option a" or
+         "option b" but other letters could be used. (default='ab')
+
+    Returns
+    -------
+
+    """
     if (isoform1.sum() + isoform2.sum()) >= (min_reads * n_junctions):
         # Case 5a: There are sufficient junction reads
         return isoform1, isoform2, '{case}, option {letter}: There are ' \
@@ -151,9 +172,26 @@ def _single_sample_check_unequal_read_coverage(isoform, multiplier=UNEVEN_COVERA
     """If one junction of an isoform is more heavily covered, reject it
 
     If the difference in read depth between two junctions of an isoform is
-    higher than a multiplicative amount, reject the isoform
+    higher than a multiplicative amount, reject the isoform.
+
+    If the isoform only has one junction, don't reject it.
 
     Possible fallacy: assumes there can be at most two junctions per isoform...
+
+    Parameters
+    ----------
+    isoform : pandas.Series
+        Number of exon-exon junction-spanning reads found for an isoform
+    multiplier : int
+        Scale factor for the maximum amount bigger one side of a junction can
+        be before rejecting the event, e.g. for an SE event with two junctions,
+        junction12 and junction23, junction12=40 but junction23=500, then this
+        event would be rejected because 500 > 40*10
+
+    Returns
+    -------
+    isoform : pandas.Series or None
+        If not rejected, the original is returned, otherwise return None
     """
 
     if len(isoform) == 1:
@@ -172,25 +210,56 @@ def _single_sample_check_unequal_read_coverage(isoform, multiplier=UNEVEN_COVERA
         return isoform
 
 
-def _maybe_reject_events(reads, isoform1_ids, isoform2_ids, illegal_ids,
-                         n_junctions, min_reads=MIN_READS,
-                         multiplier=UNEVEN_COVERAGE_MULTIPLIER):
+def _maybe_reject(reads, isoform1_ids, isoform2_ids, illegal_ids,
+                  n_junctions, min_reads=MIN_READS,
+                  uneven_coverage_multiplier=UNEVEN_COVERAGE_MULTIPLIER):
+    """Remove samples with reads that are incompatible with event definition
+
+    Parameters
+    ----------
+    reads : pandas.DataFrame
+        A (n_samples, n_junctions) table of the number of reads found in each
+        samples' exon-exon junctions
+    isoform1_ids : list of str
+        Column names in ``reads`` tha correspond to the junction ids that are
+        contained within isoform 1
+    isoform2_ids :
+        Column names in ``reads`` tha correspond to the junction ids that are
+        contained within isoform 2
+    illegal_ids : list of str
+        Column names in ``reads`` tha correspond to the junction ids that are
+        contained within junctions that are not compatible with the event
+        definition
+    n_junctions : int
+        Total number of legal junctions,
+        i.e. len(isoform1_ids) + len(isoform2_ids)
+    min_reads : int
+        Minimum number of reads for a junction to be viable. The rules
+        governing compatibility of events are complex, and it is recommended to
+        read the documentation for ``outrigger psi``
+    uneven_coverage_multiplier : int
+
+    Returns
+    -------
+
+    """
     if not pd.isnull(illegal_ids):
         samples_with_illegal_coverage = reads[illegal_ids] >= min_reads
         reads = reads.loc[~samples_with_illegal_coverage]
 
     # import pdb; pdb.set_trace()
     maybe_rejected = zip(*reads.apply(
-        lambda sample: _single_maybe_reject_events(
+        lambda sample: _single_maybe_reject(
             sample, isoform1_ids, isoform2_ids,
             n_junctions=n_junctions, min_reads=min_reads,
-            multiplier=multiplier), axis=1))
+
+            uneven_coverage_multiplier=uneven_coverage_multiplier), axis=1))
     return maybe_rejected
 
 
-def _single_maybe_reject_events(sample, isoform1_ids, isoform2_ids,
-                                n_junctions, min_reads=MIN_READS,
-                                multiplier=UNEVEN_COVERAGE_MULTIPLIER):
+def _single_maybe_reject(sample, isoform1_ids, isoform2_ids,
+                         n_junctions, min_reads=MIN_READS,
+                         uneven_coverage_multiplier=UNEVEN_COVERAGE_MULTIPLIER):
     """Given a row of junction reads, return a filtered row of reads
 
     For a single sample's junction reads of an isoform, check if they should be
@@ -208,15 +277,15 @@ def _single_maybe_reject_events(sample, isoform1_ids, isoform2_ids,
         List of strings that correspond to indicies in ``sample``
     n_junctions : int
         Total number of junctions expected in the splicing event
-    min_reads : int
+    min_reads : int, optional
         Minimum number of junction reads for an event to be valid. See
         documentation for much more detailed information regarding when events
-        are rejected or retained
-    multiplier : int
+        are rejected or retained. (default=10)
+    uneven_coverage_multiplier : int, optional
         When checking for uneven coverage between two sides of a junction, one
         side must be this amount bigger than the other side to be rejected.
         For example, if one side has 10x (default) more read coverage than the
-        other, then reject the event.
+        other, then reject the event. (default=10)
 
     Returns
     -------
@@ -226,10 +295,10 @@ def _single_maybe_reject_events(sample, isoform1_ids, isoform2_ids,
         field than the input "sample", with the field of "Case" that explains
         why this event was or was not rejected.
     """
-    isoform1, isoform2, case = _single_isoform_maybe_reject_events(
+    isoform1, isoform2, case = _single_isoform_maybe_reject(
             sample[isoform1_ids], sample[isoform2_ids],
             n_junctions=n_junctions, min_reads=min_reads,
-            multiplier=multiplier)
+            uneven_coverage_multiplier=uneven_coverage_multiplier)
     if isoform1 is None:
         single_maybe_rejected = pd.Series(None, index=sample.index)
     else:
@@ -239,16 +308,39 @@ def _single_maybe_reject_events(sample, isoform1_ids, isoform2_ids,
 
 
 
-def _single_isoform_maybe_reject_events(isoform1, isoform2, n_junctions,
-                                        min_reads=MIN_READS,
-                                        multiplier=UNEVEN_COVERAGE_MULTIPLIER):
+def _single_isoform_maybe_reject(
+    isoform1, isoform2, n_junctions, min_reads=MIN_READS,
+    uneven_coverage_multiplier=UNEVEN_COVERAGE_MULTIPLIER):
     """Given junction reads of isoform1 and isoform2, remove if they are bad
 
     Parameters
+    ----------
+    isoform1, isoform2 : pandas.Series
+        Number of reads found on exon-exon junctions for isoform1 and isoform2
+    n_junctions : int
+        Total number of junctions. Could also be found by
+        len(isoform1) + len(isoform2)
+    min_reads : int, optional
+        Minimum number of reads for a junction to be counted, though the full
+        explanation is a little more complicated, please see the documentation
+        for more details. (default=10)
+    uneven_coverage_multiplier : int, optional
+        Scale factor for the maximum amount bigger one side of a junction can
+        be before rejecting the event, e.g. for an SE event with two junctions,
+        junction12 and junction23, junction12=40 but junction23=500, then this
+        event would be rejected because 500 > 40*10
+
+    Returns
+    -------
+    isoform1, isoform2 : pandas.Series or None
+        If the event was not rejected, return the original event, otherwise
+        return None
+    case : str
+        Reason for rejecting or retaining the event
     """
 
-    isoform1 = _single_sample_check_unequal_read_coverage(isoform1, multiplier)
-    isoform2 = _single_sample_check_unequal_read_coverage(isoform2, multiplier)
+    isoform1 = _single_sample_check_unequal_read_coverage(isoform1, uneven_coverage_multiplier)
+    isoform2 = _single_sample_check_unequal_read_coverage(isoform2, uneven_coverage_multiplier)
 
     if isoform1 is None or isoform2 is None:
         return None, None, "Case 0: Unequal read coverage"
@@ -346,10 +438,10 @@ def _single_event_psi(event_id, event_df, junction_reads_2d,
 
     reads = junction_reads_2d[junction_cols]
 
-    maybe_rejected = _maybe_reject_events(
+    maybe_rejected = _maybe_reject(
         reads, isoform1_junction_ids, isoform2_junction_ids,
         illegal_junction_ids, n_junctions, min_reads=min_reads,
-        multiplier=multiplier)
+        uneven_coverage_multiplier=multiplier)
 
     import pdb; pdb.set_trace()
     return

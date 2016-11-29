@@ -87,13 +87,13 @@ def junction_reads_for_rejecting(
 def test__maybe_reject_events(junction_reads_for_rejecting,
                               dummy_isoform1_junction_numbers,
                               dummy_isoform2_junction_numbers):
-    from outrigger.psi.compute import _maybe_reject_events
+    from outrigger.psi.compute import _maybe_reject
 
     n_junctions = len(dummy_isoform1_junction_numbers) \
                   + len(dummy_isoform2_junction_numbers)
 
     for i, row in junction_reads_for_rejecting.iterrows():
-        isoform1, isoform2, case = _maybe_reject_events(
+        isoform1, isoform2, case = _maybe_reject(
             row[dummy_isoform1_junction_numbers],
             row[dummy_isoform2_junction_numbers],
             n_junctions=n_junctions)
