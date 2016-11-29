@@ -147,7 +147,10 @@ def _maybe_sufficient_reads(isoform1, isoform2, n_junctions, min_reads,
                                                    letter=letters[1])
 
 
-def _check_unequal_read_coverage(isoform, multiplier=INEQUALITY_MULTIPLIER):
+def _single_sample_make_rejection_row(isoform1, isoform2, case):
+
+
+def _single_sample_check_unequal_read_coverage(isoform, multiplier=INEQUALITY_MULTIPLIER):
     """If one junction of an isoform is more heavily covered, reject it
 
     If the difference in read depth between two junctions of an isoform is
@@ -179,12 +182,15 @@ def _maybe_reject_events(reads, isoform1_ids, isoform2_ids, illegal_ids,
         samples_with_illegal_coverage = reads[illegal_ids] >= min_reads
         reads = reads.loc[~samples_with_illegal_coverage]
 
-    maybe_rejected = reads.apply(
+    # import pdb; pdb.set_trace()
+    isoform1, isoform2, reason = zip(*reads.apply(
         lambda sample: _single_sample_maybe_reject_events(
             sample[isoform1_ids], sample[isoform2_ids],
             n_junctions=n_junctions, min_reads=min_reads,
-            multiplier=multiplier), axis=1)
-    return maybe_rejected
+            multiplier=multiplier), axis=1))
+    return isoform1, isoform2, reason
+
+
 
 
 def _single_sample_maybe_reject_events(isoform1, isoform2, n_junctions,
@@ -192,8 +198,8 @@ def _single_sample_maybe_reject_events(isoform1, isoform2, n_junctions,
                                        multiplier=INEQUALITY_MULTIPLIER):
     """Given junction reads of isoform1 and isoform2, remove if they are bad"""
 
-    isoform1 = _check_unequal_read_coverage(isoform1, multiplier)
-    isoform2 = _check_unequal_read_coverage(isoform2, multiplier)
+    isoform1 = _single_sample_check_unequal_read_coverage(isoform1, multiplier)
+    isoform2 = _single_sample_check_unequal_read_coverage(isoform2, multiplier)
 
     if isoform1 is None or isoform2 is None:
         return None, None, "Case 0: Unequal read coverage"
@@ -291,11 +297,10 @@ def _single_event_psi(event_id, event_df, junction_reads_2d,
 
     reads = junction_reads_2d[junction_cols]
 
-    maybe_rejected = _maybe_reject_events(reads, isoform1_junction_ids,
-                                          isoform2_junction_ids,
-                                          illegal_junction_ids, n_junctions,
-                                          min_reads=min_reads,
-                                          multiplier=multiplier)
+    maybe_rejected = _maybe_reject_events(
+        reads, isoform1_junction_ids, isoform2_junction_ids,
+        illegal_junction_ids, n_junctions, min_reads=min_reads,
+        multiplier=multiplier)
 
     import pdb; pdb.set_trace()
     return

@@ -123,11 +123,11 @@ def isoform_read_coverage(request):
 
 
 def test__check_unequal_read_coverage(isoform_read_coverage):
-    from outrigger.psi.compute import _check_unequal_read_coverage
+    from outrigger.psi.compute import _single_sample_check_unequal_read_coverage
 
     isoform, equality = isoform_read_coverage
 
-    test = _check_unequal_read_coverage(isoform)
+    test = _single_sample_check_unequal_read_coverage(isoform)
     if equality == 'unequal':
         assert test is None
     else:
