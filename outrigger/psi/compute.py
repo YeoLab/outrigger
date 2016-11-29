@@ -133,7 +133,7 @@ def _remove_insufficient_reads(isoform1, isoform2):
 
 
 def _single_sample_maybe_sufficient_reads(isoform1, isoform2, n_junctions,
-                                          min_reads, case letters='ab'):
+                                          min_reads, case, letters='ab'):
     """Check if the sum of reads is enough compared to number of junctions
 
     Parameters
