@@ -132,8 +132,8 @@ def _remove_insufficient_reads(isoform1, isoform2):
     return isoform1, isoform2
 
 
-def _single_sample_maybe_sufficient_reads(isoform1, isoform2, n_junctions, min_reads,
-                                          case='', letters='ab'):
+def _single_sample_maybe_sufficient_reads(isoform1, isoform2, n_junctions,
+                                          min_reads, case='', letters='ab'):
     """Check if the sum of reads is enough compared to number of junctions"""
     if (isoform1.sum() + isoform2.sum()) >= (min_reads * n_junctions):
         # Case 5a: There are sufficient junction reads
@@ -145,9 +145,6 @@ def _single_sample_maybe_sufficient_reads(isoform1, isoform2, n_junctions, min_r
         return None, None, '{case}, option {letter}: There are insufficient ' \
                            'junction reads'.format(case=case,
                                                    letter=letters[1])
-
-
-def _single_sample_make_rejection_row(isoform1, isoform2, case):
 
 
 def _single_sample_check_unequal_read_coverage(isoform, multiplier=INEQUALITY_MULTIPLIER):
@@ -183,19 +180,60 @@ def _maybe_reject_events(reads, isoform1_ids, isoform2_ids, illegal_ids,
         reads = reads.loc[~samples_with_illegal_coverage]
 
     # import pdb; pdb.set_trace()
-    isoform1, isoform2, reason = zip(*reads.apply(
-        lambda sample: _single_sample_maybe_reject_events(
-            sample[isoform1_ids], sample[isoform2_ids],
+    maybe_rejected = zip(*reads.apply(
+        lambda sample: _single_maybe_reject_events(
+            sample, isoform1_ids, isoform2_ids,
             n_junctions=n_junctions, min_reads=min_reads,
             multiplier=multiplier), axis=1))
-    return isoform1, isoform2, reason
+    return maybe_rejected
+
+
+def _single_maybe_reject_events(sample, isoform1_ids, isoform2_ids,
+                                n_junctions, min_reads=MIN_READS,
+                                multiplier=INEQUALITY_MULTIPLIER):
+    """Given a row of junction reads, return a filtered row of reads
+
+    For a single sample's junction reads of an isoform, check if they should be
+    rejected, and if they are, return a row with all NAs for the reads. Always
+    include the case by which the reads were or were not rejected
+
+    Parameters
+    ----------
+    sample : pandas.Series
+        A single sample's junction reads across all isoforms of an alternative
+        event
+    isoform1_ids : list
+        List of strings that correspond to indicies in ``sample``
+    isoform2_ids : list
+        List of strings that correspond to indicies in ``sample``
+    n_junctions : int
+        Total number of junctions expected in the splicing event
+    min_reads : int
+        Minimum number of junction reads for an event to be valid. See
+        documentation for much more detailed information regarding when events
+        are rejected or retained
+    multiplier : int
+        When checking for uneven coverage between two sides of a junction, one
+        side must be this amount bigger than the other side to be rejected.
+        For example, if one side has 10x (default) more read coverage than the
+        other, then reject the event.
+    """
+    isoform1, isoform2, case = _single_isoform_maybe_reject_events(
+            sample[isoform1_ids], sample[isoform2_ids],
+            n_junctions=n_junctions, min_reads=min_reads,
+            multiplier=multiplier)
+    if isoform1 is None:
+        maybe_rejected = pd.Series(None, index=sample.index)
+    else:
+        maybe_rejected = sample
+    maybe_rejected['Case'] = case
+    return maybe_rejected
 
 
 
-
-def _single_sample_maybe_reject_events(isoform1, isoform2, n_junctions,
-                                       min_reads=MIN_READS,
-                                       multiplier=INEQUALITY_MULTIPLIER):
+def _single_isoform_maybe_reject_events(isoform1, isoform2, n_junctions,
+                                        min_reads=MIN_READS,
+                                        multiplier=INEQUALITY_MULTIPLIER):
     """Given junction reads of isoform1 and isoform2, remove if they are bad"""
 
     isoform1 = _single_sample_check_unequal_read_coverage(isoform1, multiplier)
