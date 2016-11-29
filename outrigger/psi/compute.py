@@ -3,7 +3,7 @@ import logging
 import joblib
 import pandas as pd
 
-from ..common import ILLEGAL_JUNCTIONS, MIN_READS, READS, INEQUALITY_MULTIPLIER
+from ..common import ILLEGAL_JUNCTIONS, MIN_READS, READS, UNEVEN_COVERAGE_MULTIPLIER
 from ..util import progress, done
 
 
@@ -147,7 +147,7 @@ def _single_sample_maybe_sufficient_reads(isoform1, isoform2, n_junctions,
                                                    letter=letters[1])
 
 
-def _single_sample_check_unequal_read_coverage(isoform, multiplier=INEQUALITY_MULTIPLIER):
+def _single_sample_check_unequal_read_coverage(isoform, multiplier=UNEVEN_COVERAGE_MULTIPLIER):
     """If one junction of an isoform is more heavily covered, reject it
 
     If the difference in read depth between two junctions of an isoform is
@@ -174,7 +174,7 @@ def _single_sample_check_unequal_read_coverage(isoform, multiplier=INEQUALITY_MU
 
 def _maybe_reject_events(reads, isoform1_ids, isoform2_ids, illegal_ids,
                          n_junctions, min_reads=MIN_READS,
-                         multiplier=INEQUALITY_MULTIPLIER):
+                         multiplier=UNEVEN_COVERAGE_MULTIPLIER):
     if not pd.isnull(illegal_ids):
         samples_with_illegal_coverage = reads[illegal_ids] >= min_reads
         reads = reads.loc[~samples_with_illegal_coverage]
@@ -190,7 +190,7 @@ def _maybe_reject_events(reads, isoform1_ids, isoform2_ids, illegal_ids,
 
 def _single_maybe_reject_events(sample, isoform1_ids, isoform2_ids,
                                 n_junctions, min_reads=MIN_READS,
-                                multiplier=INEQUALITY_MULTIPLIER):
+                                multiplier=UNEVEN_COVERAGE_MULTIPLIER):
     """Given a row of junction reads, return a filtered row of reads
 
     For a single sample's junction reads of an isoform, check if they should be
@@ -233,7 +233,7 @@ def _single_maybe_reject_events(sample, isoform1_ids, isoform2_ids,
 
 def _single_isoform_maybe_reject_events(isoform1, isoform2, n_junctions,
                                         min_reads=MIN_READS,
-                                        multiplier=INEQUALITY_MULTIPLIER):
+                                        multiplier=UNEVEN_COVERAGE_MULTIPLIER):
     """Given junction reads of isoform1 and isoform2, remove if they are bad"""
 
     isoform1 = _single_sample_check_unequal_read_coverage(isoform1, multiplier)
@@ -309,7 +309,7 @@ def _single_isoform_maybe_reject_events(isoform1, isoform2, n_junctions,
 def _single_event_psi(event_id, event_df, junction_reads_2d,
                       isoform1_junction_numbers, isoform2_junction_numbers,
                       min_reads=MIN_READS, method='mean',
-                      multiplier=INEQUALITY_MULTIPLIER, debug=False, log=None):
+                      multiplier=UNEVEN_COVERAGE_MULTIPLIER, debug=False, log=None):
     """Calculate percent spliced in for a single event across all samples
 
     Returns
@@ -383,7 +383,7 @@ def _single_event_psi(event_id, event_df, junction_reads_2d,
 def _maybe_parallelize_psi(event_annotation, junction_reads_2d,
                            isoform1_junctions, isoform2_junctions,
                            reads_col=READS, min_reads=MIN_READS, method='mean',
-                           multiplier=INEQUALITY_MULTIPLIER, n_jobs=-1,
+                           multiplier=UNEVEN_COVERAGE_MULTIPLIER, n_jobs=-1,
                            debug=False, log=None):
     # There are multiple rows with the same event id because the junctions
     # are the same, but the flanking exons may be a little wider or shorter,
@@ -427,7 +427,7 @@ def _maybe_parallelize_psi(event_annotation, junction_reads_2d,
 def calculate_psi(event_annotation, junction_reads_2d,
                   isoform1_junctions, isoform2_junctions, reads_col=READS,
                   min_reads=MIN_READS, method='mean',
-                  multiplier=INEQUALITY_MULTIPLIER,
+                  multiplier=UNEVEN_COVERAGE_MULTIPLIER,
                   n_jobs=-1, debug=False):
     """Compute percent-spliced-in of events based on junction reads
 
