@@ -268,7 +268,7 @@ class CommandLine(object):
                                 help='How to deal with multiple junctions on '
                                      'an event - take the mean (default) or '
                                      'the min? (the other option)')
-        psi_parser.add_argument('-u', '--inequality-multiplier',
+        psi_parser.add_argument('-u', '--uneven-coverage-multiplier',
                                 type=int, action='store',
                                 required=False, default=10,
                                 help='If a junction one one side of an exon is'
@@ -991,7 +991,8 @@ class Psi(SubcommandAfterIndex):
                 event_annotation, junction_reads_2d,
                 min_reads=self.min_reads, debug=self.debug,
                 reads_col=self.reads_col, n_jobs=self.n_jobs,
-                method=self.method, multiplier=self.inequality_multiplier,
+                method=self.method,
+                uneven_coverage_multiplier=self.uneven_coverage_multiplier,
                 **isoform_junctions)
             csv = os.path.join(self.psi_folder, splice_abbrev,
                                'psi.csv'.format(splice_abbrev))
