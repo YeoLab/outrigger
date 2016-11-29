@@ -132,8 +132,8 @@ def _remove_insufficient_reads(isoform1, isoform2):
     return isoform1, isoform2
 
 
-def _maybe_sufficient_reads(isoform1, isoform2, n_junctions, min_reads,
-                            case='', letters='ab'):
+def _single_sample_maybe_sufficient_reads(isoform1, isoform2, n_junctions, min_reads,
+                                          case='', letters='ab'):
     """Check if the sum of reads is enough compared to number of junctions"""
     if (isoform1.sum() + isoform2.sum()) >= (min_reads * n_junctions):
         # Case 5a: There are sufficient junction reads
@@ -220,25 +220,25 @@ def _single_sample_maybe_reject_events(isoform1, isoform2, n_junctions,
                            "not all of one isoform"
     elif (isoform1 >= min_reads).all() and (isoform2 < min_reads).all():
         # Case 5: Isoform1 totally covered and isoform2 not
-        return _maybe_sufficient_reads(isoform1, isoform2, n_junctions,
-                                       min_reads, 'Case 5: Isoform1 totally '
+        return _single_sample_maybe_sufficient_reads(isoform1, isoform2, n_junctions,
+                                                     min_reads, 'Case 5: Isoform1 totally '
                                                   'covered and isoform2 not')
     elif (isoform1 < min_reads).all() and (isoform2 >= min_reads).all():
         # Case 6: Isoform2 is totally covered and isoform1 is not
-        return _maybe_sufficient_reads(isoform1, isoform2, n_junctions,
-                                       min_reads, 'Case 6: Isoform2 is '
+        return _single_sample_maybe_sufficient_reads(isoform1, isoform2, n_junctions,
+                                                     min_reads, 'Case 6: Isoform2 is '
                                                   'totally covered and '
                                                   'isoform1 is not')
     elif (isoform1 >= min_reads).all() and (isoform2 < min_reads).any():
         # Case 7: Isoform 1 is fully covered and isoform2 is questionable
-        return _maybe_sufficient_reads(isoform1, isoform2, n_junctions,
-                                       min_reads, 'Case 7: Isoform 1 is fully '
+        return _single_sample_maybe_sufficient_reads(isoform1, isoform2, n_junctions,
+                                                     min_reads, 'Case 7: Isoform 1 is fully '
                                                   'covered and isoform2 is '
                                                   'questionable')
     elif (isoform1 < min_reads).any() and (isoform2 >= min_reads).all():
         # Case 8: Isoform 1 is fully covered and isoform2 is questionable
-        return _maybe_sufficient_reads(isoform1, isoform2, n_junctions,
-                                       min_reads, 'Case 8: Isoform 1 is fully '
+        return _single_sample_maybe_sufficient_reads(isoform1, isoform2, n_junctions,
+                                                     min_reads, 'Case 8: Isoform 1 is fully '
                                                   'covered and isoform2 is '
                                                   'questionable')
     elif (isoform1 < min_reads).any() or (isoform2 < min_reads).any():
@@ -254,10 +254,10 @@ def _single_sample_maybe_reject_events(isoform1, isoform2, n_junctions,
             return None, None, 'Case 9b: 3 junctions have less than minimum ' \
                                'reads (2 on iso2 and one on iso1)'
 
-        return _maybe_sufficient_reads(isoform1, isoform2, n_junctions,
-                                       min_reads, case='Case 9: Insufficient '
+        return _single_sample_maybe_sufficient_reads(isoform1, isoform2, n_junctions,
+                                                     min_reads, case='Case 9: Insufficient '
                                                        'reads somehow',
-                                       letters='cd')
+                                                     letters='cd')
 
     elif (isoform1 < min_reads).any() or (isoform2 < min_reads).any():
         # Case 10: isoform1 and isoform2 don't have sufficient reads
