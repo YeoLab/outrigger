@@ -344,7 +344,8 @@ def _single_isoform_maybe_reject(
 def _single_event_psi(event_id, event_df, junction_reads_2d,
                       isoform1_junction_numbers, isoform2_junction_numbers,
                       min_reads=MIN_READS, method='mean',
-                      uneven_coverage_multiplier=UNEVEN_COVERAGE_MULTIPLIER, debug=False, log=None):
+                      uneven_coverage_multiplier=UNEVEN_COVERAGE_MULTIPLIER,
+                      debug=False, log=None):
     """Calculate percent spliced in for a single event across all samples
 
     Returns
