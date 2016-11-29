@@ -81,7 +81,11 @@ def _single_sample_maybe_sufficient_reads(isoform1, isoform2, n_junctions,
 
     Returns
     -------
-
+    isoform1, isoform2 : pandas.Series or None
+        If the sum of reads on all isoforms is equal to or greater than the
+        minimum number of reads times the number of junctions, then return the
+        event. Otherwise, there are insufficient reads and the event is
+        rejected.
     """
     if (isoform1.sum() + isoform2.sum()) >= (min_reads * n_junctions):
         # Case 5a: There are sufficient junction reads
@@ -175,11 +179,12 @@ def _maybe_reject(reads, isoform1_ids, isoform2_ids, illegal_ids,
         reads = reads.loc[~samples_with_illegal_coverage]
 
     # import pdb; pdb.set_trace()
-    maybe_rejected = reads.apply(
+    maybe_rejected = zip(*reads.apply(
         lambda sample: _single_maybe_reject(
             sample, isoform1_ids, isoform2_ids,
             n_junctions=n_junctions, min_reads=min_reads,
-            uneven_coverage_multiplier=uneven_coverage_multiplier), axis=1)
+
+            uneven_coverage_multiplier=uneven_coverage_multiplier), axis=1))
     return maybe_rejected
 
 
