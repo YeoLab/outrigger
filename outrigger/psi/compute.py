@@ -3,7 +3,8 @@ import logging
 import joblib
 import pandas as pd
 
-from ..common import ILLEGAL_JUNCTIONS, MIN_READS, READS, UNEVEN_COVERAGE_MULTIPLIER
+from ..common import ILLEGAL_JUNCTIONS, MIN_READS, READS, \
+    UNEVEN_COVERAGE_MULTIPLIER
 from ..util import progress, done
 
 
