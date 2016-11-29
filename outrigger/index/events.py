@@ -8,7 +8,7 @@ import pandas as pd
 from graphlite import V
 
 from ..common import STRAND, ISOFORM_ORDER, ISOFORM_COMPONENTS, \
-    EVENT_ID_COLUMN, ILLEGAL_JUNCTIONS, SPLICE_ABBREVS, \
+    EVENT_ID, ILLEGAL_JUNCTIONS, SPLICE_ABBREVS, \
     SPLICE_TYPE_ALL_EXONS, SPLICE_TYPE_ALL_JUNCTIONS, CHROM
 from outrigger.region import Region
 from .adjacencies import UPSTREAM, DOWNSTREAM, DIRECTIONS
@@ -315,12 +315,12 @@ class EventMaker(object):
 
     def add_event_id_col(self, events, splice_type):
         isoform_components = ISOFORM_COMPONENTS[splice_type]
-        events[EVENT_ID_COLUMN] = events.apply(
+        events[EVENT_ID] = events.apply(
             lambda x: '|'.join(
                 '{}={}'.format(isoform, '@'.join(
                     x[list(isoform_components[isoform])]))
                 for isoform in ISOFORM_ORDER), axis=1)
-        events = events.set_index(EVENT_ID_COLUMN)
+        events = events.set_index(EVENT_ID)
         return events
 
     @staticmethod

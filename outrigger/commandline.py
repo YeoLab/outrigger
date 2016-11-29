@@ -702,7 +702,7 @@ class Index(Subcommand):
         util.progress('Writing {splice_type} events to {csv} '
                       '...'.format(splice_type=splice_type.upper(), csv=csv))
         attributes.to_csv(csv, index=True,
-                          index_label=outrigger.common.EVENT_ID_COLUMN)
+                          index_label=outrigger.common.EVENT_ID)
         util.done()
 
     def write_new_gtf(self, db):
