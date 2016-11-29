@@ -13,7 +13,7 @@ idx = pd.IndexSlice
 
 
 def _scale(x, n_junctions, method='mean', min_reads=MIN_READS):
-    # multiplier = -1 if (x < min_reads).any() else 1
+    # uneven_coverage_multiplier = -1 if (x < min_reads).any() else 1
     if method == 'mean':
         return x.sum()/float(n_junctions)
     elif method == 'min':
@@ -99,7 +99,8 @@ def _single_sample_maybe_sufficient_reads(isoform1, isoform2, n_junctions,
                                                    letter=letters[1])
 
 
-def _single_sample_check_unequal_read_coverage(isoform, multiplier=UNEVEN_COVERAGE_MULTIPLIER):
+def _single_sample_check_unequal_read_coverage(isoform,
+                                               uneven_coverage_multiplier=UNEVEN_COVERAGE_MULTIPLIER):
     """If one junction of an isoform is more heavily covered, reject it
 
     If the difference in read depth between two junctions of an isoform is
@@ -113,7 +114,7 @@ def _single_sample_check_unequal_read_coverage(isoform, multiplier=UNEVEN_COVERA
     ----------
     isoform : pandas.Series
         Number of exon-exon junction-spanning reads found for an isoform
-    multiplier : int
+    uneven_coverage_multiplier : int
         Scale factor for the maximum amount bigger one side of a junction can
         be before rejecting the event, e.g. for an SE event with two junctions,
         junction12 and junction23, junction12=40 but junction23=500, then this
@@ -128,7 +129,7 @@ def _single_sample_check_unequal_read_coverage(isoform, multiplier=UNEVEN_COVERA
     if len(isoform) == 1:
         return isoform
 
-    multiplied = isoform * multiplier
+    multiplied = isoform * uneven_coverage_multiplier
 
     junction0 = isoform.iloc[0]
     junction1 = isoform.iloc[1]
@@ -343,7 +344,7 @@ def _single_isoform_maybe_reject(
 def _single_event_psi(event_id, event_df, junction_reads_2d,
                       isoform1_junction_numbers, isoform2_junction_numbers,
                       min_reads=MIN_READS, method='mean',
-                      multiplier=UNEVEN_COVERAGE_MULTIPLIER, debug=False, log=None):
+                      uneven_coverage_multiplier=UNEVEN_COVERAGE_MULTIPLIER, debug=False, log=None):
     """Calculate percent spliced in for a single event across all samples
 
     Returns
@@ -372,7 +373,7 @@ def _single_event_psi(event_id, event_df, junction_reads_2d,
     maybe_rejected = _maybe_reject(
         reads, isoform1_junction_ids, isoform2_junction_ids,
         illegal_junction_ids, n_junctions, min_reads=min_reads,
-        uneven_coverage_multiplier=multiplier)
+        uneven_coverage_multiplier=uneven_coverage_multiplier)
 
     import pdb; pdb.set_trace()
     return
@@ -417,7 +418,7 @@ def _single_event_psi(event_id, event_df, junction_reads_2d,
 def _maybe_parallelize_psi(event_annotation, junction_reads_2d,
                            isoform1_junctions, isoform2_junctions,
                            reads_col=READS, min_reads=MIN_READS, method='mean',
-                           multiplier=UNEVEN_COVERAGE_MULTIPLIER, n_jobs=-1,
+                           uneven_coverage_multiplier=UNEVEN_COVERAGE_MULTIPLIER, n_jobs=-1,
                            debug=False, log=None):
     # There are multiple rows with the same event id because the junctions
     # are the same, but the flanking exons may be a little wider or shorter,
@@ -438,7 +439,7 @@ def _maybe_parallelize_psi(event_annotation, junction_reads_2d,
             outputs = _single_event_psi(
                 event_id, event_df, junction_reads_2d,
                 isoform1_junctions, isoform2_junctions,
-                min_reads=min_reads, multiplier=multiplier,
+                min_reads=min_reads, uneven_coverage_multiplier=uneven_coverage_multiplier,
                 method=method, debug=debug, log=log)
             # psis.append(psi)
             # isoform1s.append(isoform1)
@@ -451,7 +452,7 @@ def _maybe_parallelize_psi(event_annotation, junction_reads_2d,
             joblib.delayed(_single_event_psi)(
                 event_id, event_df, junction_reads_2d,
                 isoform1_junctions, isoform2_junctions, reads_col,
-                min_reads=min_reads, multiplier=multiplier, method=method)
+                min_reads=min_reads, uneven_coverage_multiplier=uneven_coverage_multiplier, method=method)
             for event_id, event_df in grouped)
         import pdb; pdb.set_trace()
 
@@ -461,7 +462,7 @@ def _maybe_parallelize_psi(event_annotation, junction_reads_2d,
 def calculate_psi(event_annotation, junction_reads_2d,
                   isoform1_junctions, isoform2_junctions, reads_col=READS,
                   min_reads=MIN_READS, method='mean',
-                  multiplier=UNEVEN_COVERAGE_MULTIPLIER,
+                  uneven_coverage_multiplier=UNEVEN_COVERAGE_MULTIPLIER,
                   n_jobs=-1, debug=False):
     """Compute percent-spliced-in of events based on junction reads
 
@@ -505,7 +506,7 @@ def calculate_psi(event_annotation, junction_reads_2d,
 
     psis = _maybe_parallelize_psi(event_annotation, junction_reads_2d,
                                   isoform1_junctions, isoform2_junctions,
-                                  reads_col, min_reads, method, multiplier,
+                                  reads_col, min_reads, method, uneven_coverage_multiplier,
                                   n_jobs, debug, log)
 
     # use only non-empty psi outputs
