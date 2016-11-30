@@ -313,6 +313,14 @@ def _single_isoform_maybe_reject(
     return '???', '???', "Case ???"
 
 
+def _make_summary_columns(isoform1_junction_numbers,
+                          isoform2_junction_numbers):
+    isoform1_numbers = ['isoform1_' + x for x in isoform1_junction_numbers]
+    isoform2_numbers = ['isoform2_' + x for x in isoform2_junction_numbers]
+    column_order = [SAMPLE_ID, EVENT_ID] + isoform1_numbers \
+                   + isoform2_numbers + [PSI, NOTES]
+    return column_order
+
 def _summarize_event(event_id, reads, maybe_rejected, psi,
                      isoform1_junction_ids, isoform2_junction_ids,
                      isoform1_junction_numbers, isoform2_junction_numbers):
@@ -353,16 +361,16 @@ def _summarize_event(event_id, reads, maybe_rejected, psi,
         percent spliced-in (Psi), and notes on each event in each sample, that
         explain why or why not Psi was calculated
     """
-    isoform1_numbers = ['isoform1_' + x for x in isoform1_junction_numbers]
-    isoform2_numbers = ['isoform2_' + x for x in isoform2_junction_numbers]
-    column_order = [SAMPLE_ID, EVENT_ID] + isoform1_numbers \
-                   + isoform2_numbers + [PSI, NOTES]
+    summary_columns = _make_summary_columns(isoform1_junction_numbers,
+                                            isoform2_junction_numbers)
 
     if not maybe_rejected.empty:
         column_renamer = dict(zip(isoform1_junction_ids,
-                                  isoform1_numbers))
+                                  [x for x in summary_columns
+                                   if x.startswith('isoform1_')]))
         column_renamer.update(dict(zip(isoform2_junction_ids,
-                                       isoform2_numbers)))
+                                       [x for x in summary_columns
+                                        if x.startswith('isoform2_')])))
 
         summary = reads.rename(columns=column_renamer)
         summary[NOTES] = maybe_rejected[NOTES]
@@ -371,9 +379,9 @@ def _summarize_event(event_id, reads, maybe_rejected, psi,
         summary[EVENT_ID] = event_id
         summary.columns.name = None
 
-        summary = summary[column_order]
+        summary = summary[summary_columns]
     else:
-        summary = pd.DataFrame(columns=column_order)
+        summary = pd.DataFrame(columns=summary_columns)
     return summary
 
 
@@ -458,6 +466,13 @@ def _single_event_psi(event_id, event_df, junction_reads_2d,
     illegal_junction_ids = junction_locations[ILLEGAL_JUNCTIONS]
 
     junction_cols = isoform1_junction_ids + isoform2_junction_ids
+
+    # If this event from the index doesn't exist in the dataset, return an
+    # empty dataframe
+    if len(junction_reads_2d.columns.intersection(junction_cols)) == 0:
+        summary_columns = _make_summary_columns(isoform1_junction_numbers,
+                                                isoform2_junction_numbers)
+        return pd.DataFrame(columns=summary_columns)
 
     if not isinstance(illegal_junction_ids, float):
         illegal_junction_ids = illegal_junction_ids.split('|')
