@@ -443,11 +443,12 @@ def _single_event_psi(event_id, event_df, junction_reads_2d,
         isoform1_junction_numbers].tolist()
     isoform2_junction_ids = junction_locations[
         isoform2_junction_numbers].tolist()
-    illegal_junction_ids = junction_locations[ILLEGAL_JUNCTIONS].split('|')
+    illegal_junction_ids = junction_locations[ILLEGAL_JUNCTIONS]
 
     junction_cols = isoform1_junction_ids + isoform2_junction_ids
 
     if not isinstance(illegal_junction_ids, float):
+        illegal_junction_ids = illegal_junction_ids.split('|')
         junction_cols += illegal_junction_ids
 
     reads = junction_reads_2d[junction_cols]
