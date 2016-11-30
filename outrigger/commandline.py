@@ -990,8 +990,7 @@ class Psi(SubcommandAfterIndex):
             # Splice type percent spliced-in (psi) and summary
             type_psi, summary = compute.calculate_psi(
                 event_annotation, junction_reads_2d,
-                min_reads=self.min_reads, debug=self.debug,
-                reads_col=self.reads_col, n_jobs=self.n_jobs,
+                min_reads=self.min_reads, n_jobs=self.n_jobs,
                 method=self.method,
                 uneven_coverage_multiplier=self.uneven_coverage_multiplier,
                 **isoform_junctions)
