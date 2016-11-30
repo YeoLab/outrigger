@@ -154,6 +154,31 @@ class TestCommandLine(object):
                   'gencode.vM10.annotation.subset.gtf.db']
         assert_directories_equal(dir1, dir2, ignore)
 
+    def test_main_index_parallelized(self, tmpdir, tasic2016_unprocessed,
+                                     sj_filenames,
+                                     tasic2016_outrigger_output_index):
+        from outrigger.commandline import CommandLine
+
+        output_folder = tmpdir.strpath
+
+        gtf = os.path.join(tasic2016_unprocessed, 'gtf',
+                           'gencode.vM10.annotation.subset.gtf')
+        arguments = ['index', '--sj-out-tab']
+        arguments.extend(sj_filenames)
+        arguments.extend(['--gtf', gtf, '--output', output_folder,
+                          '--n-jobs', '-1'])
+        # import pdb; pdb.set_trace()
+        # assert False
+        CommandLine(arguments)
+
+        dir1 = os.path.join(output_folder, 'index')
+        dir2 = tasic2016_outrigger_output_index
+        ignore = ['psi', '.DS_Store', 'validated', 'splice_sites.csv',
+                  # Databases get stored in a weird random way... we're still
+                  # checking that the final gtfs are the same
+                  'gencode.vM10.annotation.subset.gtf.db']
+        assert_directories_equal(dir1, dir2, ignore)
+
     def test_main_index_bam(self, tmpdir, tasic2016_unprocessed,
                             bam_filenames, tasic2016_outrigger_output_bam):
         from outrigger.commandline import CommandLine
