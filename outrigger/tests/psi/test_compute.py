@@ -10,40 +10,6 @@ idx = pd.IndexSlice
 
 
 
-@pytest.fixture(params=({'isoform1': 99, 'isoform2': 99, 'result': (99, 99)},
-                       {'isoform1': 2, 'isoform2': 99, 'result': (2, 99)},
-                       {'isoform1': 99, 'isoform2': 2, 'result': (99, 2)},
-                       {'isoform1': 99, 'isoform2': 0, 'result': (99, 0)},
-                       {'isoform1': 2, 'isoform2': 26, 'result': (np.nan,
-                                                                  np.nan)},
-                       {'isoform1': 0, 'isoform2': 15, 'result': (0, 15)},
-                       {'isoform1': 0, 'isoform2': 99, 'result': (0, 99)},
-                       {'isoform1': 2, 'isoform2': 2, 'result':
-                           (np.nan, np.nan)}))
-def maybe_sufficient_isoforms(request):
-    index = ['sample1']
-
-    isoform1 = pd.Series(request.param['isoform1'], index=index)
-    isoform2 = pd.Series(request.param['isoform2'], index=index)
-
-    expected1 = pd.Series(request.param['result'][0], index=index).dropna()
-    expected2 = pd.Series(request.param['result'][1], index=index).dropna()
-
-    expected1 = expected1.astype(int)
-    expected2 = expected2.astype(int)
-    return isoform1, isoform2, expected1, expected2
-
-
-def test__remove_insufficient_reads(maybe_sufficient_isoforms):
-    from outrigger.psi.compute import _remove_insufficient_reads
-
-    isoform1, isoform2, expected1, expected2 = maybe_sufficient_isoforms
-
-    test1, test2 = _remove_insufficient_reads(isoform1, isoform2)
-    pdt.assert_series_equal(test1, expected1)
-    pdt.assert_series_equal(test2, expected2)
-
-
 @pytest.fixture
 def skipped_exon_junction_reads_for_rejecting_csv(simulated):
     return os.path.join(simulated, 'psi', 'skipped_exon_junctions_psi.csv')
@@ -296,38 +262,6 @@ def dummy_junction_locations(dummy_legal_junction_numbers,
          for junction_xy in dummy_legal_junction_numbers}
     d[ILLEGAL_JUNCTIONS] = illegal_junctions
     return pd.Series(d)
-
-# @pytest.fixture
-# def dummy_junction_to_reads(dummy_junction12, dummy_junction12_reads,
-#                       dummy_junction23, dummy_junction23_reads,
-#                       dummy_junction13, dummy_junction13_reads):
-#     """Helper function for testing"""
-#     return pd.Series({dummy_junction12: dummy_junction12_reads,
-#                       dummy_junction23: dummy_junction23_reads,
-#                       dummy_junction13: dummy_junction13_reads})
-
-
-def test_maybe_get_isoform_reads(dummy_splice_junction_reads,
-                                 dummy_junction_locations,
-                                 dummy_isoform_junctions,
-                                 dummy_isoform_reads,):
-    from outrigger.psi.compute import _maybe_get_isoform_reads, READS
-
-    test = _maybe_get_isoform_reads(dummy_splice_junction_reads,
-                                    dummy_junction_locations,
-                                    dummy_isoform_junctions, READS)
-    junctions = dummy_junction_locations[dummy_isoform_junctions]
-    reads = dummy_isoform_reads[junctions.values]
-    reads = reads.dropna()
-    if reads.empty:
-        true = pd.Series()
-    else:
-        true = reads.copy()
-        true.name = READS
-        true.index = pd.MultiIndex.from_arrays(
-            [reads.index, ['sample1']*len(reads.index)],
-            names=['junction', 'sample_id'])
-    pdt.assert_series_equal(test, true)
 
 
 @pytest.fixture
