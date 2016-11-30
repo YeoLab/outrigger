@@ -470,8 +470,6 @@ class Subcommand(object):
                                            low_memory=self.low_memory)
             util.done()
 
-        util.done()
-
         return splice_junctions
 
     @staticmethod
