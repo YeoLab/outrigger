@@ -280,24 +280,26 @@ def _single_isoform_maybe_reject(
         # Case 9: Isoform 1 is fully covered and isoform2 is questionable
         return _single_sample_maybe_sufficient_reads(
             isoform1, isoform2, n_junctions, min_reads,
-            'Case 9: Isoform 1 is fully covered and Isoform 2 is questionable')
+            'Case 9: Isoform 1 is fully covered and Isoform 2 is '
+            'questionable')
     elif (isoform1 < min_reads).any() and (isoform2 >= min_reads).all():
         # Case 10: Isoform 1 is fully covered and isoform2 is questionable
         return _single_sample_maybe_sufficient_reads(
             isoform1, isoform2, n_junctions, min_reads,
-            'Case 10: Isoform 2 is fully covered and Isoform 1 is questionable')
+            'Case 10: Isoform 2 is fully covered and Isoform 1 is '
+            'questionable')
     elif (isoform1 < min_reads).any() or (isoform2 < min_reads).any():
         # Case 11: insufficient reads somehow
         if (isoform1 < min_reads).all() and (isoform2 < min_reads).any():
             # Case 11a: 3 junctions have less than minimum reads (2 on iso1
             # and 1 on iso2)
-            return None, None, 'Case 11a: 3 junctions have less than minimum ' \
-                               'reads (2 on iso1 and 1 on iso2)'
+            return None, None, 'Case 11a: 3 junctions have less than ' \
+                               'minimum reads (2 on iso1 and 1 on iso2)'
         if (isoform1 < min_reads).any() and (isoform2 < min_reads).all():
             # Case 11b: 3 junctions have less than minimum reads (2 on iso2
             # and one on iso1)
-            return None, None, 'Case 11b: 3 junctions have less than minimum ' \
-                               'reads (2 on iso2 and 1 on iso1)'
+            return None, None, 'Case 11b: 3 junctions have less than ' \
+                               'minimum reads (2 on iso2 and 1 on iso1)'
 
         return _single_sample_maybe_sufficient_reads(
             isoform1, isoform2, n_junctions, min_reads,
