@@ -142,7 +142,7 @@ def _maybe_reject(reads, isoform1_ids, isoform2_ids, illegal_ids,
     -------
 
     """
-    if not pd.isnull(illegal_ids):
+    if not isinstance(illegal_ids, float):
         samples_with_illegal_coverage = reads[illegal_ids] >= min_reads
         reads = reads.loc[~samples_with_illegal_coverage]
 
