@@ -469,7 +469,8 @@ def _single_event_psi(event_id, event_df, junction_reads_2d,
 
     # If this event from the index doesn't exist in the dataset, return an
     # empty dataframe
-    if len(junction_reads_2d.columns.intersection(junction_cols)) == 0:
+    junctions_in_data = junction_reads_2d.columns.intersection(junction_cols)
+    if len(junctions_in_data) < n_junctions:
         summary_columns = _make_summary_columns(isoform1_junction_numbers,
                                                 isoform2_junction_numbers)
         return pd.DataFrame(columns=summary_columns)
