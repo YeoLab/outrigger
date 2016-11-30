@@ -140,7 +140,8 @@ class TestCommandLine(object):
                            'gencode.vM10.annotation.subset.gtf')
         arguments = ['index', '--sj-out-tab']
         arguments.extend(sj_filenames)
-        arguments.extend(['--gtf', gtf, '--output', output_folder, '--debug'])
+        arguments.extend(['--gtf', gtf, '--output', output_folder,
+                          '--n-jobs', '1'])
         # import pdb; pdb.set_trace()
         # assert False
         CommandLine(arguments)
@@ -163,7 +164,7 @@ class TestCommandLine(object):
                            'gencode.vM10.annotation.subset.gtf')
         arguments = ['index', '--bams']
         arguments.extend(bam_filenames)
-        arguments.extend(['--gtf', gtf, '--output', output_folder, '--debug'])
+        arguments.extend(['--gtf', gtf, '--output', output_folder])
         # import pdb; pdb.set_trace()
         # assert False
         CommandLine(arguments)
@@ -205,10 +206,10 @@ class TestCommandLine(object):
                            'gencode.vM10.annotation.subset.gtf')
         arguments = ['index', '--sj-out-tab']
         arguments.extend(sj_filenames)
-        arguments.extend(['--gtf', gtf, '--output', output_folder, '--debug'])
+        arguments.extend(['--gtf', gtf, '--output', output_folder])
         CommandLine(arguments)
 
-        args = ['psi', '--output', output_folder]
+        args = ['psi', '--output', output_folder, '--n-jobs', '1']
         CommandLine(args)
 
         dir1 = output_folder
@@ -221,7 +222,7 @@ class TestCommandLine(object):
 
         output_folder = tmpdir.strpath
 
-        args = ['psi', '--output', output_folder,
+        args = ['psi', '--output', output_folder, '--n-jobs', '1',
                 '--index', tasic2016_outrigger_output_index,
                 '--bams']
         args.extend(bam_filenames)
