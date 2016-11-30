@@ -1002,7 +1002,7 @@ class Psi(SubcommandAfterIndex):
                           ' ...'.format(name=splice_name, abbrev=splice_abbrev,
                                         filename=csv))
             self.maybe_make_folder(os.path.dirname(csv))
-            type_psi.to_csv(csv)
+            type_psi.to_csv(csv, na_rep='NA')
 
             # Write this event's summary of events and why they weren't or were
             # calculated Psi on
@@ -1013,7 +1013,7 @@ class Psi(SubcommandAfterIndex):
                           'score) to {filename} ...'.format(
                 name=splice_name, abbrev=splice_abbrev, filename=csv))
             self.maybe_make_folder(os.path.dirname(csv))
-            summary.to_csv(csv)
+            summary.to_csv(csv, na_rep='NA')
             psis.append(type_psi)
             util.done()
 
@@ -1025,7 +1025,7 @@ class Psi(SubcommandAfterIndex):
         csv = os.path.join(self.psi_folder, 'outrigger_psi.csv')
         util.progress('Writing a samples x features matrix of Psi '
                       'scores to {} ...'.format(csv))
-        splicing.to_csv(csv)
+        splicing.to_csv(csv, na_rep='NA')
         util.done()
 
 

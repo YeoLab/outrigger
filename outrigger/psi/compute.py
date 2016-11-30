@@ -143,7 +143,9 @@ def _maybe_reject(reads, isoform1_ids, isoform2_ids, illegal_ids,
 
     """
     if not isinstance(illegal_ids, float):
-        samples_with_illegal_coverage = reads[illegal_ids] >= min_reads
+        junctions_with_illegal_coverage = reads[illegal_ids] >= min_reads
+        samples_with_illegal_coverage = junctions_with_illegal_coverage.any(
+            axis=1)
         reads = reads.loc[~samples_with_illegal_coverage]
 
     maybe_rejected = reads.apply(
