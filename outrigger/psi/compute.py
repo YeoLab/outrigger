@@ -249,7 +249,9 @@ def _single_isoform_maybe_reject(
 
     if isoform1 is None or isoform2 is None:
         # Case 2: Unbalanced number of reads between two sides of an isoform
-        return None, None, "Case 2: Unequal read coverage"
+        return None, None, "Case 2: Unequal read coverage (one side has at " \
+                           "least {}x more reads)".format(
+            uneven_coverage_multiplier)
     elif (isoform1 >= min_reads).all() and (isoform2 == 0).all():
         # Case 3: Perfect exclusion
         return isoform1, isoform2, 'Case 3: Perfect exclusion'
@@ -278,12 +280,12 @@ def _single_isoform_maybe_reject(
         # Case 9: Isoform 1 is fully covered and isoform2 is questionable
         return _single_sample_maybe_sufficient_reads(
             isoform1, isoform2, n_junctions, min_reads,
-            'Case 9: Isoform 1 is fully covered and isoform2 is questionable')
+            'Case 9: Isoform 1 is fully covered and Isoform 2 is questionable')
     elif (isoform1 < min_reads).any() and (isoform2 >= min_reads).all():
         # Case 10: Isoform 1 is fully covered and isoform2 is questionable
         return _single_sample_maybe_sufficient_reads(
             isoform1, isoform2, n_junctions, min_reads,
-            'Case 10: Isoform 1 is fully covered and isoform2 is questionable')
+            'Case 10: Isoform 2 is fully covered and Isoform 1 is questionable')
     elif (isoform1 < min_reads).any() or (isoform2 < min_reads).any():
         # Case 11: insufficient reads somehow
         if (isoform1 < min_reads).all() and (isoform2 < min_reads).any():
@@ -295,7 +297,7 @@ def _single_isoform_maybe_reject(
             # Case 11b: 3 junctions have less than minimum reads (2 on iso2
             # and one on iso1)
             return None, None, 'Case 11b: 3 junctions have less than minimum ' \
-                               'reads (2 on iso2 and one on iso1)'
+                               'reads (2 on iso2 and 1 on iso1)'
 
         return _single_sample_maybe_sufficient_reads(
             isoform1, isoform2, n_junctions, min_reads,
