@@ -355,22 +355,25 @@ def _summarize_event(event_id, reads, maybe_rejected, psi,
     """
     isoform1_numbers = ['isoform1_' + x for x in isoform1_junction_numbers]
     isoform2_numbers = ['isoform2_' + x for x in isoform2_junction_numbers]
-
-    column_renamer = dict(zip(isoform1_junction_ids,
-                              isoform1_numbers))
-    column_renamer.update(dict(zip(isoform2_junction_ids,
-                                   isoform2_numbers)))
-
-    summary = reads.rename(columns=column_renamer)
-    summary[NOTES] = maybe_rejected[NOTES]
-    summary[PSI] = psi
-    summary = summary.reset_index()
-    summary[EVENT_ID] = event_id
-    summary.columns.name = None
-
     column_order = [SAMPLE_ID, EVENT_ID] + isoform1_numbers \
                    + isoform2_numbers + [PSI, NOTES]
-    summary = summary[column_order]
+
+    if not maybe_rejected.empty:
+        column_renamer = dict(zip(isoform1_junction_ids,
+                                  isoform1_numbers))
+        column_renamer.update(dict(zip(isoform2_junction_ids,
+                                       isoform2_numbers)))
+
+        summary = reads.rename(columns=column_renamer)
+        summary[NOTES] = maybe_rejected[NOTES]
+        summary[PSI] = psi
+        summary = summary.reset_index()
+        summary[EVENT_ID] = event_id
+        summary.columns.name = None
+
+        summary = summary[column_order]
+    else:
+        summary = pd.DataFrame(columns=column_order)
     return summary
 
 
