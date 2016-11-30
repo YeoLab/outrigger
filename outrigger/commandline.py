@@ -987,18 +987,35 @@ class Psi(SubcommandAfterIndex):
                 'Calculating percent spliced-in (Psi) scores on '
                 '{name} ({abbrev}) events ...'.format(
                     name=splice_name, abbrev=splice_abbrev))
-            event_psi = compute.calculate_psi(
+            # Splice type percent spliced-in (psi) and summary
+            type_psi, summary = compute.calculate_psi(
                 event_annotation, junction_reads_2d,
                 min_reads=self.min_reads, debug=self.debug,
                 reads_col=self.reads_col, n_jobs=self.n_jobs,
                 method=self.method,
                 uneven_coverage_multiplier=self.uneven_coverage_multiplier,
                 **isoform_junctions)
+
+            # Write this event's percent spliced-in matrix
             csv = os.path.join(self.psi_folder, splice_abbrev,
                                'psi.csv'.format(splice_abbrev))
+            util.progress('Writing {name} ({abbrev}) Psi values to {filename}'
+                          ' ...'.format(name=splice_name, abbrev=splice_abbrev,
+                                        filename=csv))
             self.maybe_make_folder(os.path.dirname(csv))
-            event_psi.to_csv(csv)
-            psis.append(event_psi)
+            type_psi.to_csv(csv)
+
+            # Write this event's summary of events and why they weren't or were
+            # calculated Psi on
+            csv = os.path.join(self.psi_folder, splice_abbrev,
+                               'summary.csv'.format(splice_abbrev))
+            util.progress('Writing {name} ({abbrev}) event summaries (e.g. '
+                          'number of reads, why an event does not have a Psi '
+                          'score) to {filename} ...'.format(
+                name=splice_name, abbrev=splice_abbrev, filename=csv))
+            self.maybe_make_folder(os.path.dirname(csv))
+            summary.to_csv(csv)
+            psis.append(type_psi)
             util.done()
 
         util.progress('Concatenating all calculated psi scores '
