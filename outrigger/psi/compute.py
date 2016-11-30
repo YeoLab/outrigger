@@ -146,7 +146,6 @@ def _maybe_reject(reads, isoform1_ids, isoform2_ids, illegal_ids,
         samples_with_illegal_coverage = reads[illegal_ids] >= min_reads
         reads = reads.loc[~samples_with_illegal_coverage]
 
-    # import pdb; pdb.set_trace()
     maybe_rejected = reads.apply(
         lambda sample: _single_maybe_reject(
             sample, isoform1_ids, isoform2_ids,
@@ -551,7 +550,6 @@ def _maybe_parallelize_psi(
                 uneven_coverage_multiplier=uneven_coverage_multiplier,
                 method=method)
             for event_id, event_df in grouped)
-        import pdb; pdb.set_trace()
 
     return summaries
 
