@@ -265,7 +265,7 @@ def _single_isoform_maybe_reject(
                                    '>= {}'.format(min_reads)
     elif (isoform1 == 0).all() and (isoform2 >= min_reads).all():
         return isoform1, isoform2, 'Case 5: Perfect inclusion, all inclusion' \
-                                   'junctions have reads' \
+                                   ' junctions have reads' \
                                    '>= {}'.format(min_reads)
     elif (isoform1 >= min_reads).all() and (isoform2 >= min_reads).all():
         return isoform1, isoform2, 'Case 6: Sufficient coverage on both ' \
