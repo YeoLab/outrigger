@@ -162,6 +162,9 @@ def _maybe_reject(reads, isoform1_ids, isoform2_ids, incompatible_ids,
             n_junctions=n_junctions, min_reads=min_reads,
             uneven_coverage_multiplier=uneven_coverage_multiplier), axis=1)
     all_rejected = pd.concat([maybe_rejected, incompatible_coverage])
+
+    # Return rejected or not samples in the same order as they were given
+    all_rejected = all_rejected.loc[reads.index]
     return all_rejected
 
 
