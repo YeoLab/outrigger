@@ -162,7 +162,10 @@ def _maybe_reject(reads, isoform1_ids, isoform2_ids, incompatible_ids,
             sample, isoform1_ids, isoform2_ids,
             n_junctions=n_junctions, min_reads=min_reads,
             uneven_coverage_multiplier=uneven_coverage_multiplier), axis=1)
-    all_rejected = pd.concat([maybe_rejected, incompatible_coverage])
+    if isinstance(incompatible_ids, list):
+        all_rejected = pd.concat([maybe_rejected, incompatible_coverage])
+    else:
+        all_rejected = maybe_rejected
 
     # Return rejected or not samples in the same order as they were given
     all_rejected = all_rejected.loc[original_samples]
@@ -270,7 +273,7 @@ def _single_isoform_maybe_reject(
     elif (isoform1 == 0).all() and (isoform2 >= min_reads).all():
         return isoform1, isoform2, 'Case 5: Perfect inclusion, all inclusion' \
                                    ' junctions have reads' \
-                                   '>= {}'.format(min_reads)
+                                   ' >= {}'.format(min_reads)
     elif (isoform1 >= min_reads).all() and (isoform2 >= min_reads).all():
         return isoform1, isoform2, 'Case 6: Sufficient coverage on both ' \
                                    'isoforms, all junctions have reads ' \
@@ -513,8 +516,6 @@ def _single_event_psi(event_id, event_df, junction_reads_2d,
         incompatible_junction_ids, n_junctions, min_reads=min_reads,
         uneven_coverage_multiplier=uneven_coverage_multiplier)
 
-    import pdb; pdb.set_trace()
-
     isoform1 = maybe_rejected[isoform1_junction_ids].apply(
         _scale, n_junctions=n_junctions1, method=method, axis=1)
     isoform2 = maybe_rejected[isoform2_junction_ids].apply(
@@ -525,7 +526,9 @@ def _single_event_psi(event_id, event_df, junction_reads_2d,
     summary = _summarize_event(event_id, reads, maybe_rejected, psi,
                                isoform1_junction_ids, isoform2_junction_ids,
                                isoform1_junction_numbers,
-                               isoform2_junction_numbers)
+                               isoform2_junction_numbers,
+                               incompatible_junctions=incompatible_junction_ids)
+
     return summary
 
 def _maybe_parallelize_psi(
