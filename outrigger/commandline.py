@@ -1013,7 +1013,7 @@ class Psi(SubcommandAfterIndex):
                           'score) to {filename} ...'.format(
                 name=splice_name, abbrev=splice_abbrev, filename=csv))
             self.maybe_make_folder(os.path.dirname(csv))
-            summary.to_csv(csv, na_rep='NA')
+            summary.to_csv(csv, na_rep='NA', ignore_index=True)
             psis.append(type_psi)
             util.done()
 
