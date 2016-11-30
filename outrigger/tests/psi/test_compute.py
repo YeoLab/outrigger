@@ -50,16 +50,16 @@ def junction_reads_for_rejecting(
         return mutually_exclusive_exon_junction_reads_for_rejecting
 
 
-def test__maybe_reject_events(junction_reads_for_rejecting,
-                              dummy_isoform1_junction_numbers,
-                              dummy_isoform2_junction_numbers):
-    from outrigger.psi.compute import _maybe_reject
+def test__single_isoform_maybe_reject(junction_reads_for_rejecting,
+                                      dummy_isoform1_junction_numbers,
+                                      dummy_isoform2_junction_numbers):
+    from outrigger.psi.compute import _single_isoform_maybe_reject
 
     n_junctions = len(dummy_isoform1_junction_numbers) \
                   + len(dummy_isoform2_junction_numbers)
 
     for i, row in junction_reads_for_rejecting.iterrows():
-        isoform1, isoform2, case = _maybe_reject(
+        isoform1, isoform2, case = _single_isoform_maybe_reject(
             row[dummy_isoform1_junction_numbers],
             row[dummy_isoform2_junction_numbers],
             n_junctions=n_junctions)
@@ -285,56 +285,6 @@ def dummy_events(splice_type):
         # if strand == '+':
         return ['isoform1=junction:chr1:176-299:+@exon:chr1:300-350:+@junction:chr1:351-399:+|isoform2=junction:chr1:176-224:+@exon:chr1:225-250:+@junction:chr1:251-399:+']  # noqa
 
-
-def test_dummy_calculate_psi(dummy_splice_junction_reads,
-                             dummy_isoform_reads,
-                             dummy_isoform1_junction_ids,
-                             dummy_isoform2_junction_ids,
-                             dummy_isoform1_junction_numbers,
-                             dummy_isoform2_junction_numbers,
-                             dummy_exons_to_junctions,
-                             dummy_events, splice_type):
-    from outrigger.psi.compute import calculate_psi, MIN_READS
-
-    isoform_reads = dummy_isoform_reads.copy()
-    # isoform_reads[isoform_reads < MIN_READS] = np.nan
-
-
-    isoform1_reads = isoform_reads[dummy_isoform1_junction_ids].sum()
-
-    isoform2_reads = isoform_reads[dummy_isoform2_junction_ids].sum()
-
-    # This tests whether both are greater than zero
-    if isoform1_reads or isoform2_reads:
-        multiplier = float(len(dummy_isoform2_junction_ids)) / \
-                     len(dummy_isoform1_junction_ids)
-        true_psi = isoform2_reads/(isoform2_reads +
-                                   multiplier * isoform1_reads)
-    else:
-        true_psi = np.nan
-
-    other_isoform1_psi = 0. if isoform1_reads > 0 else np.nan
-
-    if splice_type == 'se':
-        s = """sample_id,{0}# noqa
-sample1,{2},{1},{2}""".format(','.join(dummy_events), true_psi,
-                              other_isoform1_psi)
-    if splice_type == 'mxe':
-        s = """sample_id,{0}# noqa
-sample1,{1}""".format(','.join(dummy_events), true_psi)
-
-    true = pd.read_csv(six.StringIO(s), index_col=0, comment='#')
-    true = true.dropna(axis=1)
-
-    if true.empty:
-        true = pd.DataFrame(index=dummy_splice_junction_reads.index.levels[1])
-
-    test = calculate_psi(dummy_exons_to_junctions, dummy_splice_junction_reads,
-                         isoform1_junctions=dummy_isoform1_junction_numbers,
-                         isoform2_junctions=dummy_isoform2_junction_numbers,
-                         n_jobs=1)
-
-    pdt.assert_frame_equal(test, true)
 
 
 
