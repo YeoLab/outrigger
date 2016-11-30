@@ -238,15 +238,16 @@ def _single_isoform_maybe_reject(
         Reason for rejecting or retaining the event
     """
 
+    if (isoform1 == 0).all() and (isoform2 == 0).all():
+        # Case 1: All reads are zero
+        return None, None, 'Case 1: No observed reads'
+
     isoform1 = _single_sample_check_unequal_read_coverage(
         isoform1, uneven_coverage_multiplier)
     isoform2 = _single_sample_check_unequal_read_coverage(
         isoform2, uneven_coverage_multiplier)
 
-    if (isoform1 == 0).all() and (isoform2 == 0).all():
-        # Case 1: All reads are zero
-        return None, None, 'Case 1: No observed reads'
-    elif isoform1 is None or isoform2 is None:
+    if isoform1 is None or isoform2 is None:
         # Case 2: Unbalanced number of reads between two sides of an isoform
         return None, None, "Case 2: Unequal read coverage"
     elif (isoform1 >= min_reads).all() and (isoform2 == 0).all():
