@@ -3,7 +3,7 @@ import logging
 import joblib
 import pandas as pd
 
-from ..common import ILLEGAL_JUNCTIONS, MIN_READS, READS, \
+from ..common import INCOMPATIBLE_JUNCTIONS, MIN_READS, READS, \
     UNEVEN_COVERAGE_MULTIPLIER, SAMPLE_ID, EVENT_ID, NOTES, PSI, \
     JUNCTION_ID
 from ..util import progress, done
@@ -104,7 +104,7 @@ def _single_sample_check_unequal_read_coverage(
         return isoform
 
 
-def _maybe_reject(reads, isoform1_ids, isoform2_ids, illegal_ids,
+def _maybe_reject(reads, isoform1_ids, isoform2_ids, incompatible_ids,
                   n_junctions, min_reads=MIN_READS,
                   uneven_coverage_multiplier=UNEVEN_COVERAGE_MULTIPLIER):
     """Remove samples with reads that are incompatible with event definition
@@ -121,7 +121,7 @@ def _maybe_reject(reads, isoform1_ids, isoform2_ids, illegal_ids,
         Column names in ``reads`` tha correspond to the junction ids that are
         contained within isoform 2, e.g. ['junction:chr1:100-200:+',
         'junction:chr1:300-400:+']
-    illegal_ids : list of str
+    incompatible_ids : list of str
         Column names in ``reads`` tha correspond to the junction ids that are
         contained within junctions that are not compatible with the event
         definition
@@ -142,17 +142,17 @@ def _maybe_reject(reads, isoform1_ids, isoform2_ids, illegal_ids,
     -------
 
     """
-    if not isinstance(illegal_ids, float):
-        illegal_junctions_with_coverage = reads[illegal_ids] >= min_reads
-        samples_with_illegal_coverage = illegal_junctions_with_coverage.any(
+    if not isinstance(incompatible_ids, float):
+        incompatible_junctions_with_coverage = reads[incompatible_ids] >= min_reads
+        samples_with_incompatible_coverage = incompatible_junctions_with_coverage.any(
             axis=1)
-        reads = reads.loc[~samples_with_illegal_coverage]
+        reads = reads.loc[~samples_with_incompatible_coverage]
 
         # Make a dataframe with notes explaining why
-        index = samples_with_illegal_coverage[samples_with_illegal_coverage].index
+        index = samples_with_incompatible_coverage[samples_with_incompatible_coverage].index
         columns = reads.columns
-        illegal_coverage = pd.DataFrame(None, index=index, columns=columns)
-        illegal_coverage[NOTES] = 'Case 1: >= {} reads on junctions that are' \
+        incompatible_coverage = pd.DataFrame(None, index=index, columns=columns)
+        incompatible_coverage[NOTES] = 'Case 1: >= {} reads on junctions that are' \
                                   ' incompatible with the annotation'.format(
             min_reads)
 
@@ -161,7 +161,7 @@ def _maybe_reject(reads, isoform1_ids, isoform2_ids, illegal_ids,
             sample, isoform1_ids, isoform2_ids,
             n_junctions=n_junctions, min_reads=min_reads,
             uneven_coverage_multiplier=uneven_coverage_multiplier), axis=1)
-    all_rejected = pd.concat([maybe_rejected, illegal_coverage])
+    all_rejected = pd.concat([maybe_rejected, incompatible_coverage])
     return all_rejected
 
 
@@ -470,7 +470,7 @@ def _single_event_psi(event_id, event_df, junction_reads_2d,
         isoform1_junction_numbers].tolist()
     isoform2_junction_ids = junction_locations[
         isoform2_junction_numbers].tolist()
-    illegal_junction_ids = junction_locations[ILLEGAL_JUNCTIONS]
+    incompatible_junction_ids = junction_locations[INCOMPATIBLE_JUNCTIONS]
 
     junction_cols = isoform1_junction_ids + isoform2_junction_ids
 
@@ -482,17 +482,17 @@ def _single_event_psi(event_id, event_df, junction_reads_2d,
                                                 isoform2_junction_numbers)
         return pd.DataFrame(columns=summary_columns)
 
-    if not isinstance(illegal_junction_ids, float):
-        illegal_junction_ids = illegal_junction_ids.split('|')
-        illegal_junction_ids = junction_reads_2d.columns.intersection(
-            illegal_junction_ids).tolist()
-        junction_cols += illegal_junction_ids
+    if not isinstance(incompatible_junction_ids, float):
+        incompatible_junction_ids = incompatible_junction_ids.split('|')
+        incompatible_junction_ids = junction_reads_2d.columns.intersection(
+            incompatible_junction_ids).tolist()
+        junction_cols += incompatible_junction_ids
 
     reads = junction_reads_2d[junction_cols]
 
     maybe_rejected = _maybe_reject(
         reads, isoform1_junction_ids, isoform2_junction_ids,
-        illegal_junction_ids, n_junctions, min_reads=min_reads,
+        incompatible_junction_ids, n_junctions, min_reads=min_reads,
         uneven_coverage_multiplier=uneven_coverage_multiplier)
 
     import pdb; pdb.set_trace()

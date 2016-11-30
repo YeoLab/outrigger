@@ -245,7 +245,7 @@ def dummy_splice_junction_reads(dummy_isoform_reads):
 
 
 @pytest.fixture
-def illegal_junctions(splice_type, dummy_junction14, dummy_junction23):
+def incompatible_junctions(splice_type, dummy_junction14, dummy_junction23):
     if splice_type == 'se':
         return np.nan
     if splice_type == 'mxe':
@@ -255,12 +255,12 @@ def illegal_junctions(splice_type, dummy_junction14, dummy_junction23):
 @pytest.fixture
 def dummy_junction_locations(dummy_legal_junction_numbers,
                              dummy_junction_number_to_id,
-                             illegal_junctions):
-    from outrigger.common import ILLEGAL_JUNCTIONS
+                             incompatible_junctions):
+    from outrigger.common import INCOMPATIBLE_JUNCTIONS
 
     d = {junction_xy: dummy_junction_number_to_id[junction_xy]
          for junction_xy in dummy_legal_junction_numbers}
-    d[ILLEGAL_JUNCTIONS] = illegal_junctions
+    d[INCOMPATIBLE_JUNCTIONS] = incompatible_junctions
     return pd.Series(d)
 
 
