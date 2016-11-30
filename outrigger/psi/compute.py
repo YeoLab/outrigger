@@ -156,9 +156,9 @@ def _maybe_reject(reads, isoform1_ids, isoform2_ids, illegal_ids,
     return maybe_rejected
 
 
-def _single_maybe_reject(sample, isoform1_ids, isoform2_ids,
-                         n_junctions, min_reads=MIN_READS,
-                         uneven_coverage_multiplier=UNEVEN_COVERAGE_MULTIPLIER):
+def _single_maybe_reject(
+    sample, isoform1_ids, isoform2_ids, n_junctions, min_reads=MIN_READS,
+    uneven_coverage_multiplier=UNEVEN_COVERAGE_MULTIPLIER):
     """Given a row of junction reads, return a filtered row of reads
 
     For a single sample's junction reads of an isoform, check if they should be
