@@ -142,6 +142,7 @@ def _maybe_reject(reads, isoform1_ids, isoform2_ids, incompatible_ids,
     -------
 
     """
+    original_samples = reads.index
     if isinstance(incompatible_ids, list):
         incompatible_junctions_with_coverage = reads[incompatible_ids] >= min_reads
         samples_with_incompatible_coverage = incompatible_junctions_with_coverage.any(
@@ -164,7 +165,7 @@ def _maybe_reject(reads, isoform1_ids, isoform2_ids, incompatible_ids,
     all_rejected = pd.concat([maybe_rejected, incompatible_coverage])
 
     # Return rejected or not samples in the same order as they were given
-    all_rejected = all_rejected.loc[reads.index]
+    all_rejected = all_rejected.loc[original_samples]
     return all_rejected
 
 
