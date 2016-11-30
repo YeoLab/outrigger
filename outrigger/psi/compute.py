@@ -142,7 +142,7 @@ def _maybe_reject(reads, isoform1_ids, isoform2_ids, incompatible_ids,
     -------
 
     """
-    if not isinstance(incompatible_ids, float):
+    if isinstance(incompatible_ids, list):
         incompatible_junctions_with_coverage = reads[incompatible_ids] >= min_reads
         samples_with_incompatible_coverage = incompatible_junctions_with_coverage.any(
             axis=1)
@@ -321,16 +321,24 @@ def _single_isoform_maybe_reject(
 
 
 def _make_summary_columns(isoform1_junction_numbers,
-                          isoform2_junction_numbers):
+                          isoform2_junction_numbers,
+                          incompatible_junctions=None):
     isoform1_numbers = ['isoform1_' + x for x in isoform1_junction_numbers]
     isoform2_numbers = ['isoform2_' + x for x in isoform2_junction_numbers]
     column_order = [SAMPLE_ID, EVENT_ID] + isoform1_numbers \
                    + isoform2_numbers + [PSI, NOTES]
+    if isinstance(incompatible_junctions, list):
+        incompatible_numbers = ['incompatible_junction{}'.format(i)
+                                for i, x in enumerate(incompatible_junctions)]
+        column_order += incompatible_numbers
+
     return column_order
+
 
 def _summarize_event(event_id, reads, maybe_rejected, psi,
                      isoform1_junction_ids, isoform2_junction_ids,
-                     isoform1_junction_numbers, isoform2_junction_numbers):
+                     isoform1_junction_numbers, isoform2_junction_numbers,
+                     incompatible_junctions=None):
     """Make table summarizing junction reads, psi, and notes for an event
 
     Parameters
@@ -369,7 +377,8 @@ def _summarize_event(event_id, reads, maybe_rejected, psi,
         explain why or why not Psi was calculated
     """
     summary_columns = _make_summary_columns(isoform1_junction_numbers,
-                                            isoform2_junction_numbers)
+                                            isoform2_junction_numbers,
+                                            incompatible_junctions)
 
     if not maybe_rejected.empty:
         column_renamer = dict(zip(isoform1_junction_ids,
@@ -378,6 +387,10 @@ def _summarize_event(event_id, reads, maybe_rejected, psi,
         column_renamer.update(dict(zip(isoform2_junction_ids,
                                        [x for x in summary_columns
                                         if x.startswith('isoform2_')])))
+        if isinstance(incompatible_junctions, list):
+            column_renamer.update(dict(zip(incompatible_junctions,
+                                           [x for x in summary_columns
+                                            if x.startswith('incompatible')])))
 
         summary = reads.rename(columns=column_renamer)
         summary[NOTES] = maybe_rejected[NOTES]
@@ -479,7 +492,8 @@ def _single_event_psi(event_id, event_df, junction_reads_2d,
     junctions_in_data = junction_reads_2d.columns.intersection(junction_cols)
     if len(junctions_in_data) < n_junctions:
         summary_columns = _make_summary_columns(isoform1_junction_numbers,
-                                                isoform2_junction_numbers)
+                                                isoform2_junction_numbers,
+                                                incompatible_junction_ids)
         return pd.DataFrame(columns=summary_columns)
 
     if not isinstance(incompatible_junction_ids, float):
