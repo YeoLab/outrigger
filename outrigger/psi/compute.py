@@ -144,17 +144,21 @@ def _maybe_reject(reads, isoform1_ids, isoform2_ids, incompatible_ids,
     """
     original_samples = reads.index
     if isinstance(incompatible_ids, list):
-        incompatible_junctions_with_coverage = reads[incompatible_ids] >= min_reads
-        samples_with_incompatible_coverage = incompatible_junctions_with_coverage.any(
-            axis=1)
+        incompatible_junctions_with_coverage = reads[incompatible_ids] \
+                                               >= min_reads
+        samples_with_incompatible_coverage = \
+            incompatible_junctions_with_coverage.any(axis=1)
         reads = reads.loc[~samples_with_incompatible_coverage]
 
         # Make a dataframe with notes explaining why
-        index = samples_with_incompatible_coverage[samples_with_incompatible_coverage].index
+        index = samples_with_incompatible_coverage[
+            samples_with_incompatible_coverage].index
         columns = reads.columns
-        incompatible_coverage = pd.DataFrame(None, index=index, columns=columns)
-        incompatible_coverage[NOTES] = 'Case 1: >= {} reads on junctions that are' \
-                                  ' incompatible with the annotation'.format(
+        incompatible_coverage = pd.DataFrame(None, index=index,
+                                             columns=columns)
+        incompatible_coverage[NOTES] = 'Case 1: >= {} reads on junctions ' \
+                                       'that are incompatible with the ' \
+                                       'annotation'.format(
             min_reads)
 
     maybe_rejected = reads.apply(
@@ -412,7 +416,7 @@ def _summarize_event(event_id, reads, maybe_rejected, psi,
     return summary
 
 
-def _single_event_psi(event_id, event_df, junction_reads_2d,
+def _single_event_psi(event_id, event_df, reads_2d,
                       isoform1_junction_numbers, isoform2_junction_numbers,
                       min_reads=MIN_READS, method='mean',
                       uneven_coverage_multiplier=UNEVEN_COVERAGE_MULTIPLIER):
@@ -496,7 +500,7 @@ def _single_event_psi(event_id, event_df, junction_reads_2d,
 
     # If this event from the index doesn't exist in the dataset, return an
     # empty dataframe
-    junctions_in_data = junction_reads_2d.columns.intersection(junction_cols)
+    junctions_in_data = reads_2d.columns.intersection(junction_cols)
     if len(junctions_in_data) < n_junctions:
         summary_columns = _make_summary_columns(isoform1_junction_numbers,
                                                 isoform2_junction_numbers,
@@ -505,11 +509,11 @@ def _single_event_psi(event_id, event_df, junction_reads_2d,
 
     if not isinstance(incompatible_junction_ids, float):
         incompatible_junction_ids = incompatible_junction_ids.split('|')
-        incompatible_junction_ids = junction_reads_2d.columns.intersection(
+        incompatible_junction_ids = reads_2d.columns.intersection(
             incompatible_junction_ids).tolist()
         junction_cols += incompatible_junction_ids
 
-    reads = junction_reads_2d[junction_cols]
+    reads = reads_2d[junction_cols]
 
     maybe_rejected = _maybe_reject(
         reads, isoform1_junction_ids, isoform2_junction_ids,
