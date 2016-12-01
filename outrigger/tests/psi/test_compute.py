@@ -353,17 +353,17 @@ def event_df_csv(splice_type, tasic2016_intermediate_psi):
                             splice_type=splice_type))
 
 @pytest.fixture
-def summary_csv(splice_type, tasic2016_intermediate_psi):
+def single_event_summary_csv(splice_type, tasic2016_intermediate_psi):
     return os.path.join(tasic2016_intermediate_psi, splice_type, 'summary.csv')
 
 
 def test__single_event_psi(event_id, event_df_csv, reads2d,
                            isoform1_junctions, isoform2_junctions,
-                           summary_csv):
+                           single_event_summary_csv):
     from outrigger.psi.compute import _single_event_psi
     event_df = pd.read_csv(event_df_csv, index_col=0)
 
-    true = pd.read_csv(summary_csv)
+    true = pd.read_csv(single_event_summary_csv)
 
     test = _single_event_psi(event_id, event_df, reads2d,
                              isoform1_junctions, isoform2_junctions)
@@ -380,8 +380,19 @@ def psi_df(psi_csv):
     return pd.read_csv(psi_csv, index_col=0)
 
 
+@pytest.fixture
+def summary_csv(splice_type, tasic2016_outrigger_output_psi):
+    return os.path.join(tasic2016_outrigger_output_psi, splice_type,
+                        'summary.csv')
+
+
+@pytest.fixture
+def summary_df(summary_csv):
+    return pd.read_csv(summary_csv)
+
+
 def test__maybe_parallelize_psi(event_annotation, reads2d,
-                                isoform1_junctions, isoform2_junctions, psi_df,
+                                isoform1_junctions, isoform2_junctions,
                                 capsys, n_jobs):
     from outrigger.psi.compute import _maybe_parallelize_psi
 
@@ -389,6 +400,8 @@ def test__maybe_parallelize_psi(event_annotation, reads2d,
                                    isoform1_junctions, isoform2_junctions,
                                    n_jobs=n_jobs)
     tests = [t for t in tests if t is not None]
+    assert False
+
     trues = [column.dropna() for name, column in psi_df.iteritems()]
 
     out, err = capsys.readouterr()
@@ -402,11 +415,19 @@ def test__maybe_parallelize_psi(event_annotation, reads2d,
         pdt.assert_series_equal(test, true)
 
 
-def test_calculate_psi(event_annotation, junction_reads_2d,
-                       isoform1_junctions, isoform2_junctions, psi_df):
+def test_calculate_psi(event_annotation, reads2d,
+                       isoform1_junctions, isoform2_junctions,
+                       psi_df, summary_df):
     from outrigger.psi.compute import calculate_psi
 
-    test = calculate_psi(event_annotation, junction_reads_2d,
-                         isoform1_junctions, isoform2_junctions)
-    true = psi_df
-    pdt.assert_frame_equal(test, true)
+    true_psi = psi_df
+    true_summary = summary_df
+
+    test_psi, test_summary = calculate_psi(event_annotation, reads2d,
+                                           isoform1_junctions,
+                                           isoform2_junctions)
+    # When psi is written to CSV, only the index name is preserved, not the
+    # column names so need to get rid of it for these comparisons
+    test_psi.columns.name = None
+    pdt.assert_frame_equal(test_psi, true_psi)
+    pdt.assert_frame_equal(test_summary, true_summary)
