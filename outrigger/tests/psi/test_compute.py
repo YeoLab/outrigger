@@ -298,13 +298,6 @@ def event_id(splice_type):
 
 
 @pytest.fixture
-def event_df_csv(splice_type, tasic2016_intermediate_psi):
-    return os.path.join(tasic2016_intermediate_psi,
-                        '{splice_type}_event_df.csv'.format(
-                            splice_type=splice_type))
-
-
-@pytest.fixture
 def splice_junction_reads_csv(tasic2016_outrigger_junctions):
     return os.path.join(tasic2016_outrigger_junctions, 'reads.csv')
 
@@ -354,6 +347,30 @@ def isoform2_junctions(splice_type):
 
 
 @pytest.fixture
+def event_df_csv(splice_type, tasic2016_intermediate_psi):
+    return os.path.join(tasic2016_intermediate_psi,
+                        '{splice_type}_event_df.csv'.format(
+                            splice_type=splice_type))
+
+@pytest.fixture
+def summary_csv(splice_type, tasic2016_intermediate_psi):
+    return os.path.join(tasic2016_intermediate_psi, splice_type, 'summary.csv')
+
+
+def test__single_event_psi(event_id, event_df_csv, reads_2d,
+                           isoform1_junctions, isoform2_junctions,
+                           summary_csv):
+    from outrigger.psi.compute import _single_event_psi
+    event_df = pd.read_csv(event_df_csv, index_col=0)
+
+    true = pd.read_csv(summary_csv)
+
+    test = _single_event_psi(event_id, event_df, reads_2d,
+                             isoform1_junctions, isoform2_junctions)
+    pdt.assert_frame_equal(test, true)
+
+
+@pytest.fixture
 def psi_csv(splice_type, tasic2016_outrigger_output_psi):
     return os.path.join(tasic2016_outrigger_output_psi, splice_type, 'psi.csv')
 
@@ -361,18 +378,6 @@ def psi_csv(splice_type, tasic2016_outrigger_output_psi):
 @pytest.fixture
 def psi_df(psi_csv):
     return pd.read_csv(psi_csv, index_col=0)
-
-
-def test__single_event_psi(event_id, event_df_csv, reads_2d,
-                           isoform1_junctions, isoform2_junctions, psi_df):
-    from outrigger.psi.compute import _single_event_psi
-    event_df = pd.read_csv(event_df_csv, index_col=0)
-
-    test = _single_event_psi(event_id, event_df, reads_2d,
-                             isoform1_junctions, isoform2_junctions)
-    # true = psi_df[test.name]
-    # pdt.assert_series_equal(test, true)
-    assert False
 
 
 def test__maybe_parallelize_psi(event_annotation, reads_2d,
