@@ -393,16 +393,14 @@ def summary_df(summary_csv):
 
 def test__maybe_parallelize_psi(event_annotation, reads2d,
                                 isoform1_junctions, isoform2_junctions,
-                                capsys, n_jobs):
+                                capsys, n_jobs, summary_df):
     from outrigger.psi.compute import _maybe_parallelize_psi
 
     tests = _maybe_parallelize_psi(event_annotation, reads2d,
                                    isoform1_junctions, isoform2_junctions,
                                    n_jobs=n_jobs)
     tests = [t for t in tests if t is not None]
-    assert False
-
-    trues = [column.dropna() for name, column in psi_df.iteritems()]
+    trues = [df for name, df in summary_df.groupby('event_id')]
 
     out, err = capsys.readouterr()
 
@@ -412,7 +410,7 @@ def test__maybe_parallelize_psi(event_annotation, reads2d,
         assert 'Parallelizing' in out
 
     for test, true in zip(tests, trues):
-        pdt.assert_series_equal(test, true)
+        pdt.assert_frame_equal(test, true)
 
 
 def test_calculate_psi(event_annotation, reads2d,
