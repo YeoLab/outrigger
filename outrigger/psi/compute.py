@@ -416,7 +416,7 @@ def _summarize_event(event_id, reads, maybe_rejected, psi,
     return summary
 
 
-def _single_event_psi(event_id, event_df, reads_2d,
+def _single_event_psi(event_id, event_df, reads2d,
                       isoform1_junction_numbers, isoform2_junction_numbers,
                       min_reads=MIN_READS, method='mean',
                       uneven_coverage_multiplier=UNEVEN_COVERAGE_MULTIPLIER):
@@ -500,7 +500,7 @@ def _single_event_psi(event_id, event_df, reads_2d,
 
     # If this event from the index doesn't exist in the dataset, return an
     # empty dataframe
-    junctions_in_data = reads_2d.columns.intersection(junction_cols)
+    junctions_in_data = reads2d.columns.intersection(junction_cols)
     if len(junctions_in_data) < n_junctions:
         summary_columns = _make_summary_columns(isoform1_junction_numbers,
                                                 isoform2_junction_numbers,
@@ -509,11 +509,11 @@ def _single_event_psi(event_id, event_df, reads_2d,
 
     if not isinstance(incompatible_junction_ids, float):
         incompatible_junction_ids = incompatible_junction_ids.split('|')
-        incompatible_junction_ids = reads_2d.columns.intersection(
+        incompatible_junction_ids = reads2d.columns.intersection(
             incompatible_junction_ids).tolist()
         junction_cols += incompatible_junction_ids
 
-    reads = reads_2d[junction_cols]
+    reads = reads2d[junction_cols]
 
     maybe_rejected = _maybe_reject(
         reads, isoform1_junction_ids, isoform2_junction_ids,
@@ -532,11 +532,11 @@ def _single_event_psi(event_id, event_df, reads_2d,
                                isoform1_junction_numbers,
                                isoform2_junction_numbers,
                                incompatible_junctions=incompatible_junction_ids)
-
     return summary
 
+
 def _maybe_parallelize_psi(
-    event_annotation, junction_reads_2d, isoform1_junctions,
+    event_annotation, reads2d, isoform1_junctions,
     isoform2_junctions, min_reads=MIN_READS, method='mean',
     uneven_coverage_multiplier=UNEVEN_COVERAGE_MULTIPLIER, n_jobs=-1):
     """If n_jobs!=1, run the parallelized version of psi
@@ -547,7 +547,7 @@ def _maybe_parallelize_psi(
         A table of all possible events, with event ids as the index (row names)
         and all junctions described, and contains the columns described by
         ``isoform1_junctions`` and ``isoform_junctions``
-    junction_reads_2d : pandas.DataFrame
+    reads2d : pandas.DataFrame
         A (n_samples, n_total_junctions) table of the number of reads found in
         all samples' exon-exon, all junctions. Very very large, e.g.
         1000 samples x 50,000 junctions = 50 million elements
@@ -597,7 +597,7 @@ def _maybe_parallelize_psi(
         summaries = []
         for event_id, event_df in grouped:
             summary = _single_event_psi(
-                event_id, event_df, junction_reads_2d,
+                event_id, event_df, reads2d,
                 isoform1_junctions, isoform2_junctions,
                 min_reads=min_reads,
                 uneven_coverage_multiplier=uneven_coverage_multiplier,
@@ -609,7 +609,7 @@ def _maybe_parallelize_psi(
                  "CPUs ...\n".format(n_events, processors))
         summaries = joblib.Parallel(n_jobs=n_jobs)(
             joblib.delayed(_single_event_psi)(
-                event_id, event_df, junction_reads_2d,
+                event_id, event_df, reads2d,
                 isoform1_junctions, isoform2_junctions,
                 min_reads=min_reads,
                 uneven_coverage_multiplier=uneven_coverage_multiplier,
@@ -619,7 +619,7 @@ def _maybe_parallelize_psi(
     return summaries
 
 
-def calculate_psi(event_annotation, junction_reads_2d,
+def calculate_psi(event_annotation, reads2d,
                   isoform1_junctions, isoform2_junctions,
                   min_reads=MIN_READS, method='mean',
                   uneven_coverage_multiplier=UNEVEN_COVERAGE_MULTIPLIER,
@@ -632,7 +632,7 @@ def calculate_psi(event_annotation, junction_reads_2d,
         A table where each row represents a single splicing event. The required
        columns are the ones specified in `isoform1_junctions`,
         `isoform2_junctions`, and `event_col`.
-    junction_reads_2d : pandas.DataFrame
+    reads2d : pandas.DataFrame
         A (n_samples, n_total_junctions) table of the number of reads found in
         all samples' exon-exon, all junctions. Very very large, e.g.
         1000 samples x 50,000 junctions = 50 million elements
@@ -672,10 +672,10 @@ def calculate_psi(event_annotation, junction_reads_2d,
         reads, percent spliced-in (Psi), and notes on each event in each
         sample, that explains why or why not Psi was calculated
     """
-    summaries = _maybe_parallelize_psi(event_annotation, junction_reads_2d,
-                                  isoform1_junctions, isoform2_junctions,
-                                  min_reads, method,
-                                  uneven_coverage_multiplier, n_jobs)
+    summaries = _maybe_parallelize_psi(event_annotation, reads2d,
+                                       isoform1_junctions, isoform2_junctions,
+                                       min_reads, method,
+                                       uneven_coverage_multiplier, n_jobs)
     summary = pd.concat(summaries, ignore_index=True)
 
     psi = summary.pivot(index=SAMPLE_ID, columns=EVENT_ID, values=PSI)
