@@ -164,9 +164,10 @@ def test_read_multiple_bams(bam_filenames, multiple_bams_reads_table_csvs,
     from outrigger.common import SAMPLE_ID
 
     test = read_multiple_bams(bam_filenames, ignore_multimapping)
-    test = test.sort_values(SAMPLE_ID)
+    test = test.sort_values(test.columns)
 
     dfs = [pd.read_csv(csv) for csv in multiple_bams_reads_table_csvs]
     true = pd.concat(dfs, ignore_index=True)
+    true = true.sort_values(true.columns)
 
     pdt.assert_frame_equal(test, true)
