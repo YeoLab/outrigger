@@ -270,16 +270,16 @@ def _single_isoform_maybe_reject(
             (insufficient1.all() and (sufficient2.sum() < len(isoform2))):
         # Case 13: isoform1 and isoform2 don't have sufficient reads
         return None, None, "Case 4: Only one junction with sufficient reads"
+    elif (zero1.any() and ~zero1.all()) or (zero2.any() and ~zero2.all()):
+        return None, None, "Case 5: One or more junction is zero, but is " \
+                           "incompatible with annotation"
 
     isoform1 = _single_sample_check_unequal_read_coverage(
         isoform1, uneven_coverage_multiplier)
     isoform2 = _single_sample_check_unequal_read_coverage(
         isoform2, uneven_coverage_multiplier)
 
-    if (zero1.any() and ~zero1.all()) or (zero2.any() and ~zero2.all()):
-        return None, None, "Case 5: One or more junction is zero, but is " \
-                           "incompatible with annotation"
-    elif isoform1 is None or isoform2 is None:
+    if isoform1 is None or isoform2 is None:
         return None, None, "Case 6: Unequal read coverage (one side has at " \
                            "least {}x more reads)".format(
                                 uneven_coverage_multiplier)
