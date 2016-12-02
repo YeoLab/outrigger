@@ -77,8 +77,9 @@ def test__single_isoform_maybe_reject(junction_reads_for_rejecting,
             print(row.name, 'passed')
         except AssertionError:
             raise AssertionError('The junction configuration [{title}] did '
-                                 'not pass ({case})'.format(
-                title=row.name, case=case))
+                                 'not pass (Test: {test_case}, '
+                                 'True: {true_case})'.format(
+                title=row.name, test_case=case, true_case=row['case']))
 
 
 @pytest.fixture(params=[({'junction12': 1000, 'junction23': 20}, 'unequal'),
