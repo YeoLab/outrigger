@@ -34,8 +34,8 @@ class CommandLine(object):
     def __init__(self, input_options=None):
         self.parser = argparse.ArgumentParser(
             description='outrigger ({version}). Calculate "percent-spliced in"'
-                        ' (Psi) scores of alternative splicing on a *de novo*, '
-                        'custom-built splicing index -- '
+                        ' (Psi) scores of alternative splicing on a *de novo*,'
+                        ' custom-built splicing index -- '
                         'just for you!'.format(version=__version__))
         self.parser.add_argument(
             '--version', action='version',
@@ -725,7 +725,6 @@ class Index(Subcommand):
         metadata_csv = os.path.join(self.junctions_folder, METADATA_CSV)
         metadata = self.junction_metadata(spliced_reads, metadata_csv)
 
-
         db = self.maybe_make_db()
 
         junction_exon_triples = self.make_exon_junction_adjacencies(
@@ -1008,8 +1007,9 @@ class Psi(SubcommandAfterIndex):
                                'summary.csv'.format(splice_abbrev))
             util.progress('Writing {name} ({abbrev}) event summaries (e.g. '
                           'number of reads, why an event does not have a Psi '
-                          'score) to {filename} ...'.format(
-                name=splice_name, abbrev=splice_abbrev, filename=csv))
+                          'score) to {filename} ...'
+                          ''.format(name=splice_name, abbrev=splice_abbrev,
+                                    filename=csv))
             self.maybe_make_folder(os.path.dirname(csv))
             summary.to_csv(csv, na_rep='NA', index=False)
             psis.append(type_psi)

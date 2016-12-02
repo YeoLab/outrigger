@@ -3,10 +3,9 @@ import logging
 import joblib
 import pandas as pd
 
-from ..common import INCOMPATIBLE_JUNCTIONS, MIN_READS, READS, \
-    UNEVEN_COVERAGE_MULTIPLIER, SAMPLE_ID, EVENT_ID, NOTES, PSI, \
-    JUNCTION_ID
-from ..util import progress, done
+from ..common import INCOMPATIBLE_JUNCTIONS, MIN_READS, \
+    UNEVEN_COVERAGE_MULTIPLIER, SAMPLE_ID, EVENT_ID, NOTES, PSI
+from ..util import progress
 
 
 logging.basicConfig()
@@ -60,7 +59,7 @@ def _single_sample_maybe_sufficient_reads(isoform1, isoform2, n_junctions,
 
 
 def _single_sample_check_unequal_read_coverage(
-    isoform, uneven_coverage_multiplier=UNEVEN_COVERAGE_MULTIPLIER):
+        isoform, uneven_coverage_multiplier=UNEVEN_COVERAGE_MULTIPLIER):
     """If one junction of an isoform is more heavily covered, reject it
 
     If the difference in read depth between two junctions of an isoform is
@@ -175,8 +174,8 @@ def _maybe_reject(reads, isoform1_ids, isoform2_ids, incompatible_ids,
 
 
 def _single_maybe_reject(
-    sample, isoform1_ids, isoform2_ids, n_junctions, min_reads=MIN_READS,
-    uneven_coverage_multiplier=UNEVEN_COVERAGE_MULTIPLIER):
+        sample, isoform1_ids, isoform2_ids, n_junctions, min_reads=MIN_READS,
+        uneven_coverage_multiplier=UNEVEN_COVERAGE_MULTIPLIER):
     """Given a row of junction reads, return a filtered row of reads
 
     For a single sample's junction reads of an isoform, check if they should be
@@ -224,10 +223,9 @@ def _single_maybe_reject(
     return single_maybe_rejected
 
 
-
 def _single_isoform_maybe_reject(
-    isoform1, isoform2, n_junctions, min_reads=MIN_READS,
-    uneven_coverage_multiplier=UNEVEN_COVERAGE_MULTIPLIER, debug=False):
+        isoform1, isoform2, n_junctions, min_reads=MIN_READS,
+        uneven_coverage_multiplier=UNEVEN_COVERAGE_MULTIPLIER):
     """Given junction reads of isoform1 and isoform2, remove if they are bad
 
     Parameters
@@ -263,9 +261,6 @@ def _single_isoform_maybe_reject(
     insufficient1 = isoform1 < min_reads
     insufficient2 = isoform2 < min_reads
 
-    if debug:
-        import pdb; pdb.set_trace()
-
     if zero1.all() and zero2.all():
         return None, None, 'Case 2: Zero observed reads'
     elif insufficient1.all() and insufficient2.all():
@@ -282,10 +277,11 @@ def _single_isoform_maybe_reject(
         isoform2, uneven_coverage_multiplier)
 
     if isoform1 is None or isoform2 is None:
+        pass
+    elif (zero1.any() and ~zero1.all()) or (zero2.any() and ~zero2.all()):
         return None, None, "Case 5: Unequal read coverage (one side has at " \
                            "least {}x more reads)".format(
-            uneven_coverage_multiplier)
-    elif (zero1.any() and ~zero1.all()) or (zero2.any() and ~zero2.all()):
+                                uneven_coverage_multiplier)
         return None, None, "Case 6: One or more junction is zero, but is " \
                            "incompatible with annotation"
     elif sufficient1.all() and zero2.all():
@@ -305,12 +301,11 @@ def _single_isoform_maybe_reject(
             'Case 11{}: Isoform1 has 1+ junction with insufficient reads but '
             'Isoform2 with sufficient reads')
     elif (insufficient1.any() and sufficient1.any()) or \
-        (insufficient2.any() and sufficient2.any()):
+            (insufficient2.any() and sufficient2.any()):
         return _single_sample_maybe_sufficient_reads(
             isoform1, isoform2, n_junctions, min_reads,
             'Case 12{}: Isoform1 and Isoform2 each have both sufficient and '
             'insufficient junctions')
-
 
     # If none of these is true, then there's some uncaught case
     return None, None, "Case ???"
@@ -322,7 +317,7 @@ def _make_summary_columns(isoform1_junction_numbers,
     isoform1_numbers = ['isoform1_' + x for x in isoform1_junction_numbers]
     isoform2_numbers = ['isoform2_' + x for x in isoform2_junction_numbers]
     column_order = [SAMPLE_ID, EVENT_ID] + isoform1_numbers \
-                   + isoform2_numbers + [PSI, NOTES]
+        + isoform2_numbers + [PSI, NOTES]
     if isinstance(incompatible_junctions, list):
         incompatible_numbers = ['incompatible_junction{}'.format(i)
                                 for i, x in enumerate(incompatible_junctions)]
@@ -479,7 +474,7 @@ def _single_event_psi(event_id, event_df, reads2d,
         isoform1_junction_numbers].tolist()
     isoform2_junction_ids = junction_locations[
         isoform2_junction_numbers].tolist()
-    incompatible_junction_ids = junction_locations[INCOMPATIBLE_JUNCTIONS]
+    incompatible_junctions = junction_locations[INCOMPATIBLE_JUNCTIONS]
 
     junction_cols = isoform1_junction_ids + isoform2_junction_ids
 
@@ -489,20 +484,20 @@ def _single_event_psi(event_id, event_df, reads2d,
     if len(junctions_in_data) < n_junctions:
         summary_columns = _make_summary_columns(isoform1_junction_numbers,
                                                 isoform2_junction_numbers,
-                                                incompatible_junction_ids)
+                                                incompatible_junctions)
         return pd.DataFrame(columns=summary_columns)
 
-    if not isinstance(incompatible_junction_ids, float):
-        incompatible_junction_ids = incompatible_junction_ids.split('|')
-        incompatible_junction_ids = reads2d.columns.intersection(
-            incompatible_junction_ids).tolist()
-        junction_cols += incompatible_junction_ids
+    if not isinstance(incompatible_junctions, float):
+        incompatible_junctions = incompatible_junctions.split('|')
+        incompatible_junctions = reads2d.columns.intersection(
+            incompatible_junctions).tolist()
+        junction_cols += incompatible_junctions
 
     reads = reads2d[junction_cols]
 
     maybe_rejected = _maybe_reject(
         reads, isoform1_junction_ids, isoform2_junction_ids,
-        incompatible_junction_ids, n_junctions, min_reads=min_reads,
+        incompatible_junctions, n_junctions, min_reads=min_reads,
         uneven_coverage_multiplier=uneven_coverage_multiplier)
 
     isoform1 = maybe_rejected[isoform1_junction_ids].apply(
@@ -516,14 +511,14 @@ def _single_event_psi(event_id, event_df, reads2d,
                                isoform1_junction_ids, isoform2_junction_ids,
                                isoform1_junction_numbers,
                                isoform2_junction_numbers,
-                               incompatible_junctions=incompatible_junction_ids)
+                               incompatible_junctions=incompatible_junctions)
     return summary
 
 
 def _maybe_parallelize_psi(
-    event_annotation, reads2d, isoform1_junctions,
-    isoform2_junctions, min_reads=MIN_READS, method='mean',
-    uneven_coverage_multiplier=UNEVEN_COVERAGE_MULTIPLIER, n_jobs=-1):
+        event_annotation, reads2d, isoform1_junctions,
+        isoform2_junctions, min_reads=MIN_READS, method='mean',
+        uneven_coverage_multiplier=UNEVEN_COVERAGE_MULTIPLIER, n_jobs=-1):
     """If n_jobs!=1, run the parallelized version of psi
 
     Parameters
@@ -576,8 +571,9 @@ def _maybe_parallelize_psi(
     n_events = len(grouped.size())
 
     if n_jobs == 1:
-        # Do a separate branch because joblib doesn't do a good job of managing
-        # the python debugger so use --n-jobs=1 (n_jobs=1) when debugging
+        # Do a separate branch because joblib doesn't do a good job of
+        # managing the python debugger so use --n-jobs=1 (n_jobs=1) when
+        # debugging
         progress('\tIterating over {} events ...\n'.format(n_events))
         summaries = []
         for event_id, event_df in grouped:

@@ -6,9 +6,6 @@ import pandas as pd
 import pandas.util.testing as pdt
 import six
 
-idx = pd.IndexSlice
-
-
 
 @pytest.fixture
 def skipped_exon_junction_reads_for_rejecting_csv(simulated):
@@ -27,7 +24,8 @@ def skipped_exon_junction_reads_for_rejecting(
 
 @pytest.fixture
 def mutually_exclusive_exon_junction_reads_for_rejecting_csv(simulated):
-    return os.path.join(simulated, 'psi', 'mutually_exclusive_exon_junctions_psi.csv')
+    return os.path.join(simulated, 'psi',
+                        'mutually_exclusive_exon_junctions_psi.csv')
 
 
 @pytest.fixture
@@ -42,8 +40,8 @@ def mutually_exclusive_exon_junction_reads_for_rejecting(
 
 @pytest.fixture
 def junction_reads_for_rejecting(
-    splice_type, skipped_exon_junction_reads_for_rejecting,
-    mutually_exclusive_exon_junction_reads_for_rejecting):
+        splice_type, skipped_exon_junction_reads_for_rejecting,
+        mutually_exclusive_exon_junction_reads_for_rejecting):
     if splice_type == 'se':
         return skipped_exon_junction_reads_for_rejecting
     elif splice_type == 'mxe':
@@ -56,7 +54,7 @@ def test__single_isoform_maybe_reject(junction_reads_for_rejecting,
     from outrigger.psi.compute import _single_isoform_maybe_reject
 
     n_junctions = len(dummy_isoform1_junction_numbers) \
-                  + len(dummy_isoform2_junction_numbers)
+        + len(dummy_isoform2_junction_numbers)
 
     for i, row in junction_reads_for_rejecting.iterrows():
         # debug = True if row.name == 'junction13 ≥ 10' else False
@@ -78,8 +76,10 @@ def test__single_isoform_maybe_reject(junction_reads_for_rejecting,
         except AssertionError:
             raise AssertionError('The junction configuration [{title}] did '
                                  'not pass (Test: {test_case}, '
-                                 'True: {true_case})'.format(
-                title=row.name, test_case=case, true_case=row['case']))
+                                 'True: '
+                                 '{true_case})'.format(title=row.name,
+                                                       test_case=case,
+                                                       true_case=row['case']))
 
 
 @pytest.fixture(params=[({'junction12': 1000, 'junction23': 20}, 'unequal'),
@@ -92,7 +92,8 @@ def isoform_read_coverage(request):
 
 
 def test__check_unequal_read_coverage(isoform_read_coverage):
-    from outrigger.psi.compute import _single_sample_check_unequal_read_coverage
+    from outrigger.psi.compute import \
+        _single_sample_check_unequal_read_coverage
 
     isoform, equality = isoform_read_coverage
 
@@ -289,8 +290,6 @@ def dummy_events(splice_type):
         return ['isoform1=junction:chr1:176-299:+@exon:chr1:300-350:+@junction:chr1:351-399:+|isoform2=junction:chr1:176-224:+@exon:chr1:225-250:+@junction:chr1:251-399:+']  # noqa
 
 
-
-
 # --- Test with real data --- #
 @pytest.fixture
 def event_id(splice_type):
@@ -354,6 +353,7 @@ def event_df_csv(splice_type, tasic2016_intermediate_psi):
     return os.path.join(tasic2016_intermediate_psi,
                         '{splice_type}_event_df.csv'.format(
                             splice_type=splice_type))
+
 
 @pytest.fixture
 def single_event_summary_csv(splice_type, tasic2016_intermediate_psi):

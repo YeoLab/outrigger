@@ -411,7 +411,8 @@ class EventMaker(object):
                                               junction_names=junction_numbers)
             if not events_df.empty:
                 events_df = self.add_event_id_col(events_df, event_type)
-                events_df = self.add_incompatible_junctions(events_df, event_type)
+                events_df = self.add_incompatible_junctions(events_df,
+                                                            event_type)
             events_dfs[event_type] = events_df
         done()
         return events_dfs
