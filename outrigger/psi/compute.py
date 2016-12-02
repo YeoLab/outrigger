@@ -227,7 +227,7 @@ def _single_maybe_reject(
 
 def _single_isoform_maybe_reject(
     isoform1, isoform2, n_junctions, min_reads=MIN_READS,
-    uneven_coverage_multiplier=UNEVEN_COVERAGE_MULTIPLIER):
+    uneven_coverage_multiplier=UNEVEN_COVERAGE_MULTIPLIER, debug=False):
     """Given junction reads of isoform1 and isoform2, remove if they are bad
 
     Parameters
@@ -263,15 +263,18 @@ def _single_isoform_maybe_reject(
     insufficient1 = isoform1 < min_reads
     insufficient2 = isoform2 < min_reads
 
+    if debug:
+        import pdb; pdb.set_trace()
+
     if zero1.all() and zero2.all():
         return None, None, 'Case 2: Zero observed reads'
-    elif insufficient1.all() or insufficient2.all():
+    elif insufficient1.all() and insufficient2.all():
         # Case 12: isoform1 and isoform2 don't have sufficient reads
-        return None, None, "Case 12: All junctions with insufficient reads"
-    elif ((sufficient1.sum() == 1) and insufficient2.all()) or \
-            (insufficient1.all() and sufficient2.sum() == 1):
+        return None, None, "Case 3: All junctions with insufficient reads"
+    elif ((sufficient1.sum() < len(isoform1)) and insufficient2.all()) or \
+            (insufficient1.all() and (sufficient2.sum() < len(isoform2))):
         # Case 13: isoform1 and isoform2 don't have sufficient reads
-        return None, None, "Case 13: Only one junction with sufficient reads"
+        return None, None, "Case 4: Only one junction with sufficient reads"
 
     isoform1 = _single_sample_check_unequal_read_coverage(
         isoform1, uneven_coverage_multiplier)
@@ -279,28 +282,34 @@ def _single_isoform_maybe_reject(
         isoform2, uneven_coverage_multiplier)
 
     if isoform1 is None or isoform2 is None:
-        return None, None, "Case 3: Unequal read coverage (one side has at " \
+        return None, None, "Case 5: Unequal read coverage (one side has at " \
                            "least {}x more reads)".format(
             uneven_coverage_multiplier)
     elif (zero1.any() and ~zero1.all()) or (zero2.any() and ~zero2.all()):
-        return None, None, "Case 7: One or more junction is zero, but is " \
+        return None, None, "Case 6: One or more junction is zero, but is " \
                            "incompatible with annotation"
     elif sufficient1.all() and zero2.all():
-        return isoform1, isoform2, 'Case 4: Exclusion'
+        return isoform1, isoform2, 'Case 7: Exclusion'
     elif zero1.all() and sufficient2.all():
-        return isoform1, isoform2, 'Case 5: Inclusion'
+        return isoform1, isoform2, 'Case 8: Inclusion'
     elif sufficient1.all() and sufficient2.all():
-        return isoform1, isoform2, 'Case 6: Sufficient reads on all junctions'
-    if sufficient1.all() and insufficient2.any():
+        return isoform1, isoform2, 'Case 9: Sufficient reads on all junctions'
+    elif sufficient1.all() and insufficient2.any():
         return _single_sample_maybe_sufficient_reads(
             isoform1, isoform2, n_junctions, min_reads,
-            'Case 8{}: Isoform1 with sufficient reads but Isoform2 has 1+ '
+            'Case 10{}: Isoform1 with sufficient reads but Isoform2 has 1+ '
             'junctions with insufficient reads')
     elif insufficient1.any() and sufficient2.all():
         return _single_sample_maybe_sufficient_reads(
             isoform1, isoform2, n_junctions, min_reads,
-            'Case 9{}: Isoform1 has 1+ junction with insufficient reads but '
+            'Case 11{}: Isoform1 has 1+ junction with insufficient reads but '
             'Isoform2 with sufficient reads')
+    elif (insufficient1.any() and sufficient1.any()) or \
+        (insufficient2.any() and sufficient2.any()):
+        return _single_sample_maybe_sufficient_reads(
+            isoform1, isoform2, n_junctions, min_reads,
+            'Case 12{}: Isoform1 and Isoform2 each have both sufficient and '
+            'insufficient junctions')
 
 
     # If none of these is true, then there's some uncaught case

@@ -59,10 +59,12 @@ def test__single_isoform_maybe_reject(junction_reads_for_rejecting,
                   + len(dummy_isoform2_junction_numbers)
 
     for i, row in junction_reads_for_rejecting.iterrows():
+        # debug = True if row.name == 'junction13 ≥ 10' else False
+        debug = False
         isoform1, isoform2, case = _single_isoform_maybe_reject(
             row[dummy_isoform1_junction_numbers],
             row[dummy_isoform2_junction_numbers],
-            n_junctions=n_junctions)
+            n_junctions=n_junctions, debug=debug)
         try:
             if np.isnan(row['mean_psi']):
                 assert isoform1 is None

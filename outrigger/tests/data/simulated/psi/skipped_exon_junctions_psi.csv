@@ -13,7 +13,7 @@ junction13 ≥ 10; junction12 < 10; ∑ < 30,10,2,0,NA,NA
 junction12;23;13 ≥ 10,10,10,10,0.5,0.5
 junction12;23;13 ≥ 10,10,10,20,0.6,0.5
 junction12;23 ≥ 10; junction13 < 10; ∑ < 30,9,10,10,NA,NA
-junction12;23;13 ≥ 10; ∑ ≥ 30,9,30,11,0.69,0.55
+junction12;23 ≥ 10; junction13 < 10; ∑ ≥ 30,9,30,11,0.69,0.55
 junction12;23 ≥ 10,0,10,10,1,1
 junction13 ≥ 10,10,0,0,0,0
 junction12 ≥ 10,0,10,0,NA,NA
