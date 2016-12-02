@@ -413,6 +413,12 @@ def test__maybe_parallelize_psi(event_annotation, reads2d,
         assert 'Parallelizing' in out
 
     for test, true in zip(tests, trues):
+        # Only need to make sure the values are the same, the index
+        # doesn't matter
+        true.index = test.index
+
+        # Make sure columns are in same order
+        true = true[test.columns]
         pdt.assert_frame_equal(test, true)
 
 
