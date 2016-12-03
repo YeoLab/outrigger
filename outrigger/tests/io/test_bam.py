@@ -161,13 +161,17 @@ def test_bam_to_junction_reads_table(
 def test_read_multiple_bams(bam_filenames, multiple_bams_reads_table_csvs,
                             ignore_multimapping):
     from outrigger.io.bam import read_multiple_bams
-    from outrigger.common import SAMPLE_ID
 
     test = read_multiple_bams(bam_filenames, ignore_multimapping)
-    test = test.sort_values(test.columns)
 
     dfs = [pd.read_csv(csv) for csv in multiple_bams_reads_table_csvs]
     true = pd.concat(dfs, ignore_index=True)
+
+    # Sort and change the index because it's the contents not the order that
+    # matters
+    test = test.sort_values(test.columns)
+    test.index = range(len(test.index))
     true = true.sort_values(true.columns)
+    true.index = range(len(true.index))
 
     pdt.assert_frame_equal(test, true)
