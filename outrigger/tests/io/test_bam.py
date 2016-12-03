@@ -169,9 +169,9 @@ def test_read_multiple_bams(bam_filenames, multiple_bams_reads_table_csvs,
 
     # Sort and change the index because it's the contents not the order that
     # matters
-    test = test.sort_values(test.columns)
+    test = test.sort_values(test.columns.tolist())
     test.index = range(len(test.index))
-    true = true.sort_values(true.columns)
+    true = true.sort_values(true.columns.tolist())
     true.index = range(len(true.index))
 
     pdt.assert_frame_equal(test, true)
