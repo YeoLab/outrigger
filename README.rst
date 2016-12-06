@@ -4,7 +4,7 @@
 
 |BuildStatus|\ |codecov|\ |PyPIVersions|\ |PythonVersionCompatibility|
 
-.. |OutriggerLogo| image:: https://raw.githubusercontent.com/YeoLab/outrigger/master/logo/logo_v1.png
+.. |OutriggerLogo| image:: https://raw.githubusercontent.com/YeoLab/outrigger/master/logo/v1/logo_v1.svg
     :target: https://github.com/YeoLab/outrigger
 .. |BuildStatus| image:: https://travis-ci.org/YeoLab/outrigger.svg?branch=master
    :target: https://travis-ci.org/YeoLab/outrigger
@@ -36,6 +36,11 @@ Features
 -  Calculate "percent spliced-in" (Psi/Ψ) scores for all your samples
    given the validated events (or the original events if you opted not
    to validate) via ``outrigger psi``
+
+|OutriggerOverview|
+
+.. |OutriggerOverview| image:: https://raw.githubusercontent.com/YeoLab/outrigger/v1.0.0rc1/docs/_static/outrigger_overview.svg
+    :target: https://raw.githubusercontent.com/YeoLab/outrigger/v1.0.0rc1/docs/_static/outrigger_overview-300ppi.png
 
 Installation
 ------------
