@@ -33,9 +33,9 @@ METADATA_CSV = 'metadata.csv'
 class CommandLine(object):
     def __init__(self, input_options=None):
         self.parser = argparse.ArgumentParser(
-            description='outrigger {version}\nCalculate "percent-spliced in" '
-                        '(Psi) scores of alternative splicing on a *de novo*, '
-                        'custom-built splicing index -- '
+            description='outrigger ({version}). Calculate "percent-spliced in"'
+                        ' (Psi) scores of alternative splicing on a *de novo*,'
+                        ' custom-built splicing index -- '
                         'just for you!'.format(version=__version__))
         self.parser.add_argument(
             '--version', action='version',
@@ -137,6 +137,11 @@ class CommandLine(object):
                                        'reading. Default is -1, which means '
                                        'to use as many threads as are '
                                        'available.')
+        index_parser.add_argument('--low-memory', required=False,
+                                  default=False,
+                                  action='store_true',
+                                  help='If set, then use a smaller memory '
+                                       'footprint. By default, this is off.')
         overwrite_parser = index_parser.add_mutually_exclusive_group(
             required=False)
         overwrite_parser.add_argument('--force', action='store_true',
@@ -208,6 +213,11 @@ class CommandLine(object):
                                      action='store_true',
                                      help='If given, print debugging logging '
                                           'information to standard out')
+        validate_parser.add_argument('--low-memory', required=False,
+                                     default=False, action='store_true',
+                                     help='If set, then use a smaller memory '
+                                          'footprint. By default, this is '
+                                          'off.')
         validate_parser.set_defaults(func=self.validate)
 
         # --- Subcommand to calculate psi on the built index --- #
@@ -253,6 +263,18 @@ class CommandLine(object):
                                 required=False, default=10,
                                 help='Minimum number of reads per junction for'
                                      ' calculating Psi (default=10)')
+        psi_parser.add_argument('-e', '--method', type=str, action='store',
+                                required=False, default='mean',
+                                help='How to deal with multiple junctions on '
+                                     'an event - take the mean (default) or '
+                                     'the min? (the other option)')
+        psi_parser.add_argument('-u', '--uneven-coverage-multiplier',
+                                type=int, action='store',
+                                required=False, default=10,
+                                help='If a junction one one side of an exon is'
+                                     ' bigger than the other side of the exon '
+                                     'by this amount, (default is 10, so 10x '
+                                     'bigger), then do not use this event')
         psi_parser.add_argument('--ignore-multimapping', action='store_true',
                                 help='Applies to STAR SJ.out.tab files only.'
                                      ' If this flag is used, then do not '
@@ -291,6 +313,11 @@ class CommandLine(object):
                                      'reading. Default is -1, which means '
                                      'to use as many threads as are '
                                      'available.')
+        psi_parser.add_argument('--low-memory', required=False,
+                                default=False,
+                                action='store_true',
+                                help='If set, then use a smaller memory '
+                                     'footprint. By default, this is off.')
         psi_parser.set_defaults(func=self.psi)
 
         if input_options is None or len(input_options) == 0:
@@ -439,27 +466,26 @@ class Subcommand(object):
         else:
             util.progress('Found compiled junction reads file in {} and '
                           'reading it in ...'.format(self.junction_reads))
-            splice_junctions = pd.read_csv(self.junction_reads)
+            splice_junctions = pd.read_csv(self.junction_reads,
+                                           low_memory=self.low_memory)
             util.done()
-        splice_junctions = self.filter_junctions_on_reads(splice_junctions)
 
-        metadata = self.junction_metadata(splice_junctions)
-        metadata_csv = os.path.join(self.junctions_folder, METADATA_CSV)
-        util.progress('Writing metadata of junctions to {csv}'
-                      ' ...'.format(csv=metadata_csv))
-        metadata.to_csv(metadata_csv, index=False)
-        util.done()
-
-        return splice_junctions, metadata
+        return splice_junctions
 
     @staticmethod
-    def junction_metadata(spliced_reads):
+    def junction_metadata(spliced_reads, csv):
         """Get just the junction info from the concatenated read files"""
         util.progress('Creating splice junction metadata of merely where '
                       'junctions start and stop')
 
         metadata = star.make_metadata(spliced_reads)
         util.done()
+
+        if not os.path.exists(csv):
+            util.progress('Writing metadata of junctions to {csv}'
+                          ' ...'.format(csv=csv))
+            metadata.to_csv(csv, index=False)
+
         return metadata
 
     def filter_junctions_on_reads(self, spliced_reads):
@@ -599,7 +625,8 @@ class Index(Subcommand):
             junction_exon_triples.to_csv(csv, index=False)
             util.done()
         elif self.resume:
-            junction_exon_triples = pd.read_csv(csv)
+            junction_exon_triples = pd.read_csv(csv,
+                                                low_memory=self.low_memory)
         else:
             raise ValueError("Found existing junction-exon-triples file "
                              "({csv}) but don't "
@@ -673,7 +700,7 @@ class Index(Subcommand):
         util.progress('Writing {splice_type} events to {csv} '
                       '...'.format(splice_type=splice_type.upper(), csv=csv))
         attributes.to_csv(csv, index=True,
-                          index_label=outrigger.common.EVENT_ID_COLUMN)
+                          index_label=outrigger.common.EVENT_ID)
         util.done()
 
     def write_new_gtf(self, db):
@@ -692,7 +719,11 @@ class Index(Subcommand):
         if self.debug:
             logger.setLevel(10)
 
-        spliced_reads, metadata = self.csv()
+        spliced_reads = self.csv()
+
+        spliced_reads = self.filter_junctions_on_reads(spliced_reads)
+        metadata_csv = os.path.join(self.junctions_folder, METADATA_CSV)
+        metadata = self.junction_metadata(spliced_reads, metadata_csv)
 
         db = self.maybe_make_db()
 
@@ -879,7 +910,7 @@ class Psi(SubcommandAfterIndex):
                 'Reading splice junction reads from {} ...'.format(
                     self.junction_reads))
             junction_reads = pd.read_csv(
-                self.junction_reads, dtype=dtype)
+                self.junction_reads, dtype=dtype, low_memory=self.low_memory)
             util.done()
         except OSError:
             raise IOError(
@@ -913,11 +944,17 @@ class Psi(SubcommandAfterIndex):
         if self.debug:
             logger.setLevel(10)
 
-        junction_reads, metadata = self.csv()
+        junction_reads = self.csv()
 
-        junction_reads = junction_reads.set_index(
-            [self.junction_id_col, self.sample_id_col])
-        junction_reads.sort_index(inplace=True)
+        metadata_csv = os.path.join(self.junctions_folder, METADATA_CSV)
+        self.junction_metadata(junction_reads, metadata_csv)
+
+        junction_reads_2d = junction_reads.pivot(index=self.sample_id_col,
+                                                 columns=self.junction_id_col,
+                                                 values=self.reads_col)
+        junction_reads_2d.fillna(0, inplace=True)
+        junction_reads_2d = junction_reads_2d.astype(int)
+
         logger.debug('\n--- Splice Junction reads ---')
         logger.debug(repr(junction_reads.head()))
 
@@ -934,7 +971,8 @@ class Psi(SubcommandAfterIndex):
                           ' ...'.format(name=splice_name, abbrev=splice_abbrev,
                                         filename=filename))
 
-            event_annotation = pd.read_csv(filename, index_col=0)
+            event_annotation = pd.read_csv(filename, index_col=0,
+                                           low_memory=self.low_memory)
             util.done()
 
             isoform_junctions = outrigger.common.ISOFORM_JUNCTIONS[
@@ -946,16 +984,35 @@ class Psi(SubcommandAfterIndex):
                 'Calculating percent spliced-in (Psi) scores on '
                 '{name} ({abbrev}) events ...'.format(
                     name=splice_name, abbrev=splice_abbrev))
-            event_psi = compute.calculate_psi(
-                event_annotation, junction_reads,
-                min_reads=self.min_reads, debug=self.debug,
-                reads_col=self.reads_col, n_jobs=self.n_jobs,
+            # Splice type percent spliced-in (psi) and summary
+            type_psi, summary = compute.calculate_psi(
+                event_annotation, junction_reads_2d,
+                min_reads=self.min_reads, n_jobs=self.n_jobs,
+                method=self.method,
+                uneven_coverage_multiplier=self.uneven_coverage_multiplier,
                 **isoform_junctions)
+
+            # Write this event's percent spliced-in matrix
             csv = os.path.join(self.psi_folder, splice_abbrev,
                                'psi.csv'.format(splice_abbrev))
+            util.progress('Writing {name} ({abbrev}) Psi values to {filename}'
+                          ' ...'.format(name=splice_name, abbrev=splice_abbrev,
+                                        filename=csv))
             self.maybe_make_folder(os.path.dirname(csv))
-            event_psi.to_csv(csv)
-            psis.append(event_psi)
+            type_psi.to_csv(csv, na_rep='NA')
+
+            # Write this event's summary of events and why they weren't or were
+            # calculated Psi on
+            csv = os.path.join(self.psi_folder, splice_abbrev,
+                               'summary.csv'.format(splice_abbrev))
+            util.progress('Writing {name} ({abbrev}) event summaries (e.g. '
+                          'number of reads, why an event does not have a Psi '
+                          'score) to {filename} ...'
+                          ''.format(name=splice_name, abbrev=splice_abbrev,
+                                    filename=csv))
+            self.maybe_make_folder(os.path.dirname(csv))
+            summary.to_csv(csv, na_rep='NA', index=False)
+            psis.append(type_psi)
             util.done()
 
         util.progress('Concatenating all calculated psi scores '
@@ -966,7 +1023,7 @@ class Psi(SubcommandAfterIndex):
         csv = os.path.join(self.psi_folder, 'outrigger_psi.csv')
         util.progress('Writing a samples x features matrix of Psi '
                       'scores to {} ...'.format(csv))
-        splicing.to_csv(csv)
+        splicing.to_csv(csv, na_rep='NA')
         util.done()
 
 

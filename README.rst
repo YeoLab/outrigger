@@ -1,16 +1,30 @@
-Outrigger
-=========
+.. -*- mode: rst -*-
 
 |OutriggerLogo|
 
-|BuildStatus|\ |codecov|\ |PyPI versions|\ |PythonVersionCompatibility|
+|BuildStatus|\ |codecov|\ |PyPIVersions|\ |PythonVersionCompatibility|
 
-Outrigger is a program which uses junction reads from RNA seq data, and
+.. |OutriggerLogo| image:: https://raw.githubusercontent.com/YeoLab/outrigger/master/logo/logo_v1.png
+    :target: https://github.com/YeoLab/outrigger
+.. |BuildStatus| image:: https://travis-ci.org/YeoLab/outrigger.svg?branch=master
+   :target: https://travis-ci.org/YeoLab/outrigger
+.. |codecov| image:: https://codecov.io/gh/YeoLab/outrigger/branch/master/graph/badge.svg
+   :target: https://codecov.io/gh/YeoLab/outrigger
+.. |PyPIVersions| image:: https://img.shields.io/pypi/v/outrigger.svg
+   :target: https://pypi.python.org/pypi/outrigger
+.. |PythonVersionCompatibility| image:: https://img.shields.io/pypi/pyversions/outrigger.svg
+   :target: https://pypi.python.org/pypi/outrigger
+
+Outrigger_
+==========
+
+Outrigger_ is a program which uses junction reads from RNA seq data, and
 a graph database to create a *de novo* alternative splicing annotation
 with a graph database, and quantify percent spliced-in (Psi) of the
 events.
 
 -  Free software: BSD license
+-  Documentation is available here: http://yeolab.github.io/outrigger/
 
 Features
 --------
@@ -21,7 +35,7 @@ Features
    and AT/AC for mammalian systems (``outrigger validate``)
 -  Calculate "percent spliced-in" (Psi/Ψ) scores for all your samples
    given the validated events (or the original events if you opted not
-   to validate)
+   to validate) via ``outrigger psi``
 
 Installation
 ------------
@@ -29,10 +43,11 @@ Installation
 To install ``outrigger``, we recommend using the `Anaconda Python
 Distribution <http://anaconda.org/>`__ and creating an environment.
 
-You'll want to add the ```bioconda`` <https://bioconda.github.io/>`__
-channel to make installing ```bedtools`` <bedtools.readthedocs.io>`__
-and its Python wrapper,
-```pybedtools`` <https://daler.github.io/pybedtools/>`__ easy.
+You'll want to add the `bioconda <https://bioconda.github.io/>`__
+channel to make installing `bedtools <bedtools.readthedocs.io>`__ and
+its Python wrapper, `pybedtools <https://daler.github.io/pybedtools/>`__
+easy (these programs are necessary for both ``outrigger index`` and
+``outrigger validate``).
 
 ::
 
@@ -44,15 +59,13 @@ and Python 3.5 are supported.
 
 ::
 
-    conda create -n outrigger-env pandas pybedtools gffutils biopython bedtools joblib
+    conda create --name outrigger-env outrigger
 
-Now activate that environment using ``source activate outrigger-env``
-and install ``outrigger`` from PyPI, using ``pip``:
+Now activate that environment:
 
 ::
 
     source activate outrigger-env
-    pip install outrigger
 
 To check that it installed properly, try the command with the help
 option (``-h``), ``outrigger -h``. The output should look like this:
@@ -60,10 +73,11 @@ option (``-h``), ``outrigger -h``. The output should look like this:
 ::
 
     $ outrigger -h
-    usage: outrigger [-h] {index,validate,psi} ...
+    usage: outrigger [-h] [--version] {index,validate,psi} ...
 
-    Calculate "percent-spliced in" (Psi) scores of alternative splicing on a *de
-    novo*, custom-built splicing index
+    outrigger (1.0.0dev). Calculate "percent-spliced in" (Psi) scores of
+    alternative splicing on a *de novo*, custom-built splicing index -- just for
+    you!
 
     positional arguments:
       {index,validate,psi}  Sub-commands
@@ -76,7 +90,7 @@ option (``-h``), ``outrigger -h``. The output should look like this:
 
     optional arguments:
       -h, --help            show this help message and exit
-
+      --version             show program's version number and exit
 Bleeding edge code from Github (here)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -86,23 +100,18 @@ can:
 
 #. Clone this repository
 #. Change into that directory
-#. Create an environment with the necessary packages from Anaconda
+#. Create an environment named ``outrigger-env`` with the necessary packages
+   from Anaconda and the Python Package Index (PyPI).
 #. Activate the environment
-#. Install remaining packages from PyPI
-   (```graphlite`` <https://github.com/eugene-eeo/graphlite>`__ is only
-   available on PyPI, not as a ``conda`` package)
-#. Install this package
 
 These steps are shown in code below.
 
 ::
 
-    git clone git@github.com:YeoLab/outrigger
+    git clone https://github.com/YeoLab/outrigger.git
     cd outrigger
-    conda create --name outrigger --yes --file conda_requirements.txt --channel bioconda
-    source activate outrigger
-    pip install -r requirements.txt
-    pip install .
+    conda env create --file environment.yml
+    source activate outrigger-env
 
 Quick start
 -----------
@@ -172,24 +181,28 @@ should look like this:
     outrigger_output
     ├── index
     │   ├── gtf
-    │   │   ├── gencode.vM10.annotation.gtf
-    │   │   ├── gencode.vM10.annotation.gtf.db
+    │   │   ├── gencode.vM10.annotation.subset.gtf
+    │   │   ├── gencode.vM10.annotation.subset.gtf.db
     │   │   └── novel_exons.gtf
     │   ├── junction_exon_direction_triples.csv
     │   ├── mxe
+    │   │   ├── event.bed
     │   │   ├── events.csv
     │   │   ├── exon1.bed
     │   │   ├── exon2.bed
     │   │   ├── exon3.bed
     │   │   ├── exon4.bed
+    │   │   ├── intron.bed
     │   │   ├── splice_sites.csv
     │   │   └── validated
     │   │       └── events.csv
     │   └── se
+    │       ├── event.bed
     │       ├── events.csv
     │       ├── exon1.bed
     │       ├── exon2.bed
     │       ├── exon3.bed
+    │       ├── intron.bed
     │       ├── splice_sites.csv
     │       └── validated
     │           └── events.csv
@@ -203,66 +216,7 @@ should look like this:
         └── se
             └── psi.csv
 
-    10 directories, 22 files
+    10 directories, 26 files
 
-For Developers
---------------
 
-How to run with the Python debugger
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-How to run the code with the Python debugger. To run the command line
-functions such that when they break, you jump into the ``pdb`` (Python
-debugger), here is the code:
-
-::
-
-    python -m pdb outrigger/commandline.py index \
-    --sj-out-tab outrigger/test_data/tasic2016/unprocessed/sj_out_tab/* \
-        --gtf outrigger/test_data/tasic2016/unprocessed/gtf/gencode.vM10.annotation.snap25.myl6.gtf
-
-Notice that you replace ``outrigger`` with
-``python -m pdb outrigger/commandline.py``, which is relative to this
-github directory.
-
-How to run the tests
-~~~~~~~~~~~~~~~~~~~~
-
-If you want to run the tests without calculating what percentage of
-lines are covered in the test suite, run
-
-::
-
-    make test
-
-If you want to run the tests and see which lines are covered by tests
-and get an overall percentage of test coverage, run
-
-::
-
-    make coverage
-
-If you want to run an example with ENSEMBL GTF files, do:
-
-::
-
-    make arabdopsis
-
-By default, Travis-CI does all three:
-
-::
-
-    script:
-    - make coverage
-    - make lint
-    - make arabdopsis
-
-.. |OutriggerLogo| image:: https://raw.githubusercontent.com/YeoLab/outrigger/master/logo/logo_v1.png
-.. |BuildStatus| image:: https://travis-ci.org/YeoLab/outrigger.svg?branch=master
-   :target: https://travis-ci.org/YeoLab/outrigger
-.. |codecov| image:: https://codecov.io/gh/YeoLab/outrigger/branch/master/graph/badge.svg
-   :target: https://codecov.io/gh/YeoLab/outrigger
-.. |PyPI versions| image:: https://img.shields.io/pypi/v/outrigger.svg
-   :target: https://pypi.python.org/pypi/outrigger
-.. |PythonVersionCompatibility| image:: https://img.shields.io/pypi/pyversions/outrigger.svg
-   :target: https://pypi.python.org/pypi/outrigger
+.. _Outrigger: https://github.com/YeoLab/outrigger

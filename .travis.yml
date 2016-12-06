@@ -17,10 +17,8 @@ before_install:
 - which -a curl
 
 install:
-- conda create -n testenv --yes python=$TRAVIS_PYTHON_VERSION pip
-- source activate testenv
-- conda install --yes --file conda_requirements.txt --channel bioconda
-- pip install -r requirements.txt
+- conda env create --file testing/environment_no_python.yml python=2.7
+- source activate outrigger-env
 - pip install .
 
 before_script:
@@ -36,6 +34,12 @@ script:
 - source activate lint-env
 - make lint
 - deactivate lint-env
+
+after_script:
+  - MASTER=master
+  - if [[ ${TRAVIS_PYTHON_VERSION:0:1} == "2" ]] || [[ $TRAVIS_BRANCH == v*.*.* ]] ; then export DEPLOY_HTML_DIR=docs ; fi
+  - if [[ ${TRAVIS_PYTHON_VERSION:0:1} == "2" ]] || [[ $TRAVIS_BRANCH == "$MASTER" ]] ; then export DEPLOY_HTML_DIR=docs-dev ; fi
+  - if [[ ${TRAVIS_PYTHON_VERSION:0:1} == "2" ]] || [[ $TRAVIS_BRANCH == v*.*.* ]] || [[ $TRAVIS_BRANCH == "$MASTER" ]] ; then sudo apt-get install pandoc; pip install -r doc/requirements.txt; cd docs ; make setup_gh_pages ; make generate ; make deploy ; fi
 
 after_success:
   - which -a curl

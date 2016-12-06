@@ -8,7 +8,7 @@ import pandas as pd
 from graphlite import V
 
 from ..common import STRAND, ISOFORM_ORDER, ISOFORM_COMPONENTS, \
-    EVENT_ID_COLUMN, ILLEGAL_JUNCTIONS, SPLICE_ABBREVS, \
+    EVENT_ID, INCOMPATIBLE_JUNCTIONS, SPLICE_ABBREVS, \
     SPLICE_TYPE_ALL_EXONS, SPLICE_TYPE_ALL_JUNCTIONS, CHROM
 from outrigger.region import Region
 from .adjacencies import UPSTREAM, DOWNSTREAM, DIRECTIONS
@@ -315,17 +315,17 @@ class EventMaker(object):
 
     def add_event_id_col(self, events, splice_type):
         isoform_components = ISOFORM_COMPONENTS[splice_type]
-        events[EVENT_ID_COLUMN] = events.apply(
+        events[EVENT_ID] = events.apply(
             lambda x: '|'.join(
                 '{}={}'.format(isoform, '@'.join(
                     x[list(isoform_components[isoform])]))
                 for isoform in ISOFORM_ORDER), axis=1)
-        events = events.set_index(EVENT_ID_COLUMN)
+        events = events.set_index(EVENT_ID)
         return events
 
     @staticmethod
     def _get_junction14(row):
-        """Make illegal junction between exons1 and 4 for MXE
+        """Make incompatible junction between exons1 and 4 for MXE
 
         Parameters
         ----------
@@ -346,7 +346,7 @@ class EventMaker(object):
 
     @staticmethod
     def _get_junction23(row):
-        """Make illegal junction between exons2 and 3 for MXE
+        """Make incompatible junction between exons2 and 3 for MXE
 
         Parameters
         ----------
@@ -365,10 +365,10 @@ class EventMaker(object):
                           start=junction13.start, stop=junction24.stop,
                           strand=junction13.strand)
 
-    def add_illegal_junctions(self, events, splice_type):
+    def add_incompatible_junctions(self, events, splice_type):
         """Add junctions that are incompatible with splice type definition"""
         if splice_type == 'se':
-            events[ILLEGAL_JUNCTIONS] = np.nan
+            events[INCOMPATIBLE_JUNCTIONS] = np.nan
         elif splice_type == 'mxe':
             junction12s = events['junction12'].map(Region)
             junction13s = events['junction13'].map(Region)
@@ -382,8 +382,8 @@ class EventMaker(object):
 
             junction14 = junction14.apply(lambda x: x.name)
             junction23 = junction23.apply(lambda x: x.name)
-            illegal_junctions = junction14 + '|' + junction23
-            events[ILLEGAL_JUNCTIONS] = illegal_junctions
+            incompatible_junctions = junction14 + '|' + junction23
+            events[INCOMPATIBLE_JUNCTIONS] = incompatible_junctions
         return events
 
     def find_events(self, n_jobs=-1):
@@ -411,7 +411,8 @@ class EventMaker(object):
                                               junction_names=junction_numbers)
             if not events_df.empty:
                 events_df = self.add_event_id_col(events_df, event_type)
-                events_df = self.add_illegal_junctions(events_df, event_type)
+                events_df = self.add_incompatible_junctions(events_df,
+                                                            event_type)
             events_dfs[event_type] = events_df
         done()
         return events_dfs

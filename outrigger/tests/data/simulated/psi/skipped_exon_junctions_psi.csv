@@ -1,0 +1,32 @@
+title,junction13,junction12,junction23,mean_psi,min_psi,case
+No junctions detected,0,0,0,NA,NA,Case 2
+junction23 < 10,0,0,2,NA,NA,Case 3
+junction12 < 10,0,2,0,NA,NA,Case 3
+junction13 < 10,2,0,0,NA,NA,Case 3
+junction12;23 < 10,0,2,2,NA,NA,Case 3
+junction13;23 < 10,2,0,2,NA,NA,Case 3
+junction13;12 < 10,2,2,0,NA,NA,Case 3
+junction12 ≥ 10; junction23 < 10; ∑ < 30,0,10,2,NA,NA,Case 4
+junction23 ≥ 10; junction12 < 10; ∑ < 30,0,2,10,NA,NA,Case 4
+junction13 ≥ 10; junction23 < 10; ∑ < 30,10,0,2,NA,NA,Case 6
+junction13 ≥ 10; junction12 < 10; ∑ < 30,10,2,0,NA,NA,Case 6
+junction12;23;13 ≥ 10,10,10,10,0.5,0.5,Case 8
+junction12;23;13 ≥ 10,10,10,20,0.6,0.5,"Case 8, min"
+junction12;23 ≥ 10; junction13 < 10; ∑ < 30,9,10,10,NA,NA,Case 10b
+junction12;23 ≥ 10; junction13 < 10; ∑ ≥ 30,9,30,11,0.69,0.55,Case 10a
+junction12;23 ≥ 10,0,10,10,1,1,Case 7
+junction13 ≥ 10,10,0,0,0,0,Case 6
+junction12 ≥ 10,0,10,0,NA,NA,Case 4
+junction23 ≥ 10,0,0,10,NA,NA,Case 4
+junction13;23 ≥ 10; junction23 < 10; ∑ ≥ 30,10,5,30,0.7777777778,NA,Case 9a
+junction13;23 ≥ 10; junction23 < 10; ∑ < 30,10,2,10,NA,NA,Case 9b
+junction13;12 ≥ 10; junction12 < 10; ∑ ≥ 30,10,30,5,0.7777777778,NA,Case 9a
+junction13;12 ≥ 10; junction12 < 10; ∑ < 30,10,10,2,NA,NA,Case 9b
+junction12 ≥ 10; junction23 < 10; ∑ ≥ 30,0,100,2,NA,NA,Case 5
+junction23 ≥ 10; junction12 < 10; ∑ ≥ 30,0,2,100,NA,NA,Case 5
+junction13 ≥ 10; junction12 < 10; ∑ ≥ 30,100,2,0,0.01960784314,NA,Case 9a
+junction13 ≥ 10; junction23 < 10; ∑ ≥ 30,100,0,2,0.01960784314,NA,Case 9a
+junction13 ≥ 10; junction12;23 < 10; ∑ ≥ 30,100,2,2,0.03846153846,NA,Case 9a
+junction12 ≥ 10; junction13;23 < 10; ∑ ≥ 30,2,100,2,NA,NA,Case 5
+junction23 ≥ 10; junction13;12 < 10; ∑ ≥ 30,2,2,100,NA,NA,Case 5
+junction13>>10; junction23<10; ∑ ≥ 30,1295,0,5,0.003846153846,0,Case 9a

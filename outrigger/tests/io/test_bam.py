@@ -167,4 +167,11 @@ def test_read_multiple_bams(bam_filenames, multiple_bams_reads_table_csvs,
     dfs = [pd.read_csv(csv) for csv in multiple_bams_reads_table_csvs]
     true = pd.concat(dfs, ignore_index=True)
 
+    # Sort and change the index because it's the contents not the order that
+    # matters
+    test = test.sort_values(test.columns.tolist())
+    test.index = range(len(test.index))
+    true = true.sort_values(true.columns.tolist())
+    true.index = range(len(true.index))
+
     pdt.assert_frame_equal(test, true)

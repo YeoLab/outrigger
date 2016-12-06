@@ -24,8 +24,8 @@ ISOFORM_COMPONENTS = {
            'isoform2': ('junction12', 'exon2', 'junction23')},
     'mxe': {'isoform1': ('junction13', 'exon3', 'junction34'),
             'isoform2': ('junction12', 'exon2', 'junction24')}}
-EVENT_ID_COLUMN = 'event_id'
-ILLEGAL_JUNCTIONS = 'illegal_junctions'
+EVENT_ID = 'event_id'
+INCOMPATIBLE_JUNCTIONS = 'incompatible_junctions'
 SPLICE_TYPE_ISOFORM_EXONS = {'se': {'isoform1': ['exon1', 'exon3'],
                                     'isoform2': ['exon1', 'exon2', 'exon3']},
                              'mxe': {'isoform1': ['exon1', 'exon3', 'exon4'],
@@ -57,3 +57,10 @@ ORDER_BY = ('seqid', 'start', 'end', 'frame', 'source', 'strand', 'attributes')
 UNIQUE_READS = 'unique_junction_reads'
 MULTIMAP_READS = 'multimap_junction_reads'
 MAX_OVERHANG = 'max_overhang'
+
+UNEVEN_COVERAGE_MULTIPLIER = 10
+
+
+# --- Outrigger Psi --- #
+NOTES = 'notes'
+PSI = 'psi'
