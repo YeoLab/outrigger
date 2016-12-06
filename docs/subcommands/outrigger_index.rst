@@ -34,12 +34,15 @@ directory), run this command:
         --sj-out-tab outrigger/tests/data/tasic2016/unprocessed/sj_out_tab/* \
         --gtf-filename outrigger/tests/data/tasic2016/unprocessed/gtf/gencode.vM10.annotation.subset.gtf
 
-*Note: the backslashes (``\``, like a tree that's falling backwards
-relative to right-to-left reading) to tell the computer that you're not
-done telling it what to do, so the line continues, and to help the code
-be a little more human-readable. The above code is read by the computer
-exactly the same as the one-liner below, but is easier for us humans to
-read.*
+
+.. note::
+
+    The backslashes (``\\``, like a tree that's falling backwards
+    relative to left-to-right reading) to tell the computer that you're not
+    done telling it what to do, so the line continues, and to help the code
+    be a little more human-readable. The above code is read by the computer
+    exactly the same as the one-liner below, but is easier for us humans to
+    read.
 
 ::
 

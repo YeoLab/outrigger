@@ -8,7 +8,14 @@ Overview
 if `outrigger validate`_ has been run, only the valid alternative splicing
 events with appropriate splice sites.
 
-.. |OutriggerPsi| image:: /_static/outrigger_psi-300ppi.png
+|OutriggerPsi|
+
+.. |OutriggerPsi| image:: ../_static/outrigger_psi-1x.png
+    :target: ../_static/outrigger_psi-300ppi.png
+
+.. |OutriggerLogo| image:: https://raw.githubusercontent.com/YeoLab/outrigger/master/logo/logo_v1.png
+    :target: https://github.com/YeoLab/outrigger
+
 
 
 Inputs
