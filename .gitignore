@@ -54,6 +54,10 @@ output/*/index.html
 
 # Sphinx
 docs/_build
+docs/outrigger*.rst
+docs/outrigger.rst
+docs/modules.rst
+docs/_deploy
 
 # Pycharm
 .idea

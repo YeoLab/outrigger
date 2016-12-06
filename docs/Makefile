@@ -57,9 +57,10 @@ clean:
 	rm -rf generated
 	rm -rf apidoc
 
+install:
+	pip install -r requirements.txt
+
 html:
-	cp ../examples/*.ipynb tutorial/;
-	cd tutorial ; make notebooks ; cd ..
 	sphinx-apidoc -l -d 4 -e --force -o . ../outrigger
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 	@echo

@@ -40,7 +40,20 @@ import outrigger
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode']
+extensions = [
+    'sphinx.ext.autodoc',
+    'sphinx.ext.doctest',
+    'sphinx.ext.intersphinx',
+    'sphinx.ext.todo',
+    'sphinx.ext.autosummary',
+    'sphinx.ext.coverage',
+    'sphinx.ext.mathjax',
+    'sphinx.ext.ifconfig',
+    'sphinx.ext.viewcode',
+    'numpydoc',
+]
+## Show both the class docstring and the __init__docstring
+autoclass_content = 'both'
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -55,8 +68,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'BED annotator'
-copyright = u'2015, Olga Botvinnik'
+project = u'Outrigger'
+copyright = u'2015-2016, Olga Botvinnik'
 
 # The version info for the project you're documenting, acts as replacement
 # for |version| and |release|, also used in various other places throughout
@@ -111,7 +124,7 @@ pygments_style = 'sphinx'
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = 'default'
+html_theme = 'alabaster'
 
 # Theme options are theme-specific and customize the look and feel of a
 # theme further.  For a list of options available for each theme, see the
@@ -209,7 +222,7 @@ latex_elements = {
 # [howto/manual]).
 latex_documents = [
     ('index', 'outrigger.tex',
-     u'BED annotator Documentation',
+     u'Outrigger Documentation',
      u'Olga Botvinnik', 'manual'),
 ]
 
@@ -240,7 +253,7 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     ('index', 'outrigger',
-     u'BED annotator Documentation',
+     u'Outrigger Documentation',
      [u'Olga Botvinnik'], 1)
 ]
 
@@ -255,11 +268,11 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
     ('index', 'outrigger',
-     u'BED annotator Documentation',
+     u'Outrigger Documentation',
      u'Olga Botvinnik',
      'outrigger',
-     'One line description of project.',
-     'Miscellaneous'),
+     'Outrigger detects, validates, and quantifies de novo splicing events.',
+     'Bioinformatics'),
 ]
 
 # Documents to append as an appendix to all manuals.

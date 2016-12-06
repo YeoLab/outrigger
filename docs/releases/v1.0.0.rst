@@ -1,0 +1,25 @@
+v1.0.0 (...)
+------------
+
+This is the first major release of ``outrigger``!!!
+
+New features
+~~~~~~~~~~~~
+
+- Parallelized event across chromosomes
+- Added ``--low-memory`` flag for ``index``, ``validate``, and ``psi`` commands
+  to use a smaller memory footprint when reading CSV files.
+
+Plotting functions
+~~~~~~~~~~~~~~~~~~
+
+API changes
+~~~~~~~~~~~
+
+
+Bug fixes
+~~~~~~~~~
+
+Miscellaneous
+~~~~~~~~~~~~~
+
