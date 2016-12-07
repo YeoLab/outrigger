@@ -92,9 +92,26 @@ python setup.py register -r pypi
 python setup.py sdist upload -r pypi
 ```
 
-- [ ] 16. (Doesn't really work yet) Upload to Anaconda.org:
+- [ ] 16. Upload to Bioconda:
 
 ```
-anaconda login
-anaconda upload dist/*.tar.gz
+git clone https://github.com/bioconda/bioconda-recipes
+cd bioconda-recipes/recipes
+git checkout -b outrigger_v0.2.1
+conda skeleton pypi outrigger
+git add outrigger
+git commit -m "Updated outrigger to v0.2.1"
+```
+
+- [ ] 17. Upload to conda-forge
+
+```
+# Clone your forked repo of https://github.com/conda-forge/staged-recipes
+git clone https://github.com/YeoLab/staged-recipes
+cd recipes
+git checkout -b outrigger_v0.2.1
+conda skeleton pypi outrigger
+# Get md5 hash from PyPI
+git add outrigger
+git commit -m "Updated outrigger to v0.2.1"
 ```
