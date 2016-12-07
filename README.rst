@@ -15,6 +15,7 @@
 .. |PythonVersionCompatibility| image:: https://img.shields.io/pypi/pyversions/outrigger.svg
     :target: https://pypi.python.org/pypi/outrigger
 
+==========
 Outrigger_
 ==========
 
@@ -27,7 +28,7 @@ events.
 -  Documentation is available here: http://yeolab.github.io/outrigger/
 
 Features
---------
+========
 
 -  Finds novel splicing events, including novel exons!
    (``outrigger index``) from ``.bam`` files
@@ -43,7 +44,7 @@ Features
     :target: https://raw.githubusercontent.com/YeoLab/outrigger/v1.0.0rc1/docs/_static/outrigger_overview-300ppi.png
 
 Installation
-------------
+============
 
 To install ``outrigger``, we recommend using the `Anaconda Python
 Distribution <http://anaconda.org/>`__ and creating an environment.
@@ -98,7 +99,7 @@ option (``-h``), ``outrigger -h``. The output should look like this:
       --version             show program's version number and exit
 
 Bleeding edge code from Github (here)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------------------
 
 For advanced users, if you have `git <https://git-scm.com/>`__ and
 `Anaconda Python <https://www.continuum.io/downloads>`__ installed, you
@@ -120,7 +121,7 @@ These steps are shown in code below.
     source activate outrigger-env
 
 Quick start
------------
+===========
 
 If you just want to know how to run this on your data with the default
 parameters, start here. Let's say you performed your alignment in the
@@ -137,13 +138,16 @@ Then you need find all alternative splicing events, which you do by
 running ``outrigger index`` on the splice junction files and the gtf.
 Here is an example command:
 
+Input: ``.SJ.out.tab`` files
+----------------------------
+
 ::
 
     outrigger index --sj-out-tab *SJ.out.tab \
         --gtf /projects/ps-yeolab/genomes/mm10/gencode/m10/gencode.vM10.annotation.gtf
 
-Bam files
-^^^^^^^^^
+Input: ``.bam`` files
+---------------------
 
 If you're using ``.bam`` files instead of ``SJ.out.tab`` files, never despair!
 Below is an example command. Keep in mind that for this program to work, the
@@ -176,7 +180,7 @@ It should be noted that ALL of these commands should be performed in the
 same directory, so no moving.
 
 Quick start summary
-~~~~~~~~~~~~~~~~~~~
+-------------------
 
 Here is a summary the commands in the order you would use them for
 outrigger!
