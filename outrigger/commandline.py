@@ -449,7 +449,7 @@ class Subcommand(object):
             util.progress('Reading bam files and creating a big splice '
                           'junction table of reads spanning exon-exon '
                           'junctions')
-            splice_junctions = bam.read_multiple_bam(
+            splice_junctions = bam.read_multiple_bams(
                 self.bam, self.ignore_multimapping, self.n_jobs)
         dirname = os.path.dirname(self.junction_reads_filename)
         if not os.path.exists(dirname):
@@ -465,8 +465,8 @@ class Subcommand(object):
             splice_junctions = self.make_junction_reads_file()
         else:
             util.progress('Found compiled junction reads file in {} and '
-                          'reading it in ...'.format(
-                self.junction_reads_filename))
+                          'reading it in '
+                          '...'.format(self.junction_reads_filename))
             splice_junctions = pd.read_csv(self.junction_reads_filename,
                                            low_memory=self.low_memory)
             util.done()
@@ -894,7 +894,8 @@ class Psi(SubcommandAfterIndex):
                     "don't know how to define events :(".format(
                         splice_name, splice_folder))
 
-        if not os.path.exists(self.junction_reads_filename) and self.bam is None:
+        if not os.path.exists(self.junction_reads_filename) and \
+                self.bam is None:
             raise OSError(
                 "The junction reads csv file ({}) doesn't exist! "
                 "Cowardly exiting because I don't have the junction "
@@ -911,7 +912,8 @@ class Psi(SubcommandAfterIndex):
                 'Reading splice junction reads from {} ...'.format(
                     self.junction_reads_filename))
             junction_reads = pd.read_csv(
-                self.junction_reads_filename, dtype=dtype, low_memory=self.low_memory)
+                self.junction_reads_filename, dtype=dtype,
+                low_memory=self.low_memory)
             util.done()
         except OSError:
             raise IOError(
