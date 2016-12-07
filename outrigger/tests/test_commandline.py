@@ -164,7 +164,7 @@ class TestCommandLine(object):
         gtf = os.path.join(tasic2016_unprocessed, 'gtf',
                            'gencode.vM10.annotation.subset.gtf')
         arguments = ['index', '--junction-reads-csv']
-        arguments.extend(os.path.join(tasic2016_outrigger_output, 'junctions',
+        arguments.append(os.path.join(tasic2016_outrigger_output, 'junctions',
                                       'reads.csv'))
         arguments.extend(['--gtf', gtf, '--output', output_folder,
                           '--n-jobs', '1'])
