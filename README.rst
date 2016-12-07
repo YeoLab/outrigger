@@ -7,13 +7,13 @@
 .. |OutriggerLogo| image:: https://raw.githubusercontent.com/YeoLab/outrigger/master/logo/v1/logo_v1-300ppi.png
     :target: https://github.com/YeoLab/outrigger
 .. |BuildStatus| image:: https://travis-ci.org/YeoLab/outrigger.svg?branch=master
-   :target: https://travis-ci.org/YeoLab/outrigger
+    :target: https://travis-ci.org/YeoLab/outrigger
 .. |codecov| image:: https://codecov.io/gh/YeoLab/outrigger/branch/master/graph/badge.svg
-   :target: https://codecov.io/gh/YeoLab/outrigger
+    :target: https://codecov.io/gh/YeoLab/outrigger
 .. |PyPIVersions| image:: https://img.shields.io/pypi/v/outrigger.svg
-   :target: https://pypi.python.org/pypi/outrigger
+    :target: https://pypi.python.org/pypi/outrigger
 .. |PythonVersionCompatibility| image:: https://img.shields.io/pypi/pyversions/outrigger.svg
-   :target: https://pypi.python.org/pypi/outrigger
+    :target: https://pypi.python.org/pypi/outrigger
 
 Outrigger_
 ==========
