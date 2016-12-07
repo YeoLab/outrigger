@@ -64,14 +64,14 @@ class CommandLine(object):
                             'required if you specify '
                             '"--compiled-junction-reads"')
         index_junctions.add_argument(
-            '-c', '--compiled-junction-reads', required=False,
+            '-c', '--junction-reads-csv', required=False,
             help="Name of the splice junction files to detect novel exons and "
                  "build an index of alternative splicing events from. "
                  "Not required if you specify "
                  "SJ.out.tab file with '--sj-out-tab'".format(
                         sj_csv=JUNCTION_READS_PATH))
         index_junctions.add_argument(
-            '-b', '--bams', required=False, nargs='*',
+            '-b', '--bam', required=False, nargs='*',
             help="Location of bam files to use for finding events.")
         index_parser.add_argument('-m', '--min-reads', type=int,
                                   action='store',
@@ -245,7 +245,7 @@ class CommandLine(object):
         psi_junctions = psi_parser.add_mutually_exclusive_group(
             required=False)
         psi_junctions.add_argument(
-            '-c', '--compiled-junction-reads', required=False,
+            '-c', '--junction-reads-csv', required=False,
             help="Name of the compiled splice junction file to calculate psi "
                  "scores on. Default is the '--output' folder's "
                  "junctions/reads.csv file. Not required if you specify "
@@ -256,7 +256,7 @@ class CommandLine(object):
             help='SJ.out.tab files from STAR aligner output. Not required if '
                  'you specify a file with "--compiled-junction-reads"')
         psi_junctions.add_argument(
-            '-b', '--bams', required=False,
+            '-b', '--bam', required=False,
             type=str, action='store', nargs='*',
             help='Bam files to use to calculate psi on')
         psi_parser.add_argument('-m', '--min-reads', type=int, action='store',
@@ -431,14 +431,14 @@ class Subcommand(object):
         return os.path.join(self.output_folder, 'junctions')
 
     @property
-    def junction_reads(self):
-        if self.compiled_junction_reads is not None:
-            return self.compiled_junction_reads
+    def junction_reads_filename(self):
+        if self.junction_reads_csv is not None:
+            return self.junction_reads_csv
         else:
             return os.path.join(self.junctions_folder, 'reads.csv')
 
     def make_junction_reads_file(self):
-        if self.bams is None:
+        if self.bam is None:
             util.progress(
                 'Reading SJ.out.files and creating a big splice junction'
                 ' table of reads spanning exon-exon junctions...')
@@ -449,24 +449,25 @@ class Subcommand(object):
             util.progress('Reading bam files and creating a big splice '
                           'junction table of reads spanning exon-exon '
                           'junctions')
-            splice_junctions = bam.read_multiple_bams(
-                self.bams, self.ignore_multimapping, self.n_jobs)
-        dirname = os.path.dirname(self.junction_reads)
+            splice_junctions = bam.read_multiple_bam(
+                self.bam, self.ignore_multimapping, self.n_jobs)
+        dirname = os.path.dirname(self.junction_reads_filename)
         if not os.path.exists(dirname):
             os.makedirs(dirname)
-        util.progress('Writing {} ...\n'.format(self.junction_reads))
-        splice_junctions.to_csv(self.junction_reads, index=False)
+        util.progress('Writing {} ...\n'.format(self.junction_reads_filename))
+        splice_junctions.to_csv(self.junction_reads_filename, index=False)
         util.done()
         return splice_junctions
 
     def csv(self):
         """Create a csv file of compiled splice junctions"""
-        if not os.path.exists(self.junction_reads):
+        if not os.path.exists(self.junction_reads_filename):
             splice_junctions = self.make_junction_reads_file()
         else:
             util.progress('Found compiled junction reads file in {} and '
-                          'reading it in ...'.format(self.junction_reads))
-            splice_junctions = pd.read_csv(self.junction_reads,
+                          'reading it in ...'.format(
+                self.junction_reads_filename))
+            splice_junctions = pd.read_csv(self.junction_reads_filename,
                                            low_memory=self.low_memory)
             util.done()
 
@@ -893,12 +894,12 @@ class Psi(SubcommandAfterIndex):
                     "don't know how to define events :(".format(
                         splice_name, splice_folder))
 
-        if not os.path.exists(self.junction_reads) and self.bams is None:
+        if not os.path.exists(self.junction_reads_filename) and self.bam is None:
             raise OSError(
                 "The junction reads csv file ({}) doesn't exist! "
                 "Cowardly exiting because I don't have the junction "
                 "counts calcaulate psi on :(".format(
-                    self.junction_reads))
+                    self.junction_reads_filename))
 
         for folder in self.folders:
             self.maybe_make_folder(folder)
@@ -908,15 +909,15 @@ class Psi(SubcommandAfterIndex):
             dtype = {self.reads_col: np.float32}
             util.progress(
                 'Reading splice junction reads from {} ...'.format(
-                    self.junction_reads))
+                    self.junction_reads_filename))
             junction_reads = pd.read_csv(
-                self.junction_reads, dtype=dtype, low_memory=self.low_memory)
+                self.junction_reads_filename, dtype=dtype, low_memory=self.low_memory)
             util.done()
         except OSError:
             raise IOError(
                 "There is no junction reads file at the expected location"
                 " ({csv}). Are you in the correct directory?".format(
-                    csv=self.junction_reads))
+                    csv=self.junction_reads_filename))
         return junction_reads
 
     def validate_junction_reads_data(self, junction_reads):
@@ -925,7 +926,7 @@ class Psi(SubcommandAfterIndex):
                 raise ValueError(
                     "The required column name {col} does not exist in {csv}. "
                     "You can change this with the command line flag, "
-                    "{flag}".format(col=col, csv=self.junction_reads,
+                    "{flag}".format(col=col, csv=self.junction_reads_filename,
                                     flag=flag))
 
     def maybe_get_validated_events(self, splice_abbrev):
