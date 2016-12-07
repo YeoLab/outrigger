@@ -4,7 +4,7 @@
 
 |BuildStatus|\ |codecov|\ |PyPIVersions|\ |PythonVersionCompatibility|
 
-.. |OutriggerLogo| image:: https://raw.githubusercontent.com/YeoLab/outrigger/master/logo/v1/logo_v1.svg
+.. |OutriggerLogo| image:: https://raw.githubusercontent.com/YeoLab/outrigger/master/logo/v1/logo_v1-300ppi.png
     :target: https://github.com/YeoLab/outrigger
 .. |BuildStatus| image:: https://travis-ci.org/YeoLab/outrigger.svg?branch=master
    :target: https://travis-ci.org/YeoLab/outrigger
@@ -39,7 +39,7 @@ Features
 
 |OutriggerOverview|
 
-.. |OutriggerOverview| image:: https://raw.githubusercontent.com/YeoLab/outrigger/v1.0.0rc1/docs/_static/outrigger_overview.svg
+.. |OutriggerOverview| image:: https://raw.githubusercontent.com/YeoLab/outrigger/v1.0.0rc1/docs/_static/outrigger_overview-300ppi.png
     :target: https://raw.githubusercontent.com/YeoLab/outrigger/v1.0.0rc1/docs/_static/outrigger_overview-300ppi.png
 
 Installation
@@ -139,6 +139,18 @@ Here is an example command:
 ::
 
     outrigger index --sj-out-tab *SJ.out.tab \
+        --gtf /projects/ps-yeolab/genomes/mm10/gencode/m10/gencode.vM10.annotation.gtf
+
+Bam files
+^^^^^^^^^
+
+If you're using ``.bam`` files instead of ``SJ.out.tab`` files, never despair!
+Below is an example command. Keep in mind that for this program to work, the
+events must be sorted and indexed.
+
+::
+
+    outrigger index --bam *sorted.bam \
         --gtf /projects/ps-yeolab/genomes/mm10/gencode/m10/gencode.vM10.annotation.gtf
 
 Next, you'll want to validate that the splicing events you found follow
