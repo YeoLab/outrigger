@@ -1,3 +1,4 @@
+.. -*- mode: rst -*-
 
 |OutriggerLogo|
 
@@ -95,6 +96,7 @@ option (``-h``), ``outrigger -h``. The output should look like this:
     optional arguments:
       -h, --help            show this help message and exit
       --version             show program's version number and exit
+
 Bleeding edge code from Github (here)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
