@@ -213,7 +213,7 @@ class TestCommandLine(object):
 
         gtf = os.path.join(tasic2016_unprocessed, 'gtf',
                            'gencode.vM10.annotation.subset.gtf')
-        arguments = ['index', '--bams']
+        arguments = ['index', '--bam']
         arguments.extend(bam_filenames)
         arguments.extend(['--gtf', gtf, '--output', output_folder])
         # import pdb; pdb.set_trace()
@@ -295,7 +295,7 @@ class TestCommandLine(object):
 
         args = ['psi', '--output', output_folder, '--n-jobs', '1',
                 '--index', tasic2016_outrigger_output_index,
-                '--bams']
+                '--bam']
         args.extend(bam_filenames)
         CommandLine(args)
 
