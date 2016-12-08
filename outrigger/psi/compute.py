@@ -661,5 +661,4 @@ def calculate_psi(event_annotation, reads2d,
                                        uneven_coverage_multiplier, n_jobs)
     summary = pd.concat(summaries, ignore_index=True)
 
-    psi = summary.pivot(index=SAMPLE_ID, columns=EVENT_ID, values=PSI)
-    return psi, summary
+    return summary

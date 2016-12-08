@@ -318,6 +318,13 @@ class CommandLine(object):
                                 action='store_true',
                                 help='If set, then use a smaller memory '
                                      'footprint. By default, this is off.')
+        psi_parser.add_argument('--chunksize', required=False,
+                                default=100, type=int,
+                                action='store',
+                                help='To prevent running out of memory, the '
+                                     'junction reads file is read in "chunks" '
+                                     'and this argument specifies the number '
+                                     'of lines per chunk (default=100)')
         psi_parser.set_defaults(func=self.psi)
 
         if input_options is None or len(input_options) == 0:
@@ -437,20 +444,21 @@ class Subcommand(object):
         else:
             return os.path.join(self.junctions_folder, 'reads.csv')
 
-    def make_junction_reads_file(self):
+    def make_junction_reads_file(self, chunksize=None):
         if self.bams is None:
             util.progress(
                 'Reading SJ.out.files and creating a big splice junction'
                 ' table of reads spanning exon-exon junctions...')
             splice_junctions = star.read_multiple_sj_out_tab(
-                self.sj_out_tab,
+                self.sj_out_tab, chunksize=chunksize,
                 ignore_multimapping=self.ignore_multimapping)
         else:
             util.progress('Reading bam files and creating a big splice '
                           'junction table of reads spanning exon-exon '
                           'junctions')
             splice_junctions = bam.read_multiple_bams(
-                self.bams, self.ignore_multimapping, self.n_jobs)
+                self.bams, self.ignore_multimapping, self.n_jobs,
+                chunksize=chunksize)
         dirname = os.path.dirname(self.junction_reads)
         if not os.path.exists(dirname):
             os.makedirs(dirname)
@@ -459,15 +467,24 @@ class Subcommand(object):
         util.done()
         return splice_junctions
 
-    def csv(self):
-        """Create a csv file of compiled splice junctions"""
+    def csv(self, chunksize=None):
+        """Create a csv file of compiled splice junctions
+
+        Parameters
+        ----------
+        chunksize : int or None
+            Number of rows to process at a time. If provided, returns an
+            iterator of pandas dataframes
+        """
         if not os.path.exists(self.junction_reads):
-            splice_junctions = self.make_junction_reads_file()
+            splice_junctions = self.make_junction_reads_file(
+                chunksize=chunksize)
         else:
             util.progress('Found compiled junction reads file in {} and '
                           'reading it in ...'.format(self.junction_reads))
             splice_junctions = pd.read_csv(self.junction_reads,
-                                           low_memory=self.low_memory)
+                                           low_memory=self.low_memory,
+                                           chunksize=chunksize)
             util.done()
 
         return splice_junctions
@@ -944,20 +961,6 @@ class Psi(SubcommandAfterIndex):
         if self.debug:
             logger.setLevel(10)
 
-        junction_reads = self.csv()
-
-        metadata_csv = os.path.join(self.junctions_folder, METADATA_CSV)
-        self.junction_metadata(junction_reads, metadata_csv)
-
-        junction_reads_2d = junction_reads.pivot(index=self.sample_id_col,
-                                                 columns=self.junction_id_col,
-                                                 values=self.reads_col)
-        junction_reads_2d.fillna(0, inplace=True)
-        junction_reads_2d = junction_reads_2d.astype(int)
-
-        logger.debug('\n--- Splice Junction reads ---')
-        logger.debug(repr(junction_reads.head()))
-
         psis = []
         for splice_name, splice_abbrev in outrigger.common.SPLICE_TYPES:
             filename = self.maybe_get_validated_events(splice_abbrev)
@@ -985,12 +988,31 @@ class Psi(SubcommandAfterIndex):
                 '{name} ({abbrev}) events ...'.format(
                     name=splice_name, abbrev=splice_abbrev))
             # Splice type percent spliced-in (psi) and summary
-            type_psi, summary = compute.calculate_psi(
-                event_annotation, junction_reads_2d,
-                min_reads=self.min_reads, n_jobs=self.n_jobs,
-                method=self.method,
-                uneven_coverage_multiplier=self.uneven_coverage_multiplier,
-                **isoform_junctions)
+
+            junction_reads = self.csv(chunksize=self.chunksize)
+
+            # metadata_csv = os.path.join(self.junctions_folder, METADATA_CSV)
+            # self.junction_metadata(junction_reads, metadata_csv)
+            splice_type_summaries = []
+            for chunk in junction_reads:
+                junction_reads_2d = chunk.pivot(index=self.sample_id_col,
+                                                columns=self.junction_id_col,
+                                                values=self.reads_col)
+                junction_reads_2d.fillna(0, inplace=True)
+                junction_reads_2d = junction_reads_2d.astype(int)
+
+                summary = compute.calculate_psi(
+                    event_annotation, junction_reads_2d,
+                    min_reads=self.min_reads, n_jobs=self.n_jobs,
+                    method=self.method,
+                    uneven_coverage_multiplier=self.uneven_coverage_multiplier,
+                    **isoform_junctions)
+                splice_type_summaries.append(summary)
+            splice_type_summary = pd.concat(splice_type_summaries,
+                                            ignore_index=True)
+            splice_type_psi = splice_type_summary.pivot(
+                index=common.SAMPLE_ID, columns=common.EVENT_ID,
+                values=common.PSI)
 
             # Write this event's percent spliced-in matrix
             csv = os.path.join(self.psi_folder, splice_abbrev,
@@ -999,7 +1021,7 @@ class Psi(SubcommandAfterIndex):
                           ' ...'.format(name=splice_name, abbrev=splice_abbrev,
                                         filename=csv))
             self.maybe_make_folder(os.path.dirname(csv))
-            type_psi.to_csv(csv, na_rep='NA')
+            splice_type_psi.to_csv(csv, na_rep='NA')
 
             # Write this event's summary of events and why they weren't or were
             # calculated Psi on
@@ -1011,8 +1033,8 @@ class Psi(SubcommandAfterIndex):
                           ''.format(name=splice_name, abbrev=splice_abbrev,
                                     filename=csv))
             self.maybe_make_folder(os.path.dirname(csv))
-            summary.to_csv(csv, na_rep='NA', index=False)
-            psis.append(type_psi)
+            splice_type_summary.to_csv(csv, na_rep='NA', index=False)
+            psis.append(splice_type_psi)
             util.done()
 
         util.progress('Concatenating all calculated psi scores '
