@@ -142,6 +142,15 @@ class CommandLine(object):
                                   action='store_true',
                                   help='If set, then use a smaller memory '
                                        'footprint. By default, this is off.')
+        index_parser.add_argument('--splice-types', required=False,
+                                  default='all',
+                                  action='store',
+                                  help='Which splice types to find. By '
+                                       'default, "all" are used which at this '
+                                       'point is skipped exon (SE) and '
+                                       'mutually exclusive exon (MXE) events. '
+                                       'Can also specify only one, e.g. "se" '
+                                       'or both "se,mxe"')
         overwrite_parser = index_parser.add_mutually_exclusive_group(
             required=False)
         overwrite_parser.add_argument('--force', action='store_true',
@@ -591,6 +600,12 @@ class Index(Subcommand):
 
     max_de_novo_exon_length = adjacencies.MAX_DE_NOVO_EXON_LENGTH
 
+    @property
+    def splice_abbrevs(self):
+        if self.splice_types == 'all':
+            return common.SPLICE_ABBREVS
+        return self.splice_types.split(',')
+
     def make_exon_junction_adjacencies(self, metadata, db):
         """Get annotated exon_cols next to junctions in data"""
         exon_junction_adjacencies = adjacencies.ExonJunctionAdjacencies(
@@ -651,9 +666,8 @@ class Index(Subcommand):
     def make_events_by_traversing_graph(self, event_maker, db):
         """Search the splice graph for alternative exons"""
         existing_events = [os.path.exists(
-            os.path.join(self.index_folder, splice_abbrev.lower(),
-                         EVENTS_CSV)
-            ) for splice_abbrev in common.SPLICE_ABBREVS]
+            os.path.join(self.index_folder, splice_abbrev, EVENTS_CSV)
+            ) for splice_abbrev in self.splice_abbrevs]
         if all(existing_events) and not self.force:
             util.progress('Found existing splicing events files for all splice'
                           ' types, so not searching. To force'
@@ -661,7 +675,14 @@ class Index(Subcommand):
                           ' "--force".')
             return
 
-        event_dfs = event_maker.find_events()
+        undiscovered_splice_types = [
+            splice_abbrev for splice_abbrev in self.splice_abbrevs
+            if not os.path.exists(
+                os.path.join(self.index_folder, splice_abbrev, EVENTS_CSV))
+            or self.force]
+
+        event_dfs = event_maker.find_events(
+            n_jobs=self.n_jobs, splice_types=undiscovered_splice_types)
 
         for splice_abbrev, event_df in event_dfs.items():
             csv = os.path.join(self.index_folder, splice_abbrev.lower(),
