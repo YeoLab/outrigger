@@ -663,11 +663,14 @@ class Index(Subcommand):
         util.done()
         return event_maker
 
+    def _exists_event_csv(self, splice_abbrev):
+        return os.path.exists(
+                os.path.join(self.index_folder, splice_abbrev, EVENTS_CSV))
+
     def make_events_by_traversing_graph(self, event_maker, db):
         """Search the splice graph for alternative exons"""
-        existing_events = [os.path.exists(
-            os.path.join(self.index_folder, splice_abbrev, EVENTS_CSV)
-            ) for splice_abbrev in self.splice_abbrevs]
+        existing_events = [self._exists_event_csv(splice_abbrev)
+                           for splice_abbrev in self.splice_abbrevs]
         if all(existing_events) and not self.force:
             util.progress('Found existing splicing events files for all splice'
                           ' types, so not searching. To force'
@@ -677,9 +680,7 @@ class Index(Subcommand):
 
         undiscovered_splice_types = [
             splice_abbrev for splice_abbrev in self.splice_abbrevs
-            if not os.path.exists(
-                os.path.join(self.index_folder, splice_abbrev, EVENTS_CSV))
-            or self.force]
+            if not self._exists_event_csv(splice_abbrev) or self.force]
 
         event_dfs = event_maker.find_events(
             n_jobs=self.n_jobs, splice_types=undiscovered_splice_types)
