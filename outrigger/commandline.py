@@ -628,7 +628,7 @@ class Index(Subcommand):
         util.done()
 
         csv = os.path.join(self.index_folder,
-                           'junction_exon_direction_triples.csv')
+                           'exon_direction_junction_triples.csv')
         if not os.path.exists(csv) or self.force:
             util.progress('Getting junction-direction-exon triples for graph '
                           'database ...')
