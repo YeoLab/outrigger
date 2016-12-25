@@ -195,14 +195,15 @@ outrigger!
     outrigger psi
 
 This will create a folder called ``outrigger_output``, which at the end
-should look like this:
+should look like the one below. Each file and folder is annotated with which command
+produced it.
 
 ::
 
     $ tree outrigger_output
-    outrigger_output
-    ├── index
-    │   ├── gtf
+    outrigger_output..........................................................index
+    ├── index.................................................................index
+    │   ├── gtf...............................................................index
     │   │   ├── gencode.vM10.annotation.gtf...................................index
     │   │   ├── gencode.vM10.annotation.gtf.db................................index
     │   │   └── novel_exons.gtf...............................................index
