@@ -73,13 +73,19 @@ def uniquely_summed_csv(bamfile, tasic2016_intermediate_bam):
     return csv
 
 
+@pytest.fixture(params=[None, 'multi', 'uniquely'])
+def empty(request):
+    return request.param
+
+
 @pytest.fixture
 def single_bam_combined_uniquely_multi_csv(tasic2016_intermediate_bam, bamfile,
-                                           ignore_multimapping):
+                                           ignore_multimapping, empty):
     basename = os.path.basename(bamfile)
+    empty_suffix = '' if empty is None else 'empty_' + empty
     basename = basename.replace(
-        '.bam', '.junction_reads_ignore-multimapping{}.csv')
-    basename = basename.format(ignore_multimapping)
+        '.bam', '.junction_reads_ignore-multimapping{}{}.csv')
+    basename = basename.format(ignore_multimapping, empty_suffix)
     return os.path.join(tasic2016_intermediate_bam, basename)
 
 
@@ -124,38 +130,45 @@ def test__choose_strand_and_sum(uniquely, uniquely_summed_csv):
     pdt.assert_series_equal(test, true)
 
 
-def test__combine_uniquely_multi(uniquely, multi, ignore_multimapping,
+def test__combine_uniquely_multi(uniquely, multi, ignore_multimapping, empty,
                                  single_bam_combined_uniquely_multi_csv):
     from outrigger.io.bam import _combine_uniquely_multi
 
-    test = _combine_uniquely_multi(uniquely, multi, ignore_multimapping)
+    u = uniquely
+    m = multi
+    if empty == 'uniquely':
+        u = {}
+    elif empty == 'multi':
+        m = {}
+
+    test = _combine_uniquely_multi(u, m, ignore_multimapping)
     true = pd.read_csv(single_bam_combined_uniquely_multi_csv)
 
     pdt.assert_frame_equal(test, true)
 
-
-def test__combine_uniquely_multi_empty_multi(uniquely, ignore_multimapping,
-                                 single_bam_combined_uniquely_multi_csv):
-    from outrigger.io.bam import _combine_uniquely_multi
-    from outrigger.common import MULTIMAP_READS
-
-    test = _combine_uniquely_multi(uniquely, {},
-                                   ignore_multimapping)
-    true = pd.read_csv(single_bam_combined_uniquely_multi_csv)
-
-    pdt.assert_frame_equal(test, true)
-
-
-def test__combine_uniquely_multi_empty_uniquely(multi, ignore_multimapping,
-                                 single_bam_combined_uniquely_multi_csv):
-    from outrigger.io.bam import _combine_uniquely_multi
-    from outrigger.common import UNIQUE_READS
-
-    test = _combine_uniquely_multi({}, multi,
-                                   ignore_multimapping)
-    true = pd.read_csv(single_bam_combined_uniquely_multi_csv)
-
-    pdt.assert_frame_equal(test, true)
+#
+# def test__combine_uniquely_multi_empty_multi(
+#         uniquely, ignore_multimapping, single_bam_combined_uniquely_multi_csv):
+#     from outrigger.io.bam import _combine_uniquely_multi
+#     from outrigger.common import MULTIMAP_READS
+#
+#     test = _combine_uniquely_multi(uniquely, {},
+#                                    ignore_multimapping)
+#     true = pd.read_csv(single_bam_combined_uniquely_multi_csv)
+#
+#     pdt.assert_frame_equal(test, true)
+#
+#
+# def test__combine_uniquely_multi_empty_uniquely(
+#         multi, ignore_multimapping, single_bam_combined_uniquely_multi_csv):
+#     from outrigger.io.bam import _combine_uniquely_multi
+#     from outrigger.common import UNIQUE_READS
+#
+#     test = _combine_uniquely_multi({}, multi,
+#                                    ignore_multimapping)
+#     true = pd.read_csv(single_bam_combined_uniquely_multi_csv)
+#
+#     pdt.assert_frame_equal(test, true)
 
 
 def test__get_junction_reads(bamfile, uniquely, multi):
