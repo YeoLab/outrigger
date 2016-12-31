@@ -47,6 +47,10 @@ def _choose_strand_and_sum(reads):
         the majority strand as the "winner" and
 
     """
+    if reads.empty:
+        index = pd.MultiIndex(levels=[[],[],[]],
+                              labels=[[],[],[]])
+        return pd.Series(name=reads.name, index=index)
     locations = reads.groupby(level=(0, 1, 2)).idxmax()
     counts = reads.groupby(level=(0, 1, 2)).sum()
 
@@ -81,7 +85,14 @@ def _combine_uniquely_multi(uniquely, multi, ignore_multimapping=False):
     multi = _choose_strand_and_sum(multi)
 
     # Join the data on the chromosome locations
-    reads = uniquely.to_frame().join(multi)
+    if multi.empty:
+        reads = uniquely.to_frame()
+        reads[MULTIMAP_READS] = np.nan
+    elif uniquely.empty:
+        reads = multi.to_frame()
+        reads[UNIQUE_READS] = np.nan
+    else:
+        reads = uniquely.to_frame().join(multi)
 
     reads = reads.fillna(0)
     reads = reads.astype(int)
