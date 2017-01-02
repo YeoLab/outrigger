@@ -449,8 +449,6 @@ class ExonJunctionAdjacencies(object):
             A three-column dataframe describing the relationship of where an
             exon is relative to junctions
         """
-        n_exons = sum(1 for _ in self.db.features_of_type(self.exon_types))
-
         progress('Starting annotation of all junctions with known '
                  'neighboring exons ...', n_tabs=2)
         dfs = joblib.Parallel(n_jobs=self.n_jobs)(
