@@ -1,6 +1,7 @@
 """
 Find exons adjacent to junctions
 """
+import itertools
 import sqlite3
 import warnings
 
@@ -77,7 +78,8 @@ def _neighboring_exons(junction, df, side='left',
     junction : outrigger.Region
         A Region object with .start and .stop
     df : pandas.DataFrame
-        A data table with "start" and "stop" columns of all junctions
+        A data table with "start" and "stop" columns of all junctions within
+        one chromosome
     side : 'left' | 'right'
         Specifies whether you want the left or right side neighbors of a
         junction (not strand-specific)
@@ -130,6 +132,99 @@ def is_there_an_exon_here(self, junction1, junction2):
     elif option2:
         return junction2.stop + 1, junction1.start - 1
     return False, False
+
+
+def _single_junction_exon_triple(direction_ind, direction, exon_id):
+    """Create exon, direction, junction triples for an exon + its junctions
+
+    Parameters
+    ----------
+    direction_ind : pandas.Series
+        A boolean series of the indices of the junctions matching with the
+        provided exon. The index of the series must be the junction ID
+    direction : str
+        The direction of the exon relative to the junctions, either
+        "upstream" or "downstream"
+    exon_id : str
+        Unique identifier of the exon
+
+    Returns
+    -------
+    triples : pandas.DataFrame
+        A (n, 3) sized dataframe of an exon and its adjacent junctions
+    """
+    length = direction_ind.sum()
+
+    exons = [exon_id] * length
+    directions = [direction] * length
+    junctions = direction_ind[direction_ind].index
+    return pd.DataFrame(list(zip(exons, directions, junctions)),
+                        columns=['exon', 'direction', 'junction'])
+
+
+def _to_stranded_transcript_adjacency(adjacent_in_genome, strand):
+    """If negative strand, swap the upstream/downstream adjacency
+
+    Parameters
+    ----------
+    adjacent_in_genome : dict
+        dict of two keys, "upstream" and "downstream", mapping to a boolean
+        series indicating whether the junction is upstream or downstream of
+        a particular exon
+    strand : "-" | "+"
+        Positive or negative strand
+    """
+    if strand == '+':
+        return {UPSTREAM: adjacent_in_genome[UPSTREAM],
+                DOWNSTREAM: adjacent_in_genome[DOWNSTREAM]}
+    elif strand == '-':
+        return {UPSTREAM: adjacent_in_genome[DOWNSTREAM],
+                DOWNSTREAM: adjacent_in_genome[UPSTREAM]}
+    else:
+        # If strand is unknown, put both upstream and downstream for each
+        # side
+        adjacent = pd.concat(adjacent_in_genome.values())
+        return {UPSTREAM: adjacent, DOWNSTREAM: adjacent}
+
+
+def _junctions_genome_adjacent_to_exon(exon, metadata):
+    """Get indices of junctions next to an exon, in genome coordinates"""
+    chrom_ind = metadata[CHROM] == exon.chrom
+
+    strand_ind = metadata[STRAND] == exon.strand
+    common_ind = chrom_ind & strand_ind
+
+    upstream_in_genome = \
+        common_ind & (metadata[EXON_STOP] == exon.stop)
+    downstream_in_genome = \
+        common_ind & (metadata[EXON_START] == exon.start)
+    return {UPSTREAM: upstream_in_genome, DOWNSTREAM: downstream_in_genome}
+
+
+def _junctions_adjacent_to_this_exon(exon, metadata):
+    """Get junctions adjacent to this exon
+
+    Parameters
+    ----------
+    exon : gffutils.Feature
+        An item in a gffutils database
+
+    """
+    dfs = []
+    adjacent_in_genome = _junctions_genome_adjacent_to_exon(exon, metadata)
+    adjacent_in_transcriptome = _to_stranded_transcript_adjacency(
+        adjacent_in_genome, exon.strand)
+
+    exon_id = exon.id
+    for direction, ind in adjacent_in_transcriptome.items():
+        if ind.any():
+            df = _single_junction_exon_triple(ind, direction, exon_id)
+            dfs.append(df)
+
+    if len(dfs) > 0:
+        return pd.concat(dfs, ignore_index=True)
+    else:
+        return pd.DataFrame()
 
 
 class ExonJunctionAdjacencies(object):
@@ -197,10 +292,12 @@ class ExonJunctionAdjacencies(object):
             # junction on both sides, and since we iterate over ALL junctions,
             # if we get all left and right exons for all junctions, we're
             # double-counting exons
-            progress('\tFinding all exons on chromosome {chrom} '
-                     '...'.format(chrom=chrom))
-            exon_locations = pd.concat(joblib.Parallel(n_jobs=self.n_jobs)(
-                joblib.delayed(_neighboring_exons)(junction, df, 'left')
+            progress('\tFinding novel exons that are <={nt}nt between two '
+                     'junctions using on chromosome {chrom} '
+                     '...'.format(chrom=chrom,
+                                  nt=self.max_de_novo_exon_length))
+            exon_locations = itertools.chain(*(
+                _neighboring_exons(junction, df, 'left')
                 for junction in df.region))
             done(n_tabs=3)
 
@@ -313,96 +410,6 @@ class ExonJunctionAdjacencies(object):
             except sqlite3.IntegrityError:
                 continue
 
-    @staticmethod
-    def _single_junction_exon_triple(direction_ind, direction, exon_id):
-        """Create exon, direction, junction triples for an exon + its junctions
-
-        Parameters
-        ----------
-        direction_ind : pandas.Series
-            A boolean series of the indices of the junctions matching with the
-            provided exon. The index of the series must be the junction ID
-        direction : str
-            The direction of the exon relative to the junctions, either
-            "upstream" or "downstream"
-        exon_id : str
-            Unique identifier of the exon
-
-        Returns
-        -------
-        triples : pandas.DataFrame
-            A (n, 3) sized dataframe of an exon and its adjacent junctions
-        """
-        length = direction_ind.sum()
-
-        exons = [exon_id] * length
-        directions = [direction] * length
-        junctions = direction_ind[direction_ind].index
-        return pd.DataFrame(list(zip(exons, directions, junctions)),
-                            columns=['exon', 'direction', 'junction'])
-
-    @staticmethod
-    def _to_stranded_transcript_adjacency(adjacent_in_genome, strand):
-        """If negative strand, swap the upstream/downstream adjacency
-
-        Parameters
-        ----------
-        adjacent_in_genome : dict
-            dict of two keys, "upstream" and "downstream", mapping to a boolean
-            series indicating whether the junction is upstream or downstream of
-            a particular exon
-        strand : "-" | "+"
-            Positive or negative strand
-        """
-        if strand == '+':
-            return {UPSTREAM: adjacent_in_genome[UPSTREAM],
-                    DOWNSTREAM: adjacent_in_genome[DOWNSTREAM]}
-        elif strand == '-':
-            return {UPSTREAM: adjacent_in_genome[DOWNSTREAM],
-                    DOWNSTREAM: adjacent_in_genome[UPSTREAM]}
-        else:
-            # If strand is unknown, put both upstream and downstream for each
-            # side
-            adjacent = pd.concat(adjacent_in_genome.values())
-            return {UPSTREAM: adjacent, DOWNSTREAM: adjacent}
-
-    def _junctions_genome_adjacent_to_exon(self, exon):
-        """Get indices of junctions next to an exon, in genome coordinates"""
-        chrom_ind = self.metadata[self.chrom] == exon.chrom
-
-        strand_ind = self.metadata[self.strand] == exon.strand
-        common_ind = chrom_ind & strand_ind
-
-        upstream_in_genome = \
-            common_ind & (self.metadata[self.exon_stop] == exon.stop)
-        downstream_in_genome = \
-            common_ind & (self.metadata[self.exon_start] == exon.start)
-        return {UPSTREAM: upstream_in_genome, DOWNSTREAM: downstream_in_genome}
-
-    def junctions_adjacent_to_this_exon(self, exon):
-        """Get junctions adjacent to this exon
-
-        Parameters
-        ----------
-        exon : gffutils.Feature
-            An item in a gffutils database
-
-        """
-        dfs = []
-        adjacent_in_genome = self._junctions_genome_adjacent_to_exon(exon)
-        adjacent_in_transcriptome = self._to_stranded_transcript_adjacency(
-            adjacent_in_genome, exon.strand)
-
-        exon_id = exon.id
-        for direction, ind in adjacent_in_transcriptome.items():
-            if ind.any():
-                df = self._single_junction_exon_triple(ind, direction, exon_id)
-                dfs.append(df)
-
-        if len(dfs) > 0:
-            return pd.concat(dfs, ignore_index=True)
-        else:
-            return pd.DataFrame()
 
     def upstream_downstream_exons(self):
         """Get upstream and downstream exons of each junction
@@ -447,12 +454,13 @@ class ExonJunctionAdjacencies(object):
         dfs = []
 
         progress('Starting annotation of all junctions with known '
-                 'neighboring exons ...')
+                 'neighboring exons ...', n_tabs=2)
+
         for i, exon in enumerate(self.db.features_of_type(self.exon_types)):
             if (i + 1) % 10000 == 0:
                 progress('\t{}/{} exons completed'.format(i + 1, n_exons))
             df = self.junctions_adjacent_to_this_exon(exon)
             dfs.append(df)
         junction_exon_triples = pd.concat(dfs, ignore_index=True)
-        done()
+        done(n_tabs=3)
         return junction_exon_triples
