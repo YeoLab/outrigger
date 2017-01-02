@@ -451,16 +451,12 @@ class ExonJunctionAdjacencies(object):
         """
         n_exons = sum(1 for _ in self.db.features_of_type(self.exon_types))
 
-        dfs = []
-
         progress('Starting annotation of all junctions with known '
                  'neighboring exons ...', n_tabs=2)
-
-        for i, exon in enumerate(self.db.features_of_type(self.exon_types)):
-            if (i + 1) % 10000 == 0:
-                progress('\t{}/{} exons completed'.format(i + 1, n_exons))
-            df = self.junctions_adjacent_to_this_exon(exon)
-            dfs.append(df)
+        dfs = joblib.Parallel(n_jobs=self.n_jobs)(
+            joblib.delayed(_junctions_adjacent_to_this_exon)(
+                exon, self.metadata) for exon in
+            self.db.features_of_type(self.exon_types))
         junction_exon_triples = pd.concat(dfs, ignore_index=True)
         done(n_tabs=3)
         return junction_exon_triples
