@@ -146,30 +146,6 @@ def test__combine_uniquely_multi(uniquely, multi, ignore_multimapping, empty,
 
     pdt.assert_frame_equal(test, true)
 
-#
-# def test__combine_uniquely_multi_empty_multi(
-#         uniquely, ignore_multimapping, single_bam_combined_uniquely_multi_csv):
-#     from outrigger.io.bam import _combine_uniquely_multi
-#     from outrigger.common import MULTIMAP_READS
-#
-#     test = _combine_uniquely_multi(uniquely, {},
-#                                    ignore_multimapping)
-#     true = pd.read_csv(single_bam_combined_uniquely_multi_csv)
-#
-#     pdt.assert_frame_equal(test, true)
-#
-#
-# def test__combine_uniquely_multi_empty_uniquely(
-#         multi, ignore_multimapping, single_bam_combined_uniquely_multi_csv):
-#     from outrigger.io.bam import _combine_uniquely_multi
-#     from outrigger.common import UNIQUE_READS
-#
-#     test = _combine_uniquely_multi({}, multi,
-#                                    ignore_multimapping)
-#     true = pd.read_csv(single_bam_combined_uniquely_multi_csv)
-#
-#     pdt.assert_frame_equal(test, true)
-
 
 def test__get_junction_reads(bamfile, uniquely, multi):
     from outrigger.io.bam import _get_junction_reads
