@@ -17,6 +17,14 @@ def done(n_tabs=2):
     sys.stdout.write('{}{}Done.\n'.format(timestamp(), '\t' * n_tabs))
 
 
-def progress(message):
-    """Write a timestamped progress message to standard output"""
-    sys.stdout.write('{}\t{}\n'.format(timestamp(), message))
+def progress(message, n_tabs=1):
+    """Write a timestamped progress message to standard output
+
+    Parameters
+    ----------
+    n_tabs : int
+        Integer number of tabs to pad before the message. Default is 1
+    """
+    sys.stdout.write('{time}{tabs}{message}\n'.format(time=timestamp(),
+                                                      message=message,
+                                                      tabs='\t'*n_tabs))
