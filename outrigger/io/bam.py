@@ -48,8 +48,7 @@ def _choose_strand_and_sum(reads):
 
     """
     if reads.empty:
-        index = pd.MultiIndex(levels=[[], [], []], labels=[[], [], []])
-        return pd.Series(name=reads.name, index=index)
+        return pd.Series(name=reads.name)
     locations = reads.groupby(level=(0, 1, 2)).idxmax()
     counts = reads.groupby(level=(0, 1, 2)).sum()
 
