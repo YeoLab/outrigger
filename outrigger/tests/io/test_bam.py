@@ -82,7 +82,7 @@ def empty(request):
 def single_bam_combined_uniquely_multi_csv(tasic2016_intermediate_bam, bamfile,
                                            ignore_multimapping, empty):
     basename = os.path.basename(bamfile)
-    empty_suffix = '' if empty is None else 'empty_' + empty
+    empty_suffix = '' if empty is None else '_empty_' + empty
     basename = basename.replace(
         '.bam', '.junction_reads_ignore-multimapping{}{}.csv')
     basename = basename.format(ignore_multimapping, empty_suffix)
