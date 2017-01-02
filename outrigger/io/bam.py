@@ -44,7 +44,7 @@ def _choose_strand_and_sum(reads):
     -------
     reads_strand_chosen : pandas.Series
         A (chrom, start, stop, strand)-indexed series of read counts, with
-        the majority strand as the "winner" and
+        the majority strand as the "winner"
 
     """
     if reads.empty:
