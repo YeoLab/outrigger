@@ -9,7 +9,7 @@ import os
 import gffutils
 import pandas as pd
 
-from ..common import SPLICE_TYPE_ISOFORM_EXONS
+from ..common import SPLICE_TYPE_ISOFORM_EXONS, ORDER_BY
 from ..region import Region
 
 # Annotations from:
@@ -207,3 +207,14 @@ class SplicingAnnotator(object):
         regions = pd.Series(dict(intron_region=intron, event_region=event))
 
         return regions
+
+
+def write(db, filename, featuretype=None, order_by=ORDER_BY):
+    """Write features of a gffutils database to a gtf"""
+    with open(filename, 'w') as f:
+        if featuretype is not None:
+            features = db.features_of_type(featuretype, order_by=order_by)
+        else:
+            features = db.all_features()
+        for feature in features:
+            f.write(str(feature) + '\n')
