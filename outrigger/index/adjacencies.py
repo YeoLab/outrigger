@@ -293,7 +293,7 @@ class ExonJunctionAdjacencies(object):
             # if we get all left and right exons for all junctions, we're
             # double-counting exons
             progress('\tFinding novel exons that are <={nt}nt between two '
-                     'junctions using on chromosome {chrom} '
+                     'junctions on chromosome {chrom} '
                      '...'.format(chrom=chrom,
                                   nt=self.max_de_novo_exon_length))
             exon_locations = itertools.chain(*(
