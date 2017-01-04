@@ -314,12 +314,16 @@ class ExonJunctionAdjacencies(object):
                              for x in novel_exons]
             done(n_tabs=4)
 
+            if len(exon_features) == 0:
+                progress('\t\tNo novel exons found on chromosome '
+                         '{chrom}'.format(chrom=chrom))
+                continue
+
             progress('\t\tUpdating gffutils database with {n} novel exons on '
                      'chromosome {chrom} ...'.format(chrom=chrom,
                                                      n=len(novel_exons)))
             try:
-                self.db.update(exon_features,
-                               make_backup=False,
+                self.db.update(exon_features, make_backup=False,
                                id_spec={'novel_exon': 'location_id'},
                                transform=transform)
             except ValueError:
@@ -334,9 +338,13 @@ class ExonJunctionAdjacencies(object):
     def exon_location_to_feature(self, chrom, start, stop, strand):
         if strand not in STRANDS:
             strand = '.'
+
         overlapping_genes = self.db.region(seqid=chrom, start=start,
                                            end=stop, strand=strand,
                                            featuretype='gene')
+        # if chrom == 'chr4':
+        #     overlapping_genes = list(overlapping_genes)
+        #     import pdb; pdb.set_trace()
 
         exon_id = 'exon:{chrom}:{start}-{stop}:{strand}'.format(
             chrom=chrom, start=start, stop=stop, strand=strand)
@@ -358,58 +366,6 @@ class ExonJunctionAdjacencies(object):
                                                    order_by=ORDER_BY)
             for noveL_exon in novel_exons:
                 f.write(str(noveL_exon) + '\n')
-
-    def add_exon_to_db(self, chrom, start, stop, strand):
-        if strand not in STRANDS:
-            strand = None
-        overlapping_genes = list(self.db.region(seqid=chrom, start=start,
-                                                end=stop, strand=strand,
-                                                featuretype='gene'))
-
-        exon_id = 'exon:{chrom}:{start}-{stop}:{strand}'.format(
-            chrom=chrom, start=start, stop=stop, strand=strand)
-
-        if len(overlapping_genes) == 0:
-            exon = gffutils.Feature(chrom, source=OUTRIGGER_DE_NOVO,
-                                    featuretype=NOVEL_EXON, start=start,
-                                    end=stop, strand=strand, id=exon_id)
-            progress('\tAdded a novel exon ({}), located in an unannotated'
-                     ' gene'.format(exon.id))
-            self.db.update([exon], id_spec={'novel_exon': 'location_id'},
-                           transform=transform)
-            return
-
-        de_novo_exons = [gffutils.Feature(
-            chrom, source=OUTRIGGER_DE_NOVO, featuretype=NOVEL_EXON,
-            start=start, end=stop, strand=g.strand, id=exon_id + g.strand,
-            attributes=dict(g.attributes.items()))
-                         for g in overlapping_genes]
-
-        # Add all exons that aren't already there
-        for exon in de_novo_exons:
-            try:
-                try:
-                    gene_name = ','.join(exon.attributes['gene_name'])
-                except KeyError:
-                    try:
-                        gene_name = ','.join(exon.attributes['gene_id'])
-                    except KeyError:
-                        gene_name = 'unknown_gene'
-                try:
-                    # Check that the non-novel exon doesn't exist already
-                    self.db[exon_id + exon.strand]
-                except gffutils.FeatureNotFoundError:
-                    self.db.update([exon],
-                                   id_spec={'novel_exon': 'location_id'},
-                                   transform=transform)
-                    progress(
-                        '\tAdded a novel exon ({}) in the gene {} '
-                        '({})'.format(
-                            exon.id, ','.join(exon.attributes['gene_id']),
-                            gene_name))
-            except sqlite3.IntegrityError:
-                continue
-
 
     def upstream_downstream_exons(self):
         """Get upstream and downstream exons of each junction
