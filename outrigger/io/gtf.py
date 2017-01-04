@@ -17,6 +17,11 @@ from ..region import Region
 
 gene_transcript = set(('gene', 'transcript'))
 
+ID_SPEC = {'gene': 'gene_id', 'transcript': 'transcript_id',
+           'exon': 'location_id', 'CDS': 'location_id',
+           'start_codon': 'location_id', 'novel_exon': 'location_id',
+           'stop_codon': 'location_id', 'UTR': 'location_id'}
+
 
 def maybe_analyze(db):
     try:
@@ -47,10 +52,7 @@ def create_db(gtf_filename, db_filename=None):
         gtf_filename,
         db_filename,
         merge_strategy='merge',
-        id_spec={'gene': 'gene_id', 'transcript': 'transcript_id',
-                 'exon': 'location_id', 'CDS': 'location_id',
-                 'start_codon': 'location_id',
-                 'stop_codon': 'location_id', 'UTR': 'location_id'},
+        id_spec=ID_SPEC,
         transform=transform,
         force=True,
         verbose=True,
