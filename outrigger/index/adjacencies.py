@@ -325,7 +325,8 @@ class ExonJunctionAdjacencies(object):
             try:
                 self.db.update(exon_features, make_backup=False,
                                id_spec=ID_SPEC, merge_strategy='merge',
-                               transform=transform)
+                               transform=transform, disable_infer_genes=True,
+                               disable_infer_transcripts=True,)
             except ValueError:
                 progress('\tNo novel exons found on chromosome '
                          '{chrom}'.format(chrom=chrom))
