@@ -70,6 +70,10 @@ class Region(object):
             base = self.region + ':' + base
         return base
 
+    @property
+    def id(self):
+        return self.name
+
     def __len__(self):
         """Length of region. Add 1 to include last base of stop"""
         return self.stop - self.start + 1
