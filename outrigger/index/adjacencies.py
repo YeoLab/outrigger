@@ -408,10 +408,24 @@ class ExonJunctionAdjacencies(object):
         """
         progress('Starting annotation of all junctions with known '
                  'neighboring exons ...', n_tabs=2)
-        dfs = joblib.Parallel(n_jobs=self.n_jobs)(
-            joblib.delayed(_junctions_adjacent_to_this_exon)(
-                exon, self.metadata) for exon in
-            self.db.features_of_type(self.exon_types))
+
+        if self.n_jobs != 1:
+            # This must be a list not a generator because SQLite objects (aka
+            # gffutils features) can only be used in the thread they were
+            # created, but if you want to multithread exon adjacency finding,
+            # then you have to let each exon be a different thread.
+            exons = [Region(exon.id) for exon
+                     in self.db.features_of_type(self.exon_types)]
+            dfs = joblib.Parallel(n_jobs=self.n_jobs)(
+                joblib.delayed(_junctions_adjacent_to_this_exon)(
+                    exon, self.metadata) for exon in exons)
+        else:
+            # If not multithreading, at least use generators to be nice to the
+            # computer
+            dfs = []
+            for exon in self.db.features_of_type(self.exon_types):
+                dfs.append(_junctions_adjacent_to_this_exon(exon,
+                                                            self.metadata))
         junction_exon_triples = pd.concat(dfs, ignore_index=True)
         done(n_tabs=3)
         return junction_exon_triples
