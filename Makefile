@@ -83,14 +83,14 @@ tasic2016_big:
 	rm -rf $$OUTPUT
 	outrigger index --sj-out-tab outrigger/tests/data/tasic2016/unprocessed/sj_out_tab/originals/CAV_LP_Ipsi_tdTpos_cell_1*SJ.out.tab --gtf outrigger/tests/data/tasic2016/unprocessed/gtf/gencode.vM10.annotation.subset.gtf --output $$OUTPUT --n-jobs $(N_JOBS)
 	outrigger validate --genome ~/genomes/mm10/mm10.chrom.sizes --fasta ~/genomes/mm10/gencode/m10/GRCm38.primary_assembly.genome.fa --output $$OUTPUT
-	outrigger psi --output $$DIR --n-jobs $(N_JOBS)
+	outrigger psi --output OUTPUT --n-jobs $(N_JOBS)
 
 tasic2016_bigger:
 	OUTPUT=tasic2016_bigger_outrigger_output
 	rm -rf $$OUTPUT
 	outrigger index --sj-out-tab outrigger/tests/data/tasic2016/unprocessed/sj_out_tab/originals/CAV_LP_Ipsi_tdTpos_cell*SJ.out.tab --gtf outrigger/tests/data/tasic2016/unprocessed/gtf/gencode.vM10.annotation.subset.gtf --output $$OUTPUT --n-jobs $(N_JOBS)
 	outrigger validate --genome ~/genomes/mm10/mm10.chrom.sizes --fasta ~/genomes/mm10/gencode/m10/GRCm38.primary_assembly.genome.fa --output $$OUTPUT
-	outrigger psi --output $$DIR --n-jobs $(N_JOBS)
+	outrigger psi --output OUTPUT --n-jobs $(N_JOBS)
 
 treutlein2014: clean-output
 	rm -rf treutlein2014
