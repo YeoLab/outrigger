@@ -466,6 +466,7 @@ def _single_event_psi(event_id, event_df, reads2d,
     4  isoform1=junction:chr10:128491034-128491719:-|...
 
     """
+    import pdb; pdb.set_trace()
     junction_locations = event_df.iloc[0]
 
     n_junctions1 = len(isoform1_junction_numbers)
