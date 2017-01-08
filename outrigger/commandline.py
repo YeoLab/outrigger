@@ -1014,6 +1014,7 @@ class Psi(SubcommandAfterIndex):
         junction_reads = self.csv()
 
         metadata_csv = os.path.join(self.junctions_folder, METADATA_CSV)
+        self.maybe_make_folder(os.path.dirname(metadata_csv))
         self.junction_metadata(junction_reads, metadata_csv)
 
         junction_reads_2d = junction_reads.pivot(index=self.sample_id_col,
