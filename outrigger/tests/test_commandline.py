@@ -141,7 +141,7 @@ class TestCommandLine(object):
         arguments = ['index', '--sj-out-tab']
         arguments.extend(sj_filenames)
         arguments.extend(['--gtf', gtf, '--output', output_folder,
-                          '--n-jobs', '1'])
+                          '--n-jobs', '1', '--unstranded'])
         # import pdb; pdb.set_trace()
         # assert False
         CommandLine(arguments)
@@ -167,7 +167,7 @@ class TestCommandLine(object):
         arguments.append(os.path.join(tasic2016_outrigger_output, 'junctions',
                                       'reads.csv'))
         arguments.extend(['--gtf', gtf, '--output', output_folder,
-                          '--n-jobs', '1'])
+                          '--n-jobs', '1', '--unstranded'])
         # import pdb; pdb.set_trace()
         # assert False
         CommandLine(arguments)
@@ -192,7 +192,7 @@ class TestCommandLine(object):
         arguments = ['index', '--sj-out-tab']
         arguments.extend(sj_filenames)
         arguments.extend(['--gtf', gtf, '--output', output_folder,
-                          '--n-jobs', '-1'])
+                          '--n-jobs', '-1', '--unstranded'])
         # import pdb; pdb.set_trace()
         # assert False
         CommandLine(arguments)
@@ -215,7 +215,8 @@ class TestCommandLine(object):
                            'gencode.vM10.annotation.subset.gtf')
         arguments = ['index', '--bam']
         arguments.extend(bam_filenames)
-        arguments.extend(['--gtf', gtf, '--output', output_folder])
+        arguments.extend(['--gtf', gtf, '--output', output_folder,
+                          '--unstranded'])
         # import pdb; pdb.set_trace()
         # assert False
         CommandLine(arguments)
@@ -295,7 +296,7 @@ class TestCommandLine(object):
 
         args = ['psi', '--output', output_folder, '--n-jobs', '1',
                 '--index', tasic2016_outrigger_output_index,
-                '--bam']
+                '--bam', '--unstranded']
         args.extend(bam_filenames)
         CommandLine(args)
 
