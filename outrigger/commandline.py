@@ -1028,6 +1028,9 @@ class Psi(SubcommandAfterIndex):
             # strand
             junction_reads_2d.columns = junction_reads_2d.columns.map(
                 util.strip_strand)
+            # Sum the reads from the same junctions now
+            junction_reads_2d = junction_reads_2d.groupby(
+                level=0, axis=1).sum()
 
         psis = []
         for splice_name, splice_abbrev in outrigger.common.SPLICE_TYPES:
