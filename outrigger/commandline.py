@@ -93,6 +93,13 @@ class CommandLine(object):
                                        ' is the same thing as what the STAR '
                                        'aligner does. By default, this is off,'
                                        ' and all reads are used.')
+        index_strand = index_parser.add_mutually_exclusive_group(required=True)
+        index_strand.add_argument('--stranded', action='store_true',
+                                  help='Specifies if RNA-seq library is '
+                                       'strand-specific')
+        index_strand.add_argument('--unstranded', action='store_true',
+                                  help='Specifies if RNA-seq library is '
+                                       'not strand-specific')
         index_parser.add_argument(
             '-l', '--max-de-novo-exon-length',
             default=adjacencies.MAX_DE_NOVO_EXON_LENGTH, action='store',
@@ -268,6 +275,32 @@ class CommandLine(object):
             '-b', '--bam', required=False,
             type=str, action='store', nargs='*',
             help='Bam files to use to calculate psi on')
+        psi_parser.add_argument('--ignore-multimapping', action='store_true',
+                                help='Applies to STAR SJ.out.tab files only.'
+                                     ' If this flag is used, then do not '
+                                     'include reads that mapped to multiple '
+                                     'locations in the genome, not uniquely '
+                                     'to a locus, in the read count for a '
+                                     'junction. If inputting "bam" files, '
+                                     'then this means that reads with a '
+                                     'mapping quality (MAPQ) of less than '
+                                     '255 are considered "multimapped." This '
+                                     'is the same thing as what the STAR '
+                                     'aligner does. By default, this is off, '
+                                     'and all reads are used.')
+        psi_strand = psi_parser.add_mutually_exclusive_group(required=False)
+        psi_strand.add_argument('--stranded', action='store_true',
+                                  help='Specifies if RNA-seq library is '
+                                       'strand-specific. Required if using '
+                                       '--bam/--sj-out-tab/--junction-reads-'
+                                       'csv to use an "outrigger index" on '
+                                       'another dataset')
+        psi_strand.add_argument('--unstranded', action='store_true',
+                                help='Specifies if RNA-seq library is '
+                                       'not strand-specific. Required if using '
+                                       '--bam/--sj-out-tab/--junction-reads-'
+                                       'csv to use an "outrigger index" on '
+                                       'another dataset')
         psi_parser.add_argument('-m', '--min-reads', type=int, action='store',
                                 required=False, default=10,
                                 help='Minimum number of reads per junction for'
@@ -284,19 +317,6 @@ class CommandLine(object):
                                      ' bigger than the other side of the exon '
                                      'by this amount, (default is 10, so 10x '
                                      'bigger), then do not use this event')
-        psi_parser.add_argument('--ignore-multimapping', action='store_true',
-                                help='Applies to STAR SJ.out.tab files only.'
-                                     ' If this flag is used, then do not '
-                                     'include reads that mapped to multiple '
-                                     'locations in the genome, not uniquely '
-                                     'to a locus, in the read count for a '
-                                     'junction. If inputting "bam" files, '
-                                     'then this means that reads with a '
-                                     'mapping quality (MAPQ) of less than '
-                                     '255 are considered "multimapped." This '
-                                     'is the same thing as what the STAR '
-                                     'aligner does. By default, this is off, '
-                                     'and all reads are used.')
         psi_parser.add_argument('--reads-col', default='reads',
                                 help="Name of column in --splice-junction-csv "
                                      "containing reads to use. "
@@ -471,7 +491,7 @@ class Subcommand(object):
     def csv(self):
         """Create a csv file of compiled splice junctions"""
         if not os.path.exists(self.junction_reads_filename):
-            splice_junctions = self.make_junction_reads_file()
+            splice_junctions = self.make_junction_reads_file(self.stranded)
         else:
             util.progress('Found compiled junction reads file in {} and '
                           'reading it in '
@@ -599,6 +619,13 @@ class Subcommand(object):
 class Index(Subcommand):
 
     max_de_novo_exon_length = adjacencies.MAX_DE_NOVO_EXON_LENGTH
+
+    def __init__(self):
+        super(Index, self).__init__()
+
+        # Get strandedness of the dataset
+        self.stranded = not self.unstranded if self.stranded is None \
+            else self.stranded
 
     @property
     def splice_abbrevs(self):
@@ -883,21 +910,6 @@ class Psi(SubcommandAfterIndex):
                      '--sample-id-col': sample_id_col,
                      '--junction-id-col': junction_id_col}
 
-    @property
-    def psi_folder(self):
-        return os.path.join(self.output_folder, 'psi')
-
-    @property
-    def splice_type_folders(self):
-        return dict((splice_name, os.path.join(self.input_index,
-                                               splice_abbrev))
-                    for splice_name, splice_abbrev in
-                    outrigger.common.SPLICE_TYPES)
-
-    @property
-    def folders(self):
-        return self.output_folder, self.psi_folder
-
     def __init__(self, **kwargs):
         # Read all arguments and set as attributes of this class
         for key, value in kwargs.items():
@@ -916,6 +928,20 @@ class Psi(SubcommandAfterIndex):
                     "don't know how to define events :(".format(
                         splice_name, splice_folder))
 
+
+        # Using reads from another dataset, not the one that was used to create
+        # the "outrigger index"
+        outside_reads = sum(1 for x in [self.junction_reads_csv, self.bam,
+                                        self.sj_out_tab] if x is not None)
+        if outside_reads:
+            if self.stranded is None and self.unstranded is None:
+                raise ValueError("Must specfiy strandedness of the dataset "
+                                 "(--stranded/--unstranded) if using "
+                                 "--bam/--sj-out-tab/--junction-read-csv")
+            self.stranded = not self.unstranded if self.stranded is None \
+                else self.stranded
+
+
         if not os.path.exists(self.junction_reads_filename) and \
                 self.bam is None:
             raise OSError(
@@ -926,6 +952,22 @@ class Psi(SubcommandAfterIndex):
 
         for folder in self.folders:
             self.maybe_make_folder(folder)
+
+    @property
+    def psi_folder(self):
+        return os.path.join(self.output_folder, 'psi')
+
+    @property
+    def splice_type_folders(self):
+        return dict((splice_name, os.path.join(self.input_index,
+                                               splice_abbrev))
+                    for splice_name, splice_abbrev in
+                    outrigger.common.SPLICE_TYPES)
+
+    @property
+    def folders(self):
+        return self.output_folder, self.psi_folder
+
 
     def maybe_read_junction_reads(self):
         try:
@@ -978,10 +1020,13 @@ class Psi(SubcommandAfterIndex):
                                                  columns=self.junction_id_col,
                                                  values=self.reads_col)
         junction_reads_2d.fillna(0, inplace=True)
-        junction_reads_2d = junction_reads_2d.astype(int)
+        junction_reads_2d.astype(int, inplace=True)
 
-        logger.debug('\n--- Splice Junction reads ---')
-        logger.debug(repr(junction_reads.head()))
+        if not self.stranded:
+            # If the junction data was created strandedly, then ignore the
+            # strand
+            junction_reads_2d.columns = junction_reads_2d.columns.map(
+                util.strip_strand)
 
         psis = []
         for splice_name, splice_abbrev in outrigger.common.SPLICE_TYPES:
@@ -1000,10 +1045,14 @@ class Psi(SubcommandAfterIndex):
                                            low_memory=self.low_memory)
             util.done()
 
+            if not self.stranded:
+                cols = [x for x in event_annotation if 'junction' in x]
+                event_annotation[cols] = event_annotation[cols].applymap(
+                    util.strip_strand)
+
+
             isoform_junctions = outrigger.common.ISOFORM_JUNCTIONS[
                 splice_abbrev]
-            logger.debug('\n--- Splicing event annotation ---')
-            logger.debug(repr(event_annotation.head()))
 
             util.progress(
                 'Calculating percent spliced-in (Psi) scores on '

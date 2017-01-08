@@ -20,3 +20,13 @@ def done(n_tabs=2):
 def progress(message):
     """Write a timestamped progress message to standard output"""
     sys.stdout.write('{}\t{}\n'.format(timestamp(), message))
+
+
+def strip_strand(location):
+    """Remove strand information from a string location
+
+    >>> strip_strand('junction:chr1:1309826-1310084:-')
+    'junction:chr1:1309826-1310084'
+    """
+    return location.replace(':+', '').replace(':-', '').replace(
+        ':undefined', '')
