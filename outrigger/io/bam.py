@@ -11,7 +11,7 @@ from ..common import UNIQUE_READS, MULTIMAP_READS, READS, CHROM, \
 from .core import add_exons_and_junction_ids
 
 
-def _report_read_positions(read, counter):
+def _report_read_positions(read, counter, stranded=False):
     chrom = read.reference_name
     strand = '-' if read.is_reverse else '+'
 
@@ -23,41 +23,18 @@ def _report_read_positions(read, counter):
             start = genome_loc + 1
         elif read_loc and last_read_pos is None:
             stop = genome_loc  # we are right exclusive ,so this is correct
-            counter[(chrom, start, stop, strand)] += 1
+            if stranded:
+                location = (chrom, start, stop, strand)
+            else:
+                location = (chrom, start, stop)
+            counter[location] += 1
             del start
             del stop
         last_read_pos = read_loc
 
 
-def _choose_strand_and_sum(reads):
-    """Use the strand with more counts and sum all reads with same junction
-
-    STAR seems to take a simple majority to decide on strand when there are
-    reads mapping to both, so we'll do the same
-
-    Parameters
-    ----------
-    reads : pandas.Series
-        A (chrom, start, stop, strand)-indexed series of read counts
-
-    Returns
-    -------
-    reads_strand_chosen : pandas.Series
-        A (chrom, start, stop, strand)-indexed series of read counts, with
-        the majority strand as the "winner" and
-
-    """
-    if reads.empty:
-        return pd.Series(name=reads.name)
-    locations = reads.groupby(level=(0, 1, 2)).idxmax()
-    counts = reads.groupby(level=(0, 1, 2)).sum()
-
-    index = pd.MultiIndex.from_tuples(locations.values)
-
-    return pd.Series(counts.values, index=index, name=reads.name)
-
-
-def _combine_uniquely_multi(uniquely, multi, ignore_multimapping=False):
+def _combine_uniquely_multi(uniquely, multi, ignore_multimapping=False,
+                            stranded=False):
     """Combine uniquely and multi-mapped read counts into a single table
 
     Parameters
@@ -79,9 +56,6 @@ def _combine_uniquely_multi(uniquely, multi, ignore_multimapping=False):
     uniquely = pd.Series(uniquely, name=UNIQUE_READS)
     multi = pd.Series(multi, name=MULTIMAP_READS)
 
-    uniquely = _choose_strand_and_sum(uniquely)
-    multi = _choose_strand_and_sum(multi)
-
     # Join the data on the chromosome locations
     if multi.empty:
         reads = uniquely.to_frame()
@@ -100,13 +74,18 @@ def _combine_uniquely_multi(uniquely, multi, ignore_multimapping=False):
     else:
         reads[READS] = reads.sum(axis=1)
     reads = reads.reset_index()
-    reads = reads.rename(columns={'level_0': CHROM, 'level_1': JUNCTION_START,
-                                  'level_2': JUNCTION_STOP, 'level_3': STRAND})
+
+    renamer = {'level_0': CHROM, 'level_1': JUNCTION_START,
+               'level_2': JUNCTION_STOP}
+    if stranded:
+        renamer['level_3'] = STRAND
+
+    reads = reads.rename(columns=renamer)
     reads.index = np.arange(reads.shape[0])
     return reads
 
 
-def _get_junction_reads(filename):
+def _get_junction_reads(filename, stranded):
     """Read a sam file and extract unique and multi mapped junction reads"""
     samfile = pysam.AlignmentFile(filename, "rb")
 
@@ -123,29 +102,33 @@ def _get_junction_reads(filename):
             else:
                 counter = uniquely
 
-            _report_read_positions(read, counter)
+            _report_read_positions(read, counter, stranded)
     samfile.close()
     return uniquely, multi
 
 
-def bam_to_junction_reads_table(bam_filename, ignore_multimapping=False):
+def bam_to_junction_reads_table(bam_filename, ignore_multimapping=False,
+                                stranded=False):
     """Create a table of reads for this bam file"""
-    uniquely, multi = _get_junction_reads(bam_filename)
-    reads = _combine_uniquely_multi(uniquely, multi, ignore_multimapping)
+    uniquely, multi = _get_junction_reads(bam_filename, stranded)
+    reads = _combine_uniquely_multi(uniquely, multi, ignore_multimapping,
+                                    stranded)
 
     # Remove "junctions" with same start and stop
     reads = reads.loc[reads[JUNCTION_START] != reads[JUNCTION_STOP]]
     reads.index = np.arange(reads.shape[0])
 
     reads['sample_id'] = os.path.basename(bam_filename)
-    reads = add_exons_and_junction_ids(reads)
+    reads = add_exons_and_junction_ids(reads, stranded)
     return reads
 
 
-def read_multiple_bams(bam_filenames, ignore_multimapping=False, n_jobs=-1):
+def read_multiple_bams(bam_filenames, ignore_multimapping=False,
+                       stranded=False, n_jobs=-1):
     dfs = joblib.Parallel(n_jobs=n_jobs)(
         joblib.delayed(
-            bam_to_junction_reads_table)(filename, ignore_multimapping)
+            bam_to_junction_reads_table)(filename, ignore_multimapping,
+                                         stranded)
         for filename in bam_filenames)
     reads = pd.concat(dfs, ignore_index=True)
     return reads
