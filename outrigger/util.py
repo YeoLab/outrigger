@@ -25,8 +25,13 @@ def progress(message):
 def strip_strand(location):
     """Remove strand information from a string location
 
+    If not a string, return the original thing
+
     >>> strip_strand('junction:chr1:1309826-1310084:-')
     'junction:chr1:1309826-1310084'
     """
-    return location.replace(':+', '').replace(':-', '').replace(
-        ':undefined', '')
+    try:
+        return location.replace(':+', '').replace(':-', '').replace(
+            ':undefined', '')
+    except:
+        return location
