@@ -31,7 +31,12 @@ def test_read_sj_out_tab(sj_out_tab, simulated_unprocessed, stranded):
     from outrigger.io.star import read_sj_out_tab
 
     test = read_sj_out_tab(sj_out_tab, stranded)
-    csv = os.path.join(simulated_unprocessed, 'true_splice_junctions.csv')
+    prefix = 'true_splice_junctions'
+
+    if not stranded:
+        prefix += '_unstranded'
+
+    csv = os.path.join(simulated_unprocessed, prefix + '.csv')
     true = pd.read_csv(csv)
     assert (test.junction_start < test.junction_stop).all()
     pdt.assert_frame_equal(test, true)
@@ -48,16 +53,17 @@ def test_int_to_intron_motif():
 
 
 @pytest.fixture
-def splice_junction_csv(ignore_multimapping, tasic2016_intermediate):
+def splice_junction_csv(ignore_multimapping, tasic2016_intermediate, stranded):
     """Different file depending on whether multimapping is True"""
+    stranded_suffix = '' if stranded else '_unstranded'
     template = os.path.join(tasic2016_intermediate,
                             'index', 'star',
-                            'splice_junctions_ignore_multimapping{}.csv')
-    return template.format(str(ignore_multimapping))
+                            'splice_junctions_ignore_multimapping{}{}.csv')
+    return template.format(str(ignore_multimapping), stranded_suffix)
 
 
 def test_read_multiple_sj_out_tab(sj_filenames, ignore_multimapping,
-                                  splice_junction_csv):
+                                  splice_junction_csv, stranded):
     from outrigger.io.star import read_multiple_sj_out_tab
     from outrigger.common import READS
 
@@ -66,7 +72,8 @@ def test_read_multiple_sj_out_tab(sj_filenames, ignore_multimapping,
     true = true.convert_objects()
 
     test = read_multiple_sj_out_tab(
-        sj_filenames, ignore_multimapping=ignore_multimapping)
+        sj_filenames, ignore_multimapping=ignore_multimapping,
+        stranded=stranded)
     assert READS in test
     pdt.assert_frame_equal(test, true)
 

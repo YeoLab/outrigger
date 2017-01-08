@@ -70,7 +70,7 @@ def read_sj_out_tab(filename, stranded=False):
         rows = sj.strand == 2
         sj.loc[rows, STRAND] = '-'
     else:
-        sj[STRAND] = None
+        sj[STRAND] = np.nan
 
     # Translate negative strand intron motifs
     sj.annotated = sj.annotated.astype(bool)
@@ -82,7 +82,7 @@ def read_sj_out_tab(filename, stranded=False):
 
 def _read_single_filename(filename, sample_id_func, ignore_multimapping=False,
                           stranded=False):
-    splice_junction = read_sj_out_tab(filename)
+    splice_junction = read_sj_out_tab(filename, stranded)
     sample_id = sample_id_func(filename)
     sample_id = sample_id.split('SJ.out.tab')[0].rstrip('.')
     splice_junction[SAMPLE_ID] = sample_id
