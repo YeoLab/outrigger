@@ -38,7 +38,7 @@ def int_to_junction_motif(n):
         return 'AT/AC'
 
 
-def read_sj_out_tab(filename):
+def read_sj_out_tab(filename, stranded=False):
     """Read an SJ.out.tab file as produced by the RNA-STAR aligner into a
     pandas Dataframe
 
@@ -59,20 +59,20 @@ def read_sj_out_tab(filename):
     sj = pd.read_table(filename, header=None, names=COLUMN_NAMES, sep='\s+')
     sj[JUNCTION_MOTIF] = sj[JUNCTION_MOTIF].map(int_to_junction_motif)
 
-    # Convert unknown strands to explicitly say "undefined"
-    sj[STRAND] = sj[STRAND].replace(0, 'undefined')
+    if stranded:
+        # Convert unknown strands to explicitly say "undefined"
+        sj[STRAND] = sj[STRAND].replace(0, 'undefined')
 
-    # Convert integer strand to symbol
-    # Use index-based replacement because it's 100x faster than map
-    rows = sj.strand == 1
-    sj.loc[rows, STRAND] = '+'
-    rows = sj.strand == 2
-    sj.loc[rows, STRAND] = '-'
+        # Convert integer strand to symbol
+        # Use index-based replacement because it's 100x faster than map
+        rows = sj.strand == 1
+        sj.loc[rows, STRAND] = '+'
+        rows = sj.strand == 2
+        sj.loc[rows, STRAND] = '-'
+    else:
+        sj[STRAND] = None
 
     # Translate negative strand intron motifs
-    # rows = sj.strand == '-'
-    # sj.loc[rows, 'intron_motif'] = sj.intron_motif[rows].map(
-    #     lambda x: NEG_STRAND_INTRON_MOTIF[x])
     sj.annotated = sj.annotated.astype(bool)
 
     sj = add_exons_and_junction_ids(sj)
@@ -80,7 +80,8 @@ def read_sj_out_tab(filename):
     return sj
 
 
-def _read_single_filename(filename, sample_id_func, ignore_multimapping=False):
+def _read_single_filename(filename, sample_id_func, ignore_multimapping=False,
+                          stranded=False):
     splice_junction = read_sj_out_tab(filename)
     sample_id = sample_id_func(filename)
     sample_id = sample_id.split('SJ.out.tab')[0].rstrip('.')
@@ -95,7 +96,8 @@ def _read_single_filename(filename, sample_id_func, ignore_multimapping=False):
 
 
 def read_multiple_sj_out_tab(filenames, ignore_multimapping=False,
-                             sample_id_func=os.path.basename, n_jobs=-1):
+                             sample_id_func=os.path.basename, n_jobs=-1,
+                             stranded=False):
     """Read the splice junction files and return a tall, tidy dataframe
 
     Adds a column called "sample_id" based on the basename of the file, minus
@@ -117,7 +119,7 @@ def read_multiple_sj_out_tab(filenames, ignore_multimapping=False,
     """
     dfs = joblib.Parallel(n_jobs=n_jobs)(
         joblib.delayed(_read_single_filename)(
-            filename, sample_id_func, ignore_multimapping)
+            filename, sample_id_func, ignore_multimapping, stranded)
         for filename in filenames)
     splice_junctions = pd.concat(dfs, ignore_index=True)
 
