@@ -220,3 +220,8 @@ def myl6_novel_exon_junction():
 @pytest.fixture(params=[-1, 1])
 def n_jobs(request):
     return request.param
+
+
+@pytest.fixture(params=[True, False])
+def stranded(request):
+    return request.param

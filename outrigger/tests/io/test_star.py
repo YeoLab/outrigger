@@ -27,10 +27,10 @@ chr1    668587  671992  1       1       0       0       4       28
     return filename
 
 
-def test_read_sj_out_tab(sj_out_tab, simulated_unprocessed):
+def test_read_sj_out_tab(sj_out_tab, simulated_unprocessed, stranded):
     from outrigger.io.star import read_sj_out_tab
 
-    test = read_sj_out_tab(sj_out_tab)
+    test = read_sj_out_tab(sj_out_tab, stranded)
     csv = os.path.join(simulated_unprocessed, 'true_splice_junctions.csv')
     true = pd.read_csv(csv)
     assert (test.junction_start < test.junction_stop).all()
