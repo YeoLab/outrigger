@@ -64,8 +64,9 @@ class Region(object):
 
     @property
     def name(self):
-        base = '{0}:{1}-{2}:{3}'.format(self.chrom, self.start,
-                                        self.stop, self.strand)
+        base = '{0}:{1}-{2}'.format(self.chrom, self.start, self.stop)
+        if self.strand is not None:
+            base += ':' + self.strand
         if self.region is not None:
             base = self.region + ':' + base
         return base
@@ -111,12 +112,8 @@ class Region(object):
         stop = self.stop
         strand = self.strand
 
-        base = '{chrom}:{start}-{stop}:{strand}'.format(
-            chrom=chrom, start=start, stop=stop, strand=strand)
-
-        if region is not None:
-            base = '{region}:{base}'.format(region=region, base=base)
-        return Region(base)
+        return Region(region=region, chrom=chrom, start=start, stop=stop,
+                      strand=strand)
 
     def to_bed_format(self, name=None):
         name = self.__repr__() if name is None else name

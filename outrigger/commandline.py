@@ -472,14 +472,14 @@ class Subcommand(object):
                 'Reading SJ.out.files and creating a big splice junction'
                 ' table of reads spanning exon-exon junctions...')
             splice_junctions = star.read_multiple_sj_out_tab(
-                self.sj_out_tab,
+                self.sj_out_tab, stranded=self.stranded,
                 ignore_multimapping=self.ignore_multimapping)
         else:
             util.progress('Reading bam files and creating a big splice '
                           'junction table of reads spanning exon-exon '
                           'junctions')
             splice_junctions = bam.read_multiple_bams(
-                self.bam, self.ignore_multimapping, self.n_jobs)
+                self.bam, self.ignore_multimapping, self.n_jobs, self.stranded)
         dirname = os.path.dirname(self.junction_reads_filename)
         if not os.path.exists(dirname):
             os.makedirs(dirname)
@@ -491,7 +491,7 @@ class Subcommand(object):
     def csv(self):
         """Create a csv file of compiled splice junctions"""
         if not os.path.exists(self.junction_reads_filename):
-            splice_junctions = self.make_junction_reads_file(self.stranded)
+            splice_junctions = self.make_junction_reads_file()
         else:
             util.progress('Found compiled junction reads file in {} and '
                           'reading it in '

@@ -2,7 +2,7 @@ from ..common import EXON_START, EXON_STOP, JUNCTION_START, JUNCTION_STOP, \
     JUNCTION_ID, CHROM, STRAND
 
 
-def add_exons_and_junction_ids(junction_reads):
+def add_exons_and_junction_ids(junction_reads, stranded):
     """Given junction locations, add exon locations and junction ids
 
     This assumes that the junction starts are one nucleotide after an exon
@@ -30,11 +30,17 @@ def add_exons_and_junction_ids(junction_reads):
     # From STAR, exon_cols stop one base pair up from the start of the intron
     junction_reads[EXON_STOP] = junction_reads[JUNCTION_START] - 1
 
-    junction_reads[JUNCTION_ID] = 'junction:' + \
-                                  junction_reads[CHROM].astype(str) + ':' + \
-                                  junction_reads[JUNCTION_START].astype(str) \
-                                  + '-' \
-                                  + junction_reads[JUNCTION_STOP].astype(str) \
-                                  + ':' \
-                                  + junction_reads[STRAND].astype(str)
+    if stranded:
+        junction_reads[JUNCTION_ID] = \
+            'junction:' + \
+            junction_reads[CHROM].astype(str) + ':' + \
+            junction_reads[JUNCTION_START].astype(str) \
+            + '-' + junction_reads[JUNCTION_STOP].astype(str) \
+            + ':' + junction_reads[STRAND].astype(str)
+    else:
+        junction_reads[JUNCTION_ID] = \
+            'junction:' + \
+            junction_reads[CHROM].astype(str) + ':' + \
+            junction_reads[JUNCTION_START].astype(str) \
+            + '-' + junction_reads[JUNCTION_STOP].astype(str)
     return junction_reads

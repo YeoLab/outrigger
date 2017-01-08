@@ -75,7 +75,7 @@ def read_sj_out_tab(filename, stranded=False):
     # Translate negative strand intron motifs
     sj.annotated = sj.annotated.astype(bool)
 
-    sj = add_exons_and_junction_ids(sj)
+    sj = add_exons_and_junction_ids(sj, stranded=stranded)
 
     return sj
 
