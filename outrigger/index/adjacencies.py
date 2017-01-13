@@ -28,15 +28,6 @@ OUTRIGGER_DE_NOVO = 'outrigger_de_novo'
 MAX_DE_NOVO_EXON_LENGTH = 100
 
 
-def _unify_strand(strand1, strand2):
-    """If strands are equal, return the strand, otherwise return None"""
-    if strand1 != strand2:
-        strand = '.'
-    else:
-        strand = strand1
-    return strand
-
-
 def _exons_from_neighboring_junctions(junction, neighbors, side='left'):
     """Returns (chrom, start, stop, strand) of neighboring exons from junctions
 
@@ -56,15 +47,13 @@ def _exons_from_neighboring_junctions(junction, neighbors, side='left'):
         return pd.Series()
     if side == 'left':
         return neighbors.apply(lambda x: (
-            x.chrom, x.stop + 1, junction.start - 1,
-            _unify_strand(x.strand, junction.strand)), axis=1)
+            x.chrom, x.stop + 1, junction.start - 1, junction.strand), axis=1)
     elif side == 'right':
         return neighbors.apply(lambda x: (
-            x.chrom, junction.stop + 1, x.start - 1,
-            _unify_strand(x.strand, junction.strand)), axis=1)
+            x.chrom, junction.stop + 1, x.start - 1, junction.strand), axis=1)
 
 
-def _neighboring_exons(junction, df, side='left',
+def _neighboring_exons(junction, df, stranded, side='left',
                        max_de_novo_exon_length=MAX_DE_NOVO_EXON_LENGTH):
     """Get either the left or right neighbors of a particular junction
 
@@ -91,6 +80,10 @@ def _neighboring_exons(junction, df, side='left',
         rows = junction.start - df.stop
     elif side == 'right':
         rows = df.start - junction.stop
+
+    if stranded:
+        rows = rows[df.strand == junction.strand]
+
     rows = rows[rows > 0]
     rows = rows[rows <= max_de_novo_exon_length]
     neighboring_junctions = df.loc[rows.index]
@@ -174,7 +167,7 @@ class ExonJunctionAdjacencies(object):
 
         self.db = db
         progress('\tLooking up which exons are already defined ...')
-        self.existing_exons = set(
+        self.existing_exons = frozenset(
             i['id'] for i in self.db.execute(
                 'select id from features where featuretype = "exon"'))
         done(n_tabs=3)
@@ -200,7 +193,8 @@ class ExonJunctionAdjacencies(object):
             progress('\tFinding all exons on chromosome {chrom} '
                      '...'.format(chrom=chrom))
             exon_locations = pd.concat(joblib.Parallel(n_jobs=self.n_jobs)(
-                joblib.delayed(_neighboring_exons)(junction, df, 'left')
+                joblib.delayed(_neighboring_exons)(junction, df, 'left',
+                                                   stranded)
                 for junction in df.region))
             done(n_tabs=3)
 
