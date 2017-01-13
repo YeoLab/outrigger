@@ -300,7 +300,7 @@ def _single_isoform_maybe_reject(
     elif insufficient1.any() and sufficient2.all():
         return _single_sample_maybe_sufficient_reads(
             isoform1, isoform2, n_junctions, min_reads,
-            'Case 19{}: Isoform1 has 1+ junction with insufficient reads but '
+            'Case 10{}: Isoform1 has 1+ junction with insufficient reads but '
             'Isoform2 with sufficient reads')
     elif (insufficient1.any() and sufficient1.any()) or \
             (insufficient2.any() and sufficient2.any()):
