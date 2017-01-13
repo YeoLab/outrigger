@@ -984,6 +984,7 @@ class Psi(SubcommandAfterIndex):
         logger.debug(repr(junction_reads.head()))
 
         psis = []
+        summaries = []
         for splice_name, splice_abbrev in outrigger.common.SPLICE_TYPES:
             filename = self.maybe_get_validated_events(splice_abbrev)
             if not os.path.exists(filename):
@@ -1038,6 +1039,8 @@ class Psi(SubcommandAfterIndex):
             self.maybe_make_folder(os.path.dirname(csv))
             summary.to_csv(csv, na_rep='NA', index=False)
             psis.append(type_psi)
+            summary['splice_type'] = splice_abbrev
+            summaries.append(summary)
             util.done()
 
         util.progress('Concatenating all calculated psi scores '
@@ -1049,6 +1052,17 @@ class Psi(SubcommandAfterIndex):
         util.progress('Writing a samples x features matrix of Psi '
                       'scores to {} ...'.format(csv))
         splicing.to_csv(csv, na_rep='NA')
+        util.done()
+
+
+        util.progress('Concatenating all summaries '
+                      'into one big matrix...')
+        summary = pd.concat(summaries, ignore_index=True)
+        util.done()
+        csv = os.path.join(self.psi_folder, 'outrigger_summary.csv')
+        util.progress('Writing summary table of Psi scores, junction reads, '
+                      'and cases to {} ...'.format(csv))
+        summary.to_csv(csv, na_rep='NA')
         util.done()
 
 
