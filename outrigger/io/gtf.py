@@ -118,9 +118,10 @@ class SplicingAnnotator(object):
             return self.db[feature_id]
         except gffutils.FeatureNotFoundError:
             name, chrom, startstop, strand = feature_id.split(':')
-
-            return self.db.region('{chrom}:{startstop}', strand=strand,
-                             featuretype=backup_featuretype)
+            region = '{chrom}:{startstop}'.format(
+                chrom=chrom, startstop=startstop)
+            return self.db.region(region, strand=strand,
+                                  featuretype=backup_featuretype)
 
     def attributes(self):
         """Retrieve all GTF attributes for each isoform's event"""
