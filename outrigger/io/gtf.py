@@ -113,6 +113,15 @@ class SplicingAnnotator(object):
         self.events = pd.concat([self.events, self.lengths, intron_names],
                                 axis=1)
 
+    def maybe_get_feature(self, feature_id, backup_featuretype):
+        try:
+            return self.db[feature_id]
+        except gffutils.FeatureNotFoundError:
+            name, chrom, startstop, strand = feature_id.split(':')
+
+            return self.db.region('{chrom}:{startstop}', strand=strand,
+                             featuretype=backup_featuretype)
+
     def attributes(self):
         """Retrieve all GTF attributes for each isoform's event"""
 
@@ -130,10 +139,12 @@ class SplicingAnnotator(object):
                 n_exons = len(exons)
 
                 exon_ids = row[exons]
+                exon_features = itertools.chain(
+                    *[self.maybe_get_feature(exon_id, 'gene')
+                      for exon_id in exon_ids])
 
                 keys = set(itertools.chain(
-                    *[self.db[exon_id].attributes.keys()
-                      for exon_id in exon_ids]))
+                    *[exon.attributes.keys() for exon in exon_features]))
 
                 for key in keys:
                     # Skip the location IDs which is specific to the
