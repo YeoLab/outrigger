@@ -65,6 +65,18 @@ class SplicingAnnotator(object):
     """Annotates basic features of splicing events: gene ids and names"""
 
     def __init__(self, db, events, splice_type):
+        """Annotate splicing events with their respective genes
+
+        Parameters
+        ----------
+        db : gffutils.FeatureDB
+            Database including all the exons found in the events
+        events : pandas.DataFrame
+            Table of events, with the event ids as the index
+        splice_type : 'se' | 'mxe'
+            The type of alternative splicing, which informs the exon
+            configurations for different isoforms
+        """
         self.db = db
         self.events = events
         self.splice_type = splice_type
