@@ -95,12 +95,13 @@ class CommandLine(object):
                                        ' and all reads are used.')
         index_parser.add_argument(
             '-l', '--max-de-novo-exon-length',
-            default=adjacencies.MAX_DE_NOVO_EXON_LENGTH, action='store',
+            default=outrigger.common.MAX_DE_NOVO_EXON_LENGTH, action='store',
             help='Maximum length of an exon detected '
                  '*de novo* from the dataset. This is to'
                  ' prevent multiple kilobase long exons '
                  'from being accidentally created. '
-                 '(default={})'.format(adjacencies.MAX_DE_NOVO_EXON_LENGTH))
+                 '(default={})'.format(
+                outrigger.common.MAX_DE_NOVO_EXON_LENGTH))
 
         gtf_parser = index_parser.add_mutually_exclusive_group(required=True)
         gtf_parser.add_argument('-g', '--gtf-filename', type=str,
@@ -598,7 +599,7 @@ class Subcommand(object):
 
 class Index(Subcommand):
 
-    max_de_novo_exon_length = adjacencies.MAX_DE_NOVO_EXON_LENGTH
+    max_de_novo_exon_length = outrigger.common.MAX_DE_NOVO_EXON_LENGTH
 
     @property
     def splice_abbrevs(self):
@@ -620,7 +621,7 @@ class Index(Subcommand):
 
         novel_exons_gtf = os.path.join(self.gtf_folder, 'novel_exons.gtf')
         novel_exons = exon_junction_adjacencies.db.features_of_type(
-            adjacencies.NOVEL_EXON)
+            outrigger.common.NOVEL_EXON)
         n_novel_exons = sum(1 for _ in novel_exons)
         util.progress('Writing {n} novel exons to {gtf} ...'.format(
             n=n_novel_exons, gtf=novel_exons_gtf))

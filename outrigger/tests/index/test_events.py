@@ -151,7 +151,7 @@ def test_stringify_location(chrom, strand, region):
 
 def assert_graph_items_equal(graph1, items1, graph2, items2):
     """Checks all relationships in graph1 exist in graph2, and vice versa"""
-    from outrigger.index.adjacencies import DIRECTIONS
+    from outrigger.common import DIRECTIONS
 
     for number1, item1 in enumerate(items1):
         for direction in DIRECTIONS:

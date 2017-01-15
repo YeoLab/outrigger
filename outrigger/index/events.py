@@ -11,7 +11,8 @@ from ..common import STRAND, ISOFORM_ORDER, ISOFORM_COMPONENTS, \
     EVENT_ID, INCOMPATIBLE_JUNCTIONS, SPLICE_ABBREVS, \
     SPLICE_TYPE_ALL_EXONS, SPLICE_TYPE_ALL_JUNCTIONS, CHROM
 from outrigger.region import Region
-from .adjacencies import UPSTREAM, DOWNSTREAM, DIRECTIONS
+from .adjacencies import DOWNSTREAM, DIRECTIONS
+from outrigger.common import UPSTREAM, DOWNSTREAM, DIRECTIONS
 from ..util import progress, done
 
 

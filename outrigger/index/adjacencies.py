@@ -5,27 +5,19 @@ import sqlite3
 import warnings
 
 import gffutils
-from gffutils.helpers import merge_attributes
 import joblib
+from gffutils.helpers import merge_attributes
 
 from ..common import JUNCTION_ID, EXON_START, EXON_STOP, CHROM, STRAND, \
-    ORDER_BY
+    ORDER_BY, UPSTREAM, DOWNSTREAM, NOVEL_EXON, \
+    OUTRIGGER_DE_NOVO, MAX_DE_NOVO_EXON_LENGTH
 from ..io.gtf import transform, maybe_analyze
 from ..region import Region, STRANDS
 from ..util import done, progress
 
-
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
     import pandas as pd
-
-
-UPSTREAM = 'upstream'
-DOWNSTREAM = 'downstream'
-DIRECTIONS = UPSTREAM, DOWNSTREAM
-NOVEL_EXON = 'novel_exon'
-OUTRIGGER_DE_NOVO = 'outrigger_de_novo'
-MAX_DE_NOVO_EXON_LENGTH = 100
 
 
 def _unify_strand(strand1, strand2):
