@@ -11,7 +11,7 @@ from gffutils.helpers import merge_attributes
 from ..common import JUNCTION_ID, EXON_START, EXON_STOP, CHROM, STRAND, \
     ORDER_BY, UPSTREAM, DOWNSTREAM, NOVEL_EXON, \
     OUTRIGGER_DE_NOVO, MAX_DE_NOVO_EXON_LENGTH
-from ..io.gtf import transform, maybe_analyze
+from ..io.gtf import transform, maybe_analyze, location_to_feature
 from ..region import Region, STRANDS
 from ..util import done, progress
 
@@ -205,7 +205,9 @@ class ExonJunctionAdjacencies(object):
 
             progress('\t\tCreating gffutils.Feature objects for each novel '
                      'exon, plus potentially its overlapping gene')
-            exon_features = [self.exon_location_to_feature(*x)
+            exon_features = [location_to_feature(self.db, *x,
+                                                 source=OUTRIGGER_DE_NOVO,
+                                                 featuretype=NOVEL_EXON)
                              for x in novel_exons]
             done(n_tabs=4)
 
@@ -215,7 +217,7 @@ class ExonJunctionAdjacencies(object):
             try:
                 self.db.update(exon_features,
                                make_backup=False,
-                               id_spec={'novel_exon': 'location_id'},
+                               id_spec={NOVEL_EXON: 'location_id'},
                                transform=transform)
             except ValueError:
                 progress('\tNo novel exons found on chromosome '
@@ -226,26 +228,6 @@ class ExonJunctionAdjacencies(object):
         # has been updated
         maybe_analyze(self.db)
 
-    def exon_location_to_feature(self, chrom, start, stop, strand):
-        if strand not in STRANDS:
-            strand = '.'
-        overlapping_genes = self.db.region(seqid=chrom, start=start,
-                                           end=stop, strand=strand,
-                                           featuretype='gene')
-
-        exon_id = 'exon:{chrom}:{start}-{stop}:{strand}'.format(
-            chrom=chrom, start=start, stop=stop, strand=strand)
-
-        attributes = {}
-        for g in overlapping_genes:
-            attributes = merge_attributes(attributes, g.attributes)
-
-        exon = gffutils.Feature(chrom, source=OUTRIGGER_DE_NOVO,
-                                featuretype=NOVEL_EXON, start=start,
-                                end=stop, strand=strand, id=exon_id,
-                                attributes=attributes)
-        return exon
-
     def write_de_novo_exons(self, filename='novel_exons.gtf'):
         """Write all de novo exons to a gtf"""
         with open(filename, 'w') as f:
@@ -253,57 +235,6 @@ class ExonJunctionAdjacencies(object):
                                                    order_by=ORDER_BY)
             for noveL_exon in novel_exons:
                 f.write(str(noveL_exon) + '\n')
-
-    def add_exon_to_db(self, chrom, start, stop, strand):
-        if strand not in STRANDS:
-            strand = None
-        overlapping_genes = list(self.db.region(seqid=chrom, start=start,
-                                                end=stop, strand=strand,
-                                                featuretype='gene'))
-
-        exon_id = 'exon:{chrom}:{start}-{stop}:{strand}'.format(
-            chrom=chrom, start=start, stop=stop, strand=strand)
-
-        if len(overlapping_genes) == 0:
-            exon = gffutils.Feature(chrom, source=OUTRIGGER_DE_NOVO,
-                                    featuretype=NOVEL_EXON, start=start,
-                                    end=stop, strand=strand, id=exon_id)
-            progress('\tAdded a novel exon ({}), located in an unannotated'
-                     ' gene'.format(exon.id))
-            self.db.update([exon], id_spec={'novel_exon': 'location_id'},
-                           transform=transform)
-            return
-
-        de_novo_exons = [gffutils.Feature(
-            chrom, source=OUTRIGGER_DE_NOVO, featuretype=NOVEL_EXON,
-            start=start, end=stop, strand=g.strand, id=exon_id + g.strand,
-            attributes=dict(g.attributes.items()))
-                         for g in overlapping_genes]
-
-        # Add all exons that aren't already there
-        for exon in de_novo_exons:
-            try:
-                try:
-                    gene_name = ','.join(exon.attributes['gene_name'])
-                except KeyError:
-                    try:
-                        gene_name = ','.join(exon.attributes['gene_id'])
-                    except KeyError:
-                        gene_name = 'unknown_gene'
-                try:
-                    # Check that the non-novel exon doesn't exist already
-                    self.db[exon_id + exon.strand]
-                except gffutils.FeatureNotFoundError:
-                    self.db.update([exon],
-                                   id_spec={'novel_exon': 'location_id'},
-                                   transform=transform)
-                    progress(
-                        '\tAdded a novel exon ({}) in the gene {} '
-                        '({})'.format(
-                            exon.id, ','.join(exon.attributes['gene_id']),
-                            gene_name))
-            except sqlite3.IntegrityError:
-                continue
 
     @staticmethod
     def _single_junction_exon_triple(direction_ind, direction, exon_id):

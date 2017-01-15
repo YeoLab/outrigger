@@ -122,8 +122,10 @@ class SplicingAnnotator(object):
             feature = location_to_feature(self.db, r.chrom, r.start, r.stop,
                                           r.strand, source=OUTRIGGER_DE_NOVO,
                                           featuretype=NOVEL_EXON)
+            self.db.update([feature], make_backup=False,
+                           id_spec={NOVEL_EXON: 'location_id'},
+                           transform=transform)
             return feature
-
 
     def attributes(self):
         """Retrieve all GTF attributes for each isoform's event"""
@@ -142,7 +144,7 @@ class SplicingAnnotator(object):
                 n_exons = len(exons)
 
                 exon_ids = row[exons]
-                exon_features = [self.maybe_get_feature(exon_id, 'gene')
+                exon_features = [self.maybe_get_feature(exon_id)
                       for exon_id in exon_ids]
 
                 keys = set(itertools.chain(
