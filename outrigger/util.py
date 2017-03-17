@@ -41,7 +41,6 @@ def extract_alternative_constitutive(psi):
 
     constitutively0 = (psi == 0)[notnull].all()
     constitutively1 = (psi == 1)[notnull].all()
-    print(constitutively1.sum())
     alternative = psi.columns[(~constitutively0) & (~constitutively1)]
 
     constitutively0 = constitutively0[constitutively0].index
