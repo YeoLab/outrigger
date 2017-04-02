@@ -144,8 +144,8 @@ class SplicingAnnotator(object):
                 n_exons = len(exons)
 
                 exon_ids = row[exons]
-                exon_features = [self.maybe_get_feature(exon_id)
-                      for exon_id in exon_ids]
+                exon_features = [self.maybe_get_feature(exon_id) for
+                                 exon_id in exon_ids]
 
                 keys = set(itertools.chain(
                     *[exon.attributes.keys() for exon in exon_features]))

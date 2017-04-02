@@ -101,7 +101,7 @@ class CommandLine(object):
                  ' prevent multiple kilobase long exons '
                  'from being accidentally created. '
                  '(default={})'.format(
-                outrigger.common.MAX_DE_NOVO_EXON_LENGTH))
+                    outrigger.common.MAX_DE_NOVO_EXON_LENGTH))
 
         gtf_parser = index_parser.add_mutually_exclusive_group(required=True)
         gtf_parser.add_argument('-g', '--gtf-filename', type=str,
@@ -1054,7 +1054,6 @@ class Psi(SubcommandAfterIndex):
                       'scores to {} ...'.format(csv))
         splicing.to_csv(csv, na_rep='NA')
         util.done()
-
 
         util.progress('Concatenating all summaries '
                       'into one big matrix...')

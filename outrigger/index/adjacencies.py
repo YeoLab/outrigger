@@ -1,18 +1,15 @@
 """
 Find exons adjacent to junctions
 """
-import sqlite3
 import warnings
 
-import gffutils
 import joblib
-from gffutils.helpers import merge_attributes
 
 from ..common import JUNCTION_ID, EXON_START, EXON_STOP, CHROM, STRAND, \
     ORDER_BY, UPSTREAM, DOWNSTREAM, NOVEL_EXON, \
     OUTRIGGER_DE_NOVO, MAX_DE_NOVO_EXON_LENGTH
 from ..io.gtf import transform, maybe_analyze, location_to_feature
-from ..region import Region, STRANDS
+from ..region import Region
 from ..util import done, progress
 
 with warnings.catch_warnings():
