@@ -40,8 +40,8 @@ Features
 
 |OutriggerOverview|
 
-.. |OutriggerOverview| image:: https://raw.githubusercontent.com/YeoLab/outrigger/v1.0.0rc1/docs/_static/outrigger_overview-300ppi.png
-    :target: https://raw.githubusercontent.com/YeoLab/outrigger/v1.0.0rc1/docs/_static/outrigger_overview-300ppi.png
+.. |OutriggerOverview| image:: https://raw.githubusercontent.com/YeoLab/outrigger/master/docs/_static/outrigger_overview-300ppi.png
+    :target: https://raw.githubusercontent.com/YeoLab/outrigger/master/docs/_static/outrigger_overview-300ppi.png
 
 Installation
 ============
