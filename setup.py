@@ -23,7 +23,7 @@ test_requirements = [
 
 setup(
     name='outrigger',
-    version='1.0.0rc1',
+    version='1.0.0',
     description="Outrigger detects *de novo* exons and quantifies their "
                 "percent spliced-in",
     long_description=readme + '\n\n' + history,
