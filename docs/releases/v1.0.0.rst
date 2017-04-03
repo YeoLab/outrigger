@@ -13,9 +13,14 @@ New features
   like to find
 - So the user can double-check the Psi calculation, create a ``summary.csv``
   file indicating the number of reads found at each junction, for all samples
+- Added functions to extract constitutive and alternative exons separately
 
 Bug fixes
 ~~~~~~~~~
 
 - Fixed a bug that stalled on ``.bam`` files while counting the junctions
 
+Miscellaneous
+~~~~~~~~~~~~~
+
+- Added ``GC/AG`` to valid splice sites
