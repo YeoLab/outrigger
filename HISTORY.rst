@@ -18,9 +18,7 @@ v1.0.0 New features
   like to find
 - So the user can double-check the Psi calculation, create a ``summary.csv``
   file indicating the number of reads found at each junction, for all samples
-    - This also shows which "Case" corresponds to each event in each sample, so
-      you can see whether there were sufficient or insufficient reads on the
-      junctions of each event, and how ``outrigger`` judged it.
+  - This also shows which "Case" corresponds to each event in each sample, so you can see whether there were sufficient or insufficient reads on the junctions of each event, and how ``outrigger`` judged it.
 - Added functions to extract constitutive and alternative exons separately
 
 v1.0.0 Bug fixes
