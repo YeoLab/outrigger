@@ -1,5 +1,5 @@
-v1.0.0 (...)
-------------
+v1.0.0 (April 3rd, 2017)
+------------------------
 
 This is the first major release of ``outrigger``!!!
 
@@ -11,17 +11,11 @@ New features
   to use a smaller memory footprint when reading CSV files.
 - Added ``--splice-types`` option to specify only one kind of splicing you'd
   like to find
-
-Plotting functions
-~~~~~~~~~~~~~~~~~~
-
-API changes
-~~~~~~~~~~~
-
+- So the user can double-check the Psi calculation, create a ``summary.csv``
+  file indicating the number of reads found at each junction, for all samples
 
 Bug fixes
 ~~~~~~~~~
 
-Miscellaneous
-~~~~~~~~~~~~~
+- Fixed a bug that stalled on ``.bam`` files while counting the junctions
 
