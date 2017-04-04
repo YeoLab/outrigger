@@ -4,7 +4,7 @@
 
 |BuildStatus|\ |codecov|\ |PyPIVersions|\ |PythonVersionCompatibility|
 
-.. |OutriggerLogo| image:: https://raw.githubusercontent.com/YeoLab/outrigger/v1.0.0rc1/logo/v1/logo_v1-300ppi.png
+.. |OutriggerLogo| image:: https://raw.githubusercontent.com/YeoLab/outrigger/master/logo/v1/logo_v1-300ppi.png
     :target: https://github.com/YeoLab/outrigger
 .. |BuildStatus| image:: https://travis-ci.org/YeoLab/outrigger.svg?branch=master
     :target: https://travis-ci.org/YeoLab/outrigger
@@ -15,9 +15,9 @@
 .. |PythonVersionCompatibility| image:: https://img.shields.io/pypi/pyversions/outrigger.svg
     :target: https://pypi.python.org/pypi/outrigger
 
-==========
-Outrigger_
-==========
+=============================================================================
+Large-scale detection and calculation of alternative splicing with Outrigger_
+=============================================================================
 
 Outrigger_ is a program which uses junction reads from RNA seq data, and
 a graph database to create a *de novo* alternative splicing annotation
@@ -40,8 +40,8 @@ Features
 
 |OutriggerOverview|
 
-.. |OutriggerOverview| image:: https://raw.githubusercontent.com/YeoLab/outrigger/v1.0.0rc1/docs/_static/outrigger_overview-300ppi.png
-    :target: https://raw.githubusercontent.com/YeoLab/outrigger/v1.0.0rc1/docs/_static/outrigger_overview-300ppi.png
+.. |OutriggerOverview| image:: https://raw.githubusercontent.com/YeoLab/outrigger/master/docs/_static/outrigger_overview-300ppi.png
+    :target: https://raw.githubusercontent.com/YeoLab/outrigger/master/docs/_static/outrigger_overview-300ppi.png
 
 Installation
 ============

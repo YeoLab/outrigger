@@ -46,7 +46,8 @@ warning: unexpected indent on line 615 blah blah I'm pypi RST and I'm way too st
 ```
 conda create --yes -n outrigger_pypi_test_v0.2.1 --file conda_requirements.txt
 # Change to a different directory to make sure you're not importing the `outrigger` folder
-cd $HOME
+# Use "pushd" instead of "cd" so it's easy to pop back to the outrigger folder
+pushd $HOME
 source activate outrigger_pypi_test_v0.2.1
 pip install --index-url https://testpypi.python.org/pypi outrigger --extra-index-url https://pypi.python.org/simple
 ```
@@ -80,33 +81,52 @@ optional arguments:
   -h, --help            show this help message and exit
 ```
 
-- [ ] 13. Upload to PyPI:
+- [ ] 13. Return to the original outrigger folder and upload to PyPI:
 
 ```
+# Return to the outrigger directory from the `pushd`
+popd
+# Now upload to PyPI
 python setup.py register -r pypi
 python setup.py sdist upload -r pypi
 ```
 
+Check that it appears correctly on the [PyPI website](https://pypi.python.org/pypi).
+
+
 - [ ] 14. Upload to Bioconda:
 
 ```
+cd ..
+# If `bioconda-recipes` is not yet cloned, do this step. Otherwise you can
+# skip it
 git clone https://github.com/bioconda/bioconda-recipes
+# Skip to this next line if you've already cloned bioconda-recipes
 cd bioconda-recipes/recipes
 git checkout -b outrigger_v0.2.1
+# Remove existing outrigger folders
+rm -rf outrigger
 conda skeleton pypi outrigger
 git add outrigger
 git commit -m "Updated outrigger to v0.2.1"
+git push origin outrigger_v0.2.1
+# Go up two folders to return to the parent folder
+cd ../../
 ```
 
-- [ ] 15. Upload to conda-forge
+- [ ] 14. Check that a new pull request exists at [bioconda-recipes](https://github.com/bioconda/bioconda-recipes)
+
+- [ ] 16. Upload to conda-forge
 
 ```
 # Clone your forked repo of https://github.com/conda-forge/staged-recipes
 git clone https://github.com/YeoLab/staged-recipes
-cd recipes
+cd staged-recipes/recipes
 git checkout -b outrigger_v0.2.1
 conda skeleton pypi outrigger
 # Get md5 hash from PyPI
 git add outrigger
 git commit -m "Updated outrigger to v0.2.1"
 ```
+
+- [ ] 17. Create a [pull request](https://github.com/conda-forge/staged-recipes/compare/master...YeoLab:master?expand=1) to `conda-forge` using the YeoLab fork.
