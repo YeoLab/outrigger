@@ -53,12 +53,106 @@ conda create -n outrigger-documentation docs/requirements.txt
 ```
 
 Now activate the environment and build the docs. This command will both build
-ewhat you have and open a web browser so you can see the latest version.
+what you have and open a web browser so you can see the latest version.
 
 ```
 source activate outrigger-documentation
 make docs
 ```
+
+Make changes as you want in the `docs` folder. Once you're ready to deploy
+them to the `yeolab.github.io/outrigger` website, you'll need to change to the
+`docs` directory and use the `make deploy` directive there to build the docs
+and push the HTML files to the `gh-pages` branch. Here is an example with
+output:
+
+```
+(outrigger-documentation) ➜  docs git:(documentation) ✗ cd docs
+(outrigger-documentation) ➜  docs git:(documentation) ✗ make deploy
+echo "Preparing gh_pages deployment..."
+Preparing gh_pages deployment...
+echo "Pulling any updates from Github Pages..."
+Pulling any updates from Github Pages...
+cd _deploy; git pull;
+remote: Counting objects: 2039, done.
+remote: Compressing objects: 100% (127/127), done.
+remote: Total 2039 (delta 462), reused 402 (delta 401), pack-reused 1510
+Receiving objects: 100% (2039/2039), 164.78 MiB | 9.19 MiB/s, done.
+Resolving deltas: 100% (1206/1206), completed with 84 local objects.
+From github.com:YeoLab/outrigger
+ * [new branch]      checklist  -> origin/checklist
+ + c68a887...04316b6 documentation -> origin/documentation  (forced update)
+ * [new branch]      flake8-weirdness -> origin/flake8-weirdness
+ * [new branch]      logo       -> origin/logo
+ * [new branch]      low_memory -> origin/low_memory
+   82b6296..9c80211  master     -> origin/master
+ * [new branch]      merge_exon_finding_and_junction_adjacencies -> origin/merge_exon_finding_and_junction_adjacencies
+ * [new branch]      py3.6      -> origin/py3.6
+ * [new branch]      segfault   -> origin/segfault
+ * [new branch]      strandedness -> origin/strandedness
+ * [new branch]      v1.0.0rc1  -> origin/v1.0.0rc1
+ * [new tag]         v1.0.0     -> v1.0.0
+Already up-to-date.
+mkdir -p _deploy/
+echo "Copying files from '_build/html/.' to '_deploy/'"
+Copying files from '_build/html/.' to '_deploy/'
+cp -r _build/html/. _deploy/
+echo "Deploying on github pages now..."
+Deploying on github pages now...
+cd _deploy; git add -A; git commit -m "docs updated at `date -u`";\
+		git push origin  --quiet
+[gh-pages fa0420c] docs updated at Tue Apr  4 01:31:17 UTC 2017
+ 134 files changed, 103905 insertions(+), 2704 deletions(-)
+ create mode 100644 _images/outrigger_index-300ppi.png
+ create mode 100644 _images/outrigger_overview-300ppi.png
+ create mode 100644 _images/outrigger_psi-1x.png
+ create mode 100644 _images/outrigger_validate-1x.png
+ rewrite _modules/outrigger/psi/compute.html (68%)
+ create mode 100644 _sources/license.txt
+ rewrite _sources/releases/v0.2.7.txt (83%)
+ create mode 100644 _sources/releases/v1.0.0.txt
+ create mode 100644 _sources/releases/v1.0.1.txt
+ create mode 100644 _static/exon_vs_junction_start_stop.ai
+ create mode 100644 _static/logo-150ppi.png
+ create mode 100644 _static/logo-1x.png
+ create mode 100644 _static/logo-300ppi.png
+ create mode 100644 _static/logo.ai
+ create mode 100644 _static/logo.svg
+ create mode 100644 _static/outrigger_franken-events.ai
+ create mode 100644 _static/outrigger_index-150ppi.png
+ create mode 100644 _static/outrigger_index-1x.png
+ create mode 100644 _static/outrigger_index-300ppi.png
+ create mode 100644 _static/outrigger_index.ai
+ create mode 100644 _static/outrigger_index.svg
+ create mode 100644 _static/outrigger_index_flanking_exons.ai
+ create mode 100644 _static/outrigger_index_mxe.ai
+ create mode 100644 _static/outrigger_index_se.ai
+ create mode 100644 _static/outrigger_overview-150ppi.png
+ create mode 100644 _static/outrigger_overview-1x.png
+ create mode 100644 _static/outrigger_overview-300ppi.png
+ create mode 100644 _static/outrigger_overview.svg
+ create mode 100644 _static/outrigger_overview_v1.ai
+ create mode 100644 _static/outrigger_overview_v1.svg
+ create mode 100644 _static/outrigger_overview_v2.ai
+ create mode 100644 _static/outrigger_psi-150ppi.png
+ rewrite _static/outrigger_psi-1x.png (98%)
+ rewrite _static/outrigger_psi-300ppi.png (92%)
+ create mode 100644 _static/outrigger_psi_pathological_cases.ai
+ create mode 100644 _static/outrigger_psi_v1.ai
+ create mode 100644 _static/outrigger_psi_v2.ai
+ create mode 100644 _static/outrigger_psi_v3.ai
+ create mode 100644 _static/outrigger_validate-150ppi.png
+ create mode 100644 _static/outrigger_validate-1x.png
+ create mode 100644 _static/outrigger_validate-300ppi.png
+ create mode 100644 _static/outrigger_validate.ai
+ create mode 100644 _static/outrigger_validate.svg
+ create mode 100644 license.html
+ rewrite objects.inv (97%)
+ create mode 100644 releases/v1.0.0.html
+ create mode 100644 releases/v1.0.1.html
+ rewrite searchindex.js (99%)
+echo "Github Pages deploy was completed at `date -u`"
+Github Pages deploy was completed at Tue Apr  4 01:31:24 UTC 2017```
 
 Submit Feedback
 ~~~~~~~~~~~~~~~
