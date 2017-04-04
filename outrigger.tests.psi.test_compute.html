@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>outrigger.tests.psi.test_compute module &#8212; Outrigger 0.2.9 documentation</title>
+    <title>outrigger.tests.psi.test_compute module &#8212; Outrigger 1.0.0 documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.2.9',
+        VERSION:     '1.0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -26,7 +26,7 @@
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="Outrigger 0.2.9 documentation" href="index.html" />
+    <link rel="top" title="Outrigger 1.0.0 documentation" href="index.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -133,7 +133,7 @@
 
 <dl class="function">
 <dt id="outrigger.tests.psi.test_compute.dummy_junction_locations">
-<code class="descclassname">outrigger.tests.psi.test_compute.</code><code class="descname">dummy_junction_locations</code><span class="sig-paren">(</span><em>dummy_legal_junction_numbers</em>, <em>dummy_junction_number_to_id</em>, <em>illegal_junctions</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/tests/psi/test_compute.html#dummy_junction_locations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.tests.psi.test_compute.dummy_junction_locations" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">outrigger.tests.psi.test_compute.</code><code class="descname">dummy_junction_locations</code><span class="sig-paren">(</span><em>dummy_legal_junction_numbers</em>, <em>dummy_junction_number_to_id</em>, <em>incompatible_junctions</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/tests/psi/test_compute.html#dummy_junction_locations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.tests.psi.test_compute.dummy_junction_locations" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
@@ -173,8 +173,8 @@
 <dd></dd></dl>
 
 <dl class="function">
-<dt id="outrigger.tests.psi.test_compute.illegal_junctions">
-<code class="descclassname">outrigger.tests.psi.test_compute.</code><code class="descname">illegal_junctions</code><span class="sig-paren">(</span><em>splice_type</em>, <em>dummy_junction14</em>, <em>dummy_junction23</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/tests/psi/test_compute.html#illegal_junctions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.tests.psi.test_compute.illegal_junctions" title="Permalink to this definition">¶</a></dt>
+<dt id="outrigger.tests.psi.test_compute.incompatible_junctions">
+<code class="descclassname">outrigger.tests.psi.test_compute.</code><code class="descname">incompatible_junctions</code><span class="sig-paren">(</span><em>splice_type</em>, <em>dummy_junction14</em>, <em>dummy_junction23</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/tests/psi/test_compute.html#incompatible_junctions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.tests.psi.test_compute.incompatible_junctions" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
@@ -188,6 +188,26 @@
 <dd></dd></dl>
 
 <dl class="function">
+<dt id="outrigger.tests.psi.test_compute.isoform_read_coverage">
+<code class="descclassname">outrigger.tests.psi.test_compute.</code><code class="descname">isoform_read_coverage</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/tests/psi/test_compute.html#isoform_read_coverage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.tests.psi.test_compute.isoform_read_coverage" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="outrigger.tests.psi.test_compute.junction_reads_for_rejecting">
+<code class="descclassname">outrigger.tests.psi.test_compute.</code><code class="descname">junction_reads_for_rejecting</code><span class="sig-paren">(</span><em>splice_type</em>, <em>skipped_exon_junction_reads_for_rejecting</em>, <em>mutually_exclusive_exon_junction_reads_for_rejecting</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/tests/psi/test_compute.html#junction_reads_for_rejecting"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.tests.psi.test_compute.junction_reads_for_rejecting" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="outrigger.tests.psi.test_compute.mutually_exclusive_exon_junction_reads_for_rejecting">
+<code class="descclassname">outrigger.tests.psi.test_compute.</code><code class="descname">mutually_exclusive_exon_junction_reads_for_rejecting</code><span class="sig-paren">(</span><em>mutually_exclusive_exon_junction_reads_for_rejecting_csv</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/tests/psi/test_compute.html#mutually_exclusive_exon_junction_reads_for_rejecting"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.tests.psi.test_compute.mutually_exclusive_exon_junction_reads_for_rejecting" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="outrigger.tests.psi.test_compute.mutually_exclusive_exon_junction_reads_for_rejecting_csv">
+<code class="descclassname">outrigger.tests.psi.test_compute.</code><code class="descname">mutually_exclusive_exon_junction_reads_for_rejecting_csv</code><span class="sig-paren">(</span><em>simulated</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/tests/psi/test_compute.html#mutually_exclusive_exon_junction_reads_for_rejecting_csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.tests.psi.test_compute.mutually_exclusive_exon_junction_reads_for_rejecting_csv" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
 <dt id="outrigger.tests.psi.test_compute.psi_csv">
 <code class="descclassname">outrigger.tests.psi.test_compute.</code><code class="descname">psi_csv</code><span class="sig-paren">(</span><em>splice_type</em>, <em>tasic2016_outrigger_output_psi</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/tests/psi/test_compute.html#psi_csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.tests.psi.test_compute.psi_csv" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -195,6 +215,26 @@
 <dl class="function">
 <dt id="outrigger.tests.psi.test_compute.psi_df">
 <code class="descclassname">outrigger.tests.psi.test_compute.</code><code class="descname">psi_df</code><span class="sig-paren">(</span><em>psi_csv</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/tests/psi/test_compute.html#psi_df"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.tests.psi.test_compute.psi_df" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="outrigger.tests.psi.test_compute.reads2d">
+<code class="descclassname">outrigger.tests.psi.test_compute.</code><code class="descname">reads2d</code><span class="sig-paren">(</span><em>splice_junction_reads_csv</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/tests/psi/test_compute.html#reads2d"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.tests.psi.test_compute.reads2d" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="outrigger.tests.psi.test_compute.single_event_summary_csv">
+<code class="descclassname">outrigger.tests.psi.test_compute.</code><code class="descname">single_event_summary_csv</code><span class="sig-paren">(</span><em>splice_type</em>, <em>tasic2016_intermediate_psi</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/tests/psi/test_compute.html#single_event_summary_csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.tests.psi.test_compute.single_event_summary_csv" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="outrigger.tests.psi.test_compute.skipped_exon_junction_reads_for_rejecting">
+<code class="descclassname">outrigger.tests.psi.test_compute.</code><code class="descname">skipped_exon_junction_reads_for_rejecting</code><span class="sig-paren">(</span><em>skipped_exon_junction_reads_for_rejecting_csv</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/tests/psi/test_compute.html#skipped_exon_junction_reads_for_rejecting"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.tests.psi.test_compute.skipped_exon_junction_reads_for_rejecting" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="outrigger.tests.psi.test_compute.skipped_exon_junction_reads_for_rejecting_csv">
+<code class="descclassname">outrigger.tests.psi.test_compute.</code><code class="descname">skipped_exon_junction_reads_for_rejecting_csv</code><span class="sig-paren">(</span><em>simulated</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/tests/psi/test_compute.html#skipped_exon_junction_reads_for_rejecting_csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.tests.psi.test_compute.skipped_exon_junction_reads_for_rejecting_csv" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
@@ -208,28 +248,38 @@
 <dd></dd></dl>
 
 <dl class="function">
+<dt id="outrigger.tests.psi.test_compute.summary_csv">
+<code class="descclassname">outrigger.tests.psi.test_compute.</code><code class="descname">summary_csv</code><span class="sig-paren">(</span><em>splice_type</em>, <em>tasic2016_outrigger_output_psi</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/tests/psi/test_compute.html#summary_csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.tests.psi.test_compute.summary_csv" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="outrigger.tests.psi.test_compute.summary_df">
+<code class="descclassname">outrigger.tests.psi.test_compute.</code><code class="descname">summary_df</code><span class="sig-paren">(</span><em>summary_csv</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/tests/psi/test_compute.html#summary_df"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.tests.psi.test_compute.summary_df" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="outrigger.tests.psi.test_compute.test__check_unequal_read_coverage">
+<code class="descclassname">outrigger.tests.psi.test_compute.</code><code class="descname">test__check_unequal_read_coverage</code><span class="sig-paren">(</span><em>isoform_read_coverage</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/tests/psi/test_compute.html#test__check_unequal_read_coverage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.tests.psi.test_compute.test__check_unequal_read_coverage" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
 <dt id="outrigger.tests.psi.test_compute.test__maybe_parallelize_psi">
-<code class="descclassname">outrigger.tests.psi.test_compute.</code><code class="descname">test__maybe_parallelize_psi</code><span class="sig-paren">(</span><em>event_annotation</em>, <em>splice_junction_reads</em>, <em>isoform1_junctions</em>, <em>isoform2_junctions</em>, <em>psi_df</em>, <em>capsys</em>, <em>n_jobs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/tests/psi/test_compute.html#test__maybe_parallelize_psi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.tests.psi.test_compute.test__maybe_parallelize_psi" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">outrigger.tests.psi.test_compute.</code><code class="descname">test__maybe_parallelize_psi</code><span class="sig-paren">(</span><em>event_annotation</em>, <em>reads2d</em>, <em>isoform1_junctions</em>, <em>isoform2_junctions</em>, <em>capsys</em>, <em>n_jobs</em>, <em>summary_df</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/tests/psi/test_compute.html#test__maybe_parallelize_psi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.tests.psi.test_compute.test__maybe_parallelize_psi" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="outrigger.tests.psi.test_compute.test__single_event_psi">
-<code class="descclassname">outrigger.tests.psi.test_compute.</code><code class="descname">test__single_event_psi</code><span class="sig-paren">(</span><em>event_id</em>, <em>event_df_csv</em>, <em>splice_junction_reads</em>, <em>isoform1_junctions</em>, <em>isoform2_junctions</em>, <em>psi_df</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/tests/psi/test_compute.html#test__single_event_psi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.tests.psi.test_compute.test__single_event_psi" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">outrigger.tests.psi.test_compute.</code><code class="descname">test__single_event_psi</code><span class="sig-paren">(</span><em>event_id</em>, <em>event_df_csv</em>, <em>reads2d</em>, <em>isoform1_junctions</em>, <em>isoform2_junctions</em>, <em>single_event_summary_csv</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/tests/psi/test_compute.html#test__single_event_psi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.tests.psi.test_compute.test__single_event_psi" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="outrigger.tests.psi.test_compute.test__single_isoform_maybe_reject">
+<code class="descclassname">outrigger.tests.psi.test_compute.</code><code class="descname">test__single_isoform_maybe_reject</code><span class="sig-paren">(</span><em>junction_reads_for_rejecting</em>, <em>dummy_isoform1_junction_numbers</em>, <em>dummy_isoform2_junction_numbers</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/tests/psi/test_compute.html#test__single_isoform_maybe_reject"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.tests.psi.test_compute.test__single_isoform_maybe_reject" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="outrigger.tests.psi.test_compute.test_calculate_psi">
-<code class="descclassname">outrigger.tests.psi.test_compute.</code><code class="descname">test_calculate_psi</code><span class="sig-paren">(</span><em>event_annotation</em>, <em>splice_junction_reads</em>, <em>isoform1_junctions</em>, <em>isoform2_junctions</em>, <em>psi_df</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/tests/psi/test_compute.html#test_calculate_psi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.tests.psi.test_compute.test_calculate_psi" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="outrigger.tests.psi.test_compute.test_dummy_calculate_psi">
-<code class="descclassname">outrigger.tests.psi.test_compute.</code><code class="descname">test_dummy_calculate_psi</code><span class="sig-paren">(</span><em>dummy_splice_junction_reads</em>, <em>dummy_isoform_reads</em>, <em>dummy_isoform1_junction_ids</em>, <em>dummy_isoform2_junction_ids</em>, <em>dummy_isoform1_junction_numbers</em>, <em>dummy_isoform2_junction_numbers</em>, <em>dummy_exons_to_junctions</em>, <em>dummy_events</em>, <em>splice_type</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/tests/psi/test_compute.html#test_dummy_calculate_psi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.tests.psi.test_compute.test_dummy_calculate_psi" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="function">
-<dt id="outrigger.tests.psi.test_compute.test_maybe_get_isoform_reads">
-<code class="descclassname">outrigger.tests.psi.test_compute.</code><code class="descname">test_maybe_get_isoform_reads</code><span class="sig-paren">(</span><em>dummy_splice_junction_reads</em>, <em>dummy_junction_locations</em>, <em>dummy_isoform_junctions</em>, <em>dummy_isoform_reads</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/tests/psi/test_compute.html#test_maybe_get_isoform_reads"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.tests.psi.test_compute.test_maybe_get_isoform_reads" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">outrigger.tests.psi.test_compute.</code><code class="descname">test_calculate_psi</code><span class="sig-paren">(</span><em>event_annotation</em>, <em>reads2d</em>, <em>isoform1_junctions</em>, <em>isoform2_junctions</em>, <em>psi_df</em>, <em>summary_df</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/tests/psi/test_compute.html#test_calculate_psi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.tests.psi.test_compute.test_calculate_psi" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
@@ -239,20 +289,27 @@
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper"><div class="relations">
-<h3>Related Topics</h3>
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Outrigger</a></h1>
+
+
+<a href="index.html">
+<img src="_static/logo-1x.png" width=80%>
+</a>
+
+<h3><a href="index.html">Table Of Contents</a></h3>
+
 <ul>
-  <li><a href="index.html">Documentation overview</a><ul>
-  </ul></li>
+  <li><a href="index.html">Home</a></li>
+  <li><a href="contents.html">Contents</a></li>
+  <li><a href="installation.html">Install</a></li>
+  <li><a href="Usage.html">Usage</a></li>
+  <li><a href="subcommands/outrigger_index.html"><code>index</code>: Detect exons</a></li>
+  <li><a href="subcommands/outrigger_validate.html"><code>validate</code>: Remove non-canonical splice sites</a></li>
+  <li><a href="subcommands/outrigger_psi.html"><code>psi</code>: Quantify exon inclusion</a></li>
+  <li><a href="history.html">Changelog</a></li>
+  <li><a href="license.html">License</a></li>
 </ul>
-</div>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/outrigger.tests.psi.test_compute.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
@@ -268,7 +325,7 @@
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2015-2016, Olga Botvinnik.
+      &copy;2015-2017, Olga Botvinnik.
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>

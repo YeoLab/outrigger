@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>outrigger.index.adjacencies &#8212; Outrigger 0.2.9 documentation</title>
+    <title>outrigger.index.adjacencies &#8212; Outrigger 1.0.0 documentation</title>
     
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '0.2.9',
+        VERSION:     '1.0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -26,7 +26,7 @@
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="top" title="Outrigger 0.2.9 documentation" href="../../../index.html" />
+    <link rel="top" title="Outrigger 1.0.0 documentation" href="../../../index.html" />
     <link rel="up" title="Module code" href="../../index.html" />
    
   <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
@@ -47,31 +47,20 @@
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Find exons adjacent to junctions</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">import</span> <span class="nn">sqlite3</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 
-<span class="kn">import</span> <span class="nn">gffutils</span>
-<span class="kn">from</span> <span class="nn">gffutils.helpers</span> <span class="k">import</span> <span class="n">merge_attributes</span>
 <span class="kn">import</span> <span class="nn">joblib</span>
 
 <span class="kn">from</span> <span class="nn">..common</span> <span class="k">import</span> <span class="n">JUNCTION_ID</span><span class="p">,</span> <span class="n">EXON_START</span><span class="p">,</span> <span class="n">EXON_STOP</span><span class="p">,</span> <span class="n">CHROM</span><span class="p">,</span> <span class="n">STRAND</span><span class="p">,</span> \
-    <span class="n">ORDER_BY</span>
-<span class="kn">from</span> <span class="nn">..io.gtf</span> <span class="k">import</span> <span class="n">transform</span><span class="p">,</span> <span class="n">maybe_analyze</span>
-<span class="kn">from</span> <span class="nn">..region</span> <span class="k">import</span> <span class="n">Region</span><span class="p">,</span> <span class="n">STRANDS</span>
+    <span class="n">ORDER_BY</span><span class="p">,</span> <span class="n">UPSTREAM</span><span class="p">,</span> <span class="n">DOWNSTREAM</span><span class="p">,</span> <span class="n">NOVEL_EXON</span><span class="p">,</span> \
+    <span class="n">OUTRIGGER_DE_NOVO</span><span class="p">,</span> <span class="n">MAX_DE_NOVO_EXON_LENGTH</span>
+<span class="kn">from</span> <span class="nn">..io.gtf</span> <span class="k">import</span> <span class="n">transform</span><span class="p">,</span> <span class="n">maybe_analyze</span><span class="p">,</span> <span class="n">location_to_feature</span>
+<span class="kn">from</span> <span class="nn">..region</span> <span class="k">import</span> <span class="n">Region</span>
 <span class="kn">from</span> <span class="nn">..util</span> <span class="k">import</span> <span class="n">done</span><span class="p">,</span> <span class="n">progress</span>
-
 
 <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>
     <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
     <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-
-
-<span class="n">UPSTREAM</span> <span class="o">=</span> <span class="s1">&#39;upstream&#39;</span>
-<span class="n">DOWNSTREAM</span> <span class="o">=</span> <span class="s1">&#39;downstream&#39;</span>
-<span class="n">DIRECTIONS</span> <span class="o">=</span> <span class="n">UPSTREAM</span><span class="p">,</span> <span class="n">DOWNSTREAM</span>
-<span class="n">NOVEL_EXON</span> <span class="o">=</span> <span class="s1">&#39;novel_exon&#39;</span>
-<span class="n">OUTRIGGER_DE_NOVO</span> <span class="o">=</span> <span class="s1">&#39;outrigger_de_novo&#39;</span>
-<span class="n">MAX_DE_NOVO_EXON_LENGTH</span> <span class="o">=</span> <span class="mi">100</span>
 
 
 <span class="k">def</span> <span class="nf">_unify_strand</span><span class="p">(</span><span class="n">strand1</span><span class="p">,</span> <span class="n">strand2</span><span class="p">):</span>
@@ -259,7 +248,9 @@
 
             <span class="n">progress</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t\t</span><span class="s1">Creating gffutils.Feature objects for each novel &#39;</span>
                      <span class="s1">&#39;exon, plus potentially its overlapping gene&#39;</span><span class="p">)</span>
-            <span class="n">exon_features</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">exon_location_to_feature</span><span class="p">(</span><span class="o">*</span><span class="n">x</span><span class="p">)</span>
+            <span class="n">exon_features</span> <span class="o">=</span> <span class="p">[</span><span class="n">location_to_feature</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="p">,</span> <span class="o">*</span><span class="n">x</span><span class="p">,</span>
+                                                 <span class="n">source</span><span class="o">=</span><span class="n">OUTRIGGER_DE_NOVO</span><span class="p">,</span>
+                                                 <span class="n">featuretype</span><span class="o">=</span><span class="n">NOVEL_EXON</span><span class="p">)</span>
                              <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">novel_exons</span><span class="p">]</span>
             <span class="n">done</span><span class="p">(</span><span class="n">n_tabs</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
 
@@ -269,7 +260,7 @@
             <span class="k">try</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">exon_features</span><span class="p">,</span>
                                <span class="n">make_backup</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                               <span class="n">id_spec</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;novel_exon&#39;</span><span class="p">:</span> <span class="s1">&#39;location_id&#39;</span><span class="p">},</span>
+                               <span class="n">id_spec</span><span class="o">=</span><span class="p">{</span><span class="n">NOVEL_EXON</span><span class="p">:</span> <span class="s1">&#39;location_id&#39;</span><span class="p">},</span>
                                <span class="n">transform</span><span class="o">=</span><span class="n">transform</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
                 <span class="n">progress</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">No novel exons found on chromosome &#39;</span>
@@ -280,26 +271,6 @@
         <span class="c1"># has been updated</span>
         <span class="n">maybe_analyze</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ExonJunctionAdjacencies.exon_location_to_feature"><a class="viewcode-back" href="../../../outrigger.index.adjacencies.html#outrigger.index.adjacencies.ExonJunctionAdjacencies.exon_location_to_feature">[docs]</a>    <span class="k">def</span> <span class="nf">exon_location_to_feature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chrom</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">,</span> <span class="n">strand</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">strand</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">STRANDS</span><span class="p">:</span>
-            <span class="n">strand</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span>
-        <span class="n">overlapping_genes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">region</span><span class="p">(</span><span class="n">seqid</span><span class="o">=</span><span class="n">chrom</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span>
-                                           <span class="n">end</span><span class="o">=</span><span class="n">stop</span><span class="p">,</span> <span class="n">strand</span><span class="o">=</span><span class="n">strand</span><span class="p">,</span>
-                                           <span class="n">featuretype</span><span class="o">=</span><span class="s1">&#39;gene&#39;</span><span class="p">)</span>
-
-        <span class="n">exon_id</span> <span class="o">=</span> <span class="s1">&#39;exon:</span><span class="si">{chrom}</span><span class="s1">:</span><span class="si">{start}</span><span class="s1">-</span><span class="si">{stop}</span><span class="s1">:</span><span class="si">{strand}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-            <span class="n">chrom</span><span class="o">=</span><span class="n">chrom</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="o">=</span><span class="n">stop</span><span class="p">,</span> <span class="n">strand</span><span class="o">=</span><span class="n">strand</span><span class="p">)</span>
-
-        <span class="n">attributes</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">overlapping_genes</span><span class="p">:</span>
-            <span class="n">attributes</span> <span class="o">=</span> <span class="n">merge_attributes</span><span class="p">(</span><span class="n">attributes</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">attributes</span><span class="p">)</span>
-
-        <span class="n">exon</span> <span class="o">=</span> <span class="n">gffutils</span><span class="o">.</span><span class="n">Feature</span><span class="p">(</span><span class="n">chrom</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="n">OUTRIGGER_DE_NOVO</span><span class="p">,</span>
-                                <span class="n">featuretype</span><span class="o">=</span><span class="n">NOVEL_EXON</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span>
-                                <span class="n">end</span><span class="o">=</span><span class="n">stop</span><span class="p">,</span> <span class="n">strand</span><span class="o">=</span><span class="n">strand</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">exon_id</span><span class="p">,</span>
-                                <span class="n">attributes</span><span class="o">=</span><span class="n">attributes</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">exon</span></div>
-
 <div class="viewcode-block" id="ExonJunctionAdjacencies.write_de_novo_exons"><a class="viewcode-back" href="../../../outrigger.index.adjacencies.html#outrigger.index.adjacencies.ExonJunctionAdjacencies.write_de_novo_exons">[docs]</a>    <span class="k">def</span> <span class="nf">write_de_novo_exons</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;novel_exons.gtf&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Write all de novo exons to a gtf&quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
@@ -307,57 +278,6 @@
                                                    <span class="n">order_by</span><span class="o">=</span><span class="n">ORDER_BY</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">noveL_exon</span> <span class="ow">in</span> <span class="n">novel_exons</span><span class="p">:</span>
                 <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">noveL_exon</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="ExonJunctionAdjacencies.add_exon_to_db"><a class="viewcode-back" href="../../../outrigger.index.adjacencies.html#outrigger.index.adjacencies.ExonJunctionAdjacencies.add_exon_to_db">[docs]</a>    <span class="k">def</span> <span class="nf">add_exon_to_db</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chrom</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">,</span> <span class="n">strand</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">strand</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">STRANDS</span><span class="p">:</span>
-            <span class="n">strand</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="n">overlapping_genes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">region</span><span class="p">(</span><span class="n">seqid</span><span class="o">=</span><span class="n">chrom</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span>
-                                                <span class="n">end</span><span class="o">=</span><span class="n">stop</span><span class="p">,</span> <span class="n">strand</span><span class="o">=</span><span class="n">strand</span><span class="p">,</span>
-                                                <span class="n">featuretype</span><span class="o">=</span><span class="s1">&#39;gene&#39;</span><span class="p">))</span>
-
-        <span class="n">exon_id</span> <span class="o">=</span> <span class="s1">&#39;exon:</span><span class="si">{chrom}</span><span class="s1">:</span><span class="si">{start}</span><span class="s1">-</span><span class="si">{stop}</span><span class="s1">:</span><span class="si">{strand}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-            <span class="n">chrom</span><span class="o">=</span><span class="n">chrom</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="o">=</span><span class="n">stop</span><span class="p">,</span> <span class="n">strand</span><span class="o">=</span><span class="n">strand</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">overlapping_genes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">exon</span> <span class="o">=</span> <span class="n">gffutils</span><span class="o">.</span><span class="n">Feature</span><span class="p">(</span><span class="n">chrom</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="n">OUTRIGGER_DE_NOVO</span><span class="p">,</span>
-                                    <span class="n">featuretype</span><span class="o">=</span><span class="n">NOVEL_EXON</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span>
-                                    <span class="n">end</span><span class="o">=</span><span class="n">stop</span><span class="p">,</span> <span class="n">strand</span><span class="o">=</span><span class="n">strand</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">exon_id</span><span class="p">)</span>
-            <span class="n">progress</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">Added a novel exon (</span><span class="si">{}</span><span class="s1">), located in an unannotated&#39;</span>
-                     <span class="s1">&#39; gene&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">exon</span><span class="o">.</span><span class="n">id</span><span class="p">))</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">update</span><span class="p">([</span><span class="n">exon</span><span class="p">],</span> <span class="n">id_spec</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;novel_exon&#39;</span><span class="p">:</span> <span class="s1">&#39;location_id&#39;</span><span class="p">},</span>
-                           <span class="n">transform</span><span class="o">=</span><span class="n">transform</span><span class="p">)</span>
-            <span class="k">return</span>
-
-        <span class="n">de_novo_exons</span> <span class="o">=</span> <span class="p">[</span><span class="n">gffutils</span><span class="o">.</span><span class="n">Feature</span><span class="p">(</span>
-            <span class="n">chrom</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="n">OUTRIGGER_DE_NOVO</span><span class="p">,</span> <span class="n">featuretype</span><span class="o">=</span><span class="n">NOVEL_EXON</span><span class="p">,</span>
-            <span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">stop</span><span class="p">,</span> <span class="n">strand</span><span class="o">=</span><span class="n">g</span><span class="o">.</span><span class="n">strand</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">exon_id</span> <span class="o">+</span> <span class="n">g</span><span class="o">.</span><span class="n">strand</span><span class="p">,</span>
-            <span class="n">attributes</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">attributes</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
-                         <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">overlapping_genes</span><span class="p">]</span>
-
-        <span class="c1"># Add all exons that aren&#39;t already there</span>
-        <span class="k">for</span> <span class="n">exon</span> <span class="ow">in</span> <span class="n">de_novo_exons</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="n">gene_name</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">exon</span><span class="o">.</span><span class="n">attributes</span><span class="p">[</span><span class="s1">&#39;gene_name&#39;</span><span class="p">])</span>
-                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-                    <span class="k">try</span><span class="p">:</span>
-                        <span class="n">gene_name</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">exon</span><span class="o">.</span><span class="n">attributes</span><span class="p">[</span><span class="s1">&#39;gene_id&#39;</span><span class="p">])</span>
-                    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-                        <span class="n">gene_name</span> <span class="o">=</span> <span class="s1">&#39;unknown_gene&#39;</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="c1"># Check that the non-novel exon doesn&#39;t exist already</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="n">exon_id</span> <span class="o">+</span> <span class="n">exon</span><span class="o">.</span><span class="n">strand</span><span class="p">]</span>
-                <span class="k">except</span> <span class="n">gffutils</span><span class="o">.</span><span class="n">FeatureNotFoundError</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">update</span><span class="p">([</span><span class="n">exon</span><span class="p">],</span>
-                                   <span class="n">id_spec</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;novel_exon&#39;</span><span class="p">:</span> <span class="s1">&#39;location_id&#39;</span><span class="p">},</span>
-                                   <span class="n">transform</span><span class="o">=</span><span class="n">transform</span><span class="p">)</span>
-                    <span class="n">progress</span><span class="p">(</span>
-                        <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">Added a novel exon (</span><span class="si">{}</span><span class="s1">) in the gene </span><span class="si">{}</span><span class="s1"> &#39;</span>
-                        <span class="s1">&#39;(</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                            <span class="n">exon</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">exon</span><span class="o">.</span><span class="n">attributes</span><span class="p">[</span><span class="s1">&#39;gene_id&#39;</span><span class="p">]),</span>
-                            <span class="n">gene_name</span><span class="p">))</span>
-            <span class="k">except</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">IntegrityError</span><span class="p">:</span>
-                <span class="k">continue</span></div>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_single_junction_exon_triple</span><span class="p">(</span><span class="n">direction_ind</span><span class="p">,</span> <span class="n">direction</span><span class="p">,</span> <span class="n">exon_id</span><span class="p">):</span>
@@ -508,15 +428,27 @@
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper"><div class="relations">
-<h3>Related Topics</h3>
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">Outrigger</a></h1>
+
+
+<a href="../../../index.html">
+<img src="../../../_static/logo-1x.png" width=80%>
+</a>
+
+<h3><a href="../../../index.html">Table Of Contents</a></h3>
+
 <ul>
-  <li><a href="../../../index.html">Documentation overview</a><ul>
-  <li><a href="../../index.html">Module code</a><ul>
-  </ul></li>
-  </ul></li>
+  <li><a href="../../../index.html">Home</a></li>
+  <li><a href="../../../contents.html">Contents</a></li>
+  <li><a href="../../../installation.html">Install</a></li>
+  <li><a href="../../../Usage.html">Usage</a></li>
+  <li><a href="../../../subcommands/outrigger_index.html"><code>index</code>: Detect exons</a></li>
+  <li><a href="../../../subcommands/outrigger_validate.html"><code>validate</code>: Remove non-canonical splice sites</a></li>
+  <li><a href="../../../subcommands/outrigger_psi.html"><code>psi</code>: Quantify exon inclusion</a></li>
+  <li><a href="../../../history.html">Changelog</a></li>
+  <li><a href="../../../license.html">License</a></li>
 </ul>
-</div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../../../search.html" method="get">
@@ -532,7 +464,7 @@
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2015-2016, Olga Botvinnik.
+      &copy;2015-2017, Olga Botvinnik.
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>

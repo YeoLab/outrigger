@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>outrigger.tests.index.test_events module &#8212; Outrigger 0.2.9 documentation</title>
+    <title>outrigger.tests.index.test_events module &#8212; Outrigger 1.0.0 documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.2.9',
+        VERSION:     '1.0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -26,7 +26,7 @@
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="Outrigger 0.2.9 documentation" href="index.html" />
+    <link rel="top" title="Outrigger 1.0.0 documentation" href="index.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -58,8 +58,8 @@
 <tr class="row-odd"><td><a class="reference internal" href="#outrigger.tests.index.test_events.TestEventMaker.event_maker" title="outrigger.tests.index.test_events.TestEventMaker.event_maker"><code class="xref py py-obj docutils literal"><span class="pre">event_maker</span></code></a>(junction_exon_triples)</td>
 <td></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#outrigger.tests.index.test_events.TestEventMaker.splice_type" title="outrigger.tests.index.test_events.TestEventMaker.splice_type"><code class="xref py py-obj docutils literal"><span class="pre">splice_type</span></code></a>(request)</td>
-<td>Possible splice types, returned with both long names and abbrevs</td>
+<tr class="row-even"><td><a class="reference internal" href="#outrigger.tests.index.test_events.TestEventMaker.events_csv" title="outrigger.tests.index.test_events.TestEventMaker.events_csv"><code class="xref py py-obj docutils literal"><span class="pre">events_csv</span></code></a>(simulated_outrigger_index,&nbsp;...)</td>
+<td></td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#outrigger.tests.index.test_events.TestEventMaker.strand_name" title="outrigger.tests.index.test_events.TestEventMaker.strand_name"><code class="xref py py-obj docutils literal"><span class="pre">strand_name</span></code></a>(strand)</td>
 <td></td>
@@ -79,7 +79,7 @@
 <tr class="row-even"><td><a class="reference internal" href="#outrigger.tests.index.test_events.TestEventMaker.test_finding_events" title="outrigger.tests.index.test_events.TestEventMaker.test_finding_events"><code class="xref py py-obj docutils literal"><span class="pre">test_finding_events</span></code></a>(event_maker,&nbsp;capsys,&nbsp;...)</td>
 <td>Test finding SE and MXE events in one function</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#outrigger.tests.index.test_events.TestEventMaker.test_init" title="outrigger.tests.index.test_events.TestEventMaker.test_init"><code class="xref py py-obj docutils literal"><span class="pre">test_init</span></code></a>(junction_exon_triples,&nbsp;graph_items)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#outrigger.tests.index.test_events.TestEventMaker.test_init" title="outrigger.tests.index.test_events.TestEventMaker.test_init"><code class="xref py py-obj docutils literal"><span class="pre">test_init</span></code></a>(junction_exon_triples)</td>
 <td></td>
 </tr>
 </tbody>
@@ -90,10 +90,9 @@
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="outrigger.tests.index.test_events.TestEventMaker.splice_type">
-<code class="descname">splice_type</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/tests/index/test_events.html#TestEventMaker.splice_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.tests.index.test_events.TestEventMaker.splice_type" title="Permalink to this definition">¶</a></dt>
-<dd><p>Possible splice types, returned with both long names and abbrevs</p>
-</dd></dl>
+<dt id="outrigger.tests.index.test_events.TestEventMaker.events_csv">
+<code class="descname">events_csv</code><span class="sig-paren">(</span><em>simulated_outrigger_index</em>, <em>strand_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/tests/index/test_events.html#TestEventMaker.events_csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.tests.index.test_events.TestEventMaker.events_csv" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="outrigger.tests.index.test_events.TestEventMaker.strand_name">
@@ -128,7 +127,118 @@
 
 <dl class="method">
 <dt id="outrigger.tests.index.test_events.TestEventMaker.test_init">
-<code class="descname">test_init</code><span class="sig-paren">(</span><em>junction_exon_triples</em>, <em>graph_items</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/tests/index/test_events.html#TestEventMaker.test_init"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.tests.index.test_events.TestEventMaker.test_init" title="Permalink to this definition">¶</a></dt>
+<code class="descname">test_init</code><span class="sig-paren">(</span><em>junction_exon_triples</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/tests/index/test_events.html#TestEventMaker.test_init"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.tests.index.test_events.TestEventMaker.test_init" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="outrigger.tests.index.test_events.TestSpliceGraph">
+<em class="property">class </em><code class="descclassname">outrigger.tests.index.test_events.</code><code class="descname">TestSpliceGraph</code><a class="reference internal" href="_modules/outrigger/tests/index/test_events.html#TestSpliceGraph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.tests.index.test_events.TestSpliceGraph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#outrigger.tests.index.test_events.TestSpliceGraph.exon1_i" title="outrigger.tests.index.test_events.TestSpliceGraph.exon1_i"><code class="xref py py-obj docutils literal"><span class="pre">exon1_i</span></code></a>(strand)</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#outrigger.tests.index.test_events.TestSpliceGraph.exon1_name" title="outrigger.tests.index.test_events.TestSpliceGraph.exon1_name"><code class="xref py py-obj docutils literal"><span class="pre">exon1_name</span></code></a>(splice_graph,&nbsp;exon1_i)</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#outrigger.tests.index.test_events.TestSpliceGraph.mutually_exclusive_events" title="outrigger.tests.index.test_events.TestSpliceGraph.mutually_exclusive_events"><code class="xref py py-obj docutils literal"><span class="pre">mutually_exclusive_events</span></code></a>(strand)</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#outrigger.tests.index.test_events.TestSpliceGraph.skipped_exon_events" title="outrigger.tests.index.test_events.TestSpliceGraph.skipped_exon_events"><code class="xref py py-obj docutils literal"><span class="pre">skipped_exon_events</span></code></a>(strand)</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#outrigger.tests.index.test_events.TestSpliceGraph.splice_graph" title="outrigger.tests.index.test_events.TestSpliceGraph.splice_graph"><code class="xref py py-obj docutils literal"><span class="pre">splice_graph</span></code></a>(junction_exon_triples)</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#outrigger.tests.index.test_events.TestSpliceGraph.test___init__" title="outrigger.tests.index.test_events.TestSpliceGraph.test___init__"><code class="xref py py-obj docutils literal"><span class="pre">test___init__</span></code></a>(junction_exon_triples,&nbsp;graph_items)</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#outrigger.tests.index.test_events.TestSpliceGraph.test__mutually_exclusive_exon" title="outrigger.tests.index.test_events.TestSpliceGraph.test__mutually_exclusive_exon"><code class="xref py py-obj docutils literal"><span class="pre">test__mutually_exclusive_exon</span></code></a>(splice_graph,&nbsp;...)</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#outrigger.tests.index.test_events.TestSpliceGraph.test__skipped_exon" title="outrigger.tests.index.test_events.TestSpliceGraph.test__skipped_exon"><code class="xref py py-obj docutils literal"><span class="pre">test__skipped_exon</span></code></a>(splice_graph,&nbsp;exon1_i,&nbsp;...)</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#outrigger.tests.index.test_events.TestSpliceGraph.test_exons_one_junction_upstream" title="outrigger.tests.index.test_events.TestSpliceGraph.test_exons_one_junction_upstream"><code class="xref py py-obj docutils literal"><span class="pre">test_exons_one_junction_upstream</span></code></a>(...)</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#outrigger.tests.index.test_events.TestSpliceGraph.test_exons_two_junctions_downstream" title="outrigger.tests.index.test_events.TestSpliceGraph.test_exons_two_junctions_downstream"><code class="xref py py-obj docutils literal"><span class="pre">test_exons_two_junctions_downstream</span></code></a>(...)</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#outrigger.tests.index.test_events.TestSpliceGraph.test_junctions_between_exons" title="outrigger.tests.index.test_events.TestSpliceGraph.test_junctions_between_exons"><code class="xref py py-obj docutils literal"><span class="pre">test_junctions_between_exons</span></code></a>(splice_graph,&nbsp;...)</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#outrigger.tests.index.test_events.TestSpliceGraph.test_single_exon_alternative_events" title="outrigger.tests.index.test_events.TestSpliceGraph.test_single_exon_alternative_events"><code class="xref py py-obj docutils literal"><span class="pre">test_single_exon_alternative_events</span></code></a>(...)</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="outrigger.tests.index.test_events.TestSpliceGraph.exon1_i">
+<code class="descname">exon1_i</code><span class="sig-paren">(</span><em>strand</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/tests/index/test_events.html#TestSpliceGraph.exon1_i"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.tests.index.test_events.TestSpliceGraph.exon1_i" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="outrigger.tests.index.test_events.TestSpliceGraph.exon1_name">
+<code class="descname">exon1_name</code><span class="sig-paren">(</span><em>splice_graph</em>, <em>exon1_i</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/tests/index/test_events.html#TestSpliceGraph.exon1_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.tests.index.test_events.TestSpliceGraph.exon1_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="outrigger.tests.index.test_events.TestSpliceGraph.mutually_exclusive_events">
+<code class="descname">mutually_exclusive_events</code><span class="sig-paren">(</span><em>strand</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/tests/index/test_events.html#TestSpliceGraph.mutually_exclusive_events"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.tests.index.test_events.TestSpliceGraph.mutually_exclusive_events" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="outrigger.tests.index.test_events.TestSpliceGraph.skipped_exon_events">
+<code class="descname">skipped_exon_events</code><span class="sig-paren">(</span><em>strand</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/tests/index/test_events.html#TestSpliceGraph.skipped_exon_events"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.tests.index.test_events.TestSpliceGraph.skipped_exon_events" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="outrigger.tests.index.test_events.TestSpliceGraph.splice_graph">
+<code class="descname">splice_graph</code><span class="sig-paren">(</span><em>junction_exon_triples</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/tests/index/test_events.html#TestSpliceGraph.splice_graph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.tests.index.test_events.TestSpliceGraph.splice_graph" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="outrigger.tests.index.test_events.TestSpliceGraph.test___init__">
+<code class="descname">test___init__</code><span class="sig-paren">(</span><em>junction_exon_triples</em>, <em>graph_items</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/tests/index/test_events.html#TestSpliceGraph.test___init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.tests.index.test_events.TestSpliceGraph.test___init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="outrigger.tests.index.test_events.TestSpliceGraph.test__mutually_exclusive_exon">
+<code class="descname">test__mutually_exclusive_exon</code><span class="sig-paren">(</span><em>splice_graph</em>, <em>exon1_i</em>, <em>exon1_name</em>, <em>mutually_exclusive_events</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/tests/index/test_events.html#TestSpliceGraph.test__mutually_exclusive_exon"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.tests.index.test_events.TestSpliceGraph.test__mutually_exclusive_exon" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="outrigger.tests.index.test_events.TestSpliceGraph.test__skipped_exon">
+<code class="descname">test__skipped_exon</code><span class="sig-paren">(</span><em>splice_graph</em>, <em>exon1_i</em>, <em>exon1_name</em>, <em>skipped_exon_events</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/tests/index/test_events.html#TestSpliceGraph.test__skipped_exon"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.tests.index.test_events.TestSpliceGraph.test__skipped_exon" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="outrigger.tests.index.test_events.TestSpliceGraph.test_exons_one_junction_upstream">
+<code class="descname">test_exons_one_junction_upstream</code><span class="sig-paren">(</span><em>splice_graph</em>, <em>exon1_i</em>, <em>strand</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/tests/index/test_events.html#TestSpliceGraph.test_exons_one_junction_upstream"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.tests.index.test_events.TestSpliceGraph.test_exons_one_junction_upstream" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="outrigger.tests.index.test_events.TestSpliceGraph.test_exons_two_junctions_downstream">
+<code class="descname">test_exons_two_junctions_downstream</code><span class="sig-paren">(</span><em>splice_graph</em>, <em>exon1_i</em>, <em>strand</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/tests/index/test_events.html#TestSpliceGraph.test_exons_two_junctions_downstream"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.tests.index.test_events.TestSpliceGraph.test_exons_two_junctions_downstream" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="outrigger.tests.index.test_events.TestSpliceGraph.test_junctions_between_exons">
+<code class="descname">test_junctions_between_exons</code><span class="sig-paren">(</span><em>splice_graph</em>, <em>strand</em>, <em>exon1_i</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/tests/index/test_events.html#TestSpliceGraph.test_junctions_between_exons"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.tests.index.test_events.TestSpliceGraph.test_junctions_between_exons" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="outrigger.tests.index.test_events.TestSpliceGraph.test_single_exon_alternative_events">
+<code class="descname">test_single_exon_alternative_events</code><span class="sig-paren">(</span><em>splice_graph</em>, <em>exon1_i</em>, <em>exon1_name</em>, <em>mutually_exclusive_events</em>, <em>skipped_exon_events</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/tests/index/test_events.html#TestSpliceGraph.test_single_exon_alternative_events"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.tests.index.test_events.TestSpliceGraph.test_single_exon_alternative_events" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -186,20 +296,27 @@
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper"><div class="relations">
-<h3>Related Topics</h3>
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Outrigger</a></h1>
+
+
+<a href="index.html">
+<img src="_static/logo-1x.png" width=80%>
+</a>
+
+<h3><a href="index.html">Table Of Contents</a></h3>
+
 <ul>
-  <li><a href="index.html">Documentation overview</a><ul>
-  </ul></li>
+  <li><a href="index.html">Home</a></li>
+  <li><a href="contents.html">Contents</a></li>
+  <li><a href="installation.html">Install</a></li>
+  <li><a href="Usage.html">Usage</a></li>
+  <li><a href="subcommands/outrigger_index.html"><code>index</code>: Detect exons</a></li>
+  <li><a href="subcommands/outrigger_validate.html"><code>validate</code>: Remove non-canonical splice sites</a></li>
+  <li><a href="subcommands/outrigger_psi.html"><code>psi</code>: Quantify exon inclusion</a></li>
+  <li><a href="history.html">Changelog</a></li>
+  <li><a href="license.html">License</a></li>
 </ul>
-</div>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/outrigger.tests.index.test_events.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
@@ -215,7 +332,7 @@
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2015-2016, Olga Botvinnik.
+      &copy;2015-2017, Olga Botvinnik.
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>

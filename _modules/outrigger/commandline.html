@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>outrigger.commandline &#8212; Outrigger 0.2.9 documentation</title>
+    <title>outrigger.commandline &#8212; Outrigger 1.0.0 documentation</title>
     
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.2.9',
+        VERSION:     '1.0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -26,7 +26,7 @@
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="top" title="Outrigger 0.2.9 documentation" href="../../index.html" />
+    <link rel="top" title="Outrigger 1.0.0 documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" />
    
   <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
@@ -79,9 +79,9 @@
 <div class="viewcode-block" id="CommandLine"><a class="viewcode-back" href="../../outrigger.commandline.html#outrigger.commandline.CommandLine">[docs]</a><span class="k">class</span> <span class="nc">CommandLine</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_options</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
-            <span class="n">description</span><span class="o">=</span><span class="s1">&#39;outrigger </span><span class="si">{version}</span><span class="se">\n</span><span class="s1">Calculate &quot;percent-spliced in&quot; &#39;</span>
-                        <span class="s1">&#39;(Psi) scores of alternative splicing on a *de novo*, &#39;</span>
-                        <span class="s1">&#39;custom-built splicing index -- &#39;</span>
+            <span class="n">description</span><span class="o">=</span><span class="s1">&#39;outrigger (</span><span class="si">{version}</span><span class="s1">). Calculate &quot;percent-spliced in&quot;&#39;</span>
+                        <span class="s1">&#39; (Psi) scores of alternative splicing on a *de novo*,&#39;</span>
+                        <span class="s1">&#39; custom-built splicing index -- &#39;</span>
                         <span class="s1">&#39;just for you!&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">version</span><span class="o">=</span><span class="n">__version__</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
             <span class="s1">&#39;--version&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;version&#39;</span><span class="p">,</span>
@@ -110,14 +110,14 @@
                             <span class="s1">&#39;required if you specify &#39;</span>
                             <span class="s1">&#39;&quot;--compiled-junction-reads&quot;&#39;</span><span class="p">)</span>
         <span class="n">index_junctions</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-            <span class="s1">&#39;-c&#39;</span><span class="p">,</span> <span class="s1">&#39;--compiled-junction-reads&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="s1">&#39;-c&#39;</span><span class="p">,</span> <span class="s1">&#39;--junction-reads-csv&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Name of the splice junction files to detect novel exons and &quot;</span>
                  <span class="s2">&quot;build an index of alternative splicing events from. &quot;</span>
                  <span class="s2">&quot;Not required if you specify &quot;</span>
                  <span class="s2">&quot;SJ.out.tab file with &#39;--sj-out-tab&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                         <span class="n">sj_csv</span><span class="o">=</span><span class="n">JUNCTION_READS_PATH</span><span class="p">))</span>
         <span class="n">index_junctions</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-            <span class="s1">&#39;-b&#39;</span><span class="p">,</span> <span class="s1">&#39;--bams&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;*&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;-b&#39;</span><span class="p">,</span> <span class="s1">&#39;--bam&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;*&#39;</span><span class="p">,</span>
             <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Location of bam files to use for finding events.&quot;</span><span class="p">)</span>
         <span class="n">index_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-m&#39;</span><span class="p">,</span> <span class="s1">&#39;--min-reads&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
                                   <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store&#39;</span><span class="p">,</span>
@@ -141,12 +141,13 @@
                                        <span class="s1">&#39; and all reads are used.&#39;</span><span class="p">)</span>
         <span class="n">index_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
             <span class="s1">&#39;-l&#39;</span><span class="p">,</span> <span class="s1">&#39;--max-de-novo-exon-length&#39;</span><span class="p">,</span>
-            <span class="n">default</span><span class="o">=</span><span class="n">adjacencies</span><span class="o">.</span><span class="n">MAX_DE_NOVO_EXON_LENGTH</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store&#39;</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="n">outrigger</span><span class="o">.</span><span class="n">common</span><span class="o">.</span><span class="n">MAX_DE_NOVO_EXON_LENGTH</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store&#39;</span><span class="p">,</span>
             <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Maximum length of an exon detected &#39;</span>
                  <span class="s1">&#39;*de novo* from the dataset. This is to&#39;</span>
                  <span class="s1">&#39; prevent multiple kilobase long exons &#39;</span>
                  <span class="s1">&#39;from being accidentally created. &#39;</span>
-                 <span class="s1">&#39;(default=</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">adjacencies</span><span class="o">.</span><span class="n">MAX_DE_NOVO_EXON_LENGTH</span><span class="p">))</span>
+                 <span class="s1">&#39;(default=</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">outrigger</span><span class="o">.</span><span class="n">common</span><span class="o">.</span><span class="n">MAX_DE_NOVO_EXON_LENGTH</span><span class="p">))</span>
 
         <span class="n">gtf_parser</span> <span class="o">=</span> <span class="n">index_parser</span><span class="o">.</span><span class="n">add_mutually_exclusive_group</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">gtf_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-g&#39;</span><span class="p">,</span> <span class="s1">&#39;--gtf-filename&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
@@ -183,6 +184,20 @@
                                        <span class="s1">&#39;reading. Default is -1, which means &#39;</span>
                                        <span class="s1">&#39;to use as many threads as are &#39;</span>
                                        <span class="s1">&#39;available.&#39;</span><span class="p">)</span>
+        <span class="n">index_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--low-memory&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                  <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                  <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
+                                  <span class="n">help</span><span class="o">=</span><span class="s1">&#39;If set, then use a smaller memory &#39;</span>
+                                       <span class="s1">&#39;footprint. By default, this is off.&#39;</span><span class="p">)</span>
+        <span class="n">index_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--splice-types&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                  <span class="n">default</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">,</span>
+                                  <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store&#39;</span><span class="p">,</span>
+                                  <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Which splice types to find. By &#39;</span>
+                                       <span class="s1">&#39;default, &quot;all&quot; are used which at this &#39;</span>
+                                       <span class="s1">&#39;point is skipped exon (SE) and &#39;</span>
+                                       <span class="s1">&#39;mutually exclusive exon (MXE) events. &#39;</span>
+                                       <span class="s1">&#39;Can also specify only one, e.g. &quot;se&quot; &#39;</span>
+                                       <span class="s1">&#39;or both &quot;se,mxe&quot;&#39;</span><span class="p">)</span>
         <span class="n">overwrite_parser</span> <span class="o">=</span> <span class="n">index_parser</span><span class="o">.</span><span class="n">add_mutually_exclusive_group</span><span class="p">(</span>
             <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="n">overwrite_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--force&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
@@ -254,6 +269,11 @@
                                      <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
                                      <span class="n">help</span><span class="o">=</span><span class="s1">&#39;If given, print debugging logging &#39;</span>
                                           <span class="s1">&#39;information to standard out&#39;</span><span class="p">)</span>
+        <span class="n">validate_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--low-memory&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                     <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
+                                     <span class="n">help</span><span class="o">=</span><span class="s1">&#39;If set, then use a smaller memory &#39;</span>
+                                          <span class="s1">&#39;footprint. By default, this is &#39;</span>
+                                          <span class="s1">&#39;off.&#39;</span><span class="p">)</span>
         <span class="n">validate_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">validate</span><span class="p">)</span>
 
         <span class="c1"># --- Subcommand to calculate psi on the built index --- #</span>
@@ -281,7 +301,7 @@
         <span class="n">psi_junctions</span> <span class="o">=</span> <span class="n">psi_parser</span><span class="o">.</span><span class="n">add_mutually_exclusive_group</span><span class="p">(</span>
             <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="n">psi_junctions</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-            <span class="s1">&#39;-c&#39;</span><span class="p">,</span> <span class="s1">&#39;--compiled-junction-reads&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="s1">&#39;-c&#39;</span><span class="p">,</span> <span class="s1">&#39;--junction-reads-csv&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Name of the compiled splice junction file to calculate psi &quot;</span>
                  <span class="s2">&quot;scores on. Default is the &#39;--output&#39; folder&#39;s &quot;</span>
                  <span class="s2">&quot;junctions/reads.csv file. Not required if you specify &quot;</span>
@@ -292,13 +312,25 @@
             <span class="n">help</span><span class="o">=</span><span class="s1">&#39;SJ.out.tab files from STAR aligner output. Not required if &#39;</span>
                  <span class="s1">&#39;you specify a file with &quot;--compiled-junction-reads&quot;&#39;</span><span class="p">)</span>
         <span class="n">psi_junctions</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-            <span class="s1">&#39;-b&#39;</span><span class="p">,</span> <span class="s1">&#39;--bams&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="s1">&#39;-b&#39;</span><span class="p">,</span> <span class="s1">&#39;--bam&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;*&#39;</span><span class="p">,</span>
             <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Bam files to use to calculate psi on&#39;</span><span class="p">)</span>
         <span class="n">psi_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-m&#39;</span><span class="p">,</span> <span class="s1">&#39;--min-reads&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store&#39;</span><span class="p">,</span>
                                 <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
                                 <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Minimum number of reads per junction for&#39;</span>
                                      <span class="s1">&#39; calculating Psi (default=10)&#39;</span><span class="p">)</span>
+        <span class="n">psi_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-e&#39;</span><span class="p">,</span> <span class="s1">&#39;--method&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store&#39;</span><span class="p">,</span>
+                                <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span>
+                                <span class="n">help</span><span class="o">=</span><span class="s1">&#39;How to deal with multiple junctions on &#39;</span>
+                                     <span class="s1">&#39;an event - take the mean (default) or &#39;</span>
+                                     <span class="s1">&#39;the min? (the other option)&#39;</span><span class="p">)</span>
+        <span class="n">psi_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-u&#39;</span><span class="p">,</span> <span class="s1">&#39;--uneven-coverage-multiplier&#39;</span><span class="p">,</span>
+                                <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store&#39;</span><span class="p">,</span>
+                                <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+                                <span class="n">help</span><span class="o">=</span><span class="s1">&#39;If a junction one one side of an exon is&#39;</span>
+                                     <span class="s1">&#39; bigger than the other side of the exon &#39;</span>
+                                     <span class="s1">&#39;by this amount, (default is 10, so 10x &#39;</span>
+                                     <span class="s1">&#39;bigger), then do not use this event&#39;</span><span class="p">)</span>
         <span class="n">psi_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--ignore-multimapping&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
                                 <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Applies to STAR SJ.out.tab files only.&#39;</span>
                                      <span class="s1">&#39; If this flag is used, then do not &#39;</span>
@@ -337,6 +369,11 @@
                                      <span class="s1">&#39;reading. Default is -1, which means &#39;</span>
                                      <span class="s1">&#39;to use as many threads as are &#39;</span>
                                      <span class="s1">&#39;available.&#39;</span><span class="p">)</span>
+        <span class="n">psi_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--low-memory&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
+                                <span class="n">help</span><span class="o">=</span><span class="s1">&#39;If set, then use a smaller memory &#39;</span>
+                                     <span class="s1">&#39;footprint. By default, this is off.&#39;</span><span class="p">)</span>
         <span class="n">psi_parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">psi</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">input_options</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">input_options</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -450,14 +487,14 @@
         <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_folder</span><span class="p">,</span> <span class="s1">&#39;junctions&#39;</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">junction_reads</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">compiled_junction_reads</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">compiled_junction_reads</span>
+    <span class="k">def</span> <span class="nf">junction_reads_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">junction_reads_csv</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">junction_reads_csv</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">junctions_folder</span><span class="p">,</span> <span class="s1">&#39;reads.csv&#39;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Subcommand.make_junction_reads_file"><a class="viewcode-back" href="../../outrigger.commandline.html#outrigger.commandline.Subcommand.make_junction_reads_file">[docs]</a>    <span class="k">def</span> <span class="nf">make_junction_reads_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">bams</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">bam</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">util</span><span class="o">.</span><span class="n">progress</span><span class="p">(</span>
                 <span class="s1">&#39;Reading SJ.out.files and creating a big splice junction&#39;</span>
                 <span class="s1">&#39; table of reads spanning exon-exon junctions...&#39;</span><span class="p">)</span>
@@ -469,43 +506,43 @@
                           <span class="s1">&#39;junction table of reads spanning exon-exon &#39;</span>
                           <span class="s1">&#39;junctions&#39;</span><span class="p">)</span>
             <span class="n">splice_junctions</span> <span class="o">=</span> <span class="n">bam</span><span class="o">.</span><span class="n">read_multiple_bams</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">bams</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ignore_multimapping</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span><span class="p">)</span>
-        <span class="n">dirname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">junction_reads</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">bam</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ignore_multimapping</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span><span class="p">)</span>
+        <span class="n">dirname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">junction_reads_filename</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">dirname</span><span class="p">):</span>
             <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">dirname</span><span class="p">)</span>
-        <span class="n">util</span><span class="o">.</span><span class="n">progress</span><span class="p">(</span><span class="s1">&#39;Writing </span><span class="si">{}</span><span class="s1"> ...</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">junction_reads</span><span class="p">))</span>
-        <span class="n">splice_junctions</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">junction_reads</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">util</span><span class="o">.</span><span class="n">progress</span><span class="p">(</span><span class="s1">&#39;Writing </span><span class="si">{}</span><span class="s1"> ...</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">junction_reads_filename</span><span class="p">))</span>
+        <span class="n">splice_junctions</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">junction_reads_filename</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="n">util</span><span class="o">.</span><span class="n">done</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">splice_junctions</span></div>
 
 <div class="viewcode-block" id="Subcommand.csv"><a class="viewcode-back" href="../../outrigger.commandline.html#outrigger.commandline.Subcommand.csv">[docs]</a>    <span class="k">def</span> <span class="nf">csv</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Create a csv file of compiled splice junctions&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">junction_reads</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">junction_reads_filename</span><span class="p">):</span>
             <span class="n">splice_junctions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_junction_reads_file</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">util</span><span class="o">.</span><span class="n">progress</span><span class="p">(</span><span class="s1">&#39;Found compiled junction reads file in </span><span class="si">{}</span><span class="s1"> and &#39;</span>
-                          <span class="s1">&#39;reading it in ...&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">junction_reads</span><span class="p">))</span>
-            <span class="n">splice_junctions</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">junction_reads</span><span class="p">)</span>
+                          <span class="s1">&#39;reading it in &#39;</span>
+                          <span class="s1">&#39;...&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">junction_reads_filename</span><span class="p">))</span>
+            <span class="n">splice_junctions</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">junction_reads_filename</span><span class="p">,</span>
+                                           <span class="n">low_memory</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">low_memory</span><span class="p">)</span>
             <span class="n">util</span><span class="o">.</span><span class="n">done</span><span class="p">()</span>
-        <span class="n">splice_junctions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_junctions_on_reads</span><span class="p">(</span><span class="n">splice_junctions</span><span class="p">)</span>
 
-        <span class="n">metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">junction_metadata</span><span class="p">(</span><span class="n">splice_junctions</span><span class="p">)</span>
-        <span class="n">metadata_csv</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">junctions_folder</span><span class="p">,</span> <span class="n">METADATA_CSV</span><span class="p">)</span>
-        <span class="n">util</span><span class="o">.</span><span class="n">progress</span><span class="p">(</span><span class="s1">&#39;Writing metadata of junctions to </span><span class="si">{csv}</span><span class="s1">&#39;</span>
-                      <span class="s1">&#39; ...&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">csv</span><span class="o">=</span><span class="n">metadata_csv</span><span class="p">))</span>
-        <span class="n">metadata</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">metadata_csv</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-        <span class="n">util</span><span class="o">.</span><span class="n">done</span><span class="p">()</span>
-
-        <span class="k">return</span> <span class="n">splice_junctions</span><span class="p">,</span> <span class="n">metadata</span></div>
+        <span class="k">return</span> <span class="n">splice_junctions</span></div>
 
     <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="Subcommand.junction_metadata"><a class="viewcode-back" href="../../outrigger.commandline.html#outrigger.commandline.Subcommand.junction_metadata">[docs]</a>    <span class="k">def</span> <span class="nf">junction_metadata</span><span class="p">(</span><span class="n">spliced_reads</span><span class="p">):</span>
+<div class="viewcode-block" id="Subcommand.junction_metadata"><a class="viewcode-back" href="../../outrigger.commandline.html#outrigger.commandline.Subcommand.junction_metadata">[docs]</a>    <span class="k">def</span> <span class="nf">junction_metadata</span><span class="p">(</span><span class="n">spliced_reads</span><span class="p">,</span> <span class="n">csv</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get just the junction info from the concatenated read files&quot;&quot;&quot;</span>
         <span class="n">util</span><span class="o">.</span><span class="n">progress</span><span class="p">(</span><span class="s1">&#39;Creating splice junction metadata of merely where &#39;</span>
                       <span class="s1">&#39;junctions start and stop&#39;</span><span class="p">)</span>
 
         <span class="n">metadata</span> <span class="o">=</span> <span class="n">star</span><span class="o">.</span><span class="n">make_metadata</span><span class="p">(</span><span class="n">spliced_reads</span><span class="p">)</span>
         <span class="n">util</span><span class="o">.</span><span class="n">done</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">csv</span><span class="p">):</span>
+            <span class="n">util</span><span class="o">.</span><span class="n">progress</span><span class="p">(</span><span class="s1">&#39;Writing metadata of junctions to </span><span class="si">{csv}</span><span class="s1">&#39;</span>
+                          <span class="s1">&#39; ...&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">csv</span><span class="o">=</span><span class="n">csv</span><span class="p">))</span>
+            <span class="n">metadata</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">csv</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
         <span class="k">return</span> <span class="n">metadata</span></div>
 
 <div class="viewcode-block" id="Subcommand.filter_junctions_on_reads"><a class="viewcode-back" href="../../outrigger.commandline.html#outrigger.commandline.Subcommand.filter_junctions_on_reads">[docs]</a>    <span class="k">def</span> <span class="nf">filter_junctions_on_reads</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spliced_reads</span><span class="p">):</span>
@@ -608,7 +645,13 @@
 
 <div class="viewcode-block" id="Index"><a class="viewcode-back" href="../../outrigger.commandline.html#outrigger.commandline.Index">[docs]</a><span class="k">class</span> <span class="nc">Index</span><span class="p">(</span><span class="n">Subcommand</span><span class="p">):</span>
 
-    <span class="n">max_de_novo_exon_length</span> <span class="o">=</span> <span class="n">adjacencies</span><span class="o">.</span><span class="n">MAX_DE_NOVO_EXON_LENGTH</span>
+    <span class="n">max_de_novo_exon_length</span> <span class="o">=</span> <span class="n">outrigger</span><span class="o">.</span><span class="n">common</span><span class="o">.</span><span class="n">MAX_DE_NOVO_EXON_LENGTH</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">splice_abbrevs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">splice_types</span> <span class="o">==</span> <span class="s1">&#39;all&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">common</span><span class="o">.</span><span class="n">SPLICE_ABBREVS</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">splice_types</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Index.make_exon_junction_adjacencies"><a class="viewcode-back" href="../../outrigger.commandline.html#outrigger.commandline.Index.make_exon_junction_adjacencies">[docs]</a>    <span class="k">def</span> <span class="nf">make_exon_junction_adjacencies</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">db</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get annotated exon_cols next to junctions in data&quot;&quot;&quot;</span>
@@ -624,7 +667,7 @@
 
         <span class="n">novel_exons_gtf</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gtf_folder</span><span class="p">,</span> <span class="s1">&#39;novel_exons.gtf&#39;</span><span class="p">)</span>
         <span class="n">novel_exons</span> <span class="o">=</span> <span class="n">exon_junction_adjacencies</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">features_of_type</span><span class="p">(</span>
-            <span class="n">adjacencies</span><span class="o">.</span><span class="n">NOVEL_EXON</span><span class="p">)</span>
+            <span class="n">outrigger</span><span class="o">.</span><span class="n">common</span><span class="o">.</span><span class="n">NOVEL_EXON</span><span class="p">)</span>
         <span class="n">n_novel_exons</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">novel_exons</span><span class="p">)</span>
         <span class="n">util</span><span class="o">.</span><span class="n">progress</span><span class="p">(</span><span class="s1">&#39;Writing </span><span class="si">{n}</span><span class="s1"> novel exons to </span><span class="si">{gtf}</span><span class="s1"> ...&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
             <span class="n">n</span><span class="o">=</span><span class="n">n_novel_exons</span><span class="p">,</span> <span class="n">gtf</span><span class="o">=</span><span class="n">novel_exons_gtf</span><span class="p">))</span>
@@ -632,7 +675,7 @@
         <span class="n">util</span><span class="o">.</span><span class="n">done</span><span class="p">()</span>
 
         <span class="n">csv</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index_folder</span><span class="p">,</span>
-                           <span class="s1">&#39;junction_exon_direction_triples.csv&#39;</span><span class="p">)</span>
+                           <span class="s1">&#39;exon_direction_junction.csv&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">csv</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">force</span><span class="p">:</span>
             <span class="n">util</span><span class="o">.</span><span class="n">progress</span><span class="p">(</span><span class="s1">&#39;Getting junction-direction-exon triples for graph &#39;</span>
                           <span class="s1">&#39;database ...&#39;</span><span class="p">)</span>
@@ -645,7 +688,8 @@
             <span class="n">junction_exon_triples</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">csv</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
             <span class="n">util</span><span class="o">.</span><span class="n">done</span><span class="p">()</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">resume</span><span class="p">:</span>
-            <span class="n">junction_exon_triples</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">csv</span><span class="p">)</span>
+            <span class="n">junction_exon_triples</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">csv</span><span class="p">,</span>
+                                                <span class="n">low_memory</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">low_memory</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Found existing junction-exon-triples file &quot;</span>
                              <span class="s2">&quot;(</span><span class="si">{csv}</span><span class="s2">) but don&#39;t &quot;</span>
@@ -666,43 +710,45 @@
         <span class="n">util</span><span class="o">.</span><span class="n">done</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">event_maker</span></div>
 
+    <span class="k">def</span> <span class="nf">_exists_event_csv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">splice_abbrev</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index_folder</span><span class="p">,</span> <span class="n">splice_abbrev</span><span class="p">,</span> <span class="n">EVENTS_CSV</span><span class="p">))</span>
+
 <div class="viewcode-block" id="Index.make_events_by_traversing_graph"><a class="viewcode-back" href="../../outrigger.commandline.html#outrigger.commandline.Index.make_events_by_traversing_graph">[docs]</a>    <span class="k">def</span> <span class="nf">make_events_by_traversing_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_maker</span><span class="p">,</span> <span class="n">db</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">splice_name</span><span class="p">,</span> <span class="n">splice_abbrev</span> <span class="ow">in</span> <span class="n">common</span><span class="o">.</span><span class="n">SPLICE_TYPES</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Search the splice graph for alternative exons&quot;&quot;&quot;</span>
+        <span class="n">existing_events</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_exists_event_csv</span><span class="p">(</span><span class="n">splice_abbrev</span><span class="p">)</span>
+                           <span class="k">for</span> <span class="n">splice_abbrev</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">splice_abbrevs</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">existing_events</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">force</span><span class="p">:</span>
+            <span class="n">util</span><span class="o">.</span><span class="n">progress</span><span class="p">(</span><span class="s1">&#39;Found existing splicing events files for all splice&#39;</span>
+                          <span class="s1">&#39; types, so not searching. To force&#39;</span>
+                          <span class="s1">&#39; re-finding these splicing events, use the flag&#39;</span>
+                          <span class="s1">&#39; &quot;--force&quot;.&#39;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="n">undiscovered_splice_types</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">splice_abbrev</span> <span class="k">for</span> <span class="n">splice_abbrev</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">splice_abbrevs</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_exists_event_csv</span><span class="p">(</span><span class="n">splice_abbrev</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">force</span><span class="p">]</span>
+
+        <span class="n">event_dfs</span> <span class="o">=</span> <span class="n">event_maker</span><span class="o">.</span><span class="n">find_events</span><span class="p">(</span>
+            <span class="n">n_jobs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span><span class="p">,</span> <span class="n">splice_types</span><span class="o">=</span><span class="n">undiscovered_splice_types</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">splice_abbrev</span><span class="p">,</span> <span class="n">event_df</span> <span class="ow">in</span> <span class="n">event_dfs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">csv</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index_folder</span><span class="p">,</span> <span class="n">splice_abbrev</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span>
                                <span class="n">EVENTS_CSV</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">csv</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">force</span><span class="p">:</span>
-                <span class="n">name_with_spaces</span> <span class="o">=</span> <span class="n">splice_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="p">)</span>
-                <span class="c1"># Find event junctions</span>
+            <span class="n">dirname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">csv</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">dirname</span><span class="p">):</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">dirname</span><span class="p">)</span>
+
+            <span class="n">n_events</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">event_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">n_events</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">util</span><span class="o">.</span><span class="n">progress</span><span class="p">(</span>
-                    <span class="s1">&#39;Finding all </span><span class="si">{name}</span><span class="s1"> (</span><span class="si">{abbrev}</span><span class="s1">) events ...&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                        <span class="n">name</span><span class="o">=</span><span class="n">name_with_spaces</span><span class="p">,</span> <span class="n">abbrev</span><span class="o">=</span><span class="n">splice_abbrev</span><span class="o">.</span><span class="n">upper</span><span class="p">()))</span>
-                <span class="n">events_of_type</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">event_maker</span><span class="p">,</span> <span class="n">splice_name</span><span class="p">)()</span>
-                <span class="n">util</span><span class="o">.</span><span class="n">done</span><span class="p">()</span>
-
-                <span class="c1"># Write to a file</span>
-
-                <span class="n">dirname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">csv</span><span class="p">)</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">dirname</span><span class="p">):</span>
-                    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">dirname</span><span class="p">)</span>
-
-                <span class="n">n_events</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">events_of_type</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
-                <span class="k">if</span> <span class="n">n_events</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="n">util</span><span class="o">.</span><span class="n">progress</span><span class="p">(</span>
-                        <span class="s1">&#39;Found </span><span class="si">{n}</span><span class="s1"> </span><span class="si">{abbrev}</span><span class="s1"> events.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                            <span class="n">n</span><span class="o">=</span><span class="n">n_events</span><span class="p">,</span> <span class="n">abbrev</span><span class="o">=</span><span class="n">splice_abbrev</span><span class="o">.</span><span class="n">upper</span><span class="p">(),</span> <span class="n">csv</span><span class="o">=</span><span class="n">csv</span><span class="p">))</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">get_event_attributes</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">events_of_type</span><span class="p">,</span>
-                                              <span class="n">splice_abbrev</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">util</span><span class="o">.</span><span class="n">progress</span><span class="p">(</span>
-                        <span class="s1">&#39;No </span><span class="si">{abbrev}</span><span class="s1"> events found in the junction and exon &#39;</span>
-                        <span class="s1">&#39;data.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">abbrev</span><span class="o">=</span><span class="n">splice_abbrev</span><span class="o">.</span><span class="n">upper</span><span class="p">()))</span>
+                    <span class="s1">&#39;Found </span><span class="si">{n}</span><span class="s1"> </span><span class="si">{abbrev}</span><span class="s1"> events.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">n</span><span class="o">=</span><span class="n">n_events</span><span class="p">,</span> <span class="n">abbrev</span><span class="o">=</span><span class="n">splice_abbrev</span><span class="o">.</span><span class="n">upper</span><span class="p">(),</span> <span class="n">csv</span><span class="o">=</span><span class="n">csv</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">get_event_attributes</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">event_df</span><span class="p">,</span> <span class="n">splice_abbrev</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">util</span><span class="o">.</span><span class="n">progress</span><span class="p">(</span><span class="s1">&#39;Found existing </span><span class="si">{name}</span><span class="s1"> (</span><span class="si">{abbrev}</span><span class="s1">) splicing &#39;</span>
-                              <span class="s1">&#39;events file (</span><span class="si">{csv}</span><span class="s1">), so not searching. To force&#39;</span>
-                              <span class="s1">&#39; re-finding these splicing events, use the flag&#39;</span>
-                              <span class="s1">&#39; &quot;--force&quot;.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">splice_name</span><span class="p">,</span>
-                                                   <span class="n">abbrev</span><span class="o">=</span><span class="n">splice_abbrev</span><span class="p">,</span>
-                                                   <span class="n">csv</span><span class="o">=</span><span class="n">csv</span><span class="p">))</span></div>
+                <span class="n">util</span><span class="o">.</span><span class="n">progress</span><span class="p">(</span>
+                    <span class="s1">&#39;No </span><span class="si">{abbrev}</span><span class="s1"> events found in the junction and exon &#39;</span>
+                    <span class="s1">&#39;data.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">abbrev</span><span class="o">=</span><span class="n">splice_abbrev</span><span class="o">.</span><span class="n">upper</span><span class="p">()))</span></div>
 
 <div class="viewcode-block" id="Index.get_event_attributes"><a class="viewcode-back" href="../../outrigger.commandline.html#outrigger.commandline.Index.get_event_attributes">[docs]</a>    <span class="k">def</span> <span class="nf">get_event_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db</span><span class="p">,</span> <span class="n">event_df</span><span class="p">,</span> <span class="n">splice_type</span><span class="p">):</span>
         <span class="n">util</span><span class="o">.</span><span class="n">progress</span><span class="p">(</span>
@@ -724,7 +770,7 @@
         <span class="n">util</span><span class="o">.</span><span class="n">progress</span><span class="p">(</span><span class="s1">&#39;Writing </span><span class="si">{splice_type}</span><span class="s1"> events to </span><span class="si">{csv}</span><span class="s1"> &#39;</span>
                       <span class="s1">&#39;...&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">splice_type</span><span class="o">=</span><span class="n">splice_type</span><span class="o">.</span><span class="n">upper</span><span class="p">(),</span> <span class="n">csv</span><span class="o">=</span><span class="n">csv</span><span class="p">))</span>
         <span class="n">attributes</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">csv</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                          <span class="n">index_label</span><span class="o">=</span><span class="n">outrigger</span><span class="o">.</span><span class="n">common</span><span class="o">.</span><span class="n">EVENT_ID_COLUMN</span><span class="p">)</span>
+                          <span class="n">index_label</span><span class="o">=</span><span class="n">outrigger</span><span class="o">.</span><span class="n">common</span><span class="o">.</span><span class="n">EVENT_ID</span><span class="p">)</span>
         <span class="n">util</span><span class="o">.</span><span class="n">done</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Index.write_new_gtf"><a class="viewcode-back" href="../../outrigger.commandline.html#outrigger.commandline.Index.write_new_gtf">[docs]</a>    <span class="k">def</span> <span class="nf">write_new_gtf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db</span><span class="p">):</span>
@@ -743,14 +789,18 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
 
-        <span class="n">spliced_reads</span><span class="p">,</span> <span class="n">metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">csv</span><span class="p">()</span>
+        <span class="n">spliced_reads</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">csv</span><span class="p">()</span>
+
+        <span class="n">spliced_reads</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter_junctions_on_reads</span><span class="p">(</span><span class="n">spliced_reads</span><span class="p">)</span>
+        <span class="n">metadata_csv</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">junctions_folder</span><span class="p">,</span> <span class="n">METADATA_CSV</span><span class="p">)</span>
+        <span class="n">metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">junction_metadata</span><span class="p">(</span><span class="n">spliced_reads</span><span class="p">,</span> <span class="n">metadata_csv</span><span class="p">)</span>
 
         <span class="n">db</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">maybe_make_db</span><span class="p">()</span>
 
         <span class="n">junction_exon_triples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_exon_junction_adjacencies</span><span class="p">(</span>
             <span class="n">metadata</span><span class="p">,</span> <span class="n">db</span><span class="p">)</span>
 
-        <span class="n">event_maker</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_graph</span><span class="p">(</span><span class="n">junction_exon_triples</span><span class="p">,</span> <span class="n">db</span><span class="o">=</span><span class="n">db</span><span class="p">)</span>
+        <span class="n">event_maker</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_graph</span><span class="p">(</span><span class="n">junction_exon_triples</span><span class="p">,</span> <span class="n">db</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">make_events_by_traversing_graph</span><span class="p">(</span><span class="n">event_maker</span><span class="p">,</span> <span class="n">db</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">write_new_gtf</span><span class="p">(</span><span class="n">db</span><span class="p">)</span></div></div>
@@ -913,12 +963,13 @@
                     <span class="s2">&quot;don&#39;t know how to define events :(&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                         <span class="n">splice_name</span><span class="p">,</span> <span class="n">splice_folder</span><span class="p">))</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">junction_reads</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">bams</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">junction_reads_filename</span><span class="p">)</span> <span class="ow">and</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">bam</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">OSError</span><span class="p">(</span>
                 <span class="s2">&quot;The junction reads csv file (</span><span class="si">{}</span><span class="s2">) doesn&#39;t exist! &quot;</span>
                 <span class="s2">&quot;Cowardly exiting because I don&#39;t have the junction &quot;</span>
                 <span class="s2">&quot;counts calcaulate psi on :(&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">junction_reads</span><span class="p">))</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">junction_reads_filename</span><span class="p">))</span>
 
         <span class="k">for</span> <span class="n">folder</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">folders</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">maybe_make_folder</span><span class="p">(</span><span class="n">folder</span><span class="p">)</span>
@@ -928,15 +979,16 @@
             <span class="n">dtype</span> <span class="o">=</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">reads_col</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">}</span>
             <span class="n">util</span><span class="o">.</span><span class="n">progress</span><span class="p">(</span>
                 <span class="s1">&#39;Reading splice junction reads from </span><span class="si">{}</span><span class="s1"> ...&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">junction_reads</span><span class="p">))</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">junction_reads_filename</span><span class="p">))</span>
             <span class="n">junction_reads</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">junction_reads</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">junction_reads_filename</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span>
+                <span class="n">low_memory</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">low_memory</span><span class="p">)</span>
             <span class="n">util</span><span class="o">.</span><span class="n">done</span><span class="p">()</span>
         <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span>
                 <span class="s2">&quot;There is no junction reads file at the expected location&quot;</span>
                 <span class="s2">&quot; (</span><span class="si">{csv}</span><span class="s2">). Are you in the correct directory?&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                    <span class="n">csv</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">junction_reads</span><span class="p">))</span>
+                    <span class="n">csv</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">junction_reads_filename</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">junction_reads</span></div>
 
 <div class="viewcode-block" id="Psi.validate_junction_reads_data"><a class="viewcode-back" href="../../outrigger.commandline.html#outrigger.commandline.Psi.validate_junction_reads_data">[docs]</a>    <span class="k">def</span> <span class="nf">validate_junction_reads_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">junction_reads</span><span class="p">):</span>
@@ -945,7 +997,7 @@
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                     <span class="s2">&quot;The required column name </span><span class="si">{col}</span><span class="s2"> does not exist in </span><span class="si">{csv}</span><span class="s2">. &quot;</span>
                     <span class="s2">&quot;You can change this with the command line flag, &quot;</span>
-                    <span class="s2">&quot;</span><span class="si">{flag}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">col</span><span class="o">=</span><span class="n">col</span><span class="p">,</span> <span class="n">csv</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">junction_reads</span><span class="p">,</span>
+                    <span class="s2">&quot;</span><span class="si">{flag}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">col</span><span class="o">=</span><span class="n">col</span><span class="p">,</span> <span class="n">csv</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">junction_reads_filename</span><span class="p">,</span>
                                     <span class="n">flag</span><span class="o">=</span><span class="n">flag</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="Psi.maybe_get_validated_events"><a class="viewcode-back" href="../../outrigger.commandline.html#outrigger.commandline.Psi.maybe_get_validated_events">[docs]</a>    <span class="k">def</span> <span class="nf">maybe_get_validated_events</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">splice_abbrev</span><span class="p">):</span>
@@ -964,15 +1016,22 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
 
-        <span class="n">junction_reads</span><span class="p">,</span> <span class="n">metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">csv</span><span class="p">()</span>
+        <span class="n">junction_reads</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">csv</span><span class="p">()</span>
 
-        <span class="n">junction_reads</span> <span class="o">=</span> <span class="n">junction_reads</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span>
-            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">junction_id_col</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_id_col</span><span class="p">])</span>
-        <span class="n">junction_reads</span><span class="o">.</span><span class="n">sort_index</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">metadata_csv</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">junctions_folder</span><span class="p">,</span> <span class="n">METADATA_CSV</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">junction_metadata</span><span class="p">(</span><span class="n">junction_reads</span><span class="p">,</span> <span class="n">metadata_csv</span><span class="p">)</span>
+
+        <span class="n">junction_reads_2d</span> <span class="o">=</span> <span class="n">junction_reads</span><span class="o">.</span><span class="n">pivot</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sample_id_col</span><span class="p">,</span>
+                                                 <span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">junction_id_col</span><span class="p">,</span>
+                                                 <span class="n">values</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">reads_col</span><span class="p">)</span>
+        <span class="n">junction_reads_2d</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">junction_reads_2d</span> <span class="o">=</span> <span class="n">junction_reads_2d</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">--- Splice Junction reads ---&#39;</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">junction_reads</span><span class="o">.</span><span class="n">head</span><span class="p">()))</span>
 
         <span class="n">psis</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">summaries</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">splice_name</span><span class="p">,</span> <span class="n">splice_abbrev</span> <span class="ow">in</span> <span class="n">outrigger</span><span class="o">.</span><span class="n">common</span><span class="o">.</span><span class="n">SPLICE_TYPES</span><span class="p">:</span>
             <span class="n">filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">maybe_get_validated_events</span><span class="p">(</span><span class="n">splice_abbrev</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
@@ -985,7 +1044,8 @@
                           <span class="s1">&#39; ...&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">splice_name</span><span class="p">,</span> <span class="n">abbrev</span><span class="o">=</span><span class="n">splice_abbrev</span><span class="p">,</span>
                                         <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">))</span>
 
-            <span class="n">event_annotation</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">event_annotation</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                                           <span class="n">low_memory</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">low_memory</span><span class="p">)</span>
             <span class="n">util</span><span class="o">.</span><span class="n">done</span><span class="p">()</span>
 
             <span class="n">isoform_junctions</span> <span class="o">=</span> <span class="n">outrigger</span><span class="o">.</span><span class="n">common</span><span class="o">.</span><span class="n">ISOFORM_JUNCTIONS</span><span class="p">[</span>
@@ -997,16 +1057,37 @@
                 <span class="s1">&#39;Calculating percent spliced-in (Psi) scores on &#39;</span>
                 <span class="s1">&#39;</span><span class="si">{name}</span><span class="s1"> (</span><span class="si">{abbrev}</span><span class="s1">) events ...&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                     <span class="n">name</span><span class="o">=</span><span class="n">splice_name</span><span class="p">,</span> <span class="n">abbrev</span><span class="o">=</span><span class="n">splice_abbrev</span><span class="p">))</span>
-            <span class="n">event_psi</span> <span class="o">=</span> <span class="n">compute</span><span class="o">.</span><span class="n">calculate_psi</span><span class="p">(</span>
-                <span class="n">event_annotation</span><span class="p">,</span> <span class="n">junction_reads</span><span class="p">,</span>
-                <span class="n">min_reads</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">min_reads</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">,</span>
-                <span class="n">reads_col</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">reads_col</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span><span class="p">,</span>
+            <span class="c1"># Splice type percent spliced-in (psi) and summary</span>
+            <span class="n">type_psi</span><span class="p">,</span> <span class="n">summary</span> <span class="o">=</span> <span class="n">compute</span><span class="o">.</span><span class="n">calculate_psi</span><span class="p">(</span>
+                <span class="n">event_annotation</span><span class="p">,</span> <span class="n">junction_reads_2d</span><span class="p">,</span>
+                <span class="n">min_reads</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">min_reads</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span><span class="p">,</span>
+                <span class="n">method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">method</span><span class="p">,</span>
+                <span class="n">uneven_coverage_multiplier</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">uneven_coverage_multiplier</span><span class="p">,</span>
                 <span class="o">**</span><span class="n">isoform_junctions</span><span class="p">)</span>
+
+            <span class="c1"># Write this event&#39;s percent spliced-in matrix</span>
             <span class="n">csv</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">psi_folder</span><span class="p">,</span> <span class="n">splice_abbrev</span><span class="p">,</span>
                                <span class="s1">&#39;psi.csv&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">splice_abbrev</span><span class="p">))</span>
+            <span class="n">util</span><span class="o">.</span><span class="n">progress</span><span class="p">(</span><span class="s1">&#39;Writing </span><span class="si">{name}</span><span class="s1"> (</span><span class="si">{abbrev}</span><span class="s1">) Psi values to </span><span class="si">{filename}</span><span class="s1">&#39;</span>
+                          <span class="s1">&#39; ...&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">splice_name</span><span class="p">,</span> <span class="n">abbrev</span><span class="o">=</span><span class="n">splice_abbrev</span><span class="p">,</span>
+                                        <span class="n">filename</span><span class="o">=</span><span class="n">csv</span><span class="p">))</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">maybe_make_folder</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">csv</span><span class="p">))</span>
-            <span class="n">event_psi</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">csv</span><span class="p">)</span>
-            <span class="n">psis</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event_psi</span><span class="p">)</span>
+            <span class="n">type_psi</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">csv</span><span class="p">,</span> <span class="n">na_rep</span><span class="o">=</span><span class="s1">&#39;NA&#39;</span><span class="p">)</span>
+
+            <span class="c1"># Write this event&#39;s summary of events and why they weren&#39;t or were</span>
+            <span class="c1"># calculated Psi on</span>
+            <span class="n">csv</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">psi_folder</span><span class="p">,</span> <span class="n">splice_abbrev</span><span class="p">,</span>
+                               <span class="s1">&#39;summary.csv&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">splice_abbrev</span><span class="p">))</span>
+            <span class="n">util</span><span class="o">.</span><span class="n">progress</span><span class="p">(</span><span class="s1">&#39;Writing </span><span class="si">{name}</span><span class="s1"> (</span><span class="si">{abbrev}</span><span class="s1">) event summaries (e.g. &#39;</span>
+                          <span class="s1">&#39;number of reads, why an event does not have a Psi &#39;</span>
+                          <span class="s1">&#39;score) to </span><span class="si">{filename}</span><span class="s1"> ...&#39;</span>
+                          <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">splice_name</span><span class="p">,</span> <span class="n">abbrev</span><span class="o">=</span><span class="n">splice_abbrev</span><span class="p">,</span>
+                                    <span class="n">filename</span><span class="o">=</span><span class="n">csv</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">maybe_make_folder</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">csv</span><span class="p">))</span>
+            <span class="n">summary</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">csv</span><span class="p">,</span> <span class="n">na_rep</span><span class="o">=</span><span class="s1">&#39;NA&#39;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">psis</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">type_psi</span><span class="p">)</span>
+            <span class="n">summary</span><span class="p">[</span><span class="s1">&#39;splice_type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">splice_abbrev</span>
+            <span class="n">summaries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">summary</span><span class="p">)</span>
             <span class="n">util</span><span class="o">.</span><span class="n">done</span><span class="p">()</span>
 
         <span class="n">util</span><span class="o">.</span><span class="n">progress</span><span class="p">(</span><span class="s1">&#39;Concatenating all calculated psi scores &#39;</span>
@@ -1017,7 +1098,17 @@
         <span class="n">csv</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">psi_folder</span><span class="p">,</span> <span class="s1">&#39;outrigger_psi.csv&#39;</span><span class="p">)</span>
         <span class="n">util</span><span class="o">.</span><span class="n">progress</span><span class="p">(</span><span class="s1">&#39;Writing a samples x features matrix of Psi &#39;</span>
                       <span class="s1">&#39;scores to </span><span class="si">{}</span><span class="s1"> ...&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">csv</span><span class="p">))</span>
-        <span class="n">splicing</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">csv</span><span class="p">)</span>
+        <span class="n">splicing</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">csv</span><span class="p">,</span> <span class="n">na_rep</span><span class="o">=</span><span class="s1">&#39;NA&#39;</span><span class="p">)</span>
+        <span class="n">util</span><span class="o">.</span><span class="n">done</span><span class="p">()</span>
+
+        <span class="n">util</span><span class="o">.</span><span class="n">progress</span><span class="p">(</span><span class="s1">&#39;Concatenating all summaries &#39;</span>
+                      <span class="s1">&#39;into one big matrix...&#39;</span><span class="p">)</span>
+        <span class="n">summary</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">summaries</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">util</span><span class="o">.</span><span class="n">done</span><span class="p">()</span>
+        <span class="n">csv</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">psi_folder</span><span class="p">,</span> <span class="s1">&#39;outrigger_summary.csv&#39;</span><span class="p">)</span>
+        <span class="n">util</span><span class="o">.</span><span class="n">progress</span><span class="p">(</span><span class="s1">&#39;Writing summary table of Psi scores, junction reads, &#39;</span>
+                      <span class="s1">&#39;and cases to </span><span class="si">{}</span><span class="s1"> ...&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">csv</span><span class="p">))</span>
+        <span class="n">summary</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">csv</span><span class="p">,</span> <span class="n">na_rep</span><span class="o">=</span><span class="s1">&#39;NA&#39;</span><span class="p">)</span>
         <span class="n">util</span><span class="o">.</span><span class="n">done</span><span class="p">()</span></div></div>
 
 
@@ -1036,15 +1127,27 @@
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper"><div class="relations">
-<h3>Related Topics</h3>
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">Outrigger</a></h1>
+
+
+<a href="../../index.html">
+<img src="../../_static/logo-1x.png" width=80%>
+</a>
+
+<h3><a href="../../index.html">Table Of Contents</a></h3>
+
 <ul>
-  <li><a href="../../index.html">Documentation overview</a><ul>
-  <li><a href="../index.html">Module code</a><ul>
-  </ul></li>
-  </ul></li>
+  <li><a href="../../index.html">Home</a></li>
+  <li><a href="../../contents.html">Contents</a></li>
+  <li><a href="../../installation.html">Install</a></li>
+  <li><a href="../../Usage.html">Usage</a></li>
+  <li><a href="../../subcommands/outrigger_index.html"><code>index</code>: Detect exons</a></li>
+  <li><a href="../../subcommands/outrigger_validate.html"><code>validate</code>: Remove non-canonical splice sites</a></li>
+  <li><a href="../../subcommands/outrigger_psi.html"><code>psi</code>: Quantify exon inclusion</a></li>
+  <li><a href="../../history.html">Changelog</a></li>
+  <li><a href="../../license.html">License</a></li>
 </ul>
-</div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../../search.html" method="get">
@@ -1060,7 +1163,7 @@
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2015-2016, Olga Botvinnik.
+      &copy;2015-2017, Olga Botvinnik.
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>

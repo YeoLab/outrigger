@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>outrigger.tests.psi.test_compute &#8212; Outrigger 0.2.9 documentation</title>
+    <title>outrigger.tests.psi.test_compute &#8212; Outrigger 1.0.0 documentation</title>
     
     <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../',
-        VERSION:     '0.2.9',
+        VERSION:     '1.0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -26,7 +26,7 @@
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
-    <link rel="top" title="Outrigger 0.2.9 documentation" href="../../../../index.html" />
+    <link rel="top" title="Outrigger 1.0.0 documentation" href="../../../../index.html" />
     <link rel="up" title="Module code" href="../../../index.html" />
    
   <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
@@ -52,7 +52,100 @@
 <span class="kn">import</span> <span class="nn">pandas.util.testing</span> <span class="k">as</span> <span class="nn">pdt</span>
 <span class="kn">import</span> <span class="nn">six</span>
 
-<span class="n">idx</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">IndexSlice</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<div class="viewcode-block" id="skipped_exon_junction_reads_for_rejecting_csv"><a class="viewcode-back" href="../../../../outrigger.tests.psi.test_compute.html#outrigger.tests.psi.test_compute.skipped_exon_junction_reads_for_rejecting_csv">[docs]</a><span class="k">def</span> <span class="nf">skipped_exon_junction_reads_for_rejecting_csv</span><span class="p">(</span><span class="n">simulated</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">simulated</span><span class="p">,</span> <span class="s1">&#39;psi&#39;</span><span class="p">,</span> <span class="s1">&#39;skipped_exon_junctions_psi.csv&#39;</span><span class="p">)</span></div>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<div class="viewcode-block" id="skipped_exon_junction_reads_for_rejecting"><a class="viewcode-back" href="../../../../outrigger.tests.psi.test_compute.html#outrigger.tests.psi.test_compute.skipped_exon_junction_reads_for_rejecting">[docs]</a><span class="k">def</span> <span class="nf">skipped_exon_junction_reads_for_rejecting</span><span class="p">(</span>
+        <span class="n">skipped_exon_junction_reads_for_rejecting_csv</span><span class="p">):</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">skipped_exon_junction_reads_for_rejecting_csv</span><span class="p">,</span>
+                     <span class="n">dtype</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;junction12&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="s1">&#39;junction13&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                            <span class="s1">&#39;junction23&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="s1">&#39;psi&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">},</span>
+                     <span class="n">comment</span><span class="o">=</span><span class="s1">&#39;#&#39;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<div class="viewcode-block" id="mutually_exclusive_exon_junction_reads_for_rejecting_csv"><a class="viewcode-back" href="../../../../outrigger.tests.psi.test_compute.html#outrigger.tests.psi.test_compute.mutually_exclusive_exon_junction_reads_for_rejecting_csv">[docs]</a><span class="k">def</span> <span class="nf">mutually_exclusive_exon_junction_reads_for_rejecting_csv</span><span class="p">(</span><span class="n">simulated</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">simulated</span><span class="p">,</span> <span class="s1">&#39;psi&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;mutually_exclusive_exon_junctions_psi.csv&#39;</span><span class="p">)</span></div>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<div class="viewcode-block" id="mutually_exclusive_exon_junction_reads_for_rejecting"><a class="viewcode-back" href="../../../../outrigger.tests.psi.test_compute.html#outrigger.tests.psi.test_compute.mutually_exclusive_exon_junction_reads_for_rejecting">[docs]</a><span class="k">def</span> <span class="nf">mutually_exclusive_exon_junction_reads_for_rejecting</span><span class="p">(</span>
+        <span class="n">mutually_exclusive_exon_junction_reads_for_rejecting_csv</span><span class="p">):</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">mutually_exclusive_exon_junction_reads_for_rejecting_csv</span><span class="p">,</span>
+                     <span class="n">dtype</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;junction12&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="s1">&#39;junction13&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                            <span class="s1">&#39;junction23&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="s1">&#39;psi&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">},</span>
+                     <span class="n">comment</span><span class="o">=</span><span class="s1">&#39;#&#39;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<div class="viewcode-block" id="junction_reads_for_rejecting"><a class="viewcode-back" href="../../../../outrigger.tests.psi.test_compute.html#outrigger.tests.psi.test_compute.junction_reads_for_rejecting">[docs]</a><span class="k">def</span> <span class="nf">junction_reads_for_rejecting</span><span class="p">(</span>
+        <span class="n">splice_type</span><span class="p">,</span> <span class="n">skipped_exon_junction_reads_for_rejecting</span><span class="p">,</span>
+        <span class="n">mutually_exclusive_exon_junction_reads_for_rejecting</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">splice_type</span> <span class="o">==</span> <span class="s1">&#39;se&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">skipped_exon_junction_reads_for_rejecting</span>
+    <span class="k">elif</span> <span class="n">splice_type</span> <span class="o">==</span> <span class="s1">&#39;mxe&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">mutually_exclusive_exon_junction_reads_for_rejecting</span></div>
+
+
+<div class="viewcode-block" id="test__single_isoform_maybe_reject"><a class="viewcode-back" href="../../../../outrigger.tests.psi.test_compute.html#outrigger.tests.psi.test_compute.test__single_isoform_maybe_reject">[docs]</a><span class="k">def</span> <span class="nf">test__single_isoform_maybe_reject</span><span class="p">(</span><span class="n">junction_reads_for_rejecting</span><span class="p">,</span>
+                                      <span class="n">dummy_isoform1_junction_numbers</span><span class="p">,</span>
+                                      <span class="n">dummy_isoform2_junction_numbers</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">outrigger.psi.compute</span> <span class="k">import</span> <span class="n">_single_isoform_maybe_reject</span>
+
+    <span class="n">n_junctions</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dummy_isoform1_junction_numbers</span><span class="p">)</span> \
+        <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">dummy_isoform2_junction_numbers</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">junction_reads_for_rejecting</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+        <span class="n">isoform1</span><span class="p">,</span> <span class="n">isoform2</span><span class="p">,</span> <span class="n">case</span> <span class="o">=</span> <span class="n">_single_isoform_maybe_reject</span><span class="p">(</span>
+            <span class="n">row</span><span class="p">[</span><span class="n">dummy_isoform1_junction_numbers</span><span class="p">],</span>
+            <span class="n">row</span><span class="p">[</span><span class="n">dummy_isoform2_junction_numbers</span><span class="p">],</span>
+            <span class="n">n_junctions</span><span class="o">=</span><span class="n">n_junctions</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;mean_psi&#39;</span><span class="p">]):</span>
+                <span class="k">assert</span> <span class="n">isoform1</span> <span class="ow">is</span> <span class="kc">None</span>
+                <span class="k">assert</span> <span class="n">isoform2</span> <span class="ow">is</span> <span class="kc">None</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">pdt</span><span class="o">.</span><span class="n">assert_series_equal</span><span class="p">(</span><span class="n">isoform1</span><span class="p">,</span>
+                                        <span class="n">row</span><span class="p">[</span><span class="n">dummy_isoform1_junction_numbers</span><span class="p">])</span>
+                <span class="n">pdt</span><span class="o">.</span><span class="n">assert_series_equal</span><span class="p">(</span><span class="n">isoform2</span><span class="p">,</span>
+                                        <span class="n">row</span><span class="p">[</span><span class="n">dummy_isoform2_junction_numbers</span><span class="p">])</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;passed&#39;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">AssertionError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="s1">&#39;The junction configuration [</span><span class="si">{title}</span><span class="s1">] did &#39;</span>
+                                 <span class="s1">&#39;not pass (Test: </span><span class="si">{test_case}</span><span class="s1">, &#39;</span>
+                                 <span class="s1">&#39;True: &#39;</span>
+                                 <span class="s1">&#39;</span><span class="si">{true_case}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="n">row</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                                                       <span class="n">test_case</span><span class="o">=</span><span class="n">case</span><span class="p">,</span>
+                                                       <span class="n">true_case</span><span class="o">=</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;case&#39;</span><span class="p">]))</span></div>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="p">[({</span><span class="s1">&#39;junction12&#39;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span> <span class="s1">&#39;junction23&#39;</span><span class="p">:</span> <span class="mi">20</span><span class="p">},</span> <span class="s1">&#39;unequal&#39;</span><span class="p">),</span>
+                        <span class="p">({</span><span class="s1">&#39;junction12&#39;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span> <span class="s1">&#39;junction23&#39;</span><span class="p">:</span> <span class="mi">20</span><span class="p">},</span> <span class="s1">&#39;similar&#39;</span><span class="p">),</span>
+                        <span class="p">({</span><span class="s1">&#39;junction12&#39;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span> <span class="s1">&#39;junction23&#39;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">},</span> <span class="s1">&#39;unequal&#39;</span><span class="p">),</span>
+                        <span class="p">({</span><span class="s1">&#39;junction23&#39;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">},</span> <span class="s1">&#39;one junction&#39;</span><span class="p">),</span>
+                        <span class="p">({</span><span class="s1">&#39;junction12&#39;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span> <span class="s1">&#39;junction23&#39;</span><span class="p">:</span> <span class="mi">100</span><span class="p">},</span> <span class="s1">&#39;similar&#39;</span><span class="p">)])</span>
+<div class="viewcode-block" id="isoform_read_coverage"><a class="viewcode-back" href="../../../../outrigger.tests.psi.test_compute.html#outrigger.tests.psi.test_compute.isoform_read_coverage">[docs]</a><span class="k">def</span> <span class="nf">isoform_read_coverage</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">request</span><span class="o">.</span><span class="n">param</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="test__check_unequal_read_coverage"><a class="viewcode-back" href="../../../../outrigger.tests.psi.test_compute.html#outrigger.tests.psi.test_compute.test__check_unequal_read_coverage">[docs]</a><span class="k">def</span> <span class="nf">test__check_unequal_read_coverage</span><span class="p">(</span><span class="n">isoform_read_coverage</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">outrigger.psi.compute</span> <span class="k">import</span> \
+        <span class="n">_single_sample_check_unequal_read_coverage</span>
+
+    <span class="n">isoform</span><span class="p">,</span> <span class="n">equality</span> <span class="o">=</span> <span class="n">isoform_read_coverage</span>
+
+    <span class="n">test</span> <span class="o">=</span> <span class="n">_single_sample_check_unequal_read_coverage</span><span class="p">(</span><span class="n">isoform</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">equality</span> <span class="o">==</span> <span class="s1">&#39;unequal&#39;</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">test</span> <span class="ow">is</span> <span class="kc">None</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">pdt</span><span class="o">.</span><span class="n">assert_series_equal</span><span class="p">(</span><span class="n">isoform</span><span class="p">,</span> <span class="n">test</span><span class="p">)</span></div>
 
 
 <span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
@@ -200,7 +293,7 @@
 
 
 <span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
-<div class="viewcode-block" id="illegal_junctions"><a class="viewcode-back" href="../../../../outrigger.tests.psi.test_compute.html#outrigger.tests.psi.test_compute.illegal_junctions">[docs]</a><span class="k">def</span> <span class="nf">illegal_junctions</span><span class="p">(</span><span class="n">splice_type</span><span class="p">,</span> <span class="n">dummy_junction14</span><span class="p">,</span> <span class="n">dummy_junction23</span><span class="p">):</span>
+<div class="viewcode-block" id="incompatible_junctions"><a class="viewcode-back" href="../../../../outrigger.tests.psi.test_compute.html#outrigger.tests.psi.test_compute.incompatible_junctions">[docs]</a><span class="k">def</span> <span class="nf">incompatible_junctions</span><span class="p">(</span><span class="n">splice_type</span><span class="p">,</span> <span class="n">dummy_junction14</span><span class="p">,</span> <span class="n">dummy_junction23</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">splice_type</span> <span class="o">==</span> <span class="s1">&#39;se&#39;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
     <span class="k">if</span> <span class="n">splice_type</span> <span class="o">==</span> <span class="s1">&#39;mxe&#39;</span><span class="p">:</span>
@@ -210,45 +303,13 @@
 <span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
 <div class="viewcode-block" id="dummy_junction_locations"><a class="viewcode-back" href="../../../../outrigger.tests.psi.test_compute.html#outrigger.tests.psi.test_compute.dummy_junction_locations">[docs]</a><span class="k">def</span> <span class="nf">dummy_junction_locations</span><span class="p">(</span><span class="n">dummy_legal_junction_numbers</span><span class="p">,</span>
                              <span class="n">dummy_junction_number_to_id</span><span class="p">,</span>
-                             <span class="n">illegal_junctions</span><span class="p">):</span>
-    <span class="kn">from</span> <span class="nn">outrigger.common</span> <span class="k">import</span> <span class="n">ILLEGAL_JUNCTIONS</span>
+                             <span class="n">incompatible_junctions</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">outrigger.common</span> <span class="k">import</span> <span class="n">INCOMPATIBLE_JUNCTIONS</span>
 
     <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="n">junction_xy</span><span class="p">:</span> <span class="n">dummy_junction_number_to_id</span><span class="p">[</span><span class="n">junction_xy</span><span class="p">]</span>
          <span class="k">for</span> <span class="n">junction_xy</span> <span class="ow">in</span> <span class="n">dummy_legal_junction_numbers</span><span class="p">}</span>
-    <span class="n">d</span><span class="p">[</span><span class="n">ILLEGAL_JUNCTIONS</span><span class="p">]</span> <span class="o">=</span> <span class="n">illegal_junctions</span>
+    <span class="n">d</span><span class="p">[</span><span class="n">INCOMPATIBLE_JUNCTIONS</span><span class="p">]</span> <span class="o">=</span> <span class="n">incompatible_junctions</span>
     <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">d</span><span class="p">)</span></div>
-
-<span class="c1"># @pytest.fixture</span>
-<span class="c1"># def dummy_junction_to_reads(dummy_junction12, dummy_junction12_reads,</span>
-<span class="c1">#                       dummy_junction23, dummy_junction23_reads,</span>
-<span class="c1">#                       dummy_junction13, dummy_junction13_reads):</span>
-<span class="c1">#     &quot;&quot;&quot;Helper function for testing&quot;&quot;&quot;</span>
-<span class="c1">#     return pd.Series({dummy_junction12: dummy_junction12_reads,</span>
-<span class="c1">#                       dummy_junction23: dummy_junction23_reads,</span>
-<span class="c1">#                       dummy_junction13: dummy_junction13_reads})</span>
-
-
-<div class="viewcode-block" id="test_maybe_get_isoform_reads"><a class="viewcode-back" href="../../../../outrigger.tests.psi.test_compute.html#outrigger.tests.psi.test_compute.test_maybe_get_isoform_reads">[docs]</a><span class="k">def</span> <span class="nf">test_maybe_get_isoform_reads</span><span class="p">(</span><span class="n">dummy_splice_junction_reads</span><span class="p">,</span>
-                                 <span class="n">dummy_junction_locations</span><span class="p">,</span>
-                                 <span class="n">dummy_isoform_junctions</span><span class="p">,</span>
-                                 <span class="n">dummy_isoform_reads</span><span class="p">,):</span>
-    <span class="kn">from</span> <span class="nn">outrigger.psi.compute</span> <span class="k">import</span> <span class="n">maybe_get_isoform_reads</span><span class="p">,</span> <span class="n">READS</span>
-
-    <span class="n">test</span> <span class="o">=</span> <span class="n">maybe_get_isoform_reads</span><span class="p">(</span><span class="n">dummy_splice_junction_reads</span><span class="p">,</span>
-                                   <span class="n">dummy_junction_locations</span><span class="p">,</span>
-                                   <span class="n">dummy_isoform_junctions</span><span class="p">,</span> <span class="n">READS</span><span class="p">)</span>
-    <span class="n">junctions</span> <span class="o">=</span> <span class="n">dummy_junction_locations</span><span class="p">[</span><span class="n">dummy_isoform_junctions</span><span class="p">]</span>
-    <span class="n">reads</span> <span class="o">=</span> <span class="n">dummy_isoform_reads</span><span class="p">[</span><span class="n">junctions</span><span class="o">.</span><span class="n">values</span><span class="p">]</span>
-    <span class="n">reads</span> <span class="o">=</span> <span class="n">reads</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">reads</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
-        <span class="n">true</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">()</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">true</span> <span class="o">=</span> <span class="n">reads</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="n">true</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">READS</span>
-        <span class="n">true</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_arrays</span><span class="p">(</span>
-            <span class="p">[</span><span class="n">reads</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;sample1&#39;</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">reads</span><span class="o">.</span><span class="n">index</span><span class="p">)],</span>
-            <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;junction&#39;</span><span class="p">,</span> <span class="s1">&#39;sample_id&#39;</span><span class="p">])</span>
-    <span class="n">pdt</span><span class="o">.</span><span class="n">assert_series_equal</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="n">true</span><span class="p">)</span></div>
 
 
 <span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
@@ -273,61 +334,6 @@
         <span class="k">return</span> <span class="p">[</span><span class="s1">&#39;isoform1=junction:chr1:176-299:+@exon:chr1:300-350:+@junction:chr1:351-399:+|isoform2=junction:chr1:176-224:+@exon:chr1:225-250:+@junction:chr1:251-399:+&#39;</span><span class="p">]</span>  <span class="c1"># noqa</span></div>
 
 
-<div class="viewcode-block" id="test_dummy_calculate_psi"><a class="viewcode-back" href="../../../../outrigger.tests.psi.test_compute.html#outrigger.tests.psi.test_compute.test_dummy_calculate_psi">[docs]</a><span class="k">def</span> <span class="nf">test_dummy_calculate_psi</span><span class="p">(</span><span class="n">dummy_splice_junction_reads</span><span class="p">,</span>
-                             <span class="n">dummy_isoform_reads</span><span class="p">,</span>
-                             <span class="n">dummy_isoform1_junction_ids</span><span class="p">,</span>
-                             <span class="n">dummy_isoform2_junction_ids</span><span class="p">,</span>
-                             <span class="n">dummy_isoform1_junction_numbers</span><span class="p">,</span>
-                             <span class="n">dummy_isoform2_junction_numbers</span><span class="p">,</span>
-                             <span class="n">dummy_exons_to_junctions</span><span class="p">,</span>
-                             <span class="n">dummy_events</span><span class="p">,</span> <span class="n">splice_type</span><span class="p">):</span>
-    <span class="kn">from</span> <span class="nn">outrigger.psi.compute</span> <span class="k">import</span> <span class="n">calculate_psi</span><span class="p">,</span> <span class="n">MIN_READS</span>
-
-    <span class="n">isoform_reads</span> <span class="o">=</span> <span class="n">dummy_isoform_reads</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-    <span class="n">isoform_reads</span><span class="p">[</span><span class="n">isoform_reads</span> <span class="o">&lt;</span> <span class="n">MIN_READS</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
-
-    <span class="k">if</span> <span class="p">(</span><span class="n">isoform_reads</span><span class="p">[</span><span class="n">dummy_isoform1_junction_ids</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">())</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
-        <span class="n">isoform1_reads</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">isoform1_reads</span> <span class="o">=</span> <span class="n">isoform_reads</span><span class="p">[</span><span class="n">dummy_isoform1_junction_ids</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-    <span class="k">if</span> <span class="p">(</span><span class="n">isoform_reads</span><span class="p">[</span><span class="n">dummy_isoform2_junction_ids</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">())</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
-        <span class="n">isoform2_reads</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">isoform2_reads</span> <span class="o">=</span> <span class="n">isoform_reads</span><span class="p">[</span><span class="n">dummy_isoform2_junction_ids</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-
-    <span class="c1"># This tests whether both are greater than zero</span>
-    <span class="k">if</span> <span class="n">isoform1_reads</span> <span class="ow">or</span> <span class="n">isoform2_reads</span><span class="p">:</span>
-        <span class="n">multiplier</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">dummy_isoform2_junction_ids</span><span class="p">))</span> <span class="o">/</span> \
-                     <span class="nb">len</span><span class="p">(</span><span class="n">dummy_isoform1_junction_ids</span><span class="p">)</span>
-        <span class="n">true_psi</span> <span class="o">=</span> <span class="n">isoform2_reads</span><span class="o">/</span><span class="p">(</span><span class="n">isoform2_reads</span> <span class="o">+</span>
-                                   <span class="n">multiplier</span> <span class="o">*</span> <span class="n">isoform1_reads</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">true_psi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
-
-    <span class="n">other_isoform1_psi</span> <span class="o">=</span> <span class="mf">0.</span> <span class="k">if</span> <span class="n">isoform1_reads</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
-
-    <span class="k">if</span> <span class="n">splice_type</span> <span class="o">==</span> <span class="s1">&#39;se&#39;</span><span class="p">:</span>
-        <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;sample_id,</span><span class="si">{0}</span><span class="s2"># noqa</span>
-<span class="s2">sample1,</span><span class="si">{2}</span><span class="s2">,</span><span class="si">{1}</span><span class="s2">,</span><span class="si">{2}</span><span class="s2">&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dummy_events</span><span class="p">),</span> <span class="n">true_psi</span><span class="p">,</span>
-                              <span class="n">other_isoform1_psi</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">splice_type</span> <span class="o">==</span> <span class="s1">&#39;mxe&#39;</span><span class="p">:</span>
-        <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;sample_id,</span><span class="si">{0}</span><span class="s2"># noqa</span>
-<span class="s2">sample1,</span><span class="si">{1}</span><span class="s2">&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dummy_events</span><span class="p">),</span> <span class="n">true_psi</span><span class="p">)</span>
-
-    <span class="n">true</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">six</span><span class="o">.</span><span class="n">StringIO</span><span class="p">(</span><span class="n">s</span><span class="p">),</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">comment</span><span class="o">=</span><span class="s1">&#39;#&#39;</span><span class="p">)</span>
-    <span class="n">true</span> <span class="o">=</span> <span class="n">true</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">true</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
-        <span class="n">true</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="n">dummy_splice_junction_reads</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">levels</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-
-    <span class="n">test</span> <span class="o">=</span> <span class="n">calculate_psi</span><span class="p">(</span><span class="n">dummy_exons_to_junctions</span><span class="p">,</span> <span class="n">dummy_splice_junction_reads</span><span class="p">,</span>
-                         <span class="n">isoform1_junctions</span><span class="o">=</span><span class="n">dummy_isoform1_junction_numbers</span><span class="p">,</span>
-                         <span class="n">isoform2_junctions</span><span class="o">=</span><span class="n">dummy_isoform2_junction_numbers</span><span class="p">,</span>
-                         <span class="n">n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-
-    <span class="n">pdt</span><span class="o">.</span><span class="n">assert_frame_equal</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="n">true</span><span class="p">)</span></div>
-
-
 <span class="c1"># --- Test with real data --- #</span>
 <span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
 <div class="viewcode-block" id="event_id"><a class="viewcode-back" href="../../../../outrigger.tests.psi.test_compute.html#outrigger.tests.psi.test_compute.event_id">[docs]</a><span class="k">def</span> <span class="nf">event_id</span><span class="p">(</span><span class="n">splice_type</span><span class="p">):</span>
@@ -335,13 +341,6 @@
         <span class="k">return</span> <span class="s1">&#39;isoform1=junction:chr10:128491034-128492058:-|isoform2=junction:chr10:128491765-128492058:-@novel_exon:chr10:128491720-128491764:-@junction:chr10:128491034-128491719:-&#39;</span>  <span class="c1"># noqa</span>
     <span class="k">elif</span> <span class="n">splice_type</span> <span class="o">==</span> <span class="s1">&#39;mxe&#39;</span><span class="p">:</span>
         <span class="k">return</span> <span class="s1">&#39;isoform1=junction:chr2:136763622-136770056:+@exon:chr2:136770057-136770174:+@junction:chr2:136770175-136773894:+|isoform2=junction:chr2:136763622-136769742:+@exon:chr2:136769743-136769860:+@junction:chr2:136769861-136773894:+&#39;</span>  <span class="c1"># noqa</span></div>
-
-
-<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
-<div class="viewcode-block" id="event_df_csv"><a class="viewcode-back" href="../../../../outrigger.tests.psi.test_compute.html#outrigger.tests.psi.test_compute.event_df_csv">[docs]</a><span class="k">def</span> <span class="nf">event_df_csv</span><span class="p">(</span><span class="n">splice_type</span><span class="p">,</span> <span class="n">tasic2016_intermediate_psi</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tasic2016_intermediate_psi</span><span class="p">,</span>
-                        <span class="s1">&#39;</span><span class="si">{splice_type}</span><span class="s1">_event_df.csv&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                            <span class="n">splice_type</span><span class="o">=</span><span class="n">splice_type</span><span class="p">))</span></div>
 
 
 <span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
@@ -355,6 +354,15 @@
                      <span class="n">index_col</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;junction_id&#39;</span><span class="p">,</span> <span class="s1">&#39;sample_id&#39;</span><span class="p">])</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">df</span></div>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<div class="viewcode-block" id="reads2d"><a class="viewcode-back" href="../../../../outrigger.tests.psi.test_compute.html#outrigger.tests.psi.test_compute.reads2d">[docs]</a><span class="k">def</span> <span class="nf">reads2d</span><span class="p">(</span><span class="n">splice_junction_reads_csv</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">outrigger.common</span> <span class="k">import</span> <span class="n">SAMPLE_ID</span><span class="p">,</span> <span class="n">JUNCTION_ID</span><span class="p">,</span> <span class="n">READS</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">splice_junction_reads_csv</span><span class="p">)</span>
+    <span class="n">df2d</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">pivot</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="n">SAMPLE_ID</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">JUNCTION_ID</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="n">READS</span><span class="p">)</span>
+    <span class="n">df2d</span> <span class="o">=</span> <span class="n">df2d</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df2d</span></div>
 
 
 <span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
@@ -385,6 +393,31 @@
 
 
 <span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<div class="viewcode-block" id="event_df_csv"><a class="viewcode-back" href="../../../../outrigger.tests.psi.test_compute.html#outrigger.tests.psi.test_compute.event_df_csv">[docs]</a><span class="k">def</span> <span class="nf">event_df_csv</span><span class="p">(</span><span class="n">splice_type</span><span class="p">,</span> <span class="n">tasic2016_intermediate_psi</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tasic2016_intermediate_psi</span><span class="p">,</span>
+                        <span class="s1">&#39;</span><span class="si">{splice_type}</span><span class="s1">_event_df.csv&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                            <span class="n">splice_type</span><span class="o">=</span><span class="n">splice_type</span><span class="p">))</span></div>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<div class="viewcode-block" id="single_event_summary_csv"><a class="viewcode-back" href="../../../../outrigger.tests.psi.test_compute.html#outrigger.tests.psi.test_compute.single_event_summary_csv">[docs]</a><span class="k">def</span> <span class="nf">single_event_summary_csv</span><span class="p">(</span><span class="n">splice_type</span><span class="p">,</span> <span class="n">tasic2016_intermediate_psi</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tasic2016_intermediate_psi</span><span class="p">,</span> <span class="n">splice_type</span><span class="p">,</span> <span class="s1">&#39;summary.csv&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="test__single_event_psi"><a class="viewcode-back" href="../../../../outrigger.tests.psi.test_compute.html#outrigger.tests.psi.test_compute.test__single_event_psi">[docs]</a><span class="k">def</span> <span class="nf">test__single_event_psi</span><span class="p">(</span><span class="n">event_id</span><span class="p">,</span> <span class="n">event_df_csv</span><span class="p">,</span> <span class="n">reads2d</span><span class="p">,</span>
+                           <span class="n">isoform1_junctions</span><span class="p">,</span> <span class="n">isoform2_junctions</span><span class="p">,</span>
+                           <span class="n">single_event_summary_csv</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">outrigger.psi.compute</span> <span class="k">import</span> <span class="n">_single_event_psi</span>
+    <span class="n">event_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">event_df_csv</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">true</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">single_event_summary_csv</span><span class="p">)</span>
+
+    <span class="n">test</span> <span class="o">=</span> <span class="n">_single_event_psi</span><span class="p">(</span><span class="n">event_id</span><span class="p">,</span> <span class="n">event_df</span><span class="p">,</span> <span class="n">reads2d</span><span class="p">,</span>
+                             <span class="n">isoform1_junctions</span><span class="p">,</span> <span class="n">isoform2_junctions</span><span class="p">)</span>
+    <span class="n">pdt</span><span class="o">.</span><span class="n">assert_frame_equal</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="n">true</span><span class="p">)</span></div>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
 <div class="viewcode-block" id="psi_csv"><a class="viewcode-back" href="../../../../outrigger.tests.psi.test_compute.html#outrigger.tests.psi.test_compute.psi_csv">[docs]</a><span class="k">def</span> <span class="nf">psi_csv</span><span class="p">(</span><span class="n">splice_type</span><span class="p">,</span> <span class="n">tasic2016_outrigger_output_psi</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tasic2016_outrigger_output_psi</span><span class="p">,</span> <span class="n">splice_type</span><span class="p">,</span> <span class="s1">&#39;psi.csv&#39;</span><span class="p">)</span></div>
 
@@ -394,27 +427,27 @@
     <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">psi_csv</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="test__single_event_psi"><a class="viewcode-back" href="../../../../outrigger.tests.psi.test_compute.html#outrigger.tests.psi.test_compute.test__single_event_psi">[docs]</a><span class="k">def</span> <span class="nf">test__single_event_psi</span><span class="p">(</span><span class="n">event_id</span><span class="p">,</span> <span class="n">event_df_csv</span><span class="p">,</span> <span class="n">splice_junction_reads</span><span class="p">,</span>
-                           <span class="n">isoform1_junctions</span><span class="p">,</span> <span class="n">isoform2_junctions</span><span class="p">,</span> <span class="n">psi_df</span><span class="p">):</span>
-    <span class="kn">from</span> <span class="nn">outrigger.psi.compute</span> <span class="k">import</span> <span class="n">_single_event_psi</span>
-    <span class="n">event_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">event_df_csv</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-
-    <span class="n">test</span> <span class="o">=</span> <span class="n">_single_event_psi</span><span class="p">(</span><span class="n">event_id</span><span class="p">,</span> <span class="n">event_df</span><span class="p">,</span> <span class="n">splice_junction_reads</span><span class="p">,</span>
-                             <span class="n">isoform1_junctions</span><span class="p">,</span> <span class="n">isoform2_junctions</span><span class="p">)</span>
-    <span class="n">true</span> <span class="o">=</span> <span class="n">psi_df</span><span class="p">[</span><span class="n">test</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
-    <span class="n">pdt</span><span class="o">.</span><span class="n">assert_series_equal</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="n">true</span><span class="p">)</span></div>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<div class="viewcode-block" id="summary_csv"><a class="viewcode-back" href="../../../../outrigger.tests.psi.test_compute.html#outrigger.tests.psi.test_compute.summary_csv">[docs]</a><span class="k">def</span> <span class="nf">summary_csv</span><span class="p">(</span><span class="n">splice_type</span><span class="p">,</span> <span class="n">tasic2016_outrigger_output_psi</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tasic2016_outrigger_output_psi</span><span class="p">,</span> <span class="n">splice_type</span><span class="p">,</span>
+                        <span class="s1">&#39;summary.csv&#39;</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="test__maybe_parallelize_psi"><a class="viewcode-back" href="../../../../outrigger.tests.psi.test_compute.html#outrigger.tests.psi.test_compute.test__maybe_parallelize_psi">[docs]</a><span class="k">def</span> <span class="nf">test__maybe_parallelize_psi</span><span class="p">(</span><span class="n">event_annotation</span><span class="p">,</span> <span class="n">splice_junction_reads</span><span class="p">,</span>
-                                <span class="n">isoform1_junctions</span><span class="p">,</span> <span class="n">isoform2_junctions</span><span class="p">,</span> <span class="n">psi_df</span><span class="p">,</span>
-                                <span class="n">capsys</span><span class="p">,</span> <span class="n">n_jobs</span><span class="p">):</span>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<div class="viewcode-block" id="summary_df"><a class="viewcode-back" href="../../../../outrigger.tests.psi.test_compute.html#outrigger.tests.psi.test_compute.summary_df">[docs]</a><span class="k">def</span> <span class="nf">summary_df</span><span class="p">(</span><span class="n">summary_csv</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">summary_csv</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="test__maybe_parallelize_psi"><a class="viewcode-back" href="../../../../outrigger.tests.psi.test_compute.html#outrigger.tests.psi.test_compute.test__maybe_parallelize_psi">[docs]</a><span class="k">def</span> <span class="nf">test__maybe_parallelize_psi</span><span class="p">(</span><span class="n">event_annotation</span><span class="p">,</span> <span class="n">reads2d</span><span class="p">,</span>
+                                <span class="n">isoform1_junctions</span><span class="p">,</span> <span class="n">isoform2_junctions</span><span class="p">,</span>
+                                <span class="n">capsys</span><span class="p">,</span> <span class="n">n_jobs</span><span class="p">,</span> <span class="n">summary_df</span><span class="p">):</span>
     <span class="kn">from</span> <span class="nn">outrigger.psi.compute</span> <span class="k">import</span> <span class="n">_maybe_parallelize_psi</span>
 
-    <span class="n">tests</span> <span class="o">=</span> <span class="n">_maybe_parallelize_psi</span><span class="p">(</span><span class="n">event_annotation</span><span class="p">,</span> <span class="n">splice_junction_reads</span><span class="p">,</span>
+    <span class="n">tests</span> <span class="o">=</span> <span class="n">_maybe_parallelize_psi</span><span class="p">(</span><span class="n">event_annotation</span><span class="p">,</span> <span class="n">reads2d</span><span class="p">,</span>
                                    <span class="n">isoform1_junctions</span><span class="p">,</span> <span class="n">isoform2_junctions</span><span class="p">,</span>
                                    <span class="n">n_jobs</span><span class="o">=</span><span class="n">n_jobs</span><span class="p">)</span>
     <span class="n">tests</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tests</span> <span class="k">if</span> <span class="n">t</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
-    <span class="n">trues</span> <span class="o">=</span> <span class="p">[</span><span class="n">column</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">psi_df</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()]</span>
+    <span class="n">trues</span> <span class="o">=</span> <span class="p">[</span><span class="n">df</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">df</span> <span class="ow">in</span> <span class="n">summary_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;event_id&#39;</span><span class="p">)]</span>
 
     <span class="n">out</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">capsys</span><span class="o">.</span><span class="n">readouterr</span><span class="p">()</span>
 
@@ -424,32 +457,58 @@
         <span class="k">assert</span> <span class="s1">&#39;Parallelizing&#39;</span> <span class="ow">in</span> <span class="n">out</span>
 
     <span class="k">for</span> <span class="n">test</span><span class="p">,</span> <span class="n">true</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">tests</span><span class="p">,</span> <span class="n">trues</span><span class="p">):</span>
-        <span class="n">pdt</span><span class="o">.</span><span class="n">assert_series_equal</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="n">true</span><span class="p">)</span></div>
+        <span class="c1"># Only need to make sure the values are the same, the index</span>
+        <span class="c1"># doesn&#39;t matter</span>
+        <span class="n">true</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">test</span><span class="o">.</span><span class="n">index</span>
+
+        <span class="c1"># Make sure columns are in same order</span>
+        <span class="n">true</span> <span class="o">=</span> <span class="n">true</span><span class="p">[</span><span class="n">test</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
+        <span class="n">pdt</span><span class="o">.</span><span class="n">assert_frame_equal</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="n">true</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="test_calculate_psi"><a class="viewcode-back" href="../../../../outrigger.tests.psi.test_compute.html#outrigger.tests.psi.test_compute.test_calculate_psi">[docs]</a><span class="k">def</span> <span class="nf">test_calculate_psi</span><span class="p">(</span><span class="n">event_annotation</span><span class="p">,</span> <span class="n">splice_junction_reads</span><span class="p">,</span>
-                       <span class="n">isoform1_junctions</span><span class="p">,</span> <span class="n">isoform2_junctions</span><span class="p">,</span> <span class="n">psi_df</span><span class="p">):</span>
+<div class="viewcode-block" id="test_calculate_psi"><a class="viewcode-back" href="../../../../outrigger.tests.psi.test_compute.html#outrigger.tests.psi.test_compute.test_calculate_psi">[docs]</a><span class="k">def</span> <span class="nf">test_calculate_psi</span><span class="p">(</span><span class="n">event_annotation</span><span class="p">,</span> <span class="n">reads2d</span><span class="p">,</span>
+                       <span class="n">isoform1_junctions</span><span class="p">,</span> <span class="n">isoform2_junctions</span><span class="p">,</span>
+                       <span class="n">psi_df</span><span class="p">,</span> <span class="n">summary_df</span><span class="p">):</span>
     <span class="kn">from</span> <span class="nn">outrigger.psi.compute</span> <span class="k">import</span> <span class="n">calculate_psi</span>
 
-    <span class="n">test</span> <span class="o">=</span> <span class="n">calculate_psi</span><span class="p">(</span><span class="n">event_annotation</span><span class="p">,</span> <span class="n">splice_junction_reads</span><span class="p">,</span>
-                         <span class="n">isoform1_junctions</span><span class="p">,</span> <span class="n">isoform2_junctions</span><span class="p">)</span>
-    <span class="n">true</span> <span class="o">=</span> <span class="n">psi_df</span>
-    <span class="n">pdt</span><span class="o">.</span><span class="n">assert_frame_equal</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="n">true</span><span class="p">)</span></div>
+    <span class="n">true_psi</span> <span class="o">=</span> <span class="n">psi_df</span>
+    <span class="n">true_summary</span> <span class="o">=</span> <span class="n">summary_df</span>
+
+    <span class="n">test_psi</span><span class="p">,</span> <span class="n">test_summary</span> <span class="o">=</span> <span class="n">calculate_psi</span><span class="p">(</span><span class="n">event_annotation</span><span class="p">,</span> <span class="n">reads2d</span><span class="p">,</span>
+                                           <span class="n">isoform1_junctions</span><span class="p">,</span>
+                                           <span class="n">isoform2_junctions</span><span class="p">)</span>
+    <span class="c1"># When psi is written to CSV, only the index name is preserved, not the</span>
+    <span class="c1"># column names so need to get rid of it for these comparisons</span>
+    <span class="n">test_psi</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">pdt</span><span class="o">.</span><span class="n">assert_frame_equal</span><span class="p">(</span><span class="n">test_psi</span><span class="p">,</span> <span class="n">true_psi</span><span class="p">)</span>
+    <span class="n">pdt</span><span class="o">.</span><span class="n">assert_frame_equal</span><span class="p">(</span><span class="n">test_summary</span><span class="p">,</span> <span class="n">true_summary</span><span class="p">)</span></div>
 </pre></div>
 
           </div>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper"><div class="relations">
-<h3>Related Topics</h3>
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../../index.html">Outrigger</a></h1>
+
+
+<a href="../../../../index.html">
+<img src="../../../../_static/logo-1x.png" width=80%>
+</a>
+
+<h3><a href="../../../../index.html">Table Of Contents</a></h3>
+
 <ul>
-  <li><a href="../../../../index.html">Documentation overview</a><ul>
-  <li><a href="../../../index.html">Module code</a><ul>
-  </ul></li>
-  </ul></li>
+  <li><a href="../../../../index.html">Home</a></li>
+  <li><a href="../../../../contents.html">Contents</a></li>
+  <li><a href="../../../../installation.html">Install</a></li>
+  <li><a href="../../../../Usage.html">Usage</a></li>
+  <li><a href="../../../../subcommands/outrigger_index.html"><code>index</code>: Detect exons</a></li>
+  <li><a href="../../../../subcommands/outrigger_validate.html"><code>validate</code>: Remove non-canonical splice sites</a></li>
+  <li><a href="../../../../subcommands/outrigger_psi.html"><code>psi</code>: Quantify exon inclusion</a></li>
+  <li><a href="../../../../history.html">Changelog</a></li>
+  <li><a href="../../../../license.html">License</a></li>
 </ul>
-</div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../../../../search.html" method="get">
@@ -465,7 +524,7 @@
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2015-2016, Olga Botvinnik.
+      &copy;2015-2017, Olga Botvinnik.
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>

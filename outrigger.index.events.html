@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>outrigger.index.events module &#8212; Outrigger 0.2.9 documentation</title>
+    <title>outrigger.index.events module &#8212; Outrigger 1.0.0 documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.2.9',
+        VERSION:     '1.0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -26,7 +26,7 @@
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="Outrigger 0.2.9 documentation" href="index.html" />
+    <link rel="top" title="Outrigger 1.0.0 documentation" href="index.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -91,29 +91,14 @@ information about the transcript (AFE, ALE) cannot be annotated.</p>
 <tr class="row-odd"><td><a class="reference internal" href="#outrigger.index.events.EventMaker.add_event_id_col" title="outrigger.index.events.EventMaker.add_event_id_col"><code class="xref py py-obj docutils literal"><span class="pre">add_event_id_col</span></code></a>(events,&nbsp;splice_type)</td>
 <td></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#outrigger.index.events.EventMaker.add_illegal_junctions" title="outrigger.index.events.EventMaker.add_illegal_junctions"><code class="xref py py-obj docutils literal"><span class="pre">add_illegal_junctions</span></code></a>(events,&nbsp;splice_type)</td>
+<tr class="row-even"><td><a class="reference internal" href="#outrigger.index.events.EventMaker.add_incompatible_junctions" title="outrigger.index.events.EventMaker.add_incompatible_junctions"><code class="xref py py-obj docutils literal"><span class="pre">add_incompatible_junctions</span></code></a>(events,&nbsp;splice_type)</td>
 <td>Add junctions that are incompatible with splice type definition</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#outrigger.index.events.EventMaker.event_dict_to_df" title="outrigger.index.events.EventMaker.event_dict_to_df"><code class="xref py py-obj docutils literal"><span class="pre">event_dict_to_df</span></code></a>(events,&nbsp;exon_names,&nbsp;...)</td>
 <td></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#outrigger.index.events.EventMaker.exons_one_junction_downstream" title="outrigger.index.events.EventMaker.exons_one_junction_downstream"><code class="xref py py-obj docutils literal"><span class="pre">exons_one_junction_downstream</span></code></a>(exon_i)</td>
-<td>Get the exon(s) that are immediately downstream of this one</td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="#outrigger.index.events.EventMaker.exons_one_junction_upstream" title="outrigger.index.events.EventMaker.exons_one_junction_upstream"><code class="xref py py-obj docutils literal"><span class="pre">exons_one_junction_upstream</span></code></a>(exon_query)</td>
-<td>Get the exon(s) that are immediately upstream of this one</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="#outrigger.index.events.EventMaker.exons_two_junctions_downstream" title="outrigger.index.events.EventMaker.exons_two_junctions_downstream"><code class="xref py py-obj docutils literal"><span class="pre">exons_two_junctions_downstream</span></code></a>(exon_i)</td>
-<td>Get the exon(s) that are two junction hops downstream</td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="#outrigger.index.events.EventMaker.junctions_between_exons" title="outrigger.index.events.EventMaker.junctions_between_exons"><code class="xref py py-obj docutils literal"><span class="pre">junctions_between_exons</span></code></a>(exon_a,&nbsp;exon_b)</td>
-<td>Get the junctions between exonA and exonB</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="#outrigger.index.events.EventMaker.mutually_exclusive_exon" title="outrigger.index.events.EventMaker.mutually_exclusive_exon"><code class="xref py py-obj docutils literal"><span class="pre">mutually_exclusive_exon</span></code></a>()</td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="#outrigger.index.events.EventMaker.skipped_exon" title="outrigger.index.events.EventMaker.skipped_exon"><code class="xref py py-obj docutils literal"><span class="pre">skipped_exon</span></code></a>()</td>
-<td></td>
+<tr class="row-even"><td><a class="reference internal" href="#outrigger.index.events.EventMaker.find_events" title="outrigger.index.events.EventMaker.find_events"><code class="xref py py-obj docutils literal"><span class="pre">find_events</span></code></a>([splice_types,&nbsp;n_jobs])</td>
+<td>For each exon, test if it is part of an alternative event</td>
 </tr>
 </tbody>
 </table>
@@ -123,8 +108,8 @@ information about the transcript (AFE, ALE) cannot be annotated.</p>
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="outrigger.index.events.EventMaker.add_illegal_junctions">
-<code class="descname">add_illegal_junctions</code><span class="sig-paren">(</span><em>events</em>, <em>splice_type</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/index/events.html#EventMaker.add_illegal_junctions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.index.events.EventMaker.add_illegal_junctions" title="Permalink to this definition">¶</a></dt>
+<dt id="outrigger.index.events.EventMaker.add_incompatible_junctions">
+<code class="descname">add_incompatible_junctions</code><span class="sig-paren">(</span><em>events</em>, <em>splice_type</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/index/events.html#EventMaker.add_incompatible_junctions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.index.events.EventMaker.add_incompatible_junctions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add junctions that are incompatible with splice type definition</p>
 </dd></dl>
 
@@ -139,8 +124,52 @@ information about the transcript (AFE, ALE) cannot be annotated.</p>
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="outrigger.index.events.EventMaker.exons_one_junction_downstream">
-<code class="descname">exons_one_junction_downstream</code><span class="sig-paren">(</span><em>exon_i</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/index/events.html#EventMaker.exons_one_junction_downstream"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.index.events.EventMaker.exons_one_junction_downstream" title="Permalink to this definition">¶</a></dt>
+<dt id="outrigger.index.events.EventMaker.find_events">
+<code class="descname">find_events</code><span class="sig-paren">(</span><em>splice_types=('se'</em>, <em>'mxe')</em>, <em>n_jobs=-1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/index/events.html#EventMaker.find_events"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.index.events.EventMaker.find_events" title="Permalink to this definition">¶</a></dt>
+<dd><p>For each exon, test if it is part of an alternative event</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="outrigger.index.events.SpliceGraph">
+<em class="property">class </em><code class="descclassname">outrigger.index.events.</code><code class="descname">SpliceGraph</code><span class="sig-paren">(</span><em>junction_exon_triples</em>, <em>junction_col='junction'</em>, <em>exon_col='exon'</em>, <em>splice_types=('se'</em>, <em>'mxe')</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/index/events.html#SpliceGraph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.index.events.SpliceGraph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#outrigger.index.events.SpliceGraph.alternative_events" title="outrigger.index.events.SpliceGraph.alternative_events"><code class="xref py py-obj docutils literal"><span class="pre">alternative_events</span></code></a>()</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#outrigger.index.events.SpliceGraph.exons_one_junction_downstream" title="outrigger.index.events.SpliceGraph.exons_one_junction_downstream"><code class="xref py py-obj docutils literal"><span class="pre">exons_one_junction_downstream</span></code></a>(exon_i)</td>
+<td>Get the exon(s) that are immediately downstream of this one</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#outrigger.index.events.SpliceGraph.exons_one_junction_upstream" title="outrigger.index.events.SpliceGraph.exons_one_junction_upstream"><code class="xref py py-obj docutils literal"><span class="pre">exons_one_junction_upstream</span></code></a>(exon_query)</td>
+<td>Get the exon(s) that are immediately upstream of this one</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#outrigger.index.events.SpliceGraph.exons_two_junctions_downstream" title="outrigger.index.events.SpliceGraph.exons_two_junctions_downstream"><code class="xref py py-obj docutils literal"><span class="pre">exons_two_junctions_downstream</span></code></a>(exon_i)</td>
+<td>Get the exon(s) that are two junction hops downstream</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#outrigger.index.events.SpliceGraph.junctions_between_exons" title="outrigger.index.events.SpliceGraph.junctions_between_exons"><code class="xref py py-obj docutils literal"><span class="pre">junctions_between_exons</span></code></a>(exon_a,&nbsp;exon_b)</td>
+<td>Get the junctions between exonA and exonB</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#outrigger.index.events.SpliceGraph.single_exon_alternative_events" title="outrigger.index.events.SpliceGraph.single_exon_alternative_events"><code class="xref py py-obj docutils literal"><span class="pre">single_exon_alternative_events</span></code></a>(exon_i,&nbsp;exon_name)</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="outrigger.index.events.SpliceGraph.alternative_events">
+<code class="descname">alternative_events</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/index/events.html#SpliceGraph.alternative_events"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.index.events.SpliceGraph.alternative_events" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="outrigger.index.events.SpliceGraph.exons_one_junction_downstream">
+<code class="descname">exons_one_junction_downstream</code><span class="sig-paren">(</span><em>exon_i</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/index/events.html#SpliceGraph.exons_one_junction_downstream"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.index.events.SpliceGraph.exons_one_junction_downstream" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the exon(s) that are immediately downstream of this one</p>
 <p>Get exons that are downstream from this one, separated by one
 junction</p>
@@ -167,8 +196,8 @@ of the provided one</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="outrigger.index.events.EventMaker.exons_one_junction_upstream">
-<code class="descname">exons_one_junction_upstream</code><span class="sig-paren">(</span><em>exon_query</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/index/events.html#EventMaker.exons_one_junction_upstream"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.index.events.EventMaker.exons_one_junction_upstream" title="Permalink to this definition">¶</a></dt>
+<dt id="outrigger.index.events.SpliceGraph.exons_one_junction_upstream">
+<code class="descname">exons_one_junction_upstream</code><span class="sig-paren">(</span><em>exon_query</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/index/events.html#SpliceGraph.exons_one_junction_upstream"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.index.events.SpliceGraph.exons_one_junction_upstream" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the exon(s) that are immediately upstream of this one</p>
 <p>Get exons that are upstream from this one, separated by one
 junction</p>
@@ -195,8 +224,8 @@ of the provided one</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="outrigger.index.events.EventMaker.exons_two_junctions_downstream">
-<code class="descname">exons_two_junctions_downstream</code><span class="sig-paren">(</span><em>exon_i</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/index/events.html#EventMaker.exons_two_junctions_downstream"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.index.events.EventMaker.exons_two_junctions_downstream" title="Permalink to this definition">¶</a></dt>
+<dt id="outrigger.index.events.SpliceGraph.exons_two_junctions_downstream">
+<code class="descname">exons_two_junctions_downstream</code><span class="sig-paren">(</span><em>exon_i</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/index/events.html#SpliceGraph.exons_two_junctions_downstream"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.index.events.SpliceGraph.exons_two_junctions_downstream" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the exon(s) that are two junction hops downstream</p>
 <p>Go one exon downstream, then one more exon. This is all the 2nd level
 exon_cols</p>
@@ -223,22 +252,22 @@ original exon by a junction, exon, and another junction</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="outrigger.index.events.EventMaker.junctions_between_exons">
-<code class="descname">junctions_between_exons</code><span class="sig-paren">(</span><em>exon_a</em>, <em>exon_b</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/index/events.html#EventMaker.junctions_between_exons"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.index.events.EventMaker.junctions_between_exons" title="Permalink to this definition">¶</a></dt>
+<dt id="outrigger.index.events.SpliceGraph.junctions_between_exons">
+<code class="descname">junctions_between_exons</code><span class="sig-paren">(</span><em>exon_a</em>, <em>exon_b</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/index/events.html#SpliceGraph.junctions_between_exons"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.index.events.SpliceGraph.junctions_between_exons" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the junctions between exonA and exonB</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="outrigger.index.events.EventMaker.mutually_exclusive_exon">
-<code class="descname">mutually_exclusive_exon</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/index/events.html#EventMaker.mutually_exclusive_exon"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.index.events.EventMaker.mutually_exclusive_exon" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="outrigger.index.events.EventMaker.skipped_exon">
-<code class="descname">skipped_exon</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/index/events.html#EventMaker.skipped_exon"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.index.events.EventMaker.skipped_exon" title="Permalink to this definition">¶</a></dt>
+<dt id="outrigger.index.events.SpliceGraph.single_exon_alternative_events">
+<code class="descname">single_exon_alternative_events</code><span class="sig-paren">(</span><em>exon_i</em>, <em>exon_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/index/events.html#SpliceGraph.single_exon_alternative_events"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.index.events.SpliceGraph.single_exon_alternative_events" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
+
+<dl class="function">
+<dt id="outrigger.index.events.make_splice_graph_find_events">
+<code class="descclassname">outrigger.index.events.</code><code class="descname">make_splice_graph_find_events</code><span class="sig-paren">(</span><em>df</em>, <em>junction_col</em>, <em>exon_col</em>, <em>splice_types=('se'</em>, <em>'mxe')</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/index/events.html#make_splice_graph_find_events"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.index.events.make_splice_graph_find_events" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="function">
 <dt id="outrigger.index.events.opposite">
@@ -248,7 +277,8 @@ original exon by a junction, exon, and another junction</p>
 <dl class="function">
 <dt id="outrigger.index.events.stringify_location">
 <code class="descclassname">outrigger.index.events.</code><code class="descname">stringify_location</code><span class="sig-paren">(</span><em>chrom</em>, <em>start</em>, <em>stop</em>, <em>strand</em>, <em>region=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/index/events.html#stringify_location"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.index.events.stringify_location" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Convert genome location to a string, optionally prefixing with region</p>
+</dd></dl>
 
 </div>
 
@@ -257,20 +287,27 @@ original exon by a junction, exon, and another junction</p>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper"><div class="relations">
-<h3>Related Topics</h3>
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Outrigger</a></h1>
+
+
+<a href="index.html">
+<img src="_static/logo-1x.png" width=80%>
+</a>
+
+<h3><a href="index.html">Table Of Contents</a></h3>
+
 <ul>
-  <li><a href="index.html">Documentation overview</a><ul>
-  </ul></li>
+  <li><a href="index.html">Home</a></li>
+  <li><a href="contents.html">Contents</a></li>
+  <li><a href="installation.html">Install</a></li>
+  <li><a href="Usage.html">Usage</a></li>
+  <li><a href="subcommands/outrigger_index.html"><code>index</code>: Detect exons</a></li>
+  <li><a href="subcommands/outrigger_validate.html"><code>validate</code>: Remove non-canonical splice sites</a></li>
+  <li><a href="subcommands/outrigger_psi.html"><code>psi</code>: Quantify exon inclusion</a></li>
+  <li><a href="history.html">Changelog</a></li>
+  <li><a href="license.html">License</a></li>
 </ul>
-</div>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/outrigger.index.events.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
@@ -286,7 +323,7 @@ original exon by a junction, exon, and another junction</p>
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2015-2016, Olga Botvinnik.
+      &copy;2015-2017, Olga Botvinnik.
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>

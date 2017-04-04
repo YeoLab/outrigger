@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>outrigger.io.gtf &#8212; Outrigger 0.2.9 documentation</title>
+    <title>outrigger.io.gtf &#8212; Outrigger 1.0.0 documentation</title>
     
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '0.2.9',
+        VERSION:     '1.0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -26,7 +26,7 @@
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="top" title="Outrigger 0.2.9 documentation" href="../../../index.html" />
+    <link rel="top" title="Outrigger 1.0.0 documentation" href="../../../index.html" />
     <link rel="up" title="Module code" href="../../index.html" />
    
   <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
@@ -53,10 +53,11 @@
 <span class="kn">import</span> <span class="nn">os</span>
 
 <span class="kn">import</span> <span class="nn">gffutils</span>
+<span class="kn">from</span> <span class="nn">gffutils.helpers</span> <span class="k">import</span> <span class="n">merge_attributes</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
-<span class="kn">from</span> <span class="nn">..common</span> <span class="k">import</span> <span class="n">SPLICE_TYPE_ISOFORM_EXONS</span>
-<span class="kn">from</span> <span class="nn">..region</span> <span class="k">import</span> <span class="n">Region</span>
+<span class="kn">from</span> <span class="nn">..common</span> <span class="k">import</span> <span class="n">SPLICE_TYPE_ISOFORM_EXONS</span><span class="p">,</span> <span class="n">OUTRIGGER_DE_NOVO</span><span class="p">,</span> <span class="n">NOVEL_EXON</span>
+<span class="kn">from</span> <span class="nn">..region</span> <span class="k">import</span> <span class="n">Region</span><span class="p">,</span> <span class="n">STRANDS</span>
 
 <span class="c1"># Annotations from:</span>
 <span class="c1"># ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human/release_19/gencode.v19.annotation.gtf.gz</span>
@@ -111,6 +112,18 @@
     <span class="sd">&quot;&quot;&quot;Annotates basic features of splicing events: gene ids and names&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db</span><span class="p">,</span> <span class="n">events</span><span class="p">,</span> <span class="n">splice_type</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Annotate splicing events with their respective genes</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        db : gffutils.FeatureDB</span>
+<span class="sd">            Database including all the exons found in the events</span>
+<span class="sd">        events : pandas.DataFrame</span>
+<span class="sd">            Table of events, with the event ids as the index</span>
+<span class="sd">        splice_type : &#39;se&#39; | &#39;mxe&#39;</span>
+<span class="sd">            The type of alternative splicing, which informs the exon</span>
+<span class="sd">            configurations for different isoforms</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">db</span> <span class="o">=</span> <span class="n">db</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">events</span> <span class="o">=</span> <span class="n">events</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">splice_type</span> <span class="o">=</span> <span class="n">splice_type</span>
@@ -139,12 +152,26 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">lengths</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">regions</span><span class="o">.</span><span class="n">applymap</span><span class="p">(</span><span class="nb">len</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lengths</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_region&#39;</span><span class="p">,</span> <span class="s1">&#39;_length&#39;</span><span class="p">)</span>
                                 <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lengths</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lengths</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lengths</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
 
         <span class="n">intron_names</span> <span class="o">=</span> <span class="n">intron_regions</span><span class="o">.</span><span class="n">applymap</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
         <span class="n">intron_names</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_region&#39;</span><span class="p">,</span> <span class="s1">&#39;_location&#39;</span><span class="p">)</span>
                                 <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">intron_names</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">events</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">events</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lengths</span><span class="p">,</span> <span class="n">intron_names</span><span class="p">],</span>
                                 <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SplicingAnnotator.maybe_get_feature"><a class="viewcode-back" href="../../../outrigger.io.gtf.html#outrigger.io.gtf.SplicingAnnotator.maybe_get_feature">[docs]</a>    <span class="k">def</span> <span class="nf">maybe_get_feature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feature_id</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="n">feature_id</span><span class="p">]</span>
+        <span class="k">except</span> <span class="n">gffutils</span><span class="o">.</span><span class="n">FeatureNotFoundError</span><span class="p">:</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="n">Region</span><span class="p">(</span><span class="n">feature_id</span><span class="p">)</span>
+            <span class="n">feature</span> <span class="o">=</span> <span class="n">location_to_feature</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">chrom</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">stop</span><span class="p">,</span>
+                                          <span class="n">r</span><span class="o">.</span><span class="n">strand</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="n">OUTRIGGER_DE_NOVO</span><span class="p">,</span>
+                                          <span class="n">featuretype</span><span class="o">=</span><span class="n">NOVEL_EXON</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">update</span><span class="p">([</span><span class="n">feature</span><span class="p">],</span> <span class="n">make_backup</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                           <span class="n">id_spec</span><span class="o">=</span><span class="p">{</span><span class="n">NOVEL_EXON</span><span class="p">:</span> <span class="s1">&#39;location_id&#39;</span><span class="p">},</span>
+                           <span class="n">transform</span><span class="o">=</span><span class="n">transform</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">feature</span></div>
 
 <div class="viewcode-block" id="SplicingAnnotator.attributes"><a class="viewcode-back" href="../../../outrigger.io.gtf.html#outrigger.io.gtf.SplicingAnnotator.attributes">[docs]</a>    <span class="k">def</span> <span class="nf">attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Retrieve all GTF attributes for each isoform&#39;s event&quot;&quot;&quot;</span>
@@ -163,10 +190,11 @@
                 <span class="n">n_exons</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">exons</span><span class="p">)</span>
 
                 <span class="n">exon_ids</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="n">exons</span><span class="p">]</span>
+                <span class="n">exon_features</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">maybe_get_feature</span><span class="p">(</span><span class="n">exon_id</span><span class="p">)</span> <span class="k">for</span>
+                                 <span class="n">exon_id</span> <span class="ow">in</span> <span class="n">exon_ids</span><span class="p">]</span>
 
                 <span class="n">keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span>
-                    <span class="o">*</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="n">exon_id</span><span class="p">]</span><span class="o">.</span><span class="n">attributes</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-                      <span class="k">for</span> <span class="n">exon_id</span> <span class="ow">in</span> <span class="n">exon_ids</span><span class="p">]))</span>
+                    <span class="o">*</span><span class="p">[</span><span class="n">exon</span><span class="o">.</span><span class="n">attributes</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">for</span> <span class="n">exon</span> <span class="ow">in</span> <span class="n">exon_features</span><span class="p">]))</span>
 
                 <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
                     <span class="c1"># Skip the location IDs which is specific to the</span>
@@ -190,9 +218,11 @@
                         <span class="n">new_key</span> <span class="o">=</span> <span class="n">isoform</span> <span class="o">+</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">key</span>
                         <span class="n">attributes</span><span class="p">[</span><span class="n">new_key</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">values</span><span class="p">))</span>
             <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">attributes</span><span class="p">)</span>
+
         <span class="n">event_attributes</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
-        <span class="n">events_with_attributes</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">events</span><span class="p">,</span> <span class="n">event_attributes</span><span class="p">])</span>
-        <span class="k">return</span> <span class="n">events_with_attributes</span></div>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">events</span><span class="p">,</span> <span class="n">event_attributes</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="o">~</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">duplicated</span><span class="p">()]</span>
+        <span class="k">return</span> <span class="n">df</span></div>
 
 <div class="viewcode-block" id="SplicingAnnotator.exon_bedfiles"><a class="viewcode-back" href="../../../outrigger.io.gtf.html#outrigger.io.gtf.SplicingAnnotator.exon_bedfiles">[docs]</a>    <span class="k">def</span> <span class="nf">exon_bedfiles</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">folder</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">region_col</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">region_cols</span><span class="p">:</span>
@@ -250,21 +280,53 @@
         <span class="n">regions</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">intron_region</span><span class="o">=</span><span class="n">intron</span><span class="p">,</span> <span class="n">event_region</span><span class="o">=</span><span class="n">event</span><span class="p">))</span>
 
         <span class="k">return</span> <span class="n">regions</span></div></div>
+
+
+<div class="viewcode-block" id="location_to_feature"><a class="viewcode-back" href="../../../outrigger.io.gtf.html#outrigger.io.gtf.location_to_feature">[docs]</a><span class="k">def</span> <span class="nf">location_to_feature</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">chrom</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">,</span> <span class="n">strand</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">featuretype</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">strand</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">STRANDS</span><span class="p">:</span>
+        <span class="n">strand</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span>
+    <span class="n">overlapping_genes</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">region</span><span class="p">(</span><span class="n">seqid</span><span class="o">=</span><span class="n">chrom</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">stop</span><span class="p">,</span>
+                                  <span class="n">strand</span><span class="o">=</span><span class="n">strand</span><span class="p">,</span> <span class="n">featuretype</span><span class="o">=</span><span class="s1">&#39;gene&#39;</span><span class="p">)</span>
+
+    <span class="n">exon_id</span> <span class="o">=</span> <span class="s1">&#39;exon:</span><span class="si">{chrom}</span><span class="s1">:</span><span class="si">{start}</span><span class="s1">-</span><span class="si">{stop}</span><span class="s1">:</span><span class="si">{strand}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">chrom</span><span class="o">=</span><span class="n">chrom</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="o">=</span><span class="n">stop</span><span class="p">,</span> <span class="n">strand</span><span class="o">=</span><span class="n">strand</span><span class="p">)</span>
+
+    <span class="n">attributes</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">overlapping_genes</span><span class="p">:</span>
+        <span class="n">attributes</span> <span class="o">=</span> <span class="n">merge_attributes</span><span class="p">(</span><span class="n">attributes</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">attributes</span><span class="p">)</span>
+
+    <span class="n">exon</span> <span class="o">=</span> <span class="n">gffutils</span><span class="o">.</span><span class="n">Feature</span><span class="p">(</span><span class="n">chrom</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="n">source</span><span class="p">,</span>
+                            <span class="n">featuretype</span><span class="o">=</span><span class="n">featuretype</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span>
+                            <span class="n">end</span><span class="o">=</span><span class="n">stop</span><span class="p">,</span> <span class="n">strand</span><span class="o">=</span><span class="n">strand</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">exon_id</span><span class="p">,</span>
+                            <span class="n">attributes</span><span class="o">=</span><span class="n">attributes</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">exon</span></div>
 </pre></div>
 
           </div>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper"><div class="relations">
-<h3>Related Topics</h3>
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">Outrigger</a></h1>
+
+
+<a href="../../../index.html">
+<img src="../../../_static/logo-1x.png" width=80%>
+</a>
+
+<h3><a href="../../../index.html">Table Of Contents</a></h3>
+
 <ul>
-  <li><a href="../../../index.html">Documentation overview</a><ul>
-  <li><a href="../../index.html">Module code</a><ul>
-  </ul></li>
-  </ul></li>
+  <li><a href="../../../index.html">Home</a></li>
+  <li><a href="../../../contents.html">Contents</a></li>
+  <li><a href="../../../installation.html">Install</a></li>
+  <li><a href="../../../Usage.html">Usage</a></li>
+  <li><a href="../../../subcommands/outrigger_index.html"><code>index</code>: Detect exons</a></li>
+  <li><a href="../../../subcommands/outrigger_validate.html"><code>validate</code>: Remove non-canonical splice sites</a></li>
+  <li><a href="../../../subcommands/outrigger_psi.html"><code>psi</code>: Quantify exon inclusion</a></li>
+  <li><a href="../../../history.html">Changelog</a></li>
+  <li><a href="../../../license.html">License</a></li>
 </ul>
-</div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../../../search.html" method="get">
@@ -280,7 +342,7 @@
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2015-2016, Olga Botvinnik.
+      &copy;2015-2017, Olga Botvinnik.
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>

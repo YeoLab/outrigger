@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>outrigger.psi.compute module &#8212; Outrigger 0.2.9 documentation</title>
+    <title>outrigger.psi.compute module &#8212; Outrigger 1.0.0 documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.2.9',
+        VERSION:     '1.0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -26,7 +26,7 @@
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="Outrigger 0.2.9 documentation" href="index.html" />
+    <link rel="top" title="Outrigger 1.0.0 documentation" href="index.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -46,7 +46,7 @@
 <span id="outrigger-psi-compute-module"></span><h1>outrigger.psi.compute module<a class="headerlink" href="#module-outrigger.psi.compute" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="outrigger.psi.compute.calculate_psi">
-<code class="descclassname">outrigger.psi.compute.</code><code class="descname">calculate_psi</code><span class="sig-paren">(</span><em>event_annotation</em>, <em>splice_junction_reads</em>, <em>isoform1_junctions</em>, <em>isoform2_junctions</em>, <em>reads_col='reads'</em>, <em>min_reads=10</em>, <em>n_jobs=-1</em>, <em>debug=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/psi/compute.html#calculate_psi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.psi.compute.calculate_psi" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">outrigger.psi.compute.</code><code class="descname">calculate_psi</code><span class="sig-paren">(</span><em>event_annotation</em>, <em>reads2d</em>, <em>isoform1_junctions</em>, <em>isoform2_junctions</em>, <em>min_reads=10</em>, <em>method='mean'</em>, <em>uneven_coverage_multiplier=10</em>, <em>n_jobs=-1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/psi/compute.html#calculate_psi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.psi.compute.calculate_psi" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute percent-spliced-in of events based on junction reads</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -63,20 +63,12 @@
 </dd>
 </dl>
 </div></blockquote>
-<p><strong>splice_junction_reads</strong> : pandas.DataFrame</p>
+<p><strong>reads2d</strong> : pandas.DataFrame</p>
 <blockquote>
-<div><p>A table of the number of junction reads observed in each sample.
-<em>Important:</em> This must be multi-indexed by the junction and sample id</p>
-</div></blockquote>
-<p><strong>reads_col</strong> : str, optional (default &#8220;reads&#8221;)</p>
-<blockquote>
-<div><p>The name of the column in <cite>splice_junction_reads</cite> which represents the
+<div><p>A (n_samples, n_total_junctions) table of the number of reads found in
+all samples&#8217; exon-exon, all junctions. Very very large, e.g.
+1000 samples x 50,000 junctions = 50 million elements
 number of reads observed at a splice junction of a particular sample.</p>
-</div></blockquote>
-<p><strong>min_reads</strong> : int, optional (default 10)</p>
-<blockquote>
-<div><p>The minimum number of reads that need to be observed at each junction
-for an event to be counted.</p>
 </div></blockquote>
 <p><strong>isoform1_junctions</strong> : list</p>
 <blockquote>
@@ -91,63 +83,41 @@ correspond to isoform2, the Psi=1 isoform, e.g.
 [&#8216;junction12&#8217;, &#8216;junction23&#8217;] (junctions between exon1, exon2, and
 junction between exon2 and exon3)</p>
 </div></blockquote>
-<p><strong>event_col</strong> : str</p>
+<p><strong>min_reads</strong> : int, optional</p>
 <blockquote>
-<div><p>Column in <cite>event_annotation</cite> which is a unique identifier for each
-row, e.g.</p>
+<div><p>Minimum number of reads for a junction to be viable. The rules
+governing compatibility of events are complex, and it is recommended to
+read the documentation for <code class="docutils literal"><span class="pre">outrigger</span> <span class="pre">psi</span></code> (default=10)</p>
+</div></blockquote>
+<p><strong>method</strong> : &#8220;mean&#8221; | &#8220;min&#8221;, optional</p>
+<blockquote>
+<div><p>Denotes the method by which to aggregate junctions from the same
+isoform - either use the mean (default) or the minimum.
+(default=&#8221;mean&#8221;)</p>
+</div></blockquote>
+<p><strong>uneven_coverage_multiplier</strong> : int, optional</p>
+<blockquote>
+<div><p>Scale factor for the maximum amount bigger one side of a junction can
+be before rejecting the event, e.g. for an SE event with two junctions,
+junction12 and junction23, junction12=40 but junction23=500, then this
+event would be rejected because 500 &gt; 40*10 (default=10)</p>
+</div></blockquote>
+<p><strong>n_jobs</strong> : int, optional</p>
+<blockquote>
+<div><p>Number of subprocesses to create. Default is -1, which is to use as
+many processes/cores as possible</p>
 </div></blockquote>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>psi</strong> : pandas.DataFrame</p>
-<blockquote class="last">
+<blockquote>
 <div><p>An (samples, events) dataframe of the percent spliced-in values</p>
 </div></blockquote>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="outrigger.psi.compute.filter_and_sum">
-<code class="descclassname">outrigger.psi.compute.</code><code class="descname">filter_and_sum</code><span class="sig-paren">(</span><em>reads</em>, <em>min_reads</em>, <em>junctions</em>, <em>debug=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/psi/compute.html#filter_and_sum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.psi.compute.filter_and_sum" title="Permalink to this definition">¶</a></dt>
-<dd><p>Require minimum reads and sum junctions from the same sample</p>
-<p>Remove all samples that don&#8217;t have enough reads</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="outrigger.psi.compute.maybe_get_isoform_reads">
-<code class="descclassname">outrigger.psi.compute.</code><code class="descname">maybe_get_isoform_reads</code><span class="sig-paren">(</span><em>splice_junction_reads</em>, <em>junction_locations</em>, <em>isoform_junctions</em>, <em>reads_col</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/psi/compute.html#maybe_get_isoform_reads"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.psi.compute.maybe_get_isoform_reads" title="Permalink to this definition">¶</a></dt>
-<dd><p>If there are junction reads at a junction_locations, return the reads</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>splice_junction_reads</strong> : pandas.DataFrame</p>
-<blockquote>
-<div><p>A table of the number of junction reads observed in each sample.
-<em>Important:</em> This must be multi-indexed by the junction and sample id</p>
-</div></blockquote>
-<p><strong>junction_locations</strong> : pandas.Series</p>
-<blockquote>
-<div><p>Mapping of junction names (from var:<cite>isoform_junctions</cite>) to their
-chromosomal locations</p>
-</div></blockquote>
-<p><strong>isoform_junctions</strong> : list of str</p>
-<blockquote>
-<div><p>Names of the isoform_junctions in question, e.g.
-[&#8216;junction12&#8217;, &#8216;junction13&#8217;]</p>
-</div></blockquote>
-<p><strong>reads_col</strong> : str</p>
-<blockquote>
-<div><p>Name of the column containing the number of reads in
-<cite>splice_junction_reads</cite></p>
-</div></blockquote>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>reads</strong> : pandas.Series</p>
+<p><strong>summary</strong> : pandas.DataFrame</p>
 <blockquote class="last">
-<div><p>Number of reads at each junction for this isoform</p>
+<div><p>A (n_samples * n_events, 7) shaped table with the sample id, junction
+reads, percent spliced-in (Psi), and notes on each event in each
+sample, that explains why or why not Psi was calculated</p>
 </div></blockquote>
 </td>
 </tr>
@@ -162,20 +132,27 @@ chromosomal locations</p>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper"><div class="relations">
-<h3>Related Topics</h3>
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Outrigger</a></h1>
+
+
+<a href="index.html">
+<img src="_static/logo-1x.png" width=80%>
+</a>
+
+<h3><a href="index.html">Table Of Contents</a></h3>
+
 <ul>
-  <li><a href="index.html">Documentation overview</a><ul>
-  </ul></li>
+  <li><a href="index.html">Home</a></li>
+  <li><a href="contents.html">Contents</a></li>
+  <li><a href="installation.html">Install</a></li>
+  <li><a href="Usage.html">Usage</a></li>
+  <li><a href="subcommands/outrigger_index.html"><code>index</code>: Detect exons</a></li>
+  <li><a href="subcommands/outrigger_validate.html"><code>validate</code>: Remove non-canonical splice sites</a></li>
+  <li><a href="subcommands/outrigger_psi.html"><code>psi</code>: Quantify exon inclusion</a></li>
+  <li><a href="history.html">Changelog</a></li>
+  <li><a href="license.html">License</a></li>
 </ul>
-</div>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/outrigger.psi.compute.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
@@ -191,7 +168,7 @@ chromosomal locations</p>
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2015-2016, Olga Botvinnik.
+      &copy;2015-2017, Olga Botvinnik.
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>

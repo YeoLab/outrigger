@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>outrigger.io.gtf module &#8212; Outrigger 0.2.9 documentation</title>
+    <title>outrigger.io.gtf module &#8212; Outrigger 1.0.0 documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.2.9',
+        VERSION:     '1.0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -26,7 +26,7 @@
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="Outrigger 0.2.9 documentation" href="index.html" />
+    <link rel="top" title="Outrigger 1.0.0 documentation" href="index.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -67,6 +67,52 @@ to annotate alternative events.</p>
 <tr class="row-odd"><td><a class="reference internal" href="#outrigger.io.gtf.SplicingAnnotator.exon_bedfiles" title="outrigger.io.gtf.SplicingAnnotator.exon_bedfiles"><code class="xref py py-obj docutils literal"><span class="pre">exon_bedfiles</span></code></a>(folder)</td>
 <td></td>
 </tr>
+<tr class="row-even"><td><a class="reference internal" href="#outrigger.io.gtf.SplicingAnnotator.maybe_get_feature" title="outrigger.io.gtf.SplicingAnnotator.maybe_get_feature"><code class="xref py py-obj docutils literal"><span class="pre">maybe_get_feature</span></code></a>(feature_id)</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>Annotate splicing events with their respective genes</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>db</strong> : gffutils.FeatureDB</p>
+<blockquote>
+<div><p>Database including all the exons found in the events</p>
+</div></blockquote>
+<p><strong>events</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Table of events, with the event ids as the index</p>
+</div></blockquote>
+<p><strong>splice_type</strong> : &#8216;se&#8217; | &#8216;mxe&#8217;</p>
+<blockquote class="last">
+<div><p>The type of alternative splicing, which informs the exon
+configurations for different isoforms</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#outrigger.io.gtf.SplicingAnnotator.attributes" title="outrigger.io.gtf.SplicingAnnotator.attributes"><code class="xref py py-obj docutils literal"><span class="pre">attributes</span></code></a>()</td>
+<td>Retrieve all GTF attributes for each isoform&#8217;s event</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#outrigger.io.gtf.SplicingAnnotator.event_introns_regions" title="outrigger.io.gtf.SplicingAnnotator.event_introns_regions"><code class="xref py py-obj docutils literal"><span class="pre">event_introns_regions</span></code></a>(exons)</td>
+<td>Make intron and event regions for an event</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#outrigger.io.gtf.SplicingAnnotator.exon_bedfiles" title="outrigger.io.gtf.SplicingAnnotator.exon_bedfiles"><code class="xref py py-obj docutils literal"><span class="pre">exon_bedfiles</span></code></a>(folder)</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#outrigger.io.gtf.SplicingAnnotator.maybe_get_feature" title="outrigger.io.gtf.SplicingAnnotator.maybe_get_feature"><code class="xref py py-obj docutils literal"><span class="pre">maybe_get_feature</span></code></a>(feature_id)</td>
+<td></td>
+</tr>
 </tbody>
 </table>
 <dl class="method">
@@ -102,11 +148,21 @@ to annotate alternative events.</p>
 <code class="descname">exon_bedfiles</code><span class="sig-paren">(</span><em>folder</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/io/gtf.html#SplicingAnnotator.exon_bedfiles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.io.gtf.SplicingAnnotator.exon_bedfiles" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="method">
+<dt id="outrigger.io.gtf.SplicingAnnotator.maybe_get_feature">
+<code class="descname">maybe_get_feature</code><span class="sig-paren">(</span><em>feature_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/io/gtf.html#SplicingAnnotator.maybe_get_feature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.io.gtf.SplicingAnnotator.maybe_get_feature" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="function">
 <dt id="outrigger.io.gtf.create_db">
 <code class="descclassname">outrigger.io.gtf.</code><code class="descname">create_db</code><span class="sig-paren">(</span><em>gtf_filename</em>, <em>db_filename=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/io/gtf.html#create_db"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.io.gtf.create_db" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="outrigger.io.gtf.location_to_feature">
+<code class="descclassname">outrigger.io.gtf.</code><code class="descname">location_to_feature</code><span class="sig-paren">(</span><em>db</em>, <em>chrom</em>, <em>start</em>, <em>stop</em>, <em>strand</em>, <em>source</em>, <em>featuretype</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/io/gtf.html#location_to_feature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.io.gtf.location_to_feature" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="function">
@@ -126,20 +182,27 @@ to annotate alternative events.</p>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper"><div class="relations">
-<h3>Related Topics</h3>
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Outrigger</a></h1>
+
+
+<a href="index.html">
+<img src="_static/logo-1x.png" width=80%>
+</a>
+
+<h3><a href="index.html">Table Of Contents</a></h3>
+
 <ul>
-  <li><a href="index.html">Documentation overview</a><ul>
-  </ul></li>
+  <li><a href="index.html">Home</a></li>
+  <li><a href="contents.html">Contents</a></li>
+  <li><a href="installation.html">Install</a></li>
+  <li><a href="Usage.html">Usage</a></li>
+  <li><a href="subcommands/outrigger_index.html"><code>index</code>: Detect exons</a></li>
+  <li><a href="subcommands/outrigger_validate.html"><code>validate</code>: Remove non-canonical splice sites</a></li>
+  <li><a href="subcommands/outrigger_psi.html"><code>psi</code>: Quantify exon inclusion</a></li>
+  <li><a href="history.html">Changelog</a></li>
+  <li><a href="license.html">License</a></li>
 </ul>
-</div>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/outrigger.io.gtf.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
@@ -155,7 +218,7 @@ to annotate alternative events.</p>
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2015-2016, Olga Botvinnik.
+      &copy;2015-2017, Olga Botvinnik.
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>

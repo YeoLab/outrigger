@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>outrigger.tests.io.test_bam &#8212; Outrigger 0.2.9 documentation</title>
+    <title>outrigger.tests.io.test_bam &#8212; Outrigger 1.0.0 documentation</title>
     
     <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../',
-        VERSION:     '0.2.9',
+        VERSION:     '1.0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -26,7 +26,7 @@
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
-    <link rel="top" title="Outrigger 0.2.9 documentation" href="../../../../index.html" />
+    <link rel="top" title="Outrigger 1.0.0 documentation" href="../../../../index.html" />
     <link rel="up" title="Module code" href="../../../index.html" />
    
   <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
@@ -119,13 +119,19 @@
     <span class="k">return</span> <span class="n">csv</span></div>
 
 
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;multi&#39;</span><span class="p">,</span> <span class="s1">&#39;uniquely&#39;</span><span class="p">])</span>
+<div class="viewcode-block" id="empty"><a class="viewcode-back" href="../../../../outrigger.tests.io.test_bam.html#outrigger.tests.io.test_bam.empty">[docs]</a><span class="k">def</span> <span class="nf">empty</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">request</span><span class="o">.</span><span class="n">param</span></div>
+
+
 <span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
 <div class="viewcode-block" id="single_bam_combined_uniquely_multi_csv"><a class="viewcode-back" href="../../../../outrigger.tests.io.test_bam.html#outrigger.tests.io.test_bam.single_bam_combined_uniquely_multi_csv">[docs]</a><span class="k">def</span> <span class="nf">single_bam_combined_uniquely_multi_csv</span><span class="p">(</span><span class="n">tasic2016_intermediate_bam</span><span class="p">,</span> <span class="n">bamfile</span><span class="p">,</span>
-                                           <span class="n">ignore_multimapping</span><span class="p">):</span>
+                                           <span class="n">ignore_multimapping</span><span class="p">,</span> <span class="n">empty</span><span class="p">):</span>
     <span class="n">basename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">bamfile</span><span class="p">)</span>
+    <span class="n">empty_suffix</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span> <span class="k">if</span> <span class="n">empty</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="s1">&#39;_empty_&#39;</span> <span class="o">+</span> <span class="n">empty</span>
     <span class="n">basename</span> <span class="o">=</span> <span class="n">basename</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
-        <span class="s1">&#39;.bam&#39;</span><span class="p">,</span> <span class="s1">&#39;.junction_reads_ignore-multimapping</span><span class="si">{}</span><span class="s1">.csv&#39;</span><span class="p">)</span>
-    <span class="n">basename</span> <span class="o">=</span> <span class="n">basename</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ignore_multimapping</span><span class="p">)</span>
+        <span class="s1">&#39;.bam&#39;</span><span class="p">,</span> <span class="s1">&#39;.junction_reads_ignore-multimapping</span><span class="si">{}{}</span><span class="s1">.csv&#39;</span><span class="p">)</span>
+    <span class="n">basename</span> <span class="o">=</span> <span class="n">basename</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ignore_multimapping</span><span class="p">,</span> <span class="n">empty_suffix</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tasic2016_intermediate_bam</span><span class="p">,</span> <span class="n">basename</span><span class="p">)</span></div>
 
 
@@ -170,11 +176,18 @@
     <span class="n">pdt</span><span class="o">.</span><span class="n">assert_series_equal</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="n">true</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="test__combine_uniquely_multi"><a class="viewcode-back" href="../../../../outrigger.tests.io.test_bam.html#outrigger.tests.io.test_bam.test__combine_uniquely_multi">[docs]</a><span class="k">def</span> <span class="nf">test__combine_uniquely_multi</span><span class="p">(</span><span class="n">uniquely</span><span class="p">,</span> <span class="n">multi</span><span class="p">,</span> <span class="n">ignore_multimapping</span><span class="p">,</span>
+<div class="viewcode-block" id="test__combine_uniquely_multi"><a class="viewcode-back" href="../../../../outrigger.tests.io.test_bam.html#outrigger.tests.io.test_bam.test__combine_uniquely_multi">[docs]</a><span class="k">def</span> <span class="nf">test__combine_uniquely_multi</span><span class="p">(</span><span class="n">uniquely</span><span class="p">,</span> <span class="n">multi</span><span class="p">,</span> <span class="n">ignore_multimapping</span><span class="p">,</span> <span class="n">empty</span><span class="p">,</span>
                                  <span class="n">single_bam_combined_uniquely_multi_csv</span><span class="p">):</span>
     <span class="kn">from</span> <span class="nn">outrigger.io.bam</span> <span class="k">import</span> <span class="n">_combine_uniquely_multi</span>
 
-    <span class="n">test</span> <span class="o">=</span> <span class="n">_combine_uniquely_multi</span><span class="p">(</span><span class="n">uniquely</span><span class="p">,</span> <span class="n">multi</span><span class="p">,</span> <span class="n">ignore_multimapping</span><span class="p">)</span>
+    <span class="n">u</span> <span class="o">=</span> <span class="n">uniquely</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">multi</span>
+    <span class="k">if</span> <span class="n">empty</span> <span class="o">==</span> <span class="s1">&#39;uniquely&#39;</span><span class="p">:</span>
+        <span class="n">u</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">elif</span> <span class="n">empty</span> <span class="o">==</span> <span class="s1">&#39;multi&#39;</span><span class="p">:</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="n">test</span> <span class="o">=</span> <span class="n">_combine_uniquely_multi</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">ignore_multimapping</span><span class="p">)</span>
     <span class="n">true</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">single_bam_combined_uniquely_multi_csv</span><span class="p">)</span>
 
     <span class="n">pdt</span><span class="o">.</span><span class="n">assert_frame_equal</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="n">true</span><span class="p">)</span></div>
@@ -213,6 +226,13 @@
     <span class="n">dfs</span> <span class="o">=</span> <span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">csv</span><span class="p">)</span> <span class="k">for</span> <span class="n">csv</span> <span class="ow">in</span> <span class="n">multiple_bams_reads_table_csvs</span><span class="p">]</span>
     <span class="n">true</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">dfs</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
+    <span class="c1"># Sort and change the index because it&#39;s the contents not the order that</span>
+    <span class="c1"># matters</span>
+    <span class="n">test</span> <span class="o">=</span> <span class="n">test</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">test</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+    <span class="n">test</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">test</span><span class="o">.</span><span class="n">index</span><span class="p">))</span>
+    <span class="n">true</span> <span class="o">=</span> <span class="n">true</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">true</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+    <span class="n">true</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">true</span><span class="o">.</span><span class="n">index</span><span class="p">))</span>
+
     <span class="n">pdt</span><span class="o">.</span><span class="n">assert_frame_equal</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="n">true</span><span class="p">)</span></div>
 </pre></div>
 
@@ -220,15 +240,27 @@
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper"><div class="relations">
-<h3>Related Topics</h3>
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../../index.html">Outrigger</a></h1>
+
+
+<a href="../../../../index.html">
+<img src="../../../../_static/logo-1x.png" width=80%>
+</a>
+
+<h3><a href="../../../../index.html">Table Of Contents</a></h3>
+
 <ul>
-  <li><a href="../../../../index.html">Documentation overview</a><ul>
-  <li><a href="../../../index.html">Module code</a><ul>
-  </ul></li>
-  </ul></li>
+  <li><a href="../../../../index.html">Home</a></li>
+  <li><a href="../../../../contents.html">Contents</a></li>
+  <li><a href="../../../../installation.html">Install</a></li>
+  <li><a href="../../../../Usage.html">Usage</a></li>
+  <li><a href="../../../../subcommands/outrigger_index.html"><code>index</code>: Detect exons</a></li>
+  <li><a href="../../../../subcommands/outrigger_validate.html"><code>validate</code>: Remove non-canonical splice sites</a></li>
+  <li><a href="../../../../subcommands/outrigger_psi.html"><code>psi</code>: Quantify exon inclusion</a></li>
+  <li><a href="../../../../history.html">Changelog</a></li>
+  <li><a href="../../../../license.html">License</a></li>
 </ul>
-</div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../../../../search.html" method="get">
@@ -244,7 +276,7 @@
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2015-2016, Olga Botvinnik.
+      &copy;2015-2017, Olga Botvinnik.
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>

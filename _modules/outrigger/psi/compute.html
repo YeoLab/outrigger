@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>outrigger.psi.compute &#8212; Outrigger 0.2.9 documentation</title>
+    <title>outrigger.psi.compute &#8212; Outrigger 1.0.0 documentation</title>
     
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '0.2.9',
+        VERSION:     '1.0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -26,7 +26,7 @@
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="top" title="Outrigger 0.2.9 documentation" href="../../../index.html" />
+    <link rel="top" title="Outrigger 1.0.0 documentation" href="../../../index.html" />
     <link rel="up" title="Module code" href="../../index.html" />
    
   <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
@@ -49,8 +49,9 @@
 <span class="kn">import</span> <span class="nn">joblib</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
-<span class="kn">from</span> <span class="nn">..common</span> <span class="k">import</span> <span class="n">ILLEGAL_JUNCTIONS</span><span class="p">,</span> <span class="n">MIN_READS</span><span class="p">,</span> <span class="n">READS</span>
-<span class="kn">from</span> <span class="nn">..util</span> <span class="k">import</span> <span class="n">progress</span><span class="p">,</span> <span class="n">done</span>
+<span class="kn">from</span> <span class="nn">..common</span> <span class="k">import</span> <span class="n">INCOMPATIBLE_JUNCTIONS</span><span class="p">,</span> <span class="n">MIN_READS</span><span class="p">,</span> \
+    <span class="n">UNEVEN_COVERAGE_MULTIPLIER</span><span class="p">,</span> <span class="n">SAMPLE_ID</span><span class="p">,</span> <span class="n">EVENT_ID</span><span class="p">,</span> <span class="n">NOTES</span><span class="p">,</span> <span class="n">PSI</span>
+<span class="kn">from</span> <span class="nn">..util</span> <span class="k">import</span> <span class="n">progress</span>
 
 
 <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">()</span>
@@ -58,128 +59,555 @@
 <span class="n">idx</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">IndexSlice</span>
 
 
-<div class="viewcode-block" id="filter_and_sum"><a class="viewcode-back" href="../../../outrigger.psi.compute.html#outrigger.psi.compute.filter_and_sum">[docs]</a><span class="k">def</span> <span class="nf">filter_and_sum</span><span class="p">(</span><span class="n">reads</span><span class="p">,</span> <span class="n">min_reads</span><span class="p">,</span> <span class="n">junctions</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Require minimum reads and sum junctions from the same sample</span>
-
-<span class="sd">    Remove all samples that don&#39;t have enough reads</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;outrigger.psi.filter_and_sum&#39;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">reads</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">reads</span>
-
-    <span class="c1"># Remove all samples that don&#39;t have enough reads in all required junctions</span>
-    <span class="n">reads</span> <span class="o">=</span> <span class="n">reads</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
-        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="n">x</span> <span class="o">&gt;=</span> <span class="n">min_reads</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">junctions</span><span class="p">))</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;filtered reads:</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">reads</span><span class="o">.</span><span class="n">head</span><span class="p">()))</span>
-
-    <span class="c1"># Sum all reads from junctions in the same samples (level=1), remove NAs</span>
-    <span class="n">reads</span> <span class="o">=</span> <span class="n">reads</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;summed reads:</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">reads</span><span class="o">.</span><span class="n">head</span><span class="p">()))</span>
-
-    <span class="k">return</span> <span class="n">reads</span></div>
+<span class="k">def</span> <span class="nf">_scale</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">n_junctions</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;mean&#39;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;mean&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">x</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">n_junctions</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;min&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">x</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
 
 
-<div class="viewcode-block" id="maybe_get_isoform_reads"><a class="viewcode-back" href="../../../outrigger.psi.compute.html#outrigger.psi.compute.maybe_get_isoform_reads">[docs]</a><span class="k">def</span> <span class="nf">maybe_get_isoform_reads</span><span class="p">(</span><span class="n">splice_junction_reads</span><span class="p">,</span> <span class="n">junction_locations</span><span class="p">,</span>
-                            <span class="n">isoform_junctions</span><span class="p">,</span> <span class="n">reads_col</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;If there are junction reads at a junction_locations, return the reads</span>
+<span class="k">def</span> <span class="nf">_single_sample_maybe_sufficient_reads</span><span class="p">(</span><span class="n">isoform1</span><span class="p">,</span> <span class="n">isoform2</span><span class="p">,</span> <span class="n">n_junctions</span><span class="p">,</span>
+                                          <span class="n">min_reads</span><span class="p">,</span> <span class="n">case</span><span class="p">,</span> <span class="n">letters</span><span class="o">=</span><span class="s1">&#39;ab&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Check if the sum of reads is enough compared to number of junctions</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    splice_junction_reads : pandas.DataFrame</span>
-<span class="sd">        A table of the number of junction reads observed in each sample.</span>
-<span class="sd">        *Important:* This must be multi-indexed by the junction and sample id</span>
-<span class="sd">    junction_locations : pandas.Series</span>
-<span class="sd">        Mapping of junction names (from var:`isoform_junctions`) to their</span>
-<span class="sd">        chromosomal locations</span>
-<span class="sd">    isoform_junctions : list of str</span>
-<span class="sd">        Names of the isoform_junctions in question, e.g.</span>
-<span class="sd">        [&#39;junction12&#39;, &#39;junction13&#39;]</span>
-<span class="sd">    reads_col : str</span>
-<span class="sd">        Name of the column containing the number of reads in</span>
-<span class="sd">        `splice_junction_reads`</span>
+<span class="sd">    isoform1, isoform2 : pandas.Series</span>
+<span class="sd">        Number of reads found for a single sample&#39;s isoform1 and isoform2</span>
+<span class="sd">        junctions</span>
+<span class="sd">    n_junctions : int</span>
+<span class="sd">        Total number of junctions, also len(isoform1) + len(isoform2)</span>
+<span class="sd">    min_reads : int</span>
+<span class="sd">        Minimum number of reads per junction</span>
+<span class="sd">    case : str</span>
+<span class="sd">        English explanation with case number for why an event was rejected or</span>
+<span class="sd">        not. Must contain curly braces (&quot;{}&quot;) to place the letter into.</span>
+<span class="sd">    letters : str, optional</span>
+<span class="sd">        Cases could have multiple clauses, by default the case is &quot;option a&quot; or</span>
+<span class="sd">         &quot;option b&quot; but other letters could be used. (default=&#39;ab&#39;)</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    reads : pandas.Series</span>
-<span class="sd">        Number of reads at each junction for this isoform</span>
+<span class="sd">    isoform1, isoform2 : pandas.Series or None</span>
+<span class="sd">        If the sum of reads on all isoforms is equal to or greater than the</span>
+<span class="sd">        minimum number of reads times the number of junctions, then return the</span>
+<span class="sd">        event. Otherwise, there are insufficient reads and the event is</span>
+<span class="sd">        rejected.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">junctions</span> <span class="o">=</span> <span class="n">junction_locations</span><span class="p">[</span><span class="n">isoform_junctions</span><span class="p">]</span>
-    <span class="n">junction_names</span> <span class="o">=</span> <span class="n">splice_junction_reads</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">levels</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-
-    <span class="c1"># Get junctions that can&#39;t exist for this to be a valid event</span>
-    <span class="n">illegal_junctions</span> <span class="o">=</span> <span class="n">junction_locations</span><span class="p">[</span><span class="n">ILLEGAL_JUNCTIONS</span><span class="p">]</span>
-    <span class="n">illegal_samples</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">illegal_junctions</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="n">illegal_junctions</span> <span class="o">=</span> <span class="n">illegal_junctions</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;|&#39;</span><span class="p">)</span>
-
-        <span class="c1"># Get samples that have illegal junctions</span>
-        <span class="k">if</span> <span class="n">junction_names</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">illegal_junctions</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">illegal_reads</span> <span class="o">=</span> <span class="n">splice_junction_reads</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
-                <span class="n">idx</span><span class="p">[</span><span class="n">illegal_junctions</span><span class="p">,</span> <span class="p">:],</span> <span class="n">reads_col</span><span class="p">]</span>
-            <span class="n">illegal_samples</span> <span class="o">=</span> <span class="n">illegal_reads</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s1">&#39;sample_id&#39;</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">junction_names</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">junctions</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">reads_subset</span> <span class="o">=</span> <span class="n">splice_junction_reads</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idx</span><span class="p">[</span><span class="n">junctions</span><span class="p">,</span> <span class="p">:],</span> <span class="n">reads_col</span><span class="p">]</span>
-        <span class="n">legal_samples</span> <span class="o">=</span> <span class="n">reads_subset</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s1">&#39;sample_id&#39;</span><span class="p">)</span>
-        <span class="n">legal_samples</span> <span class="o">=</span> <span class="n">legal_samples</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">illegal_samples</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">reads_subset</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idx</span><span class="p">[:,</span> <span class="n">legal_samples</span><span class="p">]]</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">isoform1</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">+</span> <span class="n">isoform2</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span> <span class="o">&gt;=</span> <span class="p">(</span><span class="n">min_reads</span> <span class="o">*</span> <span class="n">n_junctions</span><span class="p">):</span>
+        <span class="c1"># Case 5a: There are sufficient junction reads</span>
+        <span class="k">return</span> <span class="n">isoform1</span><span class="p">,</span> <span class="n">isoform2</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">{case}</span><span class="s1">: There are sufficient junction &#39;</span> \
+                                   <span class="s1">&#39;reads&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">case</span><span class="o">=</span><span class="n">case</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">letters</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">()</span></div>
+        <span class="c1"># Case 5b: There are insufficient junction reads</span>
+        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">{case}</span><span class="s1">: There are insufficient junction &#39;</span> \
+                           <span class="s1">&#39;reads&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">case</span><span class="o">=</span><span class="n">case</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">letters</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
 
 
-<span class="k">def</span> <span class="nf">_single_event_psi</span><span class="p">(</span><span class="n">event_id</span><span class="p">,</span> <span class="n">event_df</span><span class="p">,</span> <span class="n">splice_junction_reads</span><span class="p">,</span>
-                      <span class="n">isoform1_junctions</span><span class="p">,</span> <span class="n">isoform2_junctions</span><span class="p">,</span> <span class="n">reads_col</span><span class="o">=</span><span class="n">READS</span><span class="p">,</span>
-                      <span class="n">min_reads</span><span class="o">=</span><span class="n">MIN_READS</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_single_sample_check_unequal_read_coverage</span><span class="p">(</span>
+        <span class="n">isoform</span><span class="p">,</span> <span class="n">uneven_coverage_multiplier</span><span class="o">=</span><span class="n">UNEVEN_COVERAGE_MULTIPLIER</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;If one junction of an isoform is more heavily covered, reject it</span>
+
+<span class="sd">    If the difference in read depth between two junctions of an isoform is</span>
+<span class="sd">    higher than a multiplicative amount, reject the isoform.</span>
+
+<span class="sd">    If the isoform only has one junction, don&#39;t reject it.</span>
+
+<span class="sd">    Possible fallacy: assumes there can be at most two junctions per isoform...</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    isoform : pandas.Series</span>
+<span class="sd">        Number of exon-exon junction-spanning reads found for an isoform</span>
+<span class="sd">    uneven_coverage_multiplier : int</span>
+<span class="sd">        Scale factor for the maximum amount bigger one side of a junction can</span>
+<span class="sd">        be before rejecting the event, e.g. for an SE event with two junctions,</span>
+<span class="sd">        junction12 and junction23, junction12=40 but junction23=500, then this</span>
+<span class="sd">        event would be rejected because 500 &gt; 40*10</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    isoform : pandas.Series or None</span>
+<span class="sd">        If not rejected, the original is returned, otherwise return None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">isoform</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">isoform</span>
+
+    <span class="n">multiplied</span> <span class="o">=</span> <span class="n">isoform</span> <span class="o">*</span> <span class="n">uneven_coverage_multiplier</span>
+
+    <span class="n">junction0</span> <span class="o">=</span> <span class="n">isoform</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">junction1</span> <span class="o">=</span> <span class="n">isoform</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">junction0</span> <span class="o">&gt;</span> <span class="n">junction1</span> <span class="ow">and</span> <span class="n">junction0</span> <span class="o">&gt;</span> <span class="n">multiplied</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">elif</span> <span class="n">junction1</span> <span class="o">&gt;</span> <span class="n">junction0</span> <span class="ow">and</span> <span class="n">junction1</span> <span class="o">&gt;</span> <span class="n">multiplied</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">isoform</span>
+
+
+<span class="k">def</span> <span class="nf">_maybe_reject</span><span class="p">(</span><span class="n">reads</span><span class="p">,</span> <span class="n">isoform1_ids</span><span class="p">,</span> <span class="n">isoform2_ids</span><span class="p">,</span> <span class="n">incompatible_ids</span><span class="p">,</span>
+                  <span class="n">n_junctions</span><span class="p">,</span> <span class="n">min_reads</span><span class="o">=</span><span class="n">MIN_READS</span><span class="p">,</span>
+                  <span class="n">uneven_coverage_multiplier</span><span class="o">=</span><span class="n">UNEVEN_COVERAGE_MULTIPLIER</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Remove samples with reads that are incompatible with event definition</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    reads : pandas.DataFrame</span>
+<span class="sd">        A (n_samples, n_junctions) table of the number of reads found in each</span>
+<span class="sd">        samples&#39; exon-exon junctions</span>
+<span class="sd">    isoform1_ids : list of str</span>
+<span class="sd">        Column names in ``reads`` tha correspond to the junction ids that are</span>
+<span class="sd">        contained within isoform 1, e.g. [&#39;junction1:chr1:100-400:+&#39;]</span>
+<span class="sd">    isoform2_ids :</span>
+<span class="sd">        Column names in ``reads`` tha correspond to the junction ids that are</span>
+<span class="sd">        contained within isoform 2, e.g. [&#39;junction:chr1:100-200:+&#39;,</span>
+<span class="sd">        &#39;junction:chr1:300-400:+&#39;]</span>
+<span class="sd">    incompatible_ids : list of str</span>
+<span class="sd">        Column names in ``reads`` tha correspond to the junction ids that are</span>
+<span class="sd">        contained within junctions that are not compatible with the event</span>
+<span class="sd">        definition</span>
+<span class="sd">    n_junctions : int</span>
+<span class="sd">        Total number of legal junctions,</span>
+<span class="sd">        i.e. len(isoform1_ids) + len(isoform2_ids)</span>
+<span class="sd">    min_reads : int</span>
+<span class="sd">        Minimum number of reads for a junction to be viable. The rules</span>
+<span class="sd">        governing compatibility of events are complex, and it is recommended to</span>
+<span class="sd">        read the documentation for ``outrigger psi``</span>
+<span class="sd">    uneven_coverage_multiplier : int</span>
+<span class="sd">        Scale factor for the maximum amount bigger one side of a junction can</span>
+<span class="sd">        be before rejecting the event, e.g. for an SE event with two junctions,</span>
+<span class="sd">        junction12 and junction23, junction12=40 but junction23=500, then this</span>
+<span class="sd">        event would be rejected because 500 &gt; 40*10</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">original_samples</span> <span class="o">=</span> <span class="n">reads</span><span class="o">.</span><span class="n">index</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">incompatible_ids</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">incompatible_junctions_with_coverage</span> <span class="o">=</span> <span class="n">reads</span><span class="p">[</span><span class="n">incompatible_ids</span><span class="p">]</span> \
+                                               <span class="o">&gt;=</span> <span class="n">min_reads</span>
+        <span class="n">samples_with_incompatible_coverage</span> <span class="o">=</span> \
+            <span class="n">incompatible_junctions_with_coverage</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">reads</span> <span class="o">=</span> <span class="n">reads</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="o">~</span><span class="n">samples_with_incompatible_coverage</span><span class="p">]</span>
+
+        <span class="c1"># Make a dataframe with notes explaining why</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="n">samples_with_incompatible_coverage</span><span class="p">[</span>
+            <span class="n">samples_with_incompatible_coverage</span><span class="p">]</span><span class="o">.</span><span class="n">index</span>
+        <span class="n">columns</span> <span class="o">=</span> <span class="n">reads</span><span class="o">.</span><span class="n">columns</span>
+        <span class="n">incompatible_coverage</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">index</span><span class="p">,</span>
+                                             <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">)</span>
+        <span class="n">incompatible_coverage</span><span class="p">[</span><span class="n">NOTES</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Case 1: &gt;= </span><span class="si">{}</span><span class="s1"> reads on junctions &#39;</span> \
+                                       <span class="s1">&#39;that are incompatible with the &#39;</span> \
+                                       <span class="s1">&#39;annotation&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">min_reads</span><span class="p">)</span>
+
+    <span class="n">maybe_rejected</span> <span class="o">=</span> <span class="n">reads</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">sample</span><span class="p">:</span> <span class="n">_single_maybe_reject</span><span class="p">(</span>
+            <span class="n">sample</span><span class="p">,</span> <span class="n">isoform1_ids</span><span class="p">,</span> <span class="n">isoform2_ids</span><span class="p">,</span>
+            <span class="n">n_junctions</span><span class="o">=</span><span class="n">n_junctions</span><span class="p">,</span> <span class="n">min_reads</span><span class="o">=</span><span class="n">min_reads</span><span class="p">,</span>
+            <span class="n">uneven_coverage_multiplier</span><span class="o">=</span><span class="n">uneven_coverage_multiplier</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">incompatible_ids</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">all_rejected</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">maybe_rejected</span><span class="p">,</span> <span class="n">incompatible_coverage</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">all_rejected</span> <span class="o">=</span> <span class="n">maybe_rejected</span>
+
+    <span class="c1"># Return rejected or not samples in the same order as they were given</span>
+    <span class="n">all_rejected</span> <span class="o">=</span> <span class="n">all_rejected</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">original_samples</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">all_rejected</span>
+
+
+<span class="k">def</span> <span class="nf">_single_maybe_reject</span><span class="p">(</span>
+        <span class="n">sample</span><span class="p">,</span> <span class="n">isoform1_ids</span><span class="p">,</span> <span class="n">isoform2_ids</span><span class="p">,</span> <span class="n">n_junctions</span><span class="p">,</span> <span class="n">min_reads</span><span class="o">=</span><span class="n">MIN_READS</span><span class="p">,</span>
+        <span class="n">uneven_coverage_multiplier</span><span class="o">=</span><span class="n">UNEVEN_COVERAGE_MULTIPLIER</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Given a row of junction reads, return a filtered row of reads</span>
+
+<span class="sd">    For a single sample&#39;s junction reads of an isoform, check if they should be</span>
+<span class="sd">    rejected, and if they are, return a row with all NAs for the reads. Always</span>
+<span class="sd">    include the case by which the reads were or were not rejected</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    sample : pandas.Series</span>
+<span class="sd">        A single sample&#39;s junction reads across all isoforms of an alternative</span>
+<span class="sd">        event</span>
+<span class="sd">    isoform1_ids : list</span>
+<span class="sd">        List of strings that correspond to indicies in ``sample``</span>
+<span class="sd">    isoform2_ids : list</span>
+<span class="sd">        List of strings that correspond to indicies in ``sample``</span>
+<span class="sd">    n_junctions : int</span>
+<span class="sd">        Total number of junctions expected in the splicing event</span>
+<span class="sd">    min_reads : int, optional</span>
+<span class="sd">        Minimum number of junction reads for an event to be valid. See</span>
+<span class="sd">        documentation for much more detailed information regarding when events</span>
+<span class="sd">        are rejected or retained. (default=10)</span>
+<span class="sd">    uneven_coverage_multiplier : int, optional</span>
+<span class="sd">        When checking for uneven coverage between two sides of a junction, one</span>
+<span class="sd">        side must be this amount bigger than the other side to be rejected.</span>
+<span class="sd">        For example, if one side has 10x (default) more read coverage than the</span>
+<span class="sd">        other, then reject the event. (default=10)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    single_maybe_rejected : pandas.Series</span>
+<span class="sd">        Unrejected reads of a single samples&#39; splicing event. If the event was</span>
+<span class="sd">        rejected, the reads are replaced with NAs. This series has one more</span>
+<span class="sd">        field than the input &quot;sample&quot;, with the field of &quot;notes&quot; that explains</span>
+<span class="sd">        why this event was or was not rejected.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">isoform1</span><span class="p">,</span> <span class="n">isoform2</span><span class="p">,</span> <span class="n">case</span> <span class="o">=</span> <span class="n">_single_isoform_maybe_reject</span><span class="p">(</span>
+            <span class="n">sample</span><span class="p">[</span><span class="n">isoform1_ids</span><span class="p">],</span> <span class="n">sample</span><span class="p">[</span><span class="n">isoform2_ids</span><span class="p">],</span>
+            <span class="n">n_junctions</span><span class="o">=</span><span class="n">n_junctions</span><span class="p">,</span> <span class="n">min_reads</span><span class="o">=</span><span class="n">min_reads</span><span class="p">,</span>
+            <span class="n">uneven_coverage_multiplier</span><span class="o">=</span><span class="n">uneven_coverage_multiplier</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">isoform1</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">single_maybe_rejected</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">sample</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">single_maybe_rejected</span> <span class="o">=</span> <span class="n">sample</span>
+    <span class="n">single_maybe_rejected</span><span class="p">[</span><span class="n">NOTES</span><span class="p">]</span> <span class="o">=</span> <span class="n">case</span>
+    <span class="k">return</span> <span class="n">single_maybe_rejected</span>
+
+
+<span class="k">def</span> <span class="nf">_single_isoform_maybe_reject</span><span class="p">(</span>
+        <span class="n">isoform1</span><span class="p">,</span> <span class="n">isoform2</span><span class="p">,</span> <span class="n">n_junctions</span><span class="p">,</span> <span class="n">min_reads</span><span class="o">=</span><span class="n">MIN_READS</span><span class="p">,</span>
+        <span class="n">uneven_coverage_multiplier</span><span class="o">=</span><span class="n">UNEVEN_COVERAGE_MULTIPLIER</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Given junction reads of isoform1 and isoform2, remove if they are bad</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    isoform1, isoform2 : pandas.Series</span>
+<span class="sd">        Number of reads found on exon-exon junctions for isoform1 and isoform2</span>
+<span class="sd">    n_junctions : int</span>
+<span class="sd">        Total number of junctions. Could also be found by</span>
+<span class="sd">        len(isoform1) + len(isoform2)</span>
+<span class="sd">    min_reads : int, optional</span>
+<span class="sd">        Minimum number of reads for a junction to be counted, though the full</span>
+<span class="sd">        explanation is a little more complicated, please see the documentation</span>
+<span class="sd">        for more details. (default=10)</span>
+<span class="sd">    uneven_coverage_multiplier : int, optional</span>
+<span class="sd">        Scale factor for the maximum amount bigger one side of a junction can</span>
+<span class="sd">        be before rejecting the event, e.g. for an SE event with two junctions,</span>
+<span class="sd">        junction12 and junction23, junction12=40 but junction23=500, then this</span>
+<span class="sd">        event would be rejected because 500 &gt; 40*10</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    isoform1, isoform2 : pandas.Series or None</span>
+<span class="sd">        If the event was not rejected, return the original event, otherwise</span>
+<span class="sd">        return None</span>
+<span class="sd">    case : str</span>
+<span class="sd">        Reason for rejecting or retaining the event</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Make aliases for commonly used variables</span>
+    <span class="n">zero1</span> <span class="o">=</span> <span class="n">isoform1</span> <span class="o">==</span> <span class="mi">0</span>
+    <span class="n">zero2</span> <span class="o">=</span> <span class="n">isoform2</span> <span class="o">==</span> <span class="mi">0</span>
+    <span class="n">sufficient1</span> <span class="o">=</span> <span class="n">isoform1</span> <span class="o">&gt;=</span> <span class="n">min_reads</span>
+    <span class="n">sufficient2</span> <span class="o">=</span> <span class="n">isoform2</span> <span class="o">&gt;=</span> <span class="n">min_reads</span>
+    <span class="n">insufficient1</span> <span class="o">=</span> <span class="n">isoform1</span> <span class="o">&lt;</span> <span class="n">min_reads</span>
+    <span class="n">insufficient2</span> <span class="o">=</span> <span class="n">isoform2</span> <span class="o">&lt;</span> <span class="n">min_reads</span>
+
+    <span class="k">if</span> <span class="n">zero1</span><span class="o">.</span><span class="n">all</span><span class="p">()</span> <span class="ow">and</span> <span class="n">zero2</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;Case 2: Zero observed reads&#39;</span>
+    <span class="k">elif</span> <span class="n">insufficient1</span><span class="o">.</span><span class="n">all</span><span class="p">()</span> <span class="ow">and</span> <span class="n">insufficient2</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+        <span class="c1"># Case 12: isoform1 and isoform2 don&#39;t have sufficient reads</span>
+        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Case 3: All junctions with insufficient reads&quot;</span>
+    <span class="k">elif</span> <span class="p">((</span><span class="n">sufficient1</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">isoform1</span><span class="p">))</span> <span class="ow">and</span> <span class="n">insufficient2</span><span class="o">.</span><span class="n">all</span><span class="p">())</span> <span class="ow">or</span> \
+            <span class="p">(</span><span class="n">insufficient1</span><span class="o">.</span><span class="n">all</span><span class="p">()</span> <span class="ow">and</span> <span class="p">(</span><span class="n">sufficient2</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">isoform2</span><span class="p">))):</span>
+        <span class="c1"># Case 13: isoform1 and isoform2 don&#39;t have sufficient reads</span>
+        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Case 4: Only one junction with sufficient reads&quot;</span>
+    <span class="c1"># elif (zero1.any() and ~zero1.all()) or (zero2.any() and ~zero2.all()):</span>
+    <span class="c1">#     return None, None, &quot;Case 5: One or more junction is zero, but is &quot; \</span>
+    <span class="c1">#                        &quot;incompatible with annotation&quot;</span>
+
+    <span class="n">pseudo1</span> <span class="o">=</span> <span class="n">isoform1</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="n">pseudo2</span> <span class="o">=</span> <span class="n">isoform2</span> <span class="o">+</span> <span class="mi">1</span>
+
+    <span class="n">unequal1</span> <span class="o">=</span> <span class="n">_single_sample_check_unequal_read_coverage</span><span class="p">(</span>
+        <span class="n">pseudo1</span><span class="p">,</span> <span class="n">uneven_coverage_multiplier</span><span class="p">)</span>
+    <span class="n">unequal2</span> <span class="o">=</span> <span class="n">_single_sample_check_unequal_read_coverage</span><span class="p">(</span>
+        <span class="n">pseudo2</span><span class="p">,</span> <span class="n">uneven_coverage_multiplier</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">unequal1</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">unequal2</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Case 5: Unequal read coverage (one side has at &quot;</span> \
+                           <span class="s2">&quot;least </span><span class="si">{}</span><span class="s2">x more reads)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                                <span class="n">uneven_coverage_multiplier</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">sufficient1</span><span class="o">.</span><span class="n">all</span><span class="p">()</span> <span class="ow">and</span> <span class="n">zero2</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">isoform1</span><span class="p">,</span> <span class="n">isoform2</span><span class="p">,</span> <span class="s1">&#39;Case 6: Exclusion&#39;</span>
+    <span class="k">elif</span> <span class="n">zero1</span><span class="o">.</span><span class="n">all</span><span class="p">()</span> <span class="ow">and</span> <span class="n">sufficient2</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">isoform1</span><span class="p">,</span> <span class="n">isoform2</span><span class="p">,</span> <span class="s1">&#39;Case 7: Inclusion&#39;</span>
+    <span class="k">elif</span> <span class="n">sufficient1</span><span class="o">.</span><span class="n">all</span><span class="p">()</span> <span class="ow">and</span> <span class="n">sufficient2</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">isoform1</span><span class="p">,</span> <span class="n">isoform2</span><span class="p">,</span> <span class="s1">&#39;Case 8: Sufficient reads on all junctions&#39;</span>
+    <span class="k">elif</span> <span class="n">sufficient1</span><span class="o">.</span><span class="n">all</span><span class="p">()</span> <span class="ow">and</span> <span class="n">insufficient2</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">_single_sample_maybe_sufficient_reads</span><span class="p">(</span>
+            <span class="n">isoform1</span><span class="p">,</span> <span class="n">isoform2</span><span class="p">,</span> <span class="n">n_junctions</span><span class="p">,</span> <span class="n">min_reads</span><span class="p">,</span>
+            <span class="s1">&#39;Case 9</span><span class="si">{}</span><span class="s1">: Isoform1 with sufficient reads but Isoform2 has 1+ &#39;</span>
+            <span class="s1">&#39;junctions with insufficient reads&#39;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">insufficient1</span><span class="o">.</span><span class="n">any</span><span class="p">()</span> <span class="ow">and</span> <span class="n">sufficient2</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">_single_sample_maybe_sufficient_reads</span><span class="p">(</span>
+            <span class="n">isoform1</span><span class="p">,</span> <span class="n">isoform2</span><span class="p">,</span> <span class="n">n_junctions</span><span class="p">,</span> <span class="n">min_reads</span><span class="p">,</span>
+            <span class="s1">&#39;Case 10</span><span class="si">{}</span><span class="s1">: Isoform1 has 1+ junction with insufficient reads but &#39;</span>
+            <span class="s1">&#39;Isoform2 with sufficient reads&#39;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="p">(</span><span class="n">insufficient1</span><span class="o">.</span><span class="n">any</span><span class="p">()</span> <span class="ow">and</span> <span class="n">sufficient1</span><span class="o">.</span><span class="n">any</span><span class="p">())</span> <span class="ow">or</span> \
+            <span class="p">(</span><span class="n">insufficient2</span><span class="o">.</span><span class="n">any</span><span class="p">()</span> <span class="ow">and</span> <span class="n">sufficient2</span><span class="o">.</span><span class="n">any</span><span class="p">()):</span>
+        <span class="k">return</span> <span class="n">_single_sample_maybe_sufficient_reads</span><span class="p">(</span>
+            <span class="n">isoform1</span><span class="p">,</span> <span class="n">isoform2</span><span class="p">,</span> <span class="n">n_junctions</span><span class="p">,</span> <span class="n">min_reads</span><span class="p">,</span>
+            <span class="s1">&#39;Case 11</span><span class="si">{}</span><span class="s1">: Isoform1 and Isoform2 each have both sufficient and &#39;</span>
+            <span class="s1">&#39;insufficient junctions&#39;</span><span class="p">)</span>
+
+    <span class="c1"># If none of these is true, then there&#39;s some uncaught case</span>
+    <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Case ???&quot;</span>
+
+
+<span class="k">def</span> <span class="nf">_make_summary_columns</span><span class="p">(</span><span class="n">isoform1_junction_numbers</span><span class="p">,</span>
+                          <span class="n">isoform2_junction_numbers</span><span class="p">,</span>
+                          <span class="n">incompatible_junctions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">isoform1_numbers</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;isoform1_&#39;</span> <span class="o">+</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">isoform1_junction_numbers</span><span class="p">]</span>
+    <span class="n">isoform2_numbers</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;isoform2_&#39;</span> <span class="o">+</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">isoform2_junction_numbers</span><span class="p">]</span>
+    <span class="n">column_order</span> <span class="o">=</span> <span class="p">[</span><span class="n">SAMPLE_ID</span><span class="p">,</span> <span class="n">EVENT_ID</span><span class="p">]</span> <span class="o">+</span> <span class="n">isoform1_numbers</span> \
+        <span class="o">+</span> <span class="n">isoform2_numbers</span> <span class="o">+</span> <span class="p">[</span><span class="n">PSI</span><span class="p">,</span> <span class="n">NOTES</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">incompatible_junctions</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">incompatible_numbers</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;incompatible_junction</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                                <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">incompatible_junctions</span><span class="p">)]</span>
+        <span class="n">column_order</span> <span class="o">+=</span> <span class="n">incompatible_numbers</span>
+
+    <span class="k">return</span> <span class="n">column_order</span>
+
+
+<span class="k">def</span> <span class="nf">_summarize_event</span><span class="p">(</span><span class="n">event_id</span><span class="p">,</span> <span class="n">reads</span><span class="p">,</span> <span class="n">maybe_rejected</span><span class="p">,</span> <span class="n">psi</span><span class="p">,</span>
+                     <span class="n">isoform1_junction_ids</span><span class="p">,</span> <span class="n">isoform2_junction_ids</span><span class="p">,</span>
+                     <span class="n">isoform1_junction_numbers</span><span class="p">,</span> <span class="n">isoform2_junction_numbers</span><span class="p">,</span>
+                     <span class="n">incompatible_junctions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Make table summarizing junction reads, psi, and notes for an event</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    event_id : str</span>
+<span class="sd">        Uniquely identifying string for a splicing event</span>
+<span class="sd">    reads : pandas.DataFrame</span>
+<span class="sd">        A (n_samples, n_junctions) table of the number of reads found in each</span>
+<span class="sd">        samples&#39; exon-exon junctions for this event</span>
+<span class="sd">    maybe_rejected : pandas.DataFrame</span>
+<span class="sd">        A (n_samples, n_junctions + 1) table that is nearly a copy of ``reads``</span>
+<span class="sd">        except has rejected events&#39; junction reads replaced with NAs, and for</span>
+<span class="sd">        all events, also has a column called &quot;notes&quot; which has the reason the</span>
+<span class="sd">        event was or was not rejected</span>
+<span class="sd">    psi : pandas.Series</span>
+<span class="sd">        A (n_samples,) sized column of the percent spliced-in values for each</span>
+<span class="sd">        sample, for this event</span>
+<span class="sd">    isoform1_junction_ids : list of str</span>
+<span class="sd">        Column names in ``reads`` tha correspond to the junction ids that are</span>
+<span class="sd">        contained within isoform 1, e.g. [&#39;junction1:chr1:100-400:+&#39;]</span>
+<span class="sd">    isoform2_junction_ids : list of str</span>
+<span class="sd">        Column names in ``reads`` tha correspond to the junction ids that are</span>
+<span class="sd">        contained within isoform 2, e.g. [&#39;junction:chr1:100-200:+&#39;,</span>
+<span class="sd">        &#39;junction:chr1:300-400:+&#39;]</span>
+<span class="sd">    isoform1_junction_numbers : list of str</span>
+<span class="sd">         Junction numbers corresponding to isoform 1, e.g. [&#39;junction13&#39;]</span>
+<span class="sd">    isoform2_junction_numbers : list of str</span>
+<span class="sd">        Junction numbers corresponding to isoform 2, e.g. [&#39;junction12&#39;,</span>
+<span class="sd">        &#39;junction23&#39;]</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    summary : pandas.DataFrame</span>
+<span class="sd">        A (n_samples, 7) shaped table with the sample id, junction reads,</span>
+<span class="sd">        percent spliced-in (Psi), and notes on each event in each sample, that</span>
+<span class="sd">        explain why or why not Psi was calculated</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">summary_columns</span> <span class="o">=</span> <span class="n">_make_summary_columns</span><span class="p">(</span><span class="n">isoform1_junction_numbers</span><span class="p">,</span>
+                                            <span class="n">isoform2_junction_numbers</span><span class="p">,</span>
+                                            <span class="n">incompatible_junctions</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">maybe_rejected</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="n">column_renamer</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">isoform1_junction_ids</span><span class="p">,</span>
+                                  <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">summary_columns</span>
+                                   <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;isoform1_&#39;</span><span class="p">)]))</span>
+        <span class="n">column_renamer</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">isoform2_junction_ids</span><span class="p">,</span>
+                                       <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">summary_columns</span>
+                                        <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;isoform2_&#39;</span><span class="p">)])))</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">incompatible_junctions</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">column_renamer</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">incompatible_junctions</span><span class="p">,</span>
+                                           <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">summary_columns</span>
+                                            <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;incompatible&#39;</span><span class="p">)])))</span>
+
+        <span class="n">summary</span> <span class="o">=</span> <span class="n">reads</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">column_renamer</span><span class="p">)</span>
+        <span class="n">summary</span><span class="p">[</span><span class="n">NOTES</span><span class="p">]</span> <span class="o">=</span> <span class="n">maybe_rejected</span><span class="p">[</span><span class="n">NOTES</span><span class="p">]</span>
+        <span class="n">summary</span><span class="p">[</span><span class="n">PSI</span><span class="p">]</span> <span class="o">=</span> <span class="n">psi</span>
+        <span class="n">summary</span> <span class="o">=</span> <span class="n">summary</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+        <span class="n">summary</span><span class="p">[</span><span class="n">EVENT_ID</span><span class="p">]</span> <span class="o">=</span> <span class="n">event_id</span>
+        <span class="n">summary</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="n">summary</span> <span class="o">=</span> <span class="n">summary</span><span class="p">[</span><span class="n">summary_columns</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">summary</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">summary_columns</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">summary</span>
+
+
+<span class="k">def</span> <span class="nf">_single_event_psi</span><span class="p">(</span><span class="n">event_id</span><span class="p">,</span> <span class="n">event_df</span><span class="p">,</span> <span class="n">reads2d</span><span class="p">,</span>
+                      <span class="n">isoform1_junction_numbers</span><span class="p">,</span> <span class="n">isoform2_junction_numbers</span><span class="p">,</span>
+                      <span class="n">min_reads</span><span class="o">=</span><span class="n">MIN_READS</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span>
+                      <span class="n">uneven_coverage_multiplier</span><span class="o">=</span><span class="n">UNEVEN_COVERAGE_MULTIPLIER</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Calculate percent spliced in for a single event across all samples</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    event_id : str</span>
+<span class="sd">        Uniquely identifying string for a splicing event</span>
+<span class="sd">    event_df : pandas.DataFrame</span>
+<span class="sd">        A table with the event id as the index (row names) and the junction</span>
+<span class="sd">        locations for the different isoforms. This may have multiple rows (or</span>
+<span class="sd">        not) depending on the different widths of the flanking exons</span>
+<span class="sd">    junction_reads_2d : pandas.DataFrame</span>
+<span class="sd">        A (n_samples, n_total_junctions) table of the number of reads found in</span>
+<span class="sd">        all samples&#39; exon-exon, all junctions. Very very large, e.g.</span>
+<span class="sd">        1000 samples x 50,000 junctions = 50 million elements</span>
+<span class="sd">    isoform1_junction_numbers : list of str</span>
+<span class="sd">         Junction numbers corresponding to the isoform,</span>
+<span class="sd">         e.g. ``[&#39;junction13&#39;]``. Must be columns in ``event_df``</span>
+<span class="sd">    isoform2_junction_numbers : list of str</span>
+<span class="sd">        Junction numbers corresponding to the isoform, e.g. ``[&#39;junction12&#39;,</span>
+<span class="sd">        &#39;junction23&#39;]``. Must be columns in ``event_df``</span>
+<span class="sd">    min_reads : int</span>
+<span class="sd">        Minimum number of reads for a junction to be viable. The rules</span>
+<span class="sd">        governing compatibility of events are complex, and it is recommended to</span>
+<span class="sd">        read the documentation for ``outrigger psi``</span>
+<span class="sd">    method : &quot;mean&quot; | &quot;min&quot;</span>
+<span class="sd">        Denotes the method by which to aggregate junctions from the same</span>
+<span class="sd">        isoform - either use the mean (default) or the minimum</span>
+<span class="sd">    uneven_coverage_multiplier : int</span>
+<span class="sd">        Scale factor for the maximum amount bigger one side of a junction can</span>
+<span class="sd">        be before rejecting the event, e.g. for an SE event with two junctions,</span>
+<span class="sd">        junction12 and junction23, junction12=40 but junction23=500, then this</span>
+<span class="sd">        event would be rejected because 500 &gt; 40*10</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    summary : pandas.DataFrame</span>
+<span class="sd">        A (n_samples, 7) shaped table with the sample id, junction reads,</span>
+<span class="sd">        percent spliced-in (Psi), and notes on each event in each sample, that</span>
+<span class="sd">        explain why or why not Psi was calculated</span>
+
+<span class="sd">    &gt;&gt;&gt; # Example Summary output</span>
+<span class="sd">    &gt;&gt;&gt; summary.head()</span>
+<span class="sd">                                               sample_id  junction13  \</span>
+<span class="sd">    0  CAV_LP_Ipsi_tdTpos_cell_1-SRR2140356-GSM184094...          26</span>
+<span class="sd">    1  CAV_LP_Ipsi_tdTpos_cell_10-SRR2140365-GSM18409...           0</span>
+<span class="sd">    2  CAV_LP_Ipsi_tdTpos_cell_11-SRR2140366-GSM18409...          52</span>
+<span class="sd">    3  CAV_LP_Ipsi_tdTpos_cell_12-SRR2140367-GSM18409...           0</span>
+<span class="sd">    4  CAV_LP_Ipsi_tdTpos_cell_13-SRR2140368-GSM18409...          31</span>
+
+<span class="sd">       junction12  junction23                      notes  psi  \</span>
+<span class="sd">    0           0           0  Case 3: Perfect exclusion  0.0</span>
+<span class="sd">    1           0           0  Case 2: No observed reads  NaN</span>
+<span class="sd">    2           0           0  Case 3: Perfect exclusion  0.0</span>
+<span class="sd">    3           0           0  Case 2: No observed reads  NaN</span>
+<span class="sd">    4           0           0  Case 3: Perfect exclusion  0.0</span>
+
+<span class="sd">                                                event_id</span>
+<span class="sd">    0  isoform1=junction:chr10:128491034-128491719:-|...</span>
+<span class="sd">    1  isoform1=junction:chr10:128491034-128491719:-|...</span>
+<span class="sd">    2  isoform1=junction:chr10:128491034-128491719:-|...</span>
+<span class="sd">    3  isoform1=junction:chr10:128491034-128491719:-|...</span>
+<span class="sd">    4  isoform1=junction:chr10:128491034-128491719:-|...</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">junction_locations</span> <span class="o">=</span> <span class="n">event_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-    <span class="n">isoform1</span> <span class="o">=</span> <span class="n">maybe_get_isoform_reads</span><span class="p">(</span><span class="n">splice_junction_reads</span><span class="p">,</span>
-                                       <span class="n">junction_locations</span><span class="p">,</span>
-                                       <span class="n">isoform1_junctions</span><span class="p">,</span> <span class="n">reads_col</span><span class="p">)</span>
-    <span class="n">isoform2</span> <span class="o">=</span> <span class="n">maybe_get_isoform_reads</span><span class="p">(</span><span class="n">splice_junction_reads</span><span class="p">,</span>
-                                       <span class="n">junction_locations</span><span class="p">,</span>
-                                       <span class="n">isoform2_junctions</span><span class="p">,</span> <span class="n">reads_col</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">debug</span> <span class="ow">and</span> <span class="n">log</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">junction_cols</span> <span class="o">=</span> <span class="n">isoform1_junctions</span> <span class="o">+</span> <span class="n">isoform2_junctions</span>
-        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;--- junction columns of event ---</span><span class="se">\n</span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span>
-                  <span class="nb">repr</span><span class="p">(</span><span class="n">junction_locations</span><span class="p">[</span><span class="n">junction_cols</span><span class="p">]))</span>
-        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;--- isoform1 ---</span><span class="se">\n</span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">isoform1</span><span class="p">))</span>
-        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;--- isoform2 ---</span><span class="se">\n</span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">isoform2</span><span class="p">))</span>
+    <span class="n">n_junctions1</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">isoform1_junction_numbers</span><span class="p">)</span>
+    <span class="n">n_junctions2</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">isoform2_junction_numbers</span><span class="p">)</span>
+    <span class="n">n_junctions</span> <span class="o">=</span> <span class="n">n_junctions1</span> <span class="o">+</span> <span class="n">n_junctions2</span>
 
-    <span class="n">isoform1</span> <span class="o">=</span> <span class="n">filter_and_sum</span><span class="p">(</span><span class="n">isoform1</span><span class="p">,</span> <span class="n">min_reads</span><span class="p">,</span> <span class="n">isoform1_junctions</span><span class="p">)</span>
-    <span class="n">isoform2</span> <span class="o">=</span> <span class="n">filter_and_sum</span><span class="p">(</span><span class="n">isoform2</span><span class="p">,</span> <span class="n">min_reads</span><span class="p">,</span> <span class="n">isoform2_junctions</span><span class="p">)</span>
+    <span class="n">isoform1_junction_ids</span> <span class="o">=</span> <span class="n">junction_locations</span><span class="p">[</span>
+        <span class="n">isoform1_junction_numbers</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="n">isoform2_junction_ids</span> <span class="o">=</span> <span class="n">junction_locations</span><span class="p">[</span>
+        <span class="n">isoform2_junction_numbers</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="n">incompatible_junctions</span> <span class="o">=</span> <span class="n">junction_locations</span><span class="p">[</span><span class="n">INCOMPATIBLE_JUNCTIONS</span><span class="p">]</span>
 
-    <span class="k">if</span> <span class="n">isoform1</span><span class="o">.</span><span class="n">empty</span> <span class="ow">and</span> <span class="n">isoform2</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
-        <span class="c1"># If both are empty after filtering this event --&gt; don&#39;t calculate</span>
-        <span class="k">return</span>
+    <span class="n">junction_cols</span> <span class="o">=</span> <span class="n">isoform1_junction_ids</span> <span class="o">+</span> <span class="n">isoform2_junction_ids</span>
 
-    <span class="k">if</span> <span class="n">debug</span> <span class="ow">and</span> <span class="n">log</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">- After filter and sum -&#39;</span><span class="p">)</span>
-        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;--- isoform1 ---</span><span class="se">\n</span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">isoform1</span><span class="p">))</span>
-        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;--- isoform2 ---</span><span class="se">\n</span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">isoform2</span><span class="p">))</span>
+    <span class="c1"># If this event from the index doesn&#39;t exist in the dataset, return an</span>
+    <span class="c1"># empty dataframe</span>
+    <span class="n">junctions_in_data</span> <span class="o">=</span> <span class="n">reads2d</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">junction_cols</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">junctions_in_data</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">n_junctions</span><span class="p">:</span>
+        <span class="n">summary_columns</span> <span class="o">=</span> <span class="n">_make_summary_columns</span><span class="p">(</span><span class="n">isoform1_junction_numbers</span><span class="p">,</span>
+                                                <span class="n">isoform2_junction_numbers</span><span class="p">,</span>
+                                                <span class="n">incompatible_junctions</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">summary_columns</span><span class="p">)</span>
 
-    <span class="n">isoform1</span><span class="p">,</span> <span class="n">isoform2</span> <span class="o">=</span> <span class="n">isoform1</span><span class="o">.</span><span class="n">align</span><span class="p">(</span><span class="n">isoform2</span><span class="p">,</span> <span class="s1">&#39;outer&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">incompatible_junctions</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="n">incompatible_junctions</span> <span class="o">=</span> <span class="n">incompatible_junctions</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;|&#39;</span><span class="p">)</span>
+        <span class="n">incompatible_junctions</span> <span class="o">=</span> <span class="n">reads2d</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span>
+            <span class="n">incompatible_junctions</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="n">junction_cols</span> <span class="o">+=</span> <span class="n">incompatible_junctions</span>
 
-    <span class="n">isoform1</span> <span class="o">=</span> <span class="n">isoform1</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-    <span class="n">isoform2</span> <span class="o">=</span> <span class="n">isoform2</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">reads</span> <span class="o">=</span> <span class="n">reads2d</span><span class="p">[</span><span class="n">junction_cols</span><span class="p">]</span>
 
-    <span class="n">multiplier</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">isoform2_junctions</span><span class="p">))</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">isoform1_junctions</span><span class="p">)</span>
-    <span class="n">psi</span> <span class="o">=</span> <span class="n">isoform2</span> <span class="o">/</span> <span class="p">(</span><span class="n">isoform2</span> <span class="o">+</span> <span class="n">multiplier</span> <span class="o">*</span> <span class="n">isoform1</span><span class="p">)</span>
-    <span class="n">psi</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">event_id</span>
+    <span class="n">maybe_rejected</span> <span class="o">=</span> <span class="n">_maybe_reject</span><span class="p">(</span>
+        <span class="n">reads</span><span class="p">,</span> <span class="n">isoform1_junction_ids</span><span class="p">,</span> <span class="n">isoform2_junction_ids</span><span class="p">,</span>
+        <span class="n">incompatible_junctions</span><span class="p">,</span> <span class="n">n_junctions</span><span class="p">,</span> <span class="n">min_reads</span><span class="o">=</span><span class="n">min_reads</span><span class="p">,</span>
+        <span class="n">uneven_coverage_multiplier</span><span class="o">=</span><span class="n">uneven_coverage_multiplier</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">debug</span> <span class="ow">and</span> <span class="n">log</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;--- Psi ---</span><span class="se">\n</span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">psi</span><span class="p">))</span>
+    <span class="n">isoform1</span> <span class="o">=</span> <span class="n">maybe_rejected</span><span class="p">[</span><span class="n">isoform1_junction_ids</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+        <span class="n">_scale</span><span class="p">,</span> <span class="n">n_junctions</span><span class="o">=</span><span class="n">n_junctions1</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">isoform2</span> <span class="o">=</span> <span class="n">maybe_rejected</span><span class="p">[</span><span class="n">isoform2_junction_ids</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+        <span class="n">_scale</span><span class="p">,</span> <span class="n">n_junctions</span><span class="o">=</span><span class="n">n_junctions2</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">psi</span>
+    <span class="n">psi</span> <span class="o">=</span> <span class="n">isoform2</span> <span class="o">/</span> <span class="p">(</span><span class="n">isoform2</span> <span class="o">+</span> <span class="n">isoform1</span><span class="p">)</span>
+
+    <span class="n">summary</span> <span class="o">=</span> <span class="n">_summarize_event</span><span class="p">(</span><span class="n">event_id</span><span class="p">,</span> <span class="n">reads</span><span class="p">,</span> <span class="n">maybe_rejected</span><span class="p">,</span> <span class="n">psi</span><span class="p">,</span>
+                               <span class="n">isoform1_junction_ids</span><span class="p">,</span> <span class="n">isoform2_junction_ids</span><span class="p">,</span>
+                               <span class="n">isoform1_junction_numbers</span><span class="p">,</span>
+                               <span class="n">isoform2_junction_numbers</span><span class="p">,</span>
+                               <span class="n">incompatible_junctions</span><span class="o">=</span><span class="n">incompatible_junctions</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">summary</span>
 
 
-<span class="k">def</span> <span class="nf">_maybe_parallelize_psi</span><span class="p">(</span><span class="n">event_annotation</span><span class="p">,</span> <span class="n">splice_junction_reads</span><span class="p">,</span>
-                           <span class="n">isoform1_junctions</span><span class="p">,</span> <span class="n">isoform2_junctions</span><span class="p">,</span>
-                           <span class="n">reads_col</span><span class="o">=</span><span class="n">READS</span><span class="p">,</span> <span class="n">min_reads</span><span class="o">=</span><span class="n">MIN_READS</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
-                           <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_maybe_parallelize_psi</span><span class="p">(</span>
+        <span class="n">event_annotation</span><span class="p">,</span> <span class="n">reads2d</span><span class="p">,</span> <span class="n">isoform1_junctions</span><span class="p">,</span>
+        <span class="n">isoform2_junctions</span><span class="p">,</span> <span class="n">min_reads</span><span class="o">=</span><span class="n">MIN_READS</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span>
+        <span class="n">uneven_coverage_multiplier</span><span class="o">=</span><span class="n">UNEVEN_COVERAGE_MULTIPLIER</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;If n_jobs!=1, run the parallelized version of psi</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    event_annotation : pandas.DataFrame</span>
+<span class="sd">        A table of all possible events, with event ids as the index (row names)</span>
+<span class="sd">        and all junctions described, and contains the columns described by</span>
+<span class="sd">        ``isoform1_junctions`` and ``isoform_junctions``</span>
+<span class="sd">    reads2d : pandas.DataFrame</span>
+<span class="sd">        A (n_samples, n_total_junctions) table of the number of reads found in</span>
+<span class="sd">        all samples&#39; exon-exon, all junctions. Very very large, e.g.</span>
+<span class="sd">        1000 samples x 50,000 junctions = 50 million elements</span>
+<span class="sd">    isoform1_junctions : list of str</span>
+<span class="sd">        Junction numbers corresponding to isoform 1, e.g. [&#39;junction13&#39;]</span>
+<span class="sd">    isoform2_junctions : list of str</span>
+<span class="sd">        Junction numbers corresponding to isoform 2, e.g. [&#39;junction12&#39;,</span>
+<span class="sd">        &#39;junction23&#39;]</span>
+<span class="sd">    min_reads : int, optional</span>
+<span class="sd">        Minimum number of reads for a junction to be viable. The rules</span>
+<span class="sd">        governing compatibility of events are complex, and it is recommended to</span>
+<span class="sd">        read the documentation for ``outrigger psi`` (default=10)</span>
+<span class="sd">    method : &quot;mean&quot; | &quot;min&quot;, optional</span>
+<span class="sd">        Denotes the method by which to aggregate junctions from the same</span>
+<span class="sd">        isoform - either use the mean (default) or the minimum.</span>
+<span class="sd">        (default=&quot;mean&quot;)</span>
+<span class="sd">    uneven_coverage_multiplier : int, optional</span>
+<span class="sd">        Scale factor for the maximum amount bigger one side of a junction can</span>
+<span class="sd">        be before rejecting the event, e.g. for an SE event with two junctions,</span>
+<span class="sd">        junction12 and junction23, junction12=40 but junction23=500, then this</span>
+<span class="sd">        event would be rejected because 500 &gt; 40*10 (default=10)</span>
+<span class="sd">    n_jobs : int, optional</span>
+<span class="sd">        Number of subprocesses to create. Default is -1, which is to use as</span>
+<span class="sd">        many processes/cores as possible</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    summary : pandas.DataFrame</span>
+<span class="sd">        A (n_samples * n_events, 7) shaped table with the sample id, junction</span>
+<span class="sd">        reads, percent spliced-in (Psi), and notes on each event in each</span>
+<span class="sd">        sample, that explains why or why not Psi was calculated</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># There are multiple rows with the same event id because the junctions</span>
     <span class="c1"># are the same, but the flanking exons may be a little wider or shorter,</span>
     <span class="c1"># but ultimately the event Psi is calculated only on the junctions so the</span>
@@ -191,28 +619,40 @@
     <span class="n">n_events</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">grouped</span><span class="o">.</span><span class="n">size</span><span class="p">())</span>
 
     <span class="k">if</span> <span class="n">n_jobs</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="c1"># Do a separate branch because joblib doesn&#39;t do a good job of</span>
+        <span class="c1"># managing the python debugger so use --n-jobs=1 (n_jobs=1) when</span>
+        <span class="c1"># debugging</span>
         <span class="n">progress</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">Iterating over </span><span class="si">{}</span><span class="s1"> events ...</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">n_events</span><span class="p">))</span>
-        <span class="n">psis</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">summaries</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">event_id</span><span class="p">,</span> <span class="n">event_df</span> <span class="ow">in</span> <span class="n">grouped</span><span class="p">:</span>
-            <span class="n">psi</span> <span class="o">=</span> <span class="n">_single_event_psi</span><span class="p">(</span><span class="n">event_id</span><span class="p">,</span> <span class="n">event_df</span><span class="p">,</span> <span class="n">splice_junction_reads</span><span class="p">,</span>
-                                    <span class="n">isoform1_junctions</span><span class="p">,</span> <span class="n">isoform2_junctions</span><span class="p">,</span>
-                                    <span class="n">reads_col</span><span class="p">,</span> <span class="n">min_reads</span><span class="p">,</span> <span class="n">debug</span><span class="p">,</span> <span class="n">log</span><span class="p">)</span>
-            <span class="n">psis</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">psi</span><span class="p">)</span>
+            <span class="n">summary</span> <span class="o">=</span> <span class="n">_single_event_psi</span><span class="p">(</span>
+                <span class="n">event_id</span><span class="p">,</span> <span class="n">event_df</span><span class="p">,</span> <span class="n">reads2d</span><span class="p">,</span>
+                <span class="n">isoform1_junctions</span><span class="p">,</span> <span class="n">isoform2_junctions</span><span class="p">,</span>
+                <span class="n">min_reads</span><span class="o">=</span><span class="n">min_reads</span><span class="p">,</span>
+                <span class="n">uneven_coverage_multiplier</span><span class="o">=</span><span class="n">uneven_coverage_multiplier</span><span class="p">,</span>
+                <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">)</span>
+            <span class="n">summaries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">summary</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">processors</span> <span class="o">=</span> <span class="n">n_jobs</span> <span class="k">if</span> <span class="n">n_jobs</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">joblib</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span>
         <span class="n">progress</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">Parallelizing </span><span class="si">{}</span><span class="s2"> events&#39; Psi calculation across </span><span class="si">{}</span><span class="s2"> &quot;</span>
                  <span class="s2">&quot;CPUs ...</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">n_events</span><span class="p">,</span> <span class="n">processors</span><span class="p">))</span>
-        <span class="n">psis</span> <span class="o">=</span> <span class="n">joblib</span><span class="o">.</span><span class="n">Parallel</span><span class="p">(</span><span class="n">n_jobs</span><span class="o">=</span><span class="n">n_jobs</span><span class="p">)(</span>
+        <span class="n">summaries</span> <span class="o">=</span> <span class="n">joblib</span><span class="o">.</span><span class="n">Parallel</span><span class="p">(</span><span class="n">n_jobs</span><span class="o">=</span><span class="n">n_jobs</span><span class="p">)(</span>
             <span class="n">joblib</span><span class="o">.</span><span class="n">delayed</span><span class="p">(</span><span class="n">_single_event_psi</span><span class="p">)(</span>
-                <span class="n">event_id</span><span class="p">,</span> <span class="n">event_df</span><span class="p">,</span> <span class="n">splice_junction_reads</span><span class="p">,</span>
-                <span class="n">isoform1_junctions</span><span class="p">,</span> <span class="n">isoform2_junctions</span><span class="p">,</span> <span class="n">reads_col</span><span class="p">,</span>
-                <span class="n">min_reads</span><span class="p">)</span> <span class="k">for</span> <span class="n">event_id</span><span class="p">,</span> <span class="n">event_df</span> <span class="ow">in</span> <span class="n">grouped</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">psis</span>
+                <span class="n">event_id</span><span class="p">,</span> <span class="n">event_df</span><span class="p">,</span> <span class="n">reads2d</span><span class="p">,</span>
+                <span class="n">isoform1_junctions</span><span class="p">,</span> <span class="n">isoform2_junctions</span><span class="p">,</span>
+                <span class="n">min_reads</span><span class="o">=</span><span class="n">min_reads</span><span class="p">,</span>
+                <span class="n">uneven_coverage_multiplier</span><span class="o">=</span><span class="n">uneven_coverage_multiplier</span><span class="p">,</span>
+                <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">event_id</span><span class="p">,</span> <span class="n">event_df</span> <span class="ow">in</span> <span class="n">grouped</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">summaries</span>
 
 
-<div class="viewcode-block" id="calculate_psi"><a class="viewcode-back" href="../../../outrigger.psi.compute.html#outrigger.psi.compute.calculate_psi">[docs]</a><span class="k">def</span> <span class="nf">calculate_psi</span><span class="p">(</span><span class="n">event_annotation</span><span class="p">,</span> <span class="n">splice_junction_reads</span><span class="p">,</span>
-                  <span class="n">isoform1_junctions</span><span class="p">,</span> <span class="n">isoform2_junctions</span><span class="p">,</span> <span class="n">reads_col</span><span class="o">=</span><span class="n">READS</span><span class="p">,</span>
-                  <span class="n">min_reads</span><span class="o">=</span><span class="n">MIN_READS</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="calculate_psi"><a class="viewcode-back" href="../../../outrigger.psi.compute.html#outrigger.psi.compute.calculate_psi">[docs]</a><span class="k">def</span> <span class="nf">calculate_psi</span><span class="p">(</span><span class="n">event_annotation</span><span class="p">,</span> <span class="n">reads2d</span><span class="p">,</span>
+                  <span class="n">isoform1_junctions</span><span class="p">,</span> <span class="n">isoform2_junctions</span><span class="p">,</span>
+                  <span class="n">min_reads</span><span class="o">=</span><span class="n">MIN_READS</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span>
+                  <span class="n">uneven_coverage_multiplier</span><span class="o">=</span><span class="n">UNEVEN_COVERAGE_MULTIPLIER</span><span class="p">,</span>
+                  <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Compute percent-spliced-in of events based on junction reads</span>
 
 <span class="sd">    Parameters</span>
@@ -221,15 +661,11 @@
 <span class="sd">        A table where each row represents a single splicing event. The required</span>
 <span class="sd">       columns are the ones specified in `isoform1_junctions`,</span>
 <span class="sd">        `isoform2_junctions`, and `event_col`.</span>
-<span class="sd">    splice_junction_reads : pandas.DataFrame</span>
-<span class="sd">        A table of the number of junction reads observed in each sample.</span>
-<span class="sd">        *Important:* This must be multi-indexed by the junction and sample id</span>
-<span class="sd">    reads_col : str, optional (default &quot;reads&quot;)</span>
-<span class="sd">        The name of the column in `splice_junction_reads` which represents the</span>
+<span class="sd">    reads2d : pandas.DataFrame</span>
+<span class="sd">        A (n_samples, n_total_junctions) table of the number of reads found in</span>
+<span class="sd">        all samples&#39; exon-exon, all junctions. Very very large, e.g.</span>
+<span class="sd">        1000 samples x 50,000 junctions = 50 million elements</span>
 <span class="sd">        number of reads observed at a splice junction of a particular sample.</span>
-<span class="sd">    min_reads : int, optional (default 10)</span>
-<span class="sd">        The minimum number of reads that need to be observed at each junction</span>
-<span class="sd">        for an event to be counted.</span>
 <span class="sd">    isoform1_junctions : list</span>
 <span class="sd">        Columns in `event_annotation` which represent junctions that</span>
 <span class="sd">        correspond to isoform1, the Psi=0 isoform, e.g. [&#39;junction13&#39;] for SE</span>
@@ -239,48 +675,67 @@
 <span class="sd">        correspond to isoform2, the Psi=1 isoform, e.g.</span>
 <span class="sd">        [&#39;junction12&#39;, &#39;junction23&#39;] (junctions between exon1, exon2, and</span>
 <span class="sd">        junction between exon2 and exon3)</span>
-<span class="sd">    event_col : str</span>
-<span class="sd">        Column in `event_annotation` which is a unique identifier for each</span>
-<span class="sd">        row, e.g.</span>
+<span class="sd">    min_reads : int, optional</span>
+<span class="sd">        Minimum number of reads for a junction to be viable. The rules</span>
+<span class="sd">        governing compatibility of events are complex, and it is recommended to</span>
+<span class="sd">        read the documentation for ``outrigger psi`` (default=10)</span>
+<span class="sd">    method : &quot;mean&quot; | &quot;min&quot;, optional</span>
+<span class="sd">        Denotes the method by which to aggregate junctions from the same</span>
+<span class="sd">        isoform - either use the mean (default) or the minimum.</span>
+<span class="sd">        (default=&quot;mean&quot;)</span>
+<span class="sd">    uneven_coverage_multiplier : int, optional</span>
+<span class="sd">        Scale factor for the maximum amount bigger one side of a junction can</span>
+<span class="sd">        be before rejecting the event, e.g. for an SE event with two junctions,</span>
+<span class="sd">        junction12 and junction23, junction12=40 but junction23=500, then this</span>
+<span class="sd">        event would be rejected because 500 &gt; 40*10 (default=10)</span>
+<span class="sd">    n_jobs : int, optional</span>
+<span class="sd">        Number of subprocesses to create. Default is -1, which is to use as</span>
+<span class="sd">        many processes/cores as possible</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    psi : pandas.DataFrame</span>
 <span class="sd">        An (samples, events) dataframe of the percent spliced-in values</span>
+<span class="sd">    summary : pandas.DataFrame</span>
+<span class="sd">        A (n_samples * n_events, 7) shaped table with the sample id, junction</span>
+<span class="sd">        reads, percent spliced-in (Psi), and notes on each event in each</span>
+<span class="sd">        sample, that explains why or why not Psi was calculated</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;outrigger.psi.calculate_psi&#39;</span><span class="p">)</span>
+    <span class="n">summaries</span> <span class="o">=</span> <span class="n">_maybe_parallelize_psi</span><span class="p">(</span><span class="n">event_annotation</span><span class="p">,</span> <span class="n">reads2d</span><span class="p">,</span>
+                                       <span class="n">isoform1_junctions</span><span class="p">,</span> <span class="n">isoform2_junctions</span><span class="p">,</span>
+                                       <span class="n">min_reads</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span>
+                                       <span class="n">uneven_coverage_multiplier</span><span class="p">,</span> <span class="n">n_jobs</span><span class="p">)</span>
+    <span class="n">summary</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">summaries</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
-        <span class="n">log</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
-
-    <span class="n">psis</span> <span class="o">=</span> <span class="n">_maybe_parallelize_psi</span><span class="p">(</span><span class="n">event_annotation</span><span class="p">,</span> <span class="n">splice_junction_reads</span><span class="p">,</span>
-                                  <span class="n">isoform1_junctions</span><span class="p">,</span> <span class="n">isoform2_junctions</span><span class="p">,</span>
-                                  <span class="n">reads_col</span><span class="p">,</span> <span class="n">min_reads</span><span class="p">,</span> <span class="n">n_jobs</span><span class="p">,</span> <span class="n">debug</span><span class="p">,</span> <span class="n">log</span><span class="p">)</span>
-
-    <span class="c1"># use only non-empty psi outputs</span>
-    <span class="n">psis</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="n">psis</span><span class="p">)</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">psi_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">psis</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-        <span class="n">psi_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="n">splice_junction_reads</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">levels</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-    <span class="n">done</span><span class="p">(</span><span class="n">n_tabs</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-    <span class="n">psi_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">splice_junction_reads</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-    <span class="k">return</span> <span class="n">psi_df</span></div>
+    <span class="n">psi</span> <span class="o">=</span> <span class="n">summary</span><span class="o">.</span><span class="n">pivot</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="n">SAMPLE_ID</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">EVENT_ID</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="n">PSI</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">psi</span><span class="p">,</span> <span class="n">summary</span></div>
 </pre></div>
 
           </div>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper"><div class="relations">
-<h3>Related Topics</h3>
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">Outrigger</a></h1>
+
+
+<a href="../../../index.html">
+<img src="../../../_static/logo-1x.png" width=80%>
+</a>
+
+<h3><a href="../../../index.html">Table Of Contents</a></h3>
+
 <ul>
-  <li><a href="../../../index.html">Documentation overview</a><ul>
-  <li><a href="../../index.html">Module code</a><ul>
-  </ul></li>
-  </ul></li>
+  <li><a href="../../../index.html">Home</a></li>
+  <li><a href="../../../contents.html">Contents</a></li>
+  <li><a href="../../../installation.html">Install</a></li>
+  <li><a href="../../../Usage.html">Usage</a></li>
+  <li><a href="../../../subcommands/outrigger_index.html"><code>index</code>: Detect exons</a></li>
+  <li><a href="../../../subcommands/outrigger_validate.html"><code>validate</code>: Remove non-canonical splice sites</a></li>
+  <li><a href="../../../subcommands/outrigger_psi.html"><code>psi</code>: Quantify exon inclusion</a></li>
+  <li><a href="../../../history.html">Changelog</a></li>
+  <li><a href="../../../license.html">License</a></li>
 </ul>
-</div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../../../search.html" method="get">
@@ -296,7 +751,7 @@
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2015-2016, Olga Botvinnik.
+      &copy;2015-2017, Olga Botvinnik.
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>

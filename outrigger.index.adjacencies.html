@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>outrigger.index.adjacencies module &#8212; Outrigger 0.2.9 documentation</title>
+    <title>outrigger.index.adjacencies module &#8212; Outrigger 1.0.0 documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.2.9',
+        VERSION:     '1.0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -26,7 +26,7 @@
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="Outrigger 0.2.9 documentation" href="index.html" />
+    <link rel="top" title="Outrigger 1.0.0 documentation" href="index.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -57,14 +57,8 @@
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#outrigger.index.adjacencies.ExonJunctionAdjacencies.add_exon_to_db" title="outrigger.index.adjacencies.ExonJunctionAdjacencies.add_exon_to_db"><code class="xref py py-obj docutils literal"><span class="pre">add_exon_to_db</span></code></a>(chrom,&nbsp;start,&nbsp;stop,&nbsp;strand)</td>
-<td></td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="#outrigger.index.adjacencies.ExonJunctionAdjacencies.detect_exons_from_junctions" title="outrigger.index.adjacencies.ExonJunctionAdjacencies.detect_exons_from_junctions"><code class="xref py py-obj docutils literal"><span class="pre">detect_exons_from_junctions</span></code></a>()</td>
+<tr class="row-odd"><td><a class="reference internal" href="#outrigger.index.adjacencies.ExonJunctionAdjacencies.detect_exons_from_junctions" title="outrigger.index.adjacencies.ExonJunctionAdjacencies.detect_exons_from_junctions"><code class="xref py py-obj docutils literal"><span class="pre">detect_exons_from_junctions</span></code></a>()</td>
 <td>Find exons based on gaps in junctions</td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="#outrigger.index.adjacencies.ExonJunctionAdjacencies.exon_location_to_feature" title="outrigger.index.adjacencies.ExonJunctionAdjacencies.exon_location_to_feature"><code class="xref py py-obj docutils literal"><span class="pre">exon_location_to_feature</span></code></a>(chrom,&nbsp;start,&nbsp;stop,&nbsp;...)</td>
-<td></td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#outrigger.index.adjacencies.ExonJunctionAdjacencies.junctions_adjacent_to_this_exon" title="outrigger.index.adjacencies.ExonJunctionAdjacencies.junctions_adjacent_to_this_exon"><code class="xref py py-obj docutils literal"><span class="pre">junctions_adjacent_to_this_exon</span></code></a>(exon)</td>
 <td>Get junctions adjacent to this exon</td>
@@ -107,14 +101,8 @@ variables <cite>junction_id</cite>, <cite>exon_start</cite>, <cite>exon_stop</ci
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#outrigger.index.adjacencies.ExonJunctionAdjacencies.add_exon_to_db" title="outrigger.index.adjacencies.ExonJunctionAdjacencies.add_exon_to_db"><code class="xref py py-obj docutils literal"><span class="pre">add_exon_to_db</span></code></a>(chrom,&nbsp;start,&nbsp;stop,&nbsp;strand)</td>
-<td></td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="#outrigger.index.adjacencies.ExonJunctionAdjacencies.detect_exons_from_junctions" title="outrigger.index.adjacencies.ExonJunctionAdjacencies.detect_exons_from_junctions"><code class="xref py py-obj docutils literal"><span class="pre">detect_exons_from_junctions</span></code></a>()</td>
+<tr class="row-odd"><td><a class="reference internal" href="#outrigger.index.adjacencies.ExonJunctionAdjacencies.detect_exons_from_junctions" title="outrigger.index.adjacencies.ExonJunctionAdjacencies.detect_exons_from_junctions"><code class="xref py py-obj docutils literal"><span class="pre">detect_exons_from_junctions</span></code></a>()</td>
 <td>Find exons based on gaps in junctions</td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="#outrigger.index.adjacencies.ExonJunctionAdjacencies.exon_location_to_feature" title="outrigger.index.adjacencies.ExonJunctionAdjacencies.exon_location_to_feature"><code class="xref py py-obj docutils literal"><span class="pre">exon_location_to_feature</span></code></a>(chrom,&nbsp;start,&nbsp;stop,&nbsp;...)</td>
-<td></td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#outrigger.index.adjacencies.ExonJunctionAdjacencies.junctions_adjacent_to_this_exon" title="outrigger.index.adjacencies.ExonJunctionAdjacencies.junctions_adjacent_to_this_exon"><code class="xref py py-obj docutils literal"><span class="pre">junctions_adjacent_to_this_exon</span></code></a>(exon)</td>
 <td>Get junctions adjacent to this exon</td>
@@ -128,20 +116,10 @@ variables <cite>junction_id</cite>, <cite>exon_start</cite>, <cite>exon_stop</ci
 </tbody>
 </table>
 <dl class="method">
-<dt id="outrigger.index.adjacencies.ExonJunctionAdjacencies.add_exon_to_db">
-<code class="descname">add_exon_to_db</code><span class="sig-paren">(</span><em>chrom</em>, <em>start</em>, <em>stop</em>, <em>strand</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/index/adjacencies.html#ExonJunctionAdjacencies.add_exon_to_db"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.index.adjacencies.ExonJunctionAdjacencies.add_exon_to_db" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
 <dt id="outrigger.index.adjacencies.ExonJunctionAdjacencies.detect_exons_from_junctions">
 <code class="descname">detect_exons_from_junctions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/index/adjacencies.html#ExonJunctionAdjacencies.detect_exons_from_junctions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.index.adjacencies.ExonJunctionAdjacencies.detect_exons_from_junctions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find exons based on gaps in junctions</p>
 </dd></dl>
-
-<dl class="method">
-<dt id="outrigger.index.adjacencies.ExonJunctionAdjacencies.exon_location_to_feature">
-<code class="descname">exon_location_to_feature</code><span class="sig-paren">(</span><em>chrom</em>, <em>start</em>, <em>stop</em>, <em>strand</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/index/adjacencies.html#ExonJunctionAdjacencies.exon_location_to_feature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.index.adjacencies.ExonJunctionAdjacencies.exon_location_to_feature" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 <dl class="attribute">
 <dt id="outrigger.index.adjacencies.ExonJunctionAdjacencies.exon_types">
@@ -257,20 +235,27 @@ exon is relative to junctions</p>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper"><div class="relations">
-<h3>Related Topics</h3>
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Outrigger</a></h1>
+
+
+<a href="index.html">
+<img src="_static/logo-1x.png" width=80%>
+</a>
+
+<h3><a href="index.html">Table Of Contents</a></h3>
+
 <ul>
-  <li><a href="index.html">Documentation overview</a><ul>
-  </ul></li>
+  <li><a href="index.html">Home</a></li>
+  <li><a href="contents.html">Contents</a></li>
+  <li><a href="installation.html">Install</a></li>
+  <li><a href="Usage.html">Usage</a></li>
+  <li><a href="subcommands/outrigger_index.html"><code>index</code>: Detect exons</a></li>
+  <li><a href="subcommands/outrigger_validate.html"><code>validate</code>: Remove non-canonical splice sites</a></li>
+  <li><a href="subcommands/outrigger_psi.html"><code>psi</code>: Quantify exon inclusion</a></li>
+  <li><a href="history.html">Changelog</a></li>
+  <li><a href="license.html">License</a></li>
 </ul>
-</div>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/outrigger.index.adjacencies.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
@@ -286,7 +271,7 @@ exon is relative to junctions</p>
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2015-2016, Olga Botvinnik.
+      &copy;2015-2017, Olga Botvinnik.
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>

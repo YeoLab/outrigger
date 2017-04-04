@@ -1,0 +1,29 @@
+v1.0.0 (April 3rd, 2017)
+------------------------
+
+This is the first major release of ``outrigger``!!!
+
+New features
+~~~~~~~~~~~~
+
+- Parallelized event across chromosomes
+- Added ``--low-memory`` flag for ``index``, ``validate``, and ``psi`` commands
+  to use a smaller memory footprint when reading CSV files.
+- Added ``--splice-types`` option to specify only one kind of splicing you'd
+  like to find
+- So the user can double-check the Psi calculation, create a ``summary.csv``
+  file indicating the number of reads found at each junction, for all samples
+    - This also shows which "Case" corresponds to each event in each sample, so
+      you can see whether there were sufficient or insufficient reads on the
+      junctions of each event, and how ``outrigger`` judged it.
+- Added functions to extract constitutive and alternative exons separately
+
+Bug fixes
+~~~~~~~~~
+
+- Fixed a bug that stalled on ``.bam`` files while counting the junctions
+
+Miscellaneous
+~~~~~~~~~~~~~
+
+- Added ``GC/AG`` to valid splice sites

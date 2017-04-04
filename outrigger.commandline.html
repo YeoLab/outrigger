@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>outrigger.commandline module &#8212; Outrigger 0.2.9 documentation</title>
+    <title>outrigger.commandline module &#8212; Outrigger 1.0.0 documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.2.9',
+        VERSION:     '1.0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -26,7 +26,7 @@
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="Outrigger 0.2.9 documentation" href="index.html" />
+    <link rel="top" title="Outrigger 1.0.0 documentation" href="index.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -116,13 +116,16 @@ of the program.</p>
 <tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">index_folder</span></code></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">junction_reads</span></code></td>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">junction_reads_filename</span></code></td>
 <td></td>
 </tr>
 <tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">junctions_folder</span></code></td>
 <td></td>
 </tr>
 <tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">output_folder</span></code></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#outrigger.commandline.Index.splice_abbrevs" title="outrigger.commandline.Index.splice_abbrevs"><code class="xref py py-obj docutils literal"><span class="pre">splice_abbrevs</span></code></a></td>
 <td></td>
 </tr>
 </tbody>
@@ -163,11 +166,11 @@ of the program.</p>
 <tr class="row-even"><td><a class="reference internal" href="#outrigger.commandline.Index.get_event_attributes" title="outrigger.commandline.Index.get_event_attributes"><code class="xref py py-obj docutils literal"><span class="pre">get_event_attributes</span></code></a>(db,&nbsp;event_df,&nbsp;splice_type)</td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">junction_metadata</span></code>(spliced_reads)</td>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">junction_metadata</span></code>(spliced_reads,&nbsp;csv)</td>
 <td>Get just the junction info from the concatenated read files</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#outrigger.commandline.Index.make_events_by_traversing_graph" title="outrigger.commandline.Index.make_events_by_traversing_graph"><code class="xref py py-obj docutils literal"><span class="pre">make_events_by_traversing_graph</span></code></a>(event_maker,&nbsp;db)</td>
-<td></td>
+<td>Search the splice graph for alternative exons</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#outrigger.commandline.Index.make_exon_junction_adjacencies" title="outrigger.commandline.Index.make_exon_junction_adjacencies"><code class="xref py py-obj docutils literal"><span class="pre">make_exon_junction_adjacencies</span></code></a>(metadata,&nbsp;db)</td>
 <td>Get annotated exon_cols next to junctions in data</td>
@@ -205,7 +208,8 @@ of the program.</p>
 <dl class="method">
 <dt id="outrigger.commandline.Index.make_events_by_traversing_graph">
 <code class="descname">make_events_by_traversing_graph</code><span class="sig-paren">(</span><em>event_maker</em>, <em>db</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/commandline.html#Index.make_events_by_traversing_graph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.commandline.Index.make_events_by_traversing_graph" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Search the splice graph for alternative exons</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="outrigger.commandline.Index.make_exon_junction_adjacencies">
@@ -222,6 +226,11 @@ of the program.</p>
 <dl class="attribute">
 <dt id="outrigger.commandline.Index.max_de_novo_exon_length">
 <code class="descname">max_de_novo_exon_length</code><em class="property"> = 100</em><a class="headerlink" href="#outrigger.commandline.Index.max_de_novo_exon_length" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="outrigger.commandline.Index.splice_abbrevs">
+<code class="descname">splice_abbrevs</code><a class="headerlink" href="#outrigger.commandline.Index.splice_abbrevs" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -254,7 +263,7 @@ of the program.</p>
 <tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">input_index</span></code></td>
 <td>Where to read the index from</td>
 </tr>
-<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">junction_reads</span></code></td>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">junction_reads_filename</span></code></td>
 <td></td>
 </tr>
 <tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">junctions_folder</span></code></td>
@@ -313,7 +322,7 @@ of the program.</p>
 <tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">filter_junctions_on_reads</span></code>(spliced_reads)</td>
 <td></td>
 </tr>
-<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">junction_metadata</span></code>(spliced_reads)</td>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">junction_metadata</span></code>(spliced_reads,&nbsp;csv)</td>
 <td>Get just the junction info from the concatenated read files</td>
 </tr>
 <tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">make_junction_reads_file</span></code>()</td>
@@ -377,7 +386,7 @@ of the program.</p>
 
 <dl class="attribute">
 <dt id="outrigger.commandline.Psi.required_cols">
-<code class="descname">required_cols</code><em class="property"> = {'--sample-id-col': None, '--junction-id-col': None, '--reads-col': None}</em><a class="headerlink" href="#outrigger.commandline.Psi.required_cols" title="Permalink to this definition">¶</a></dt>
+<code class="descname">required_cols</code><em class="property"> = {'--junction-id-col': None, '--reads-col': None, '--sample-id-col': None}</em><a class="headerlink" href="#outrigger.commandline.Psi.required_cols" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -417,7 +426,7 @@ of the program.</p>
 <tr class="row-odd"><td><a class="reference internal" href="#outrigger.commandline.Subcommand.index_folder" title="outrigger.commandline.Subcommand.index_folder"><code class="xref py py-obj docutils literal"><span class="pre">index_folder</span></code></a></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#outrigger.commandline.Subcommand.junction_reads" title="outrigger.commandline.Subcommand.junction_reads"><code class="xref py py-obj docutils literal"><span class="pre">junction_reads</span></code></a></td>
+<tr class="row-even"><td><a class="reference internal" href="#outrigger.commandline.Subcommand.junction_reads_filename" title="outrigger.commandline.Subcommand.junction_reads_filename"><code class="xref py py-obj docutils literal"><span class="pre">junction_reads_filename</span></code></a></td>
 <td></td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#outrigger.commandline.Subcommand.junctions_folder" title="outrigger.commandline.Subcommand.junctions_folder"><code class="xref py py-obj docutils literal"><span class="pre">junctions_folder</span></code></a></td>
@@ -458,7 +467,7 @@ of the program.</p>
 <tr class="row-even"><td><a class="reference internal" href="#outrigger.commandline.Subcommand.filter_junctions_on_reads" title="outrigger.commandline.Subcommand.filter_junctions_on_reads"><code class="xref py py-obj docutils literal"><span class="pre">filter_junctions_on_reads</span></code></a>(spliced_reads)</td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#outrigger.commandline.Subcommand.junction_metadata" title="outrigger.commandline.Subcommand.junction_metadata"><code class="xref py py-obj docutils literal"><span class="pre">junction_metadata</span></code></a>(spliced_reads)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#outrigger.commandline.Subcommand.junction_metadata" title="outrigger.commandline.Subcommand.junction_metadata"><code class="xref py py-obj docutils literal"><span class="pre">junction_metadata</span></code></a>(spliced_reads,&nbsp;csv)</td>
 <td>Get just the junction info from the concatenated read files</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#outrigger.commandline.Subcommand.make_junction_reads_file" title="outrigger.commandline.Subcommand.make_junction_reads_file"><code class="xref py py-obj docutils literal"><span class="pre">make_junction_reads_file</span></code></a>()</td>
@@ -528,13 +537,13 @@ of the program.</p>
 
 <dl class="staticmethod">
 <dt id="outrigger.commandline.Subcommand.junction_metadata">
-<em class="property">static </em><code class="descname">junction_metadata</code><span class="sig-paren">(</span><em>spliced_reads</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/commandline.html#Subcommand.junction_metadata"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.commandline.Subcommand.junction_metadata" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">junction_metadata</code><span class="sig-paren">(</span><em>spliced_reads</em>, <em>csv</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/outrigger/commandline.html#Subcommand.junction_metadata"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#outrigger.commandline.Subcommand.junction_metadata" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get just the junction info from the concatenated read files</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="outrigger.commandline.Subcommand.junction_reads">
-<code class="descname">junction_reads</code><a class="headerlink" href="#outrigger.commandline.Subcommand.junction_reads" title="Permalink to this definition">¶</a></dt>
+<dt id="outrigger.commandline.Subcommand.junction_reads_filename">
+<code class="descname">junction_reads_filename</code><a class="headerlink" href="#outrigger.commandline.Subcommand.junction_reads_filename" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -645,7 +654,7 @@ user doesn&#8217;t want to overwrite it</p>
 <tr class="row-even"><td><a class="reference internal" href="#outrigger.commandline.SubcommandAfterIndex.input_index" title="outrigger.commandline.SubcommandAfterIndex.input_index"><code class="xref py py-obj docutils literal"><span class="pre">input_index</span></code></a></td>
 <td>Where to read the index from</td>
 </tr>
-<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">junction_reads</span></code></td>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">junction_reads_filename</span></code></td>
 <td></td>
 </tr>
 <tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">junctions_folder</span></code></td>
@@ -686,7 +695,7 @@ user doesn&#8217;t want to overwrite it</p>
 <tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">filter_junctions_on_reads</span></code>(spliced_reads)</td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">junction_metadata</span></code>(spliced_reads)</td>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">junction_metadata</span></code>(spliced_reads,&nbsp;csv)</td>
 <td>Get just the junction info from the concatenated read files</td>
 </tr>
 <tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">make_junction_reads_file</span></code>()</td>
@@ -747,7 +756,7 @@ exit when raised</p>
 <tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">input_index</span></code></td>
 <td>Where to read the index from</td>
 </tr>
-<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">junction_reads</span></code></td>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">junction_reads_filename</span></code></td>
 <td></td>
 </tr>
 <tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">junctions_folder</span></code></td>
@@ -797,7 +806,7 @@ exit when raised</p>
 <tr class="row-odd"><td><a class="reference internal" href="#outrigger.commandline.Validate.individual_exon_splice_sites" title="outrigger.commandline.Validate.individual_exon_splice_sites"><code class="xref py py-obj docutils literal"><span class="pre">individual_exon_splice_sites</span></code></a>(exon,&nbsp;...)</td>
 <td></td>
 </tr>
-<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">junction_metadata</span></code>(spliced_reads)</td>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">junction_metadata</span></code>(spliced_reads,&nbsp;csv)</td>
 <td>Get just the junction info from the concatenated read files</td>
 </tr>
 <tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">make_junction_reads_file</span></code>()</td>
@@ -843,20 +852,27 @@ exit when raised</p>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper"><div class="relations">
-<h3>Related Topics</h3>
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Outrigger</a></h1>
+
+
+<a href="index.html">
+<img src="_static/logo-1x.png" width=80%>
+</a>
+
+<h3><a href="index.html">Table Of Contents</a></h3>
+
 <ul>
-  <li><a href="index.html">Documentation overview</a><ul>
-  </ul></li>
+  <li><a href="index.html">Home</a></li>
+  <li><a href="contents.html">Contents</a></li>
+  <li><a href="installation.html">Install</a></li>
+  <li><a href="Usage.html">Usage</a></li>
+  <li><a href="subcommands/outrigger_index.html"><code>index</code>: Detect exons</a></li>
+  <li><a href="subcommands/outrigger_validate.html"><code>validate</code>: Remove non-canonical splice sites</a></li>
+  <li><a href="subcommands/outrigger_psi.html"><code>psi</code>: Quantify exon inclusion</a></li>
+  <li><a href="history.html">Changelog</a></li>
+  <li><a href="license.html">License</a></li>
 </ul>
-</div>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/outrigger.commandline.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
@@ -872,7 +888,7 @@ exit when raised</p>
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2015-2016, Olga Botvinnik.
+      &copy;2015-2017, Olga Botvinnik.
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>

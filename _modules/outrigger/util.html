@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>outrigger.util &#8212; Outrigger 0.2.9 documentation</title>
+    <title>outrigger.util &#8212; Outrigger 1.0.0 documentation</title>
     
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.2.9',
+        VERSION:     '1.0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -26,7 +26,7 @@
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="top" title="Outrigger 0.2.9 documentation" href="../../index.html" />
+    <link rel="top" title="Outrigger 1.0.0 documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" />
    
   <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
@@ -66,21 +66,60 @@
 <div class="viewcode-block" id="progress"><a class="viewcode-back" href="../../outrigger.util.html#outrigger.util.progress">[docs]</a><span class="k">def</span> <span class="nf">progress</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Write a timestamped progress message to standard output&quot;&quot;&quot;</span>
     <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="se">\t</span><span class="si">{}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">timestamp</span><span class="p">(),</span> <span class="n">message</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="extract_alternative_constitutive"><a class="viewcode-back" href="../../outrigger.util.html#outrigger.util.extract_alternative_constitutive">[docs]</a><span class="k">def</span> <span class="nf">extract_alternative_constitutive</span><span class="p">(</span><span class="n">psi</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Separate psi matrix to events that are alternative vs constitutive</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    psi : pandas.DataFrame</span>
+<span class="sd">        This is a (samples, features) shaped dataframe of the percent</span>
+<span class="sd">        spliced-in values</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    alternative, constitutively0, constitutively1 : pandas.DataFrame</span>
+<span class="sd">        Slices of the input dataframe that are alternative or constitutive</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">notnull</span> <span class="o">=</span> <span class="n">psi</span><span class="o">.</span><span class="n">notnull</span><span class="p">()</span>
+
+    <span class="n">constitutively0</span> <span class="o">=</span> <span class="p">(</span><span class="n">psi</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)[</span><span class="n">notnull</span><span class="p">]</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="n">constitutively1</span> <span class="o">=</span> <span class="p">(</span><span class="n">psi</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)[</span><span class="n">notnull</span><span class="p">]</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="n">alternative</span> <span class="o">=</span> <span class="n">psi</span><span class="o">.</span><span class="n">columns</span><span class="p">[(</span><span class="o">~</span><span class="n">constitutively0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="o">~</span><span class="n">constitutively1</span><span class="p">)]</span>
+
+    <span class="n">constitutively0</span> <span class="o">=</span> <span class="n">constitutively0</span><span class="p">[</span><span class="n">constitutively0</span><span class="p">]</span><span class="o">.</span><span class="n">index</span>
+    <span class="n">constitutively1</span> <span class="o">=</span> <span class="n">constitutively1</span><span class="p">[</span><span class="n">constitutively1</span><span class="p">]</span><span class="o">.</span><span class="n">index</span>
+
+    <span class="k">return</span> <span class="n">psi</span><span class="p">[</span><span class="n">alternative</span><span class="p">],</span> <span class="n">psi</span><span class="p">[</span><span class="n">constitutively0</span><span class="p">],</span> <span class="n">psi</span><span class="p">[</span><span class="n">constitutively1</span><span class="p">]</span></div>
 </pre></div>
 
           </div>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper"><div class="relations">
-<h3>Related Topics</h3>
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">Outrigger</a></h1>
+
+
+<a href="../../index.html">
+<img src="../../_static/logo-1x.png" width=80%>
+</a>
+
+<h3><a href="../../index.html">Table Of Contents</a></h3>
+
 <ul>
-  <li><a href="../../index.html">Documentation overview</a><ul>
-  <li><a href="../index.html">Module code</a><ul>
-  </ul></li>
-  </ul></li>
+  <li><a href="../../index.html">Home</a></li>
+  <li><a href="../../contents.html">Contents</a></li>
+  <li><a href="../../installation.html">Install</a></li>
+  <li><a href="../../Usage.html">Usage</a></li>
+  <li><a href="../../subcommands/outrigger_index.html"><code>index</code>: Detect exons</a></li>
+  <li><a href="../../subcommands/outrigger_validate.html"><code>validate</code>: Remove non-canonical splice sites</a></li>
+  <li><a href="../../subcommands/outrigger_psi.html"><code>psi</code>: Quantify exon inclusion</a></li>
+  <li><a href="../../history.html">Changelog</a></li>
+  <li><a href="../../license.html">License</a></li>
 </ul>
-</div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../../search.html" method="get">
@@ -96,7 +135,7 @@
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2015-2016, Olga Botvinnik.
+      &copy;2015-2017, Olga Botvinnik.
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>

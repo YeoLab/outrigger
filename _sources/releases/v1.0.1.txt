@@ -1,0 +1,29 @@
+v1.0.1 (April 3rd, 2017)
+------------------------
+
+This is a patch release to ```outrigger``.
+
+
+New features
+~~~~~~~~~~~~
+
+
+Plotting functions
+~~~~~~~~~~~~~~~~~~
+
+
+API changes
+~~~~~~~~~~~
+
+
+Bug fixes
+~~~~~~~~~
+
+
+Miscellaneous
+~~~~~~~~~~~~~
+
+- Explicitly added Python 3.6 compatibility
+- Change logo location to `logo/` instead of `logo/v1` since there's only one
+  version anyway...
+- Add more documentation!!

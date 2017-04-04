@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>outrigger.tests.index.test_events &#8212; Outrigger 0.2.9 documentation</title>
+    <title>outrigger.tests.index.test_events &#8212; Outrigger 1.0.0 documentation</title>
     
     <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../../',
-        VERSION:     '0.2.9',
+        VERSION:     '1.0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -26,7 +26,7 @@
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
-    <link rel="top" title="Outrigger 0.2.9 documentation" href="../../../../index.html" />
+    <link rel="top" title="Outrigger 1.0.0 documentation" href="../../../../index.html" />
     <link rel="up" title="Module code" href="../../../index.html" />
    
   <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
@@ -52,8 +52,6 @@
 <span class="kn">import</span> <span class="nn">pandas.util.testing</span> <span class="k">as</span> <span class="nn">pdt</span>
 <span class="kn">import</span> <span class="nn">pytest</span>
 <span class="kn">from</span> <span class="nn">graphlite</span> <span class="k">import</span> <span class="n">connect</span><span class="p">,</span> <span class="n">V</span>
-
-<span class="kn">from</span> <span class="nn">outrigger.common</span> <span class="k">import</span> <span class="n">SPLICE_TYPES</span>
 
 <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
 
@@ -199,7 +197,7 @@
 
 <div class="viewcode-block" id="assert_graph_items_equal"><a class="viewcode-back" href="../../../../outrigger.tests.index.test_events.html#outrigger.tests.index.test_events.assert_graph_items_equal">[docs]</a><span class="k">def</span> <span class="nf">assert_graph_items_equal</span><span class="p">(</span><span class="n">graph1</span><span class="p">,</span> <span class="n">items1</span><span class="p">,</span> <span class="n">graph2</span><span class="p">,</span> <span class="n">items2</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Checks all relationships in graph1 exist in graph2, and vice versa&quot;&quot;&quot;</span>
-    <span class="kn">from</span> <span class="nn">outrigger.index.adjacencies</span> <span class="k">import</span> <span class="n">DIRECTIONS</span>
+    <span class="kn">from</span> <span class="nn">outrigger.common</span> <span class="k">import</span> <span class="n">DIRECTIONS</span>
 
     <span class="k">for</span> <span class="n">number1</span><span class="p">,</span> <span class="n">item1</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">items1</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">direction</span> <span class="ow">in</span> <span class="n">DIRECTIONS</span><span class="p">:</span>
@@ -236,23 +234,19 @@
         <span class="kn">from</span> <span class="nn">outrigger.index.events</span> <span class="k">import</span> <span class="n">EventMaker</span>
         <span class="k">return</span> <span class="n">EventMaker</span><span class="p">(</span><span class="n">junction_exon_triples</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="TestEventMaker.test_init"><a class="viewcode-back" href="../../../../outrigger.tests.index.test_events.html#outrigger.tests.index.test_events.TestEventMaker.test_init">[docs]</a>    <span class="k">def</span> <span class="nf">test_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">junction_exon_triples</span><span class="p">,</span> <span class="n">graph_items</span><span class="p">):</span>
-        <span class="kn">from</span> <span class="nn">outrigger.index.events</span> <span class="k">import</span> <span class="n">EventMaker</span>
+<div class="viewcode-block" id="TestEventMaker.test_init"><a class="viewcode-back" href="../../../../outrigger.tests.index.test_events.html#outrigger.tests.index.test_events.TestEventMaker.test_init">[docs]</a>    <span class="k">def</span> <span class="nf">test_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">junction_exon_triples</span><span class="p">):</span>
+        <span class="kn">from</span> <span class="nn">outrigger.index.events</span> <span class="k">import</span> <span class="n">EventMaker</span><span class="p">,</span> <span class="n">CHROM</span>
 
-        <span class="n">graph</span><span class="p">,</span> <span class="n">items</span> <span class="o">=</span> <span class="n">graph_items</span>
+        <span class="n">junction_exon_triples_chrom</span> <span class="o">=</span> <span class="n">junction_exon_triples</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">junction_exon_triples_chrom</span><span class="p">[</span><span class="n">CHROM</span><span class="p">]</span> <span class="o">=</span> \
+            <span class="n">junction_exon_triples_chrom</span><span class="p">[</span><span class="s1">&#39;junction&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
         <span class="n">test</span> <span class="o">=</span> <span class="n">EventMaker</span><span class="p">(</span><span class="n">junction_exon_triples</span><span class="p">)</span>
         <span class="n">pdt</span><span class="o">.</span><span class="n">assert_frame_equal</span><span class="p">(</span><span class="n">test</span><span class="o">.</span><span class="n">junction_exon_triples</span><span class="p">,</span>
-                               <span class="n">junction_exon_triples</span><span class="p">)</span>
+                               <span class="n">junction_exon_triples_chrom</span><span class="p">)</span>
         <span class="k">assert</span> <span class="n">test</span><span class="o">.</span><span class="n">db</span> <span class="ow">is</span> <span class="kc">None</span>
-        <span class="n">exons</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">junction_exon_triples</span><span class="o">.</span><span class="n">exon</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
-        <span class="n">junctions</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">junction_exon_triples</span><span class="o">.</span><span class="n">junction</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
-
-        <span class="n">pdt</span><span class="o">.</span><span class="n">assert_equal</span><span class="p">(</span><span class="n">test</span><span class="o">.</span><span class="n">exons</span><span class="p">,</span> <span class="n">exons</span><span class="p">)</span>
-        <span class="n">pdt</span><span class="o">.</span><span class="n">assert_equal</span><span class="p">(</span><span class="n">test</span><span class="o">.</span><span class="n">junctions</span><span class="p">,</span> <span class="n">junctions</span><span class="p">)</span>
-        <span class="n">pdt</span><span class="o">.</span><span class="n">assert_equal</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">test</span><span class="o">.</span><span class="n">items</span><span class="p">),</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">items</span><span class="p">))</span>
-
-        <span class="n">assert_graph_items_equal</span><span class="p">(</span><span class="n">test</span><span class="o">.</span><span class="n">graph</span><span class="p">,</span> <span class="n">test</span><span class="o">.</span><span class="n">items</span><span class="p">,</span> <span class="n">graph</span><span class="p">,</span> <span class="n">items</span><span class="p">)</span></div>
+        <span class="k">assert</span> <span class="n">test</span><span class="o">.</span><span class="n">junction_col</span> <span class="o">==</span> <span class="s1">&#39;junction&#39;</span>
+        <span class="k">assert</span> <span class="n">test</span><span class="o">.</span><span class="n">exon_col</span> <span class="o">==</span> <span class="s1">&#39;exon&#39;</span></div>
 
     <span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
 <div class="viewcode-block" id="TestEventMaker.strand_name"><a class="viewcode-back" href="../../../../outrigger.tests.index.test_events.html#outrigger.tests.index.test_events.TestEventMaker.strand_name">[docs]</a>    <span class="k">def</span> <span class="nf">strand_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strand</span><span class="p">):</span>
@@ -261,34 +255,35 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="s2">&quot;negative&quot;</span></div>
 
-    <span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="n">SPLICE_TYPES</span><span class="p">)</span>
-<div class="viewcode-block" id="TestEventMaker.splice_type"><a class="viewcode-back" href="../../../../outrigger.tests.index.test_events.html#outrigger.tests.index.test_events.TestEventMaker.splice_type">[docs]</a>    <span class="k">def</span> <span class="nf">splice_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Possible splice types, returned with both long names and abbrevs&quot;&quot;&quot;</span>
-        <span class="n">longname</span><span class="p">,</span> <span class="n">abbrev</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">param</span>
-        <span class="k">return</span> <span class="n">longname</span><span class="p">,</span> <span class="n">abbrev</span></div>
+    <span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<div class="viewcode-block" id="TestEventMaker.events_csv"><a class="viewcode-back" href="../../../../outrigger.tests.index.test_events.html#outrigger.tests.index.test_events.TestEventMaker.events_csv">[docs]</a>    <span class="k">def</span> <span class="nf">events_csv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">simulated_outrigger_index</span><span class="p">,</span> <span class="n">strand_name</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">simulated_outrigger_index</span><span class="p">,</span> <span class="n">strand_name</span><span class="p">,</span>
+                            <span class="s1">&#39;events.csv&#39;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="TestEventMaker.test_finding_events"><a class="viewcode-back" href="../../../../outrigger.tests.index.test_events.html#outrigger.tests.index.test_events.TestEventMaker.test_finding_events">[docs]</a>    <span class="k">def</span> <span class="nf">test_finding_events</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_maker</span><span class="p">,</span> <span class="n">capsys</span><span class="p">,</span> <span class="n">strand_name</span><span class="p">,</span>
                             <span class="n">splice_type</span><span class="p">,</span> <span class="n">simulated_outrigger_index</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Test finding SE and MXE events in one function&quot;&quot;&quot;</span>
-        <span class="n">longname</span><span class="p">,</span> <span class="n">abbrev</span> <span class="o">=</span> <span class="n">splice_type</span>
-        <span class="n">test</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">event_maker</span><span class="p">,</span> <span class="n">longname</span><span class="p">)()</span>
+        <span class="kn">from</span> <span class="nn">outrigger.common</span> <span class="k">import</span> <span class="n">SPLICE_ABBREVS</span>
+
+        <span class="n">test_events</span> <span class="o">=</span> <span class="n">event_maker</span><span class="o">.</span><span class="n">find_events</span><span class="p">()</span>
+
         <span class="n">out</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">capsys</span><span class="o">.</span><span class="n">readouterr</span><span class="p">()</span>
-        <span class="k">assert</span> <span class="s1">&#39;Trying out&#39;</span> <span class="ow">in</span> <span class="n">out</span>
-        <span class="k">assert</span> <span class="s1">&#39;exons tested&#39;</span> <span class="ow">in</span> <span class="n">out</span>
-        <span class="k">assert</span> <span class="s1">&#39;%&#39;</span> <span class="ow">in</span> <span class="n">out</span>
+        <span class="k">assert</span> <span class="s1">&#39;Combining all events into large dataframes&#39;</span> <span class="ow">in</span> <span class="n">out</span>
+        <span class="k">assert</span> <span class="s1">&#39;Done.&#39;</span> <span class="ow">in</span> <span class="n">out</span>
 
-        <span class="n">longname</span><span class="p">,</span> <span class="n">abbrev</span> <span class="o">=</span> <span class="n">splice_type</span>
-        <span class="n">template</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">simulated_outrigger_index</span><span class="p">,</span>
-                                <span class="n">abbrev</span><span class="p">,</span> <span class="s1">&#39;events_</span><span class="si">{}</span><span class="s1">_strand.csv&#39;</span><span class="p">)</span>
-        <span class="n">csv</span> <span class="o">=</span> <span class="n">template</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">strand_name</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">splice_abbrev</span> <span class="ow">in</span> <span class="n">SPLICE_ABBREVS</span><span class="p">:</span>
+            <span class="n">test</span> <span class="o">=</span> <span class="n">test_events</span><span class="p">[</span><span class="n">splice_abbrev</span><span class="p">]</span>
 
-        <span class="n">true</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">csv</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">events_csv</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="n">simulated_outrigger_index</span><span class="p">,</span> <span class="n">splice_abbrev</span><span class="p">,</span>
+                <span class="s1">&#39;events_</span><span class="si">{}</span><span class="s1">_strand.csv&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">strand_name</span><span class="p">))</span>
+            <span class="n">true</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">events_csv</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
-        <span class="n">sort_by</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">true</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s1">&#39;exon\d&#39;</span><span class="p">,</span> <span class="n">x</span><span class="p">)]</span>
-        <span class="n">test</span> <span class="o">=</span> <span class="n">test</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="n">sort_by</span><span class="p">)</span>
-        <span class="n">true</span> <span class="o">=</span> <span class="n">true</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="n">sort_by</span><span class="p">)</span>
+            <span class="n">sort_by</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">true</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s1">&#39;exon\d&#39;</span><span class="p">,</span> <span class="n">x</span><span class="p">)]</span>
+            <span class="n">test</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="n">sort_by</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">true</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="n">sort_by</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-        <span class="n">pdt</span><span class="o">.</span><span class="n">assert_frame_equal</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="n">true</span><span class="p">)</span></div>
+            <span class="n">pdt</span><span class="o">.</span><span class="n">assert_frame_equal</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="n">true</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="TestEventMaker.test_a5ss"><a class="viewcode-back" href="../../../../outrigger.tests.index.test_events.html#outrigger.tests.index.test_events.TestEventMaker.test_a5ss">[docs]</a>    <span class="k">def</span> <span class="nf">test_a5ss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_maker</span><span class="p">,</span> <span class="n">strand</span><span class="p">):</span>
         <span class="n">true</span> <span class="o">=</span> <span class="p">{(</span><span class="s1">&#39;exon:chr1:225-250:+&#39;</span><span class="p">,</span>  <span class="c1"># Exon 2</span>
@@ -383,21 +378,158 @@
                         <span class="k">continue</span>
     <span class="n">items</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">items</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">graph</span><span class="p">,</span> <span class="n">items</span></div>
+
+
+<div class="viewcode-block" id="TestSpliceGraph"><a class="viewcode-back" href="../../../../outrigger.tests.index.test_events.html#outrigger.tests.index.test_events.TestSpliceGraph">[docs]</a><span class="k">class</span> <span class="nc">TestSpliceGraph</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<div class="viewcode-block" id="TestSpliceGraph.splice_graph"><a class="viewcode-back" href="../../../../outrigger.tests.index.test_events.html#outrigger.tests.index.test_events.TestSpliceGraph.splice_graph">[docs]</a>    <span class="k">def</span> <span class="nf">splice_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">junction_exon_triples</span><span class="p">):</span>
+        <span class="kn">from</span> <span class="nn">outrigger.index.events</span> <span class="k">import</span> <span class="n">SpliceGraph</span>
+
+        <span class="k">return</span> <span class="n">SpliceGraph</span><span class="p">(</span><span class="n">junction_exon_triples</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TestSpliceGraph.test___init__"><a class="viewcode-back" href="../../../../outrigger.tests.index.test_events.html#outrigger.tests.index.test_events.TestSpliceGraph.test___init__">[docs]</a>    <span class="k">def</span> <span class="nf">test___init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">junction_exon_triples</span><span class="p">,</span> <span class="n">graph_items</span><span class="p">):</span>
+        <span class="kn">from</span> <span class="nn">outrigger.index.events</span> <span class="k">import</span> <span class="n">SpliceGraph</span>
+
+        <span class="n">test</span> <span class="o">=</span> <span class="n">SpliceGraph</span><span class="p">(</span><span class="n">junction_exon_triples</span><span class="p">)</span>
+
+        <span class="n">graph</span><span class="p">,</span> <span class="n">items</span> <span class="o">=</span> <span class="n">graph_items</span>
+
+        <span class="n">exons</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">junction_exon_triples</span><span class="o">.</span><span class="n">exon</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
+        <span class="n">junctions</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">junction_exon_triples</span><span class="o">.</span><span class="n">junction</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
+
+        <span class="n">pdt</span><span class="o">.</span><span class="n">assert_equal</span><span class="p">(</span><span class="n">test</span><span class="o">.</span><span class="n">exons</span><span class="p">,</span> <span class="n">exons</span><span class="p">)</span>
+        <span class="n">pdt</span><span class="o">.</span><span class="n">assert_equal</span><span class="p">(</span><span class="n">test</span><span class="o">.</span><span class="n">junctions</span><span class="p">,</span> <span class="n">junctions</span><span class="p">)</span>
+        <span class="n">pdt</span><span class="o">.</span><span class="n">assert_equal</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">test</span><span class="o">.</span><span class="n">items</span><span class="p">),</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">items</span><span class="p">))</span>
+
+        <span class="n">assert_graph_items_equal</span><span class="p">(</span><span class="n">test</span><span class="o">.</span><span class="n">graph</span><span class="p">,</span> <span class="n">test</span><span class="o">.</span><span class="n">items</span><span class="p">,</span> <span class="n">graph</span><span class="p">,</span> <span class="n">items</span><span class="p">)</span></div>
+
+    <span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<div class="viewcode-block" id="TestSpliceGraph.exon1_i"><a class="viewcode-back" href="../../../../outrigger.tests.index.test_events.html#outrigger.tests.index.test_events.TestSpliceGraph.exon1_i">[docs]</a>    <span class="k">def</span> <span class="nf">exon1_i</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strand</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">strand</span> <span class="o">==</span> <span class="s1">&#39;+&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">strand</span> <span class="o">==</span> <span class="s1">&#39;-&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">3</span></div>
+
+    <span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<div class="viewcode-block" id="TestSpliceGraph.exon1_name"><a class="viewcode-back" href="../../../../outrigger.tests.index.test_events.html#outrigger.tests.index.test_events.TestSpliceGraph.exon1_name">[docs]</a>    <span class="k">def</span> <span class="nf">exon1_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">splice_graph</span><span class="p">,</span> <span class="n">exon1_i</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">splice_graph</span><span class="o">.</span><span class="n">exons</span><span class="p">[</span><span class="n">exon1_i</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="TestSpliceGraph.test_exons_one_junction_upstream"><a class="viewcode-back" href="../../../../outrigger.tests.index.test_events.html#outrigger.tests.index.test_events.TestSpliceGraph.test_exons_one_junction_upstream">[docs]</a>    <span class="k">def</span> <span class="nf">test_exons_one_junction_upstream</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">splice_graph</span><span class="p">,</span> <span class="n">exon1_i</span><span class="p">,</span> <span class="n">strand</span><span class="p">):</span>
+        <span class="n">test</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">splice_graph</span><span class="o">.</span><span class="n">exons_one_junction_downstream</span><span class="p">(</span><span class="n">exon1_i</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">strand</span> <span class="o">==</span> <span class="s1">&#39;+&#39;</span><span class="p">:</span>
+            <span class="n">true</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">strand</span> <span class="o">==</span> <span class="s1">&#39;-&#39;</span><span class="p">:</span>
+            <span class="n">true</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">test</span> <span class="o">==</span> <span class="n">true</span></div>
+
+<div class="viewcode-block" id="TestSpliceGraph.test_exons_two_junctions_downstream"><a class="viewcode-back" href="../../../../outrigger.tests.index.test_events.html#outrigger.tests.index.test_events.TestSpliceGraph.test_exons_two_junctions_downstream">[docs]</a>    <span class="k">def</span> <span class="nf">test_exons_two_junctions_downstream</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">splice_graph</span><span class="p">,</span> <span class="n">exon1_i</span><span class="p">,</span>
+                                            <span class="n">strand</span><span class="p">):</span>
+        <span class="n">test</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">splice_graph</span><span class="o">.</span><span class="n">exons_two_junctions_downstream</span><span class="p">(</span><span class="n">exon1_i</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">strand</span> <span class="o">==</span> <span class="s1">&#39;+&#39;</span><span class="p">:</span>
+            <span class="n">true</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">7</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">strand</span> <span class="o">==</span> <span class="s1">&#39;-&#39;</span><span class="p">:</span>
+            <span class="n">true</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">test</span> <span class="o">==</span> <span class="n">true</span></div>
+
+<div class="viewcode-block" id="TestSpliceGraph.test_junctions_between_exons"><a class="viewcode-back" href="../../../../outrigger.tests.index.test_events.html#outrigger.tests.index.test_events.TestSpliceGraph.test_junctions_between_exons">[docs]</a>    <span class="k">def</span> <span class="nf">test_junctions_between_exons</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">splice_graph</span><span class="p">,</span> <span class="n">strand</span><span class="p">,</span> <span class="n">exon1_i</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">strand</span> <span class="o">==</span> <span class="s1">&#39;+&#39;</span><span class="p">:</span>
+            <span class="n">test</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">splice_graph</span><span class="o">.</span><span class="n">junctions_between_exons</span><span class="p">(</span><span class="n">exon1_i</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="n">true</span> <span class="o">=</span> <span class="p">(</span><span class="mi">8</span><span class="p">,)</span>
+        <span class="k">if</span> <span class="n">strand</span> <span class="o">==</span> <span class="s1">&#39;-&#39;</span><span class="p">:</span>
+            <span class="n">test</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">splice_graph</span><span class="o">.</span><span class="n">junctions_between_exons</span><span class="p">(</span><span class="n">exon1_i</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+            <span class="n">true</span> <span class="o">=</span> <span class="p">(</span><span class="mi">16</span><span class="p">,)</span>
+        <span class="k">assert</span> <span class="n">test</span> <span class="o">==</span> <span class="n">true</span></div>
+
+    <span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<div class="viewcode-block" id="TestSpliceGraph.skipped_exon_events"><a class="viewcode-back" href="../../../../outrigger.tests.index.test_events.html#outrigger.tests.index.test_events.TestSpliceGraph.skipped_exon_events">[docs]</a>    <span class="k">def</span> <span class="nf">skipped_exon_events</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strand</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">strand</span> <span class="o">==</span> <span class="s1">&#39;+&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{(</span><span class="s1">&#39;exon:chr1:150-175:+&#39;</span><span class="p">,</span> <span class="s1">&#39;exon:chr1:200-250:+&#39;</span><span class="p">,</span> <span class="s1">&#39;exon:chr1:300-350:+&#39;</span><span class="p">):</span> <span class="p">[</span><span class="s1">&#39;junction:chr1:176-299:+&#39;</span><span class="p">,</span>  <span class="c1"># noqa</span>
+                                                                         <span class="s1">&#39;junction:chr1:176-199:+&#39;</span><span class="p">,</span>  <span class="c1"># noqa</span>
+                                                                         <span class="s1">&#39;junction:chr1:251-299:+&#39;</span><span class="p">],</span>  <span class="c1"># noqa</span>
+ <span class="p">(</span><span class="s1">&#39;exon:chr1:150-175:+&#39;</span><span class="p">,</span> <span class="s1">&#39;exon:chr1:225-250:+&#39;</span><span class="p">,</span> <span class="s1">&#39;exon:chr1:300-350:+&#39;</span><span class="p">):</span> <span class="p">[</span><span class="s1">&#39;junction:chr1:176-299:+&#39;</span><span class="p">,</span>  <span class="c1"># noqa</span>
+                                                                         <span class="s1">&#39;junction:chr1:176-224:+&#39;</span><span class="p">,</span>  <span class="c1"># noqa</span>
+                                                                         <span class="s1">&#39;junction:chr1:251-299:+&#39;</span><span class="p">],</span>  <span class="c1"># noqa</span>
+ <span class="p">(</span><span class="s1">&#39;exon:chr1:150-175:+&#39;</span><span class="p">,</span> <span class="s1">&#39;exon:chr1:225-250:+&#39;</span><span class="p">,</span> <span class="s1">&#39;exon:chr1:400-425:+&#39;</span><span class="p">):</span> <span class="p">[</span><span class="s1">&#39;junction:chr1:176-399:+&#39;</span><span class="p">,</span>  <span class="c1"># noqa</span>
+                                                                         <span class="s1">&#39;junction:chr1:176-224:+&#39;</span><span class="p">,</span>  <span class="c1"># noqa</span>
+                                                                         <span class="s1">&#39;junction:chr1:251-399:+&#39;</span><span class="p">],</span>  <span class="c1"># noqa</span>
+ <span class="p">(</span><span class="s1">&#39;exon:chr1:150-175:+&#39;</span><span class="p">,</span> <span class="s1">&#39;exon:chr1:225-275:+&#39;</span><span class="p">,</span> <span class="s1">&#39;exon:chr1:300-350:+&#39;</span><span class="p">):</span> <span class="p">[</span><span class="s1">&#39;junction:chr1:176-299:+&#39;</span><span class="p">,</span>  <span class="c1"># noqa</span>
+                                                                         <span class="s1">&#39;junction:chr1:176-224:+&#39;</span><span class="p">,</span>  <span class="c1"># noqa</span>
+                                                                         <span class="s1">&#39;junction:chr1:276-299:+&#39;</span><span class="p">],</span>  <span class="c1"># noqa</span>
+ <span class="p">(</span><span class="s1">&#39;exon:chr1:150-175:+&#39;</span><span class="p">,</span> <span class="s1">&#39;exon:chr1:300-350:+&#39;</span><span class="p">,</span> <span class="s1">&#39;exon:chr1:400-425:+&#39;</span><span class="p">):</span> <span class="p">[</span><span class="s1">&#39;junction:chr1:176-399:+&#39;</span><span class="p">,</span>  <span class="c1"># noqa</span>
+                                                                         <span class="s1">&#39;junction:chr1:176-299:+&#39;</span><span class="p">,</span>  <span class="c1"># noqa</span>
+                                                                         <span class="s1">&#39;junction:chr1:351-399:+&#39;</span><span class="p">]}</span>  <span class="c1"># noqa</span>
+        <span class="k">if</span> <span class="n">strand</span> <span class="o">==</span> <span class="s1">&#39;-&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{(</span><span class="s1">&#39;exon:chr1:400-425:-&#39;</span><span class="p">,</span> <span class="s1">&#39;exon:chr1:225-250:-&#39;</span><span class="p">,</span> <span class="s1">&#39;exon:chr1:150-175:-&#39;</span><span class="p">):</span> <span class="p">[</span><span class="s1">&#39;junction:chr1:176-399:-&#39;</span><span class="p">,</span>  <span class="c1"># noqa</span>
+                                                                         <span class="s1">&#39;junction:chr1:251-399:-&#39;</span><span class="p">,</span>  <span class="c1"># noqa</span>
+                                                                         <span class="s1">&#39;junction:chr1:176-224:-&#39;</span><span class="p">],</span>  <span class="c1"># noqa</span>
+ <span class="p">(</span><span class="s1">&#39;exon:chr1:400-425:-&#39;</span><span class="p">,</span> <span class="s1">&#39;exon:chr1:300-350:-&#39;</span><span class="p">,</span> <span class="s1">&#39;exon:chr1:150-175:-&#39;</span><span class="p">):</span> <span class="p">[</span><span class="s1">&#39;junction:chr1:176-399:-&#39;</span><span class="p">,</span>  <span class="c1"># noqa</span>
+                                                                         <span class="s1">&#39;junction:chr1:351-399:-&#39;</span><span class="p">,</span>  <span class="c1"># noqa</span>
+                                                                         <span class="s1">&#39;junction:chr1:176-299:-&#39;</span><span class="p">],</span>  <span class="c1"># noqa</span>
+ <span class="p">(</span><span class="s1">&#39;exon:chr1:400-425:-&#39;</span><span class="p">,</span> <span class="s1">&#39;exon:chr1:300-350:-&#39;</span><span class="p">,</span> <span class="s1">&#39;exon:chr1:225-250:-&#39;</span><span class="p">):</span> <span class="p">[</span><span class="s1">&#39;junction:chr1:251-399:-&#39;</span><span class="p">,</span>  <span class="c1"># noqa</span>
+                                                                         <span class="s1">&#39;junction:chr1:351-399:-&#39;</span><span class="p">,</span>  <span class="c1"># noqa</span>
+                                                                         <span class="s1">&#39;junction:chr1:251-299:-&#39;</span><span class="p">]}</span>  <span class="c1"># noqa</span></div>
+
+    <span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<div class="viewcode-block" id="TestSpliceGraph.mutually_exclusive_events"><a class="viewcode-back" href="../../../../outrigger.tests.index.test_events.html#outrigger.tests.index.test_events.TestSpliceGraph.mutually_exclusive_events">[docs]</a>    <span class="k">def</span> <span class="nf">mutually_exclusive_events</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strand</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">strand</span> <span class="o">==</span> <span class="s1">&#39;+&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{(</span><span class="s1">&#39;exon:chr1:150-175:+&#39;</span><span class="p">,</span> <span class="s1">&#39;exon:chr1:225-250:+&#39;</span><span class="p">,</span> <span class="s1">&#39;exon:chr1:300-350:+&#39;</span><span class="p">,</span> <span class="s1">&#39;exon:chr1:400-425:+&#39;</span><span class="p">):</span> <span class="p">[</span><span class="s1">&#39;junction:chr1:176-299:+&#39;</span><span class="p">,</span>  <span class="c1"># noqa</span>
+                                                                                                <span class="s1">&#39;junction:chr1:351-399:+&#39;</span><span class="p">,</span>  <span class="c1"># noqa</span>
+                                                                                                <span class="s1">&#39;junction:chr1:176-224:+&#39;</span><span class="p">,</span>  <span class="c1"># noqa</span>
+                                                                                                <span class="s1">&#39;junction:chr1:251-399:+&#39;</span><span class="p">]}</span>  <span class="c1"># noqa</span>
+        <span class="k">if</span> <span class="n">strand</span> <span class="o">==</span> <span class="s1">&#39;-&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{(</span><span class="s1">&#39;exon:chr1:400-425:-&#39;</span><span class="p">,</span> <span class="s1">&#39;exon:chr1:300-350:-&#39;</span><span class="p">,</span> <span class="s1">&#39;exon:chr1:225-250:-&#39;</span><span class="p">,</span> <span class="s1">&#39;exon:chr1:150-175:-&#39;</span><span class="p">):</span> <span class="p">[</span><span class="s1">&#39;junction:chr1:251-399:-&#39;</span><span class="p">,</span>  <span class="c1"># noqa</span>
+                                                                                                <span class="s1">&#39;junction:chr1:176-224:-&#39;</span><span class="p">,</span>  <span class="c1"># noqa</span>
+                                                                                                <span class="s1">&#39;junction:chr1:351-399:-&#39;</span><span class="p">,</span>  <span class="c1"># noqa</span>
+                                                                                                <span class="s1">&#39;junction:chr1:176-299:-&#39;</span><span class="p">]}</span>  <span class="c1"># noqa</span></div>
+
+<div class="viewcode-block" id="TestSpliceGraph.test__skipped_exon"><a class="viewcode-back" href="../../../../outrigger.tests.index.test_events.html#outrigger.tests.index.test_events.TestSpliceGraph.test__skipped_exon">[docs]</a>    <span class="k">def</span> <span class="nf">test__skipped_exon</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">splice_graph</span><span class="p">,</span> <span class="n">exon1_i</span><span class="p">,</span> <span class="n">exon1_name</span><span class="p">,</span>
+                           <span class="n">skipped_exon_events</span><span class="p">):</span>
+        <span class="n">test</span> <span class="o">=</span> <span class="n">splice_graph</span><span class="o">.</span><span class="n">_skipped_exon</span><span class="p">(</span><span class="n">exon1_i</span><span class="p">,</span> <span class="n">exon1_name</span><span class="p">)</span>
+        <span class="n">true</span> <span class="o">=</span> <span class="n">skipped_exon_events</span>
+        <span class="n">pdt</span><span class="o">.</span><span class="n">assert_dict_equal</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="n">true</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TestSpliceGraph.test__mutually_exclusive_exon"><a class="viewcode-back" href="../../../../outrigger.tests.index.test_events.html#outrigger.tests.index.test_events.TestSpliceGraph.test__mutually_exclusive_exon">[docs]</a>    <span class="k">def</span> <span class="nf">test__mutually_exclusive_exon</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">splice_graph</span><span class="p">,</span> <span class="n">exon1_i</span><span class="p">,</span> <span class="n">exon1_name</span><span class="p">,</span>
+                                      <span class="n">mutually_exclusive_events</span><span class="p">):</span>
+        <span class="n">test</span> <span class="o">=</span> <span class="n">splice_graph</span><span class="o">.</span><span class="n">_mutually_exclusive_exon</span><span class="p">(</span><span class="n">exon1_i</span><span class="p">,</span> <span class="n">exon1_name</span><span class="p">)</span>
+        <span class="n">true</span> <span class="o">=</span> <span class="n">mutually_exclusive_events</span>
+        <span class="n">pdt</span><span class="o">.</span><span class="n">assert_dict_equal</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="n">true</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TestSpliceGraph.test_single_exon_alternative_events"><a class="viewcode-back" href="../../../../outrigger.tests.index.test_events.html#outrigger.tests.index.test_events.TestSpliceGraph.test_single_exon_alternative_events">[docs]</a>    <span class="k">def</span> <span class="nf">test_single_exon_alternative_events</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">splice_graph</span><span class="p">,</span> <span class="n">exon1_i</span><span class="p">,</span>
+                                            <span class="n">exon1_name</span><span class="p">,</span>
+                                            <span class="n">mutually_exclusive_events</span><span class="p">,</span>
+                                            <span class="n">skipped_exon_events</span><span class="p">):</span>
+        <span class="n">test</span> <span class="o">=</span> <span class="n">splice_graph</span><span class="o">.</span><span class="n">single_exon_alternative_events</span><span class="p">(</span>
+            <span class="n">exon1_i</span><span class="p">,</span> <span class="n">exon1_name</span><span class="p">)</span>
+        <span class="n">true</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;se&#39;</span><span class="p">:</span> <span class="n">skipped_exon_events</span><span class="p">,</span> <span class="s1">&#39;mxe&#39;</span><span class="p">:</span> <span class="n">mutually_exclusive_events</span><span class="p">}</span>
+        <span class="n">pdt</span><span class="o">.</span><span class="n">assert_dict_equal</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="n">true</span><span class="p">)</span></div></div>
 </pre></div>
 
           </div>
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper"><div class="relations">
-<h3>Related Topics</h3>
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../../index.html">Outrigger</a></h1>
+
+
+<a href="../../../../index.html">
+<img src="../../../../_static/logo-1x.png" width=80%>
+</a>
+
+<h3><a href="../../../../index.html">Table Of Contents</a></h3>
+
 <ul>
-  <li><a href="../../../../index.html">Documentation overview</a><ul>
-  <li><a href="../../../index.html">Module code</a><ul>
-  </ul></li>
-  </ul></li>
+  <li><a href="../../../../index.html">Home</a></li>
+  <li><a href="../../../../contents.html">Contents</a></li>
+  <li><a href="../../../../installation.html">Install</a></li>
+  <li><a href="../../../../Usage.html">Usage</a></li>
+  <li><a href="../../../../subcommands/outrigger_index.html"><code>index</code>: Detect exons</a></li>
+  <li><a href="../../../../subcommands/outrigger_validate.html"><code>validate</code>: Remove non-canonical splice sites</a></li>
+  <li><a href="../../../../subcommands/outrigger_psi.html"><code>psi</code>: Quantify exon inclusion</a></li>
+  <li><a href="../../../../history.html">Changelog</a></li>
+  <li><a href="../../../../license.html">License</a></li>
 </ul>
-</div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../../../../search.html" method="get">
@@ -413,7 +545,7 @@
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2015-2016, Olga Botvinnik.
+      &copy;2015-2017, Olga Botvinnik.
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>

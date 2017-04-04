@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>index: Build a de novo splicing annotation index of events custom to your data &#8212; Outrigger 0.2.9 documentation</title>
+    <title>index: Build a de novo splicing annotation index of events custom to your data &#8212; Outrigger 1.0.0 documentation</title>
     
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.2.9',
+        VERSION:     '1.0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -26,7 +26,10 @@
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="top" title="Outrigger 0.2.9 documentation" href="../index.html" />
+    <link rel="top" title="Outrigger 1.0.0 documentation" href="../index.html" />
+    <link rel="up" title="Usage" href="../usage.html" />
+    <link rel="next" title="validate: Check that the found exons are real" href="outrigger_validate.html" />
+    <link rel="prev" title="Usage" href="../usage.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
@@ -43,88 +46,24 @@
           <div class="body" role="main">
             
   <div class="section" id="index-build-a-de-novo-splicing-annotation-index-of-events-custom-to-your-data">
-<h1><code class="docutils literal"><span class="pre">index</span></code>: Build a <em>de novo</em> splicing annotation index of events custom to <em>your</em> data<a class="headerlink" href="#index-build-a-de-novo-splicing-annotation-index-of-events-custom-to-your-data" title="Permalink to this headline">¶</a></h1>
-<p>The &#8220;help&#8221; output of the two programs tries to be explicit about what is
-required to run <code class="docutils literal"><span class="pre">outrigger</span></code>. Below is the output of when you use the
-command, <code class="docutils literal"><span class="pre">outrigger</span> <span class="pre">index</span> <span class="pre">--help</span></code></p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>$ outrigger index --help
-usage: outrigger index [-h] [-o OUTPUT]
-                       (-j [SJ_OUT_TAB [SJ_OUT_TAB ...]] | -c COMPILED_JUNCTION_READS | -b [BAMS [BAMS ...]])
-                       [-m MIN_READS] [--ignore-multimapping]
-                       [-l MAX_DE_NOVO_EXON_LENGTH]
-                       (-g GTF_FILENAME | -d GFFUTILS_DB) [--debug]
-                       [--n-jobs N_JOBS] [--force | --resume]
-
-optional arguments:
-  -h, --help            show this help message and exit
-  -o OUTPUT, --output OUTPUT
-                        Name of the folder where you saved the output from
-                        &quot;outrigger index&quot; (default is ./outrigger_output,
-                        which is relative to the directory where you called
-                        the program)&quot;. You will need this file for the next
-                        step, &quot;outrigger psi&quot;
-  -j [SJ_OUT_TAB [SJ_OUT_TAB ...]], --sj-out-tab [SJ_OUT_TAB [SJ_OUT_TAB ...]]
-                        SJ.out.tab files from STAR aligner output. Not
-                        required if you specify &quot;--compiled-junction-reads&quot;
-  -c COMPILED_JUNCTION_READS, --compiled-junction-reads COMPILED_JUNCTION_READS
-                        Name of the splice junction files to detect novel
-                        exons and build an index of alternative splicing
-                        events from. Not required if you specify SJ.out.tab
-                        file with &#39;--sj-out-tab&#39;
-  -b [BAMS [BAMS ...]], --bams [BAMS [BAMS ...]]
-                        Location of bam files to use for finding events.
-  -m MIN_READS, --min-reads MIN_READS
-                        Minimum number of reads per junction for that junction
-                        to count in creating the index of splicing events
-                        (default=10)
-  --ignore-multimapping
-                        Applies to STAR SJ.out.tab files only. If this flag is
-                        used, then do not include reads that mapped to
-                        multiple locations in the genome, not uniquely to a
-                        locus, in the read count for a junction. If inputting
-                        &quot;bam&quot; files, then this means that reads with a mapping
-                        quality (MAPQ) of less than 255 are considered
-                        &quot;multimapped.&quot; This is the same thing as what the STAR
-                        aligner does. By default, this is off, and all reads
-                        are used.
-  -l MAX_DE_NOVO_EXON_LENGTH, --max-de-novo-exon-length MAX_DE_NOVO_EXON_LENGTH
-                        Maximum length of an exon detected *de novo* from the
-                        dataset. This is to prevent multiple kilobase long
-                        exons from being accidentally created. (default=100)
-  -g GTF_FILENAME, --gtf-filename GTF_FILENAME
-                        Name of the gtf file you want to use. If a gffutils
-                        feature database doesn&#39;t already exist at this
-                        location plus &#39;.db&#39; (e.g. if your gtf is
-                        gencode.v19.annotation.gtf, then the database is
-                        inferred to be gencode.v19.annotation.gtf.db), then a
-                        database will be auto-created. Not required if you
-                        provide a pre-built database with &#39;--gffutils-db&#39;
-  -d GFFUTILS_DB, --gffutils-db GFFUTILS_DB
-                        Name of the gffutils database file you want to use.
-                        The exon IDs defined here will be used in the function
-                        when creating splicing event names. Not required if
-                        you provide a gtf file with &#39;--gtf-filename&#39;
-  --debug               If given, print debugging logging information to
-                        standard out (Warning: LOTS of output. Not recommended
-                        unless you think something is going wrong)
-  --n-jobs N_JOBS       Number of threads to use when parallelizing exon
-                        finding and file reading. Default is -1, which means
-                        to use as many threads as are available.
-  --force               If the &#39;outrigger index&#39; command was interrupted,
-                        there will be intermediate files remaining. If you
-                        wish to restart outrigger and overwrite them all, use
-                        this flag. If you want to continue from where you left
-                        off, use the &#39;--resume&#39; flag. If neither is specified,
-                        the program exits and complains to the user.
-  --resume              If the &#39;outrigger index&#39; command was interrupted,
-                        there will be intermediate files remaining. If you
-                        want to continue from where you left off, use this
-                        flag. The default action is to do nothing and ask the
-                        user for input.
-</pre></div>
+<h1><code class="docutils literal"><span class="pre">index</span></code>: Build a <em>de novo</em> splicing annotation index of events custom to <strong>your</strong> data<a class="headerlink" href="#index-build-a-de-novo-splicing-annotation-index-of-events-custom-to-your-data" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>The purpose of <code class="docutils literal"><span class="pre">outrigger</span> <span class="pre">index</span></code> is to create a custom splicing database
+containing alternative exons that appear in your data. This program detects
+exons <em>de novo</em> and uses an annotation to supplement exon definitions. Then, it
+builds a graph database of all possible alternative SE and MXE events in your
+dataset. The events are defined by their junctions and alternative exons, and
+all possible flanking exons. The same event may have multiple flanking exons,
+but all those events will ultimately have their percent spliced-in calculated
+the same way.</p>
+<p><a class="reference external" href="../_static/outrigger_index-300ppi.png"><img alt="OutriggerIndex" src="../_images/outrigger_index-300ppi.png" /></a></p>
 </div>
-<div class="section" id="example-outrigger-index-command">
-<h2>Example <code class="docutils literal"><span class="pre">outrigger</span> <span class="pre">index</span></code> command<a class="headerlink" href="#example-outrigger-index-command" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="inputs">
+<h2>Inputs<a class="headerlink" href="#inputs" title="Permalink to this headline">¶</a></h2>
+<p>This section will describe all possible inputs to <code class="docutils literal"><span class="pre">outrigger</span> <span class="pre">index</span></code>.</p>
+<div class="section" id="example-command-using-sj-out-tab-files">
+<h3>Example command using <code class="docutils literal"><span class="pre">SJ.out.tab</span></code> files<a class="headerlink" href="#example-command-using-sj-out-tab-files" title="Permalink to this headline">¶</a></h3>
 <p>Included in this repository is a subset of the 1809 cells from <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pubmed/26727548">&#8220;Adult
 mouse cortical cell taxonomy revealed by single cell transcriptomics.&#8221;
 by Tasic et al, Nature Neuroscience
@@ -140,27 +79,30 @@ important because the locations of the files is relative to that
 directory), run this command:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">outrigger</span> <span class="n">index</span> \
     <span class="o">--</span><span class="n">sj</span><span class="o">-</span><span class="n">out</span><span class="o">-</span><span class="n">tab</span> <span class="n">outrigger</span><span class="o">/</span><span class="n">tests</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">tasic2016</span><span class="o">/</span><span class="n">unprocessed</span><span class="o">/</span><span class="n">sj_out_tab</span><span class="o">/*</span> \
-    <span class="o">--</span><span class="n">gtf</span> <span class="n">outrigger</span><span class="o">/</span><span class="n">tests</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">tasic2016</span><span class="o">/</span><span class="n">unprocessed</span><span class="o">/</span><span class="n">gtf</span><span class="o">/</span><span class="n">gencode</span><span class="o">.</span><span class="n">vM10</span><span class="o">.</span><span class="n">annotation</span><span class="o">.</span><span class="n">snap25</span><span class="o">.</span><span class="n">myl6</span><span class="o">.</span><span class="n">gtf</span>
+    <span class="o">--</span><span class="n">gtf</span><span class="o">-</span><span class="n">filename</span> <span class="n">outrigger</span><span class="o">/</span><span class="n">tests</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">tasic2016</span><span class="o">/</span><span class="n">unprocessed</span><span class="o">/</span><span class="n">gtf</span><span class="o">/</span><span class="n">gencode</span><span class="o">.</span><span class="n">vM10</span><span class="o">.</span><span class="n">annotation</span><span class="o">.</span><span class="n">subset</span><span class="o">.</span><span class="n">gtf</span>
 </pre></div>
 </div>
-<p><em>Note: the backslashes (````, like a tree that&#8217;s falling backwards
-relative to right-to-left reading) to tell the computer that you&#8217;re not
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The backslashes (<code class="docutils literal"><span class="pre">\\</span></code>, like a tree that&#8217;s falling backwards
+relative to left-to-right reading) to tell the computer that you&#8217;re not
 done telling it what to do, so the line continues, and to help the code
 be a little more human-readable. The above code is read by the computer
 exactly the same as the one-liner below, but is easier for us humans to
-read.</em></p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">outrigger</span> <span class="n">index</span> <span class="o">--</span><span class="n">sj</span><span class="o">-</span><span class="n">out</span><span class="o">-</span><span class="n">tab</span> <span class="n">outrigger</span><span class="o">/</span><span class="n">tests</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">tasic2016</span><span class="o">/</span><span class="n">unprocessed</span><span class="o">/</span><span class="n">sj_out_tab</span><span class="o">/*</span> <span class="o">--</span><span class="n">gtf</span> <span class="n">outrigger</span><span class="o">/</span><span class="n">tests</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">tasic2016</span><span class="o">/</span><span class="n">unprocessed</span><span class="o">/</span><span class="n">gtf</span><span class="o">/</span><span class="n">gencode</span><span class="o">.</span><span class="n">vM10</span><span class="o">.</span><span class="n">annotation</span><span class="o">.</span><span class="n">snap25</span><span class="o">.</span><span class="n">myl6</span><span class="o">.</span><span class="n">gtf</span>
+read.</p>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">outrigger</span> <span class="n">index</span> <span class="o">--</span><span class="n">sj</span><span class="o">-</span><span class="n">out</span><span class="o">-</span><span class="n">tab</span> <span class="n">outrigger</span><span class="o">/</span><span class="n">tests</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">tasic2016</span><span class="o">/</span><span class="n">unprocessed</span><span class="o">/</span><span class="n">sj_out_tab</span><span class="o">/*</span> <span class="o">--</span><span class="n">gtf</span><span class="o">-</span><span class="n">filename</span> <span class="n">outrigger</span><span class="o">/</span><span class="n">tests</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">tasic2016</span><span class="o">/</span><span class="n">unprocessed</span><span class="o">/</span><span class="n">gtf</span><span class="o">/</span><span class="n">gencode</span><span class="o">.</span><span class="n">vM10</span><span class="o">.</span><span class="n">annotation</span><span class="o">.</span><span class="n">snap25</span><span class="o">.</span><span class="n">myl6</span><span class="o">.</span><span class="n">gtf</span>
 </pre></div>
 </div>
 <p>This is equivalent to the below command, which specifies all the other
 arguments with the default values.</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">outrigger</span> <span class="n">index</span> \
     <span class="o">--</span><span class="n">sj</span><span class="o">-</span><span class="n">out</span><span class="o">-</span><span class="n">tab</span> <span class="n">outrigger</span><span class="o">/</span><span class="n">tests</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">tasic2016</span><span class="o">/</span><span class="n">unprocessed</span><span class="o">/</span><span class="n">sj_out_tab</span><span class="o">/*</span> \
-    <span class="o">--</span><span class="n">gtf</span> <span class="n">outrigger</span><span class="o">/</span><span class="n">tests</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">tasic2016</span><span class="o">/</span><span class="n">unprocessed</span><span class="o">/</span><span class="n">gtf</span><span class="o">/</span><span class="n">gencode</span><span class="o">.</span><span class="n">vM10</span><span class="o">.</span><span class="n">annotation</span><span class="o">.</span><span class="n">snap25</span><span class="o">.</span><span class="n">myl6</span><span class="o">.</span><span class="n">gtf</span> \
+    <span class="o">--</span><span class="n">gtf</span><span class="o">-</span><span class="n">filename</span> <span class="n">outrigger</span><span class="o">/</span><span class="n">tests</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">tasic2016</span><span class="o">/</span><span class="n">unprocessed</span><span class="o">/</span><span class="n">gtf</span><span class="o">/</span><span class="n">gencode</span><span class="o">.</span><span class="n">vM10</span><span class="o">.</span><span class="n">annotation</span><span class="o">.</span><span class="n">subset</span><span class="o">.</span><span class="n">gtf</span> \
     <span class="o">--</span><span class="n">output</span> <span class="o">./</span><span class="n">outrigger_output</span> <span class="o">--</span><span class="nb">min</span><span class="o">-</span><span class="n">reads</span> <span class="mi">10</span>
 </pre></div>
 </div>
-<p>The output of this command is:</p>
+<p>This command outputs progress to standard output (<code class="docutils literal"><span class="pre">stdout</span></code>) on the command line terminal:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span>$ outrigger index --sj-out-tab example_data/tasic2016/unprocessed/sj_out_tab/* --gtf example_data/tasic2016/unprocessed/gtf/snap25_myl6.gtf
 2016-08-12 11:24:03 Reading SJ.out.files and creating a big splice junction table of reads spanning exon-exon junctions...
 2016-08-12 11:24:03 Writing ./outrigger_output/junction_reads/reads.csv ...
@@ -254,17 +196,111 @@ arguments with the default values.</p>
 2016-08-12 11:24:04     Done.
 </pre></div>
 </div>
-<div class="section" id="example-outrigger-index-with-bam-files">
-<h3>Example <code class="docutils literal"><span class="pre">outrigger</span> <span class="pre">index</span></code> with <code class="docutils literal"><span class="pre">bam</span></code> files<a class="headerlink" href="#example-outrigger-index-with-bam-files" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="example-command-with-bam-files">
+<h3>Example command with <code class="docutils literal"><span class="pre">.bam</span></code> files<a class="headerlink" href="#example-command-with-bam-files" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">outrigger</span> <span class="n">index</span> \
     <span class="o">--</span><span class="n">bams</span> <span class="n">outrigger</span><span class="o">/</span><span class="n">tests</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">tasic2016</span><span class="o">/</span><span class="n">unprocessed</span><span class="o">/</span><span class="n">bam</span><span class="o">/*</span> \
-    <span class="o">--</span><span class="n">gtf</span> <span class="n">outrigger</span><span class="o">/</span><span class="n">tests</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">tasic2016</span><span class="o">/</span><span class="n">unprocessed</span><span class="o">/</span><span class="n">gtf</span><span class="o">/</span><span class="n">gencode</span><span class="o">.</span><span class="n">vM10</span><span class="o">.</span><span class="n">annotation</span><span class="o">.</span><span class="n">snap25</span><span class="o">.</span><span class="n">myl6</span><span class="o">.</span><span class="n">gtf</span>
+    <span class="o">--</span><span class="n">gtf</span><span class="o">-</span><span class="n">filename</span> <span class="n">outrigger</span><span class="o">/</span><span class="n">tests</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">tasic2016</span><span class="o">/</span><span class="n">unprocessed</span><span class="o">/</span><span class="n">gtf</span><span class="o">/</span><span class="n">gencode</span><span class="o">.</span><span class="n">vM10</span><span class="o">.</span><span class="n">annotation</span><span class="o">.</span><span class="n">subset</span><span class="o">.</span><span class="n">gtf</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="example-command-with-pre-compiled-junction-reads-csv">
+<h3>Example command with pre-compiled junction reads <code class="docutils literal"><span class="pre">.csv</span></code><a class="headerlink" href="#example-command-with-pre-compiled-junction-reads-csv" title="Permalink to this headline">¶</a></h3>
+<dl class="docutils">
+<dt>::</dt>
+<dd><dl class="first last docutils">
+<dt>outrigger index </dt>
+<dd>&#8211;compiled-junction-reads /projects/ps-yeolab/obotvinnik/singlecell_pnms/csvs_for_paper/junction_reads_use_multimapping.csv &#8211;output /home/obotvinnik/projects/singlecell_pnms/analysis/outrigger_v2 &#8211;gtf-filename /projects/ps-yeolab/genomes/hg19/gencode/v19/gencode.v19.annotation.gtf</dd>
+</dl>
+</dd>
+</dl>
+</div>
+<div class="section" id="full-help-output">
+<h3>Full <code class="docutils literal"><span class="pre">--help</span></code> output<a class="headerlink" href="#full-help-output" title="Permalink to this headline">¶</a></h3>
+<p>The &#8220;help&#8221; output of the two programs tries to be explicit about what is
+required to run <code class="docutils literal"><span class="pre">outrigger</span></code>. Below is the output of when you use the
+command, <code class="docutils literal"><span class="pre">outrigger</span> <span class="pre">index</span> <span class="pre">--help</span></code></p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ outrigger index --help
+usage: outrigger index [-h] [-o OUTPUT]
+                       (-j [SJ_OUT_TAB [SJ_OUT_TAB ...]] | -c COMPILED_JUNCTION_READS | -b [BAMS [BAMS ...]])
+                       [-m MIN_READS] [--ignore-multimapping]
+                       [-l MAX_DE_NOVO_EXON_LENGTH]
+                       (-g GTF_FILENAME | -d GFFUTILS_DB) [--debug]
+                       [--n-jobs N_JOBS] [--force | --resume]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -o OUTPUT, --output OUTPUT
+                        Name of the folder where you saved the output from
+                        &quot;outrigger index&quot; (default is ./outrigger_output,
+                        which is relative to the directory where you called
+                        the program)&quot;. You will need this file for the next
+                        step, &quot;outrigger psi&quot;
+  -j [SJ_OUT_TAB [SJ_OUT_TAB ...]], --sj-out-tab [SJ_OUT_TAB [SJ_OUT_TAB ...]]
+                        SJ.out.tab files from STAR aligner output. Not
+                        required if you specify &quot;--compiled-junction-reads&quot;
+  -c COMPILED_JUNCTION_READS, --compiled-junction-reads COMPILED_JUNCTION_READS
+                        Name of the splice junction files to detect novel
+                        exons and build an index of alternative splicing
+                        events from. Not required if you specify SJ.out.tab
+                        file with &#39;--sj-out-tab&#39;
+  -b [BAMS [BAMS ...]], --bams [BAMS [BAMS ...]]
+                        Location of bam files to use for finding events.
+  -m MIN_READS, --min-reads MIN_READS
+                        Minimum number of reads per junction for that junction
+                        to count in creating the index of splicing events
+                        (default=10)
+  --ignore-multimapping
+                        Applies to STAR SJ.out.tab files only. If this flag is
+                        used, then do not include reads that mapped to
+                        multiple locations in the genome, not uniquely to a
+                        locus, in the read count for a junction. If inputting
+                        &quot;bam&quot; files, then this means that reads with a mapping
+                        quality (MAPQ) of less than 255 are considered
+                        &quot;multimapped.&quot; This is the same thing as what the STAR
+                        aligner does. By default, this is off, and all reads
+                        are used.
+  -l MAX_DE_NOVO_EXON_LENGTH, --max-de-novo-exon-length MAX_DE_NOVO_EXON_LENGTH
+                        Maximum length of an exon detected *de novo* from the
+                        dataset. This is to prevent multiple kilobase long
+                        exons from being accidentally created. (default=100)
+  -g GTF_FILENAME, --gtf-filename GTF_FILENAME
+                        Name of the gtf file you want to use. If a gffutils
+                        feature database doesn&#39;t already exist at this
+                        location plus &#39;.db&#39; (e.g. if your gtf is
+                        gencode.v19.annotation.gtf, then the database is
+                        inferred to be gencode.v19.annotation.gtf.db), then a
+                        database will be auto-created. Not required if you
+                        provide a pre-built database with &#39;--gffutils-db&#39;
+  -d GFFUTILS_DB, --gffutils-db GFFUTILS_DB
+                        Name of the gffutils database file you want to use.
+                        The exon IDs defined here will be used in the function
+                        when creating splicing event names. Not required if
+                        you provide a gtf file with &#39;--gtf-filename&#39;
+  --debug               If given, print debugging logging information to
+                        standard out (Warning: LOTS of output. Not recommended
+                        unless you think something is going wrong)
+  --n-jobs N_JOBS       Number of threads to use when parallelizing exon
+                        finding and file reading. Default is -1, which means
+                        to use as many threads as are available.
+  --force               If the &#39;outrigger index&#39; command was interrupted,
+                        there will be intermediate files remaining. If you
+                        wish to restart outrigger and overwrite them all, use
+                        this flag. If you want to continue from where you left
+                        off, use the &#39;--resume&#39; flag. If neither is specified,
+                        the program exits and complains to the user.
+  --resume              If the &#39;outrigger index&#39; command was interrupted,
+                        there will be intermediate files remaining. If you
+                        want to continue from where you left off, use this
+                        flag. The default action is to do nothing and ask the
+                        user for input.
 </pre></div>
 </div>
 </div>
 </div>
-<div class="section" id="outrigger-index-outputs">
-<h2><code class="docutils literal"><span class="pre">outrigger_index</span></code> Outputs<a class="headerlink" href="#outrigger-index-outputs" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="outputs">
+<h2>Outputs<a class="headerlink" href="#outputs" title="Permalink to this headline">¶</a></h2>
 <p>The above commands will create a folder called <code class="docutils literal"><span class="pre">outrigger_index</span></code> in
 the folder you ran the command from, with the following structure</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span>$ tree outrigger_output
@@ -305,31 +341,42 @@ outrigger_output
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="../index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#"><code class="docutils literal"><span class="pre">index</span></code>: Build a <em>de novo</em> splicing annotation index of events custom to <em>your</em> data</a><ul>
-<li><a class="reference internal" href="#example-outrigger-index-command">Example <code class="docutils literal"><span class="pre">outrigger</span> <span class="pre">index</span></code> command</a><ul>
-<li><a class="reference internal" href="#example-outrigger-index-with-bam-files">Example <code class="docutils literal"><span class="pre">outrigger</span> <span class="pre">index</span></code> with <code class="docutils literal"><span class="pre">bam</span></code> files</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#outrigger-index-outputs"><code class="docutils literal"><span class="pre">outrigger_index</span></code> Outputs</a></li>
-</ul>
-</li>
-</ul>
-<div class="relations">
-<h3>Related Topics</h3>
+<h1 class="logo"><a href="../index.html">Outrigger</a></h1>
+
+
+<a href="../index.html">
+<img src="../_static/logo-1x.png" width=80%>
+</a>
+
+<h3><a href="../index.html">Table Of Contents</a></h3>
+
 <ul>
-  <li><a href="../index.html">Documentation overview</a><ul>
-  </ul></li>
+  <li><a href="../index.html">Home</a></li>
+  <li><a href="../contents.html">Contents</a></li>
+  <li><a href="../installation.html">Install</a></li>
+  <li><a href="../Usage.html">Usage</a></li>
+  <li><a href="#"><code>index</code>: Detect exons</a></li>
+  <li><a href="outrigger_validate.html"><code>validate</code>: Remove non-canonical splice sites</a></li>
+  <li><a href="outrigger_psi.html"><code>psi</code>: Quantify exon inclusion</a></li>
+  <li><a href="../history.html">Changelog</a></li>
+  <li><a href="../license.html">License</a></li>
 </ul>
-</div>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="../_sources/subcommands/outrigger_index.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
+  <hr>
+  <ul>
+<li><a class="reference internal" href="#"><code class="docutils literal"><span class="pre">index</span></code>: Build a <em>de novo</em> splicing annotation index of events custom to <strong>your</strong> data</a><ul>
+<li><a class="reference internal" href="#overview">Overview</a></li>
+<li><a class="reference internal" href="#inputs">Inputs</a><ul>
+<li><a class="reference internal" href="#example-command-using-sj-out-tab-files">Example command using <code class="docutils literal"><span class="pre">SJ.out.tab</span></code> files</a></li>
+<li><a class="reference internal" href="#example-command-with-bam-files">Example command with <code class="docutils literal"><span class="pre">.bam</span></code> files</a></li>
+<li><a class="reference internal" href="#example-command-with-pre-compiled-junction-reads-csv">Example command with pre-compiled junction reads <code class="docutils literal"><span class="pre">.csv</span></code></a></li>
+<li><a class="reference internal" href="#full-help-output">Full <code class="docutils literal"><span class="pre">--help</span></code> output</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#outputs">Outputs</a></li>
+</ul>
+</li>
+</ul>
+
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
@@ -345,7 +392,7 @@ outrigger_output
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2015-2016, Olga Botvinnik.
+      &copy;2015-2017, Olga Botvinnik.
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>

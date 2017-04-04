@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Welcome to outrigger‘s documentation! &#8212; Outrigger 0.2.9 documentation</title>
+    <title>Welcome to outrigger‘s documentation! &#8212; Outrigger 1.0.0 documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.2.9',
+        VERSION:     '1.0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -26,7 +26,8 @@
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="Outrigger 0.2.9 documentation" href="#" />
+    <link rel="top" title="Outrigger 1.0.0 documentation" href="#" />
+    <link rel="next" title="Installation" href="installation.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -44,20 +45,22 @@
             
   <div class="section" id="welcome-to-outrigger-s-documentation">
 <h1>Welcome to <code class="docutils literal"><span class="pre">outrigger</span></code>&#8216;s documentation!<a class="headerlink" href="#welcome-to-outrigger-s-documentation" title="Permalink to this headline">¶</a></h1>
-</div>
-<div class="section" id="outrigger">
-<h1>Outrigger<a class="headerlink" href="#outrigger" title="Permalink to this headline">¶</a></h1>
-<p><img alt="OutriggerLogo" src="https://raw.githubusercontent.com/YeoLab/outrigger/master/logo/logo_v1.png" /></p>
-<p><a class="reference external" href="https://travis-ci.org/YeoLab/outrigger"><img alt="BuildStatus" src="https://travis-ci.org/YeoLab/outrigger.svg?branch=master" /></a><a class="reference external" href="https://codecov.io/gh/YeoLab/outrigger"><img alt="codecov" src="https://codecov.io/gh/YeoLab/outrigger/branch/master/graph/badge.svg" /></a><a class="reference external" href="https://pypi.python.org/pypi/outrigger"><img alt="PyPI versions" src="https://img.shields.io/pypi/v/outrigger.svg" /></a><a class="reference external" href="https://pypi.python.org/pypi/outrigger"><img alt="PythonVersionCompatibility" src="https://img.shields.io/pypi/pyversions/outrigger.svg" /></a><a href="#id1"><span class="problematic" id="id2">|license|</span></a></p>
-<p>Outrigger is a program which uses junction reads from RNA seq data, and
+<p><img alt="OutriggerLogo" src="https://raw.githubusercontent.com/YeoLab/outrigger/master/logo/logo-300ppi.png" /></p>
+<p><a class="reference external" href="https://travis-ci.org/YeoLab/outrigger"><img alt="BuildStatus" src="https://travis-ci.org/YeoLab/outrigger.svg?branch=master" /></a><a class="reference external" href="https://codecov.io/gh/YeoLab/outrigger"><img alt="codecov" src="https://codecov.io/gh/YeoLab/outrigger/branch/master/graph/badge.svg" /></a><a class="reference external" href="https://pypi.python.org/pypi/outrigger"><img alt="PyPIVersions" src="https://img.shields.io/pypi/v/outrigger.svg" /></a><a class="reference external" href="https://pypi.python.org/pypi/outrigger"><img alt="PythonVersionCompatibility" src="https://img.shields.io/pypi/pyversions/outrigger.svg" /></a></p>
+<div class="section" id="large-scale-detection-and-calculation-of-alternative-splicing-with-outrigger">
+<h2>Large-scale detection and calculation of alternative splicing with <a class="reference external" href="https://github.com/YeoLab/outrigger">Outrigger</a><a class="headerlink" href="#large-scale-detection-and-calculation-of-alternative-splicing-with-outrigger" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="https://github.com/YeoLab/outrigger">Outrigger</a> is a program which uses junction reads from RNA seq data, and
 a graph database to create a <em>de novo</em> alternative splicing annotation
 with a graph database, and quantify percent spliced-in (Psi) of the
 events.</p>
 <ul class="simple">
 <li>Free software: BSD license</li>
+<li>Documentation is available here: <a class="reference external" href="http://yeolab.github.io/outrigger/">http://yeolab.github.io/outrigger/</a></li>
 </ul>
+</div>
+</div>
 <div class="section" id="features">
-<h2>Features<a class="headerlink" href="#features" title="Permalink to this headline">¶</a></h2>
+<h1>Features<a class="headerlink" href="#features" title="Permalink to this headline">¶</a></h1>
 <ul class="simple">
 <li>Finds novel splicing events, including novel exons!
 (<code class="docutils literal"><span class="pre">outrigger</span> <span class="pre">index</span></code>) from <code class="docutils literal"><span class="pre">.bam</span></code> files</li>
@@ -67,37 +70,38 @@ and AT/AC for mammalian systems (<code class="docutils literal"><span class="pre
 given the validated events (or the original events if you opted not
 to validate) via <code class="docutils literal"><span class="pre">outrigger</span> <span class="pre">psi</span></code></li>
 </ul>
+<p><a class="reference external" href="https://raw.githubusercontent.com/YeoLab/outrigger/master/docs/_static/outrigger_overview-300ppi.png"><img alt="OutriggerOverview" src="https://raw.githubusercontent.com/YeoLab/outrigger/master/docs/_static/outrigger_overview-300ppi.png" /></a></p>
 </div>
 <div class="section" id="installation">
-<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
 <p>To install <code class="docutils literal"><span class="pre">outrigger</span></code>, we recommend using the <a class="reference external" href="http://anaconda.org/">Anaconda Python
 Distribution</a> and creating an environment.</p>
-<p>You&#8217;ll want to add the <code class="docutils literal"><span class="pre">`bioconda</span></code> &lt;<a class="reference external" href="https://bioconda.github.io/">https://bioconda.github.io/</a>&gt;`__
-channel to make installing <code class="docutils literal"><span class="pre">`bedtools</span></code> &lt;bedtools.readthedocs.io&gt;`__
-and its Python wrapper,
-<code class="docutils literal"><span class="pre">`pybedtools</span></code> &lt;<a class="reference external" href="https://daler.github.io/pybedtools/">https://daler.github.io/pybedtools/</a>&gt;`__ easy.</p>
+<p>You&#8217;ll want to add the <a class="reference external" href="https://bioconda.github.io/">bioconda</a>
+channel to make installing <a class="reference external" href="bedtools.readthedocs.io">bedtools</a> and
+its Python wrapper, <a class="reference external" href="https://daler.github.io/pybedtools/">pybedtools</a>
+easy (these programs are necessary for both <code class="docutils literal"><span class="pre">outrigger</span> <span class="pre">index</span></code> and
+<code class="docutils literal"><span class="pre">outrigger</span> <span class="pre">validate</span></code>).</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">config</span> <span class="o">--</span><span class="n">add</span> <span class="n">channels</span> <span class="n">r</span>
 <span class="n">conda</span> <span class="n">config</span> <span class="o">--</span><span class="n">add</span> <span class="n">channels</span> <span class="n">bioconda</span>
 </pre></div>
 </div>
 <p>Create an environment called <code class="docutils literal"><span class="pre">outrigger-env</span></code>. Python 2.7, Python 3.4,
 and Python 3.5 are supported.</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">create</span> <span class="o">-</span><span class="n">n</span> <span class="n">outrigger</span><span class="o">-</span><span class="n">env</span> <span class="n">pandas</span> <span class="n">pybedtools</span> <span class="n">gffutils</span> <span class="n">biopython</span> <span class="n">bedtools</span> <span class="n">joblib</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">create</span> <span class="o">--</span><span class="n">name</span> <span class="n">outrigger</span><span class="o">-</span><span class="n">env</span> <span class="n">outrigger</span>
 </pre></div>
 </div>
-<p>Now activate that environment using <code class="docutils literal"><span class="pre">source</span> <span class="pre">activate</span> <span class="pre">outrigger-env</span></code>
-and install <code class="docutils literal"><span class="pre">outrigger</span></code> from PyPI, using <code class="docutils literal"><span class="pre">pip</span></code>:</p>
+<p>Now activate that environment:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">source</span> <span class="n">activate</span> <span class="n">outrigger</span><span class="o">-</span><span class="n">env</span>
-<span class="n">pip</span> <span class="n">install</span> <span class="n">outrigger</span>
 </pre></div>
 </div>
 <p>To check that it installed properly, try the command with the help
 option (<code class="docutils literal"><span class="pre">-h</span></code>), <code class="docutils literal"><span class="pre">outrigger</span> <span class="pre">-h</span></code>. The output should look like this:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span>$ outrigger -h
-usage: outrigger [-h] {index,validate,psi} ...
+usage: outrigger [-h] [--version] {index,validate,psi} ...
 
-Calculate &quot;percent-spliced in&quot; (Psi) scores of alternative splicing on a *de
-novo*, custom-built splicing index
+outrigger (1.0.0dev). Calculate &quot;percent-spliced in&quot; (Psi) scores of
+alternative splicing on a *de novo*, custom-built splicing index -- just for
+you!
 
 positional arguments:
   {index,validate,psi}  Sub-commands
@@ -110,36 +114,29 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
+  --version             show program&#39;s version number and exit
 </pre></div>
 </div>
-<div class="section" id="bleeding-edge-code-from-github-here">
-<h3>Bleeding edge code from Github (here)<a class="headerlink" href="#bleeding-edge-code-from-github-here" title="Permalink to this headline">¶</a></h3>
 <p>For advanced users, if you have <a class="reference external" href="https://git-scm.com/">git</a> and
 <a class="reference external" href="https://www.continuum.io/downloads">Anaconda Python</a> installed, you
 can:</p>
 <ol class="arabic simple">
 <li>Clone this repository</li>
 <li>Change into that directory</li>
-<li>Create an environment with the necessary packages from Anaconda</li>
+<li>Create an environment named <code class="docutils literal"><span class="pre">outrigger-env</span></code> with the necessary packages
+from Anaconda and the Python Package Index (PyPI).</li>
 <li>Activate the environment</li>
-<li>Install remaining packages from PyPI
-(<code class="docutils literal"><span class="pre">`graphlite</span></code> &lt;<a class="reference external" href="https://github.com/eugene-eeo/graphlite">https://github.com/eugene-eeo/graphlite</a>&gt;`__ is only
-available on PyPI, not as a <code class="docutils literal"><span class="pre">conda</span></code> package)</li>
-<li>Install this package</li>
 </ol>
 <p>These steps are shown in code below.</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">git</span><span class="nd">@github</span><span class="o">.</span><span class="n">com</span><span class="p">:</span><span class="n">YeoLab</span><span class="o">/</span><span class="n">outrigger</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">YeoLab</span><span class="o">/</span><span class="n">outrigger</span><span class="o">.</span><span class="n">git</span>
 <span class="n">cd</span> <span class="n">outrigger</span>
-<span class="n">conda</span> <span class="n">create</span> <span class="o">--</span><span class="n">name</span> <span class="n">outrigger</span> <span class="o">--</span><span class="n">yes</span> <span class="o">--</span><span class="n">file</span> <span class="n">conda_requirements</span><span class="o">.</span><span class="n">txt</span> <span class="o">--</span><span class="n">channel</span> <span class="n">bioconda</span>
-<span class="n">source</span> <span class="n">activate</span> <span class="n">outrigger</span>
-<span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">requirements</span><span class="o">.</span><span class="n">txt</span>
-<span class="n">pip</span> <span class="n">install</span> <span class="o">.</span>
+<span class="n">conda</span> <span class="n">env</span> <span class="n">create</span> <span class="o">--</span><span class="n">file</span> <span class="n">environment</span><span class="o">.</span><span class="n">yml</span>
+<span class="n">source</span> <span class="n">activate</span> <span class="n">outrigger</span><span class="o">-</span><span class="n">env</span>
 </pre></div>
 </div>
 </div>
-</div>
 <div class="section" id="quick-start">
-<h2>Quick start<a class="headerlink" href="#quick-start" title="Permalink to this headline">¶</a></h2>
+<h1>Quick start<a class="headerlink" href="#quick-start" title="Permalink to this headline">¶</a></h1>
 <p>If you just want to know how to run this on your data with the default
 parameters, start here. Let&#8217;s say you performed your alignment in the
 folder called <code class="docutils literal"><span class="pre">~/projects/tasic2016/analysis/tasic2016_v1</span></code>, and that&#8217;s
@@ -153,6 +150,13 @@ change directories to that folder with <code class="docutils literal"><span clas
 running <code class="docutils literal"><span class="pre">outrigger</span> <span class="pre">index</span></code> on the splice junction files and the gtf.
 Here is an example command:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">outrigger</span> <span class="n">index</span> <span class="o">--</span><span class="n">sj</span><span class="o">-</span><span class="n">out</span><span class="o">-</span><span class="n">tab</span> <span class="o">*</span><span class="n">SJ</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">tab</span> \
+    <span class="o">--</span><span class="n">gtf</span> <span class="o">/</span><span class="n">projects</span><span class="o">/</span><span class="n">ps</span><span class="o">-</span><span class="n">yeolab</span><span class="o">/</span><span class="n">genomes</span><span class="o">/</span><span class="n">mm10</span><span class="o">/</span><span class="n">gencode</span><span class="o">/</span><span class="n">m10</span><span class="o">/</span><span class="n">gencode</span><span class="o">.</span><span class="n">vM10</span><span class="o">.</span><span class="n">annotation</span><span class="o">.</span><span class="n">gtf</span>
+</pre></div>
+</div>
+<p>If you&#8217;re using <code class="docutils literal"><span class="pre">.bam</span></code> files instead of <code class="docutils literal"><span class="pre">SJ.out.tab</span></code> files, never despair!
+Below is an example command. Keep in mind that for this program to work, the
+events must be sorted and indexed.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">outrigger</span> <span class="n">index</span> <span class="o">--</span><span class="n">bam</span> <span class="o">*</span><span class="nb">sorted</span><span class="o">.</span><span class="n">bam</span> \
     <span class="o">--</span><span class="n">gtf</span> <span class="o">/</span><span class="n">projects</span><span class="o">/</span><span class="n">ps</span><span class="o">-</span><span class="n">yeolab</span><span class="o">/</span><span class="n">genomes</span><span class="o">/</span><span class="n">mm10</span><span class="o">/</span><span class="n">gencode</span><span class="o">/</span><span class="n">m10</span><span class="o">/</span><span class="n">gencode</span><span class="o">.</span><span class="n">vM10</span><span class="o">.</span><span class="n">annotation</span><span class="o">.</span><span class="n">gtf</span>
 </pre></div>
 </div>
@@ -172,8 +176,6 @@ events! Thankfully this is very easy:</p>
 </div>
 <p>It should be noted that ALL of these commands should be performed in the
 same directory, so no moving.</p>
-<div class="section" id="quick-start-summary">
-<h3>Quick start summary<a class="headerlink" href="#quick-start-summary" title="Permalink to this headline">¶</a></h3>
 <p>Here is a summary the commands in the order you would use them for
 outrigger!</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="o">~/</span><span class="n">projects</span><span class="o">/</span><span class="n">tasic2016</span><span class="o">/</span><span class="n">analysis</span><span class="o">/</span><span class="n">tasic2016_v1</span>
@@ -185,95 +187,91 @@ outrigger!</p>
 </pre></div>
 </div>
 <p>This will create a folder called <code class="docutils literal"><span class="pre">outrigger_output</span></code>, which at the end
-should look like this:</p>
+should look like the one below. Each file and folder is annotated with which command
+produced it.</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span>$ tree outrigger_output
-outrigger_output
-├── index
-│   ├── gtf
-│   │   ├── gencode.vM10.annotation.gtf
-│   │   ├── gencode.vM10.annotation.gtf.db
-│   │   └── novel_exons.gtf
-│   ├── junction_exon_direction_triples.csv
-│   ├── mxe
-│   │   ├── events.csv
-│   │   ├── exon1.bed
-│   │   ├── exon2.bed
-│   │   ├── exon3.bed
-│   │   ├── exon4.bed
-│   │   ├── splice_sites.csv
-│   │   └── validated
-│   │       └── events.csv
-│   └── se
-│       ├── events.csv
-│       ├── exon1.bed
-│       ├── exon2.bed
-│       ├── exon3.bed
-│       ├── splice_sites.csv
-│       └── validated
-│           └── events.csv
-├── junctions
-│   ├── metadata.csv
-│   └── reads.csv
-└── psi
-    ├── mxe
-    │   └── psi.csv
-    ├── outrigger_psi.csv
-    └── se
-        └── psi.csv
+outrigger_output..........................................................index
+├── index.................................................................index
+│   ├── gtf...............................................................index
+│   │   ├── gencode.vM10.annotation.gtf...................................index
+│   │   ├── gencode.vM10.annotation.gtf.db................................index
+│   │   └── novel_exons.gtf...............................................index
+│   ├── exon_direction_junction_triples.csv...............................index
+│   ├── mxe...............................................................index
+│   │   ├── event.bed.....................................................index
+│   │   ├── events.csv....................................................index
+│   │   ├── exon1.bed.....................................................index
+│   │   ├── exon2.bed.....................................................index
+│   │   ├── exon3.bed.....................................................index
+│   │   ├── exon4.bed.....................................................index
+│   │   ├── intron.bed....................................................index
+│   │   ├── splice_sites.csv...........................................validate
+│   │   └── validated..................................................validate
+│   │       └── events.csv.............................................validate
+│   └── se................................................................index
+│       ├── event.bed.....................................................index
+│       ├── events.csv....................................................index
+│       ├── exon1.bed.....................................................index
+│       ├── exon2.bed.....................................................index
+│       ├── exon3.bed.....................................................index
+│       ├── intron.bed....................................................index
+│       ├── splice_sites.csv...........................................validate
+│       └── validated..................................................validate
+│           └── events.csv.............................................validate
+├── junctions.............................................................index
+│   ├── metadata.csv......................................................index
+│   └── reads.csv.........................................................index
+└── psi.....................................................................psi
+    ├── mxe.................................................................psi
+    |   ├── psi.csv.........................................................psi
+    │   └── summary.csv.....................................................psi
+    ├── outrigger_psi.csv...................................................psi
+    └── se..................................................................psi
+        ├── psi.csv.........................................................psi
+        └── summary.csv.....................................................psi
 
-10 directories, 22 files
-</pre></div>
-</div>
-</div>
-</div>
-<div class="section" id="for-developers">
-<h2>For Developers<a class="headerlink" href="#for-developers" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="how-to-run-with-the-python-debugger">
-<h3>How to run with the Python debugger<a class="headerlink" href="#how-to-run-with-the-python-debugger" title="Permalink to this headline">¶</a></h3>
-<p>How to run the code with the Python debugger. To run the command line
-functions such that when they break, you jump into the <code class="docutils literal"><span class="pre">pdb</span></code> (Python
-debugger), here is the code:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">pdb</span> <span class="n">outrigger</span><span class="o">/</span><span class="n">commandline</span><span class="o">.</span><span class="n">py</span> <span class="n">index</span> \
-<span class="o">--</span><span class="n">sj</span><span class="o">-</span><span class="n">out</span><span class="o">-</span><span class="n">tab</span> <span class="n">outrigger</span><span class="o">/</span><span class="n">test_data</span><span class="o">/</span><span class="n">tasic2016</span><span class="o">/</span><span class="n">unprocessed</span><span class="o">/</span><span class="n">sj_out_tab</span><span class="o">/*</span> \
-    <span class="o">--</span><span class="n">gtf</span> <span class="n">outrigger</span><span class="o">/</span><span class="n">test_data</span><span class="o">/</span><span class="n">tasic2016</span><span class="o">/</span><span class="n">unprocessed</span><span class="o">/</span><span class="n">gtf</span><span class="o">/</span><span class="n">gencode</span><span class="o">.</span><span class="n">vM10</span><span class="o">.</span><span class="n">annotation</span><span class="o">.</span><span class="n">snap25</span><span class="o">.</span><span class="n">myl6</span><span class="o">.</span><span class="n">gtf</span>
-</pre></div>
-</div>
-<p>Notice that you replace <code class="docutils literal"><span class="pre">outrigger</span></code> with
-<code class="docutils literal"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pdb</span> <span class="pre">outrigger/commandline.py</span></code>, which is relative to this
-github directory.</p>
-</div>
-<div class="section" id="how-to-run-the-tests">
-<h3>How to run the tests<a class="headerlink" href="#how-to-run-the-tests" title="Permalink to this headline">¶</a></h3>
-<div class="line-block">
-<div class="line">If you want to run the tests without calculating what percentage of</div>
-<div class="line">lines are covered in the test suite, run:</div>
-</div>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">test</span>
-</pre></div>
-</div>
-<div class="line-block">
-<div class="line">If you want to run the tests and see which lines are covered by tests</div>
-</div>
-<p>and get
-| an overall percentage of test coverage, run:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">coverage</span>
-</pre></div>
-</div>
-<p>If you want to run an example with ENSEMBL GTF files, do:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">arabdopsis</span>
-</pre></div>
-</div>
-<p>By default, Travis-CI does all three:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">script</span><span class="p">:</span>
-<span class="o">-</span> <span class="n">make</span> <span class="n">coverage</span>
-<span class="o">-</span> <span class="n">make</span> <span class="n">lint</span>
-<span class="o">-</span> <span class="n">make</span> <span class="n">arabdopsis</span>
+10 directories, 26 files
 </pre></div>
 </div>
 <p>Contents:</p>
 <div class="toctree-wrapper compound">
-</div>
-</div>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="subcommands/outrigger_index.html"><code class="docutils literal"><span class="pre">index</span></code>: Build a <em>de novo</em> splicing annotation index of events custom to <strong>your</strong> data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="subcommands/outrigger_validate.html"><code class="docutils literal"><span class="pre">validate</span></code>: Check that the found exons are real</a></li>
+<li class="toctree-l2"><a class="reference internal" href="subcommands/outrigger_psi.html"><code class="docutils literal"><span class="pre">psi</span></code>: Calculate percent spliced-in (Psi/Ψ) scores for your data from the splicing events you created</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#types-of-contributions">Types of Contributions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#tips-for-writing-documentation">Tips for writing documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#get-started">Get Started!</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#pull-request-guidelines">Pull Request Guidelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#tips">Tips</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="authors.html">Credits</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="authors.html#development-lead">Development Lead</a></li>
+<li class="toctree-l2"><a class="reference internal" href="authors.html#contributors">Contributors</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="history.html">History</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="history.html#v1-0-0-april-3rd-2017">v1.0.0 (April 3rd, 2017)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="history.html#v0-2-9-november-11th-2016">v0.2.9 (November 11th, 2016)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="history.html#v0-2-8-october-23rd-2016">v0.2.8 (October 23rd, 2016)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="history.html#v0-2-7-october-23rd-2016">v0.2.7 (October 23rd, 2016)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="history.html#v0-2-6-september-15th-2016">v0.2.6 (September 15th, 2016)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="history.html#v0-2-5-september-14th-2016">v0.2.5 (September 14th, 2016)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="history.html#v0-2-4-september-14th-2016">v0.2.4 (September 14th, 2016)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="history.html#v0-2-3-september-13th-2016">v0.2.3 (September 13th, 2016)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="history.html#v0-2-2-september-12th-2016">v0.2.2 (September 12th, 2016)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="history.html#v0-2-1-september-12th-2016">v0.2.1 (September 12th, 2016)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="history.html#v0-2-0-september-9th-2016">v0.2.0 (September 9th, 2016)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="history.html#v0-1-0-may-25-2016">v0.1.0 (May 25, 2016)</a></li>
+</ul>
+</li>
+</ul>
 </div>
 </div>
 <div class="section" id="indices-and-tables">
@@ -291,42 +289,38 @@ github directory.</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="#">Table Of Contents</a></h3>
+<h1 class="logo"><a href="#">Outrigger</a></h1>
+
+
+<a href="#">
+<img src="_static/logo-1x.png" width=80%>
+</a>
+
+<h3><a href="#">Table Of Contents</a></h3>
+
+<ul>
+  <li><a href="#">Home</a></li>
+  <li><a href="contents.html">Contents</a></li>
+  <li><a href="installation.html">Install</a></li>
+  <li><a href="Usage.html">Usage</a></li>
+  <li><a href="subcommands/outrigger_index.html"><code>index</code>: Detect exons</a></li>
+  <li><a href="subcommands/outrigger_validate.html"><code>validate</code>: Remove non-canonical splice sites</a></li>
+  <li><a href="subcommands/outrigger_psi.html"><code>psi</code>: Quantify exon inclusion</a></li>
+  <li><a href="history.html">Changelog</a></li>
+  <li><a href="license.html">License</a></li>
+</ul>
+  <hr>
   <ul>
-<li><a class="reference internal" href="#">Welcome to <code class="docutils literal"><span class="pre">outrigger</span></code>&#8216;s documentation!</a></li>
-<li><a class="reference internal" href="#outrigger">Outrigger</a><ul>
+<li><a class="reference internal" href="#">Welcome to <code class="docutils literal"><span class="pre">outrigger</span></code>&#8216;s documentation!</a><ul>
+<li><a class="reference internal" href="#large-scale-detection-and-calculation-of-alternative-splicing-with-outrigger">Large-scale detection and calculation of alternative splicing with Outrigger</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#features">Features</a></li>
-<li><a class="reference internal" href="#installation">Installation</a><ul>
-<li><a class="reference internal" href="#bleeding-edge-code-from-github-here">Bleeding edge code from Github (here)</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#quick-start">Quick start</a><ul>
-<li><a class="reference internal" href="#quick-start-summary">Quick start summary</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#for-developers">For Developers</a><ul>
-<li><a class="reference internal" href="#how-to-run-with-the-python-debugger">How to run with the Python debugger</a></li>
-<li><a class="reference internal" href="#how-to-run-the-tests">How to run the tests</a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li><a class="reference internal" href="#installation">Installation</a></li>
+<li><a class="reference internal" href="#quick-start">Quick start</a></li>
 <li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
 </ul>
-<div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="#">Documentation overview</a><ul>
-  </ul></li>
-</ul>
-</div>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/index.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
+
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
@@ -342,7 +336,7 @@ github directory.</p>
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2015-2016, Olga Botvinnik.
+      &copy;2015-2017, Olga Botvinnik.
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 1.4.8</a>
