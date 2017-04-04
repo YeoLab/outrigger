@@ -40,6 +40,26 @@ Outrigger could always use more documentation, whether as part of the
 official Outrigger docs, in docstrings, or even on the web in blog posts,
 articles, and such.
 
+Tips for writing documentation
+------------------------------
+
+To keep documentation writing separate from code and test writing, I have an
+environment only for documentation writing that was created in this way:
+
+```
+# Go to the folder where you cloned outrigger
+cd outrigger
+conda create -n outrigger-documentation docs/requirements.txt
+```
+
+Now activate the environment and build the docs. This command will both build
+ewhat you have and open a web browser so you can see the latest version.
+
+```
+source activate outrigger-documentation
+make docs
+```
+
 Submit Feedback
 ~~~~~~~~~~~~~~~
 

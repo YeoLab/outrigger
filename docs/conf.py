@@ -69,7 +69,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Outrigger'
-copyright = u'2015-2016, Olga Botvinnik'
+copyright = u'2015-2017, Olga Botvinnik'
 
 # The version info for the project you're documenting, acts as replacement
 # for |version| and |release|, also used in various other places throughout
@@ -166,7 +166,16 @@ html_static_path = ['_static']
 #html_use_smartypants = True
 
 # Custom sidebar templates, maps document names to template names.
-#html_sidebars = {}
+# These exist because Alabaster makes it so
+html_sidebars = {
+    '**': [
+        'about.html',
+        'navigation.html',
+        'relations.html',
+        'searchbox.html',
+        'donate.html',
+    ]
+}
 
 # Additional templates that should be rendered to pages, maps page names
 # to template names.

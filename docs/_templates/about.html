@@ -1,0 +1,20 @@
+{% if theme_logo %}
+<p class="logo">
+  <a href="{{ pathto(master_doc) }}">
+    <img class="logo" src="{{ pathto('_static/' ~ theme_logo, 1) }}" alt="Logo"/>
+    {% if theme_logo_name|lower == 'true' %}
+    <h1 class="logo logo-name">{{ project }}</h2>
+    {% endif %}
+  </a>
+</p>
+{% else %}
+<h1 class="logo"><a href="{{ pathto(master_doc) }}">{{ project }}</a></h1>
+{% endif %}
+
+<a href="{{ pathto(master_doc) }}">
+<img src="{{ pathto('_static/logo-1x.png', 1) }}" width=80%>
+</a>
+
+{% if theme_description %}
+<p class="blurb">{{ theme_description }}</p>
+{% endif %}
