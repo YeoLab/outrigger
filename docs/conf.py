@@ -172,7 +172,7 @@ html_sidebars = {
         'about.html',
         'globaltoc.html',
         # 'relations.html',
-        'navigation.html',
+        # 'navigation.html',
         # 'links.html',
         # 'sourcelink.html',
         'searchbox.html',
