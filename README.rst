@@ -15,9 +15,9 @@
 .. |PythonVersionCompatibility| image:: https://img.shields.io/pypi/pyversions/outrigger.svg
     :target: https://pypi.python.org/pypi/outrigger
 
-==========
-Outrigger_
-==========
+=============================================================================
+Large-scale detection and calculation of alternative splicing with Outrigger_
+=============================================================================
 
 Outrigger_ is a program which uses junction reads from RNA seq data, and
 a graph database to create a *de novo* alternative splicing annotation
