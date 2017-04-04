@@ -1,0 +1,26 @@
+v1.0.1 (April 3rd, 2017)
+------------------------
+
+This is a patch release to ```outrigger``.
+
+
+New features
+~~~~~~~~~~~~
+
+
+Plotting functions
+~~~~~~~~~~~~~~~~~~
+
+
+API changes
+~~~~~~~~~~~
+
+
+Bug fixes
+~~~~~~~~~
+
+
+Miscellaneous
+~~~~~~~~~~~~~
+
+- Explicitly added Python 3.6 compatibility
