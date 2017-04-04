@@ -155,7 +155,7 @@ html_theme_options = {'note_bg': '#b0e4d3'}
 # here, relative to this directory. They are copied after the builtin
 # static files, so a file named "default.css" will overwrite the builtin
 # "default.css".
-html_static_path = ['_static']
+html_static_path = ['_static', '../logo']
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page
 # bottom, using the given strftime format.
@@ -170,10 +170,13 @@ html_static_path = ['_static']
 html_sidebars = {
     '**': [
         'about.html',
-        'navigation.html',
+        'globaltoc.html',
         'relations.html',
+        'navigation.html',
+        'links.html',
+        'sourcelink.html',
         'searchbox.html',
-        'donate.html',
+        # 'donate.html',
     ]
 }
 
