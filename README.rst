@@ -4,7 +4,7 @@
 
 |BuildStatus|\ |codecov|\ |PyPIVersions|\ |PythonVersionCompatibility|
 
-.. |OutriggerLogo| image:: https://raw.githubusercontent.com/YeoLab/outrigger/master/logo/logo-1x.png
+.. |OutriggerLogo| image:: http://yeolab.github.io/outrigger/_static/logo-300ppi.png
     :target: https://github.com/YeoLab/outrigger
 .. |BuildStatus| image:: https://travis-ci.org/YeoLab/outrigger.svg?branch=master
     :target: https://travis-ci.org/YeoLab/outrigger
