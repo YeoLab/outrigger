@@ -64,3 +64,9 @@ UNEVEN_COVERAGE_MULTIPLIER = 10
 # --- Outrigger Psi --- #
 NOTES = 'notes'
 PSI = 'psi'
+UPSTREAM = 'upstream'
+DOWNSTREAM = 'downstream'
+DIRECTIONS = UPSTREAM, DOWNSTREAM
+NOVEL_EXON = 'novel_exon'
+OUTRIGGER_DE_NOVO = 'outrigger_de_novo'
+MAX_DE_NOVO_EXON_LENGTH = 100

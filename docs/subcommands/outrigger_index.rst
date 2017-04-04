@@ -1,14 +1,29 @@
 
-``index``: Build a *de novo* splicing annotation index of events custom to *your* data
-======================================================================================
+``index``: Build a *de novo* splicing annotation index of events custom to **your** data
+========================================================================================
 
 Overview
 --------
+The purpose of ``outrigger index`` is to create a custom splicing database
+containing alternative exons that appear in your data. This program detects
+exons *de novo* and uses an annotation to supplement exon definitions. Then, it
+builds a graph database of all possible alternative SE and MXE events in your
+dataset. The events are defined by their junctions and alternative exons, and
+all possible flanking exons. The same event may have multiple flanking exons,
+but all those events will ultimately have their percent spliced-in calculated
+the same way.
+
+
+|OutriggerIndex|
+
+.. |OutriggerIndex| image:: ../_static/outrigger_index-300ppi.png
+    :target: ../_static/outrigger_index-300ppi.png
 
 
 Inputs
 ------
 
+This section will describe all possible inputs to ``outrigger index``.
 
 Example command using ``SJ.out.tab`` files
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

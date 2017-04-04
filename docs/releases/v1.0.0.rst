@@ -9,6 +9,8 @@ New features
 - Parallelized event across chromosomes
 - Added ``--low-memory`` flag for ``index``, ``validate``, and ``psi`` commands
   to use a smaller memory footprint when reading CSV files.
+- Added ``--splice-types`` option to specify only one kind of splicing you'd
+  like to find
 
 Plotting functions
 ~~~~~~~~~~~~~~~~~~

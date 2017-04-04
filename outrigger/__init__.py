@@ -2,7 +2,7 @@
 
 __author__ = 'Olga Botvinnik'
 __email__ = 'olga.botvinnik@gmail.com'
-__version__ = '1.0.0dev'
+__version__ = '1.0.0rc1'
 
 __all__ = ['psi', 'region', 'util', 'io', 'validate', 'index',
            'common']
