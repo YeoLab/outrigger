@@ -4,19 +4,20 @@
 
 |BuildStatus|\ |codecov|\ |PyPIVersions|\ |PythonVersionCompatibility|
 
-.. |OutriggerLogo| image:: https://raw.githubusercontent.com/YeoLab/outrigger/master/logo/v1/logo_v1.svg
+.. |OutriggerLogo| image:: https://raw.githubusercontent.com/YeoLab/outrigger/master/logo/logo-1x.png
     :target: https://github.com/YeoLab/outrigger
 .. |BuildStatus| image:: https://travis-ci.org/YeoLab/outrigger.svg?branch=master
-   :target: https://travis-ci.org/YeoLab/outrigger
+    :target: https://travis-ci.org/YeoLab/outrigger
 .. |codecov| image:: https://codecov.io/gh/YeoLab/outrigger/branch/master/graph/badge.svg
-   :target: https://codecov.io/gh/YeoLab/outrigger
+    :target: https://codecov.io/gh/YeoLab/outrigger
 .. |PyPIVersions| image:: https://img.shields.io/pypi/v/outrigger.svg
-   :target: https://pypi.python.org/pypi/outrigger
+    :target: https://pypi.python.org/pypi/outrigger
 .. |PythonVersionCompatibility| image:: https://img.shields.io/pypi/pyversions/outrigger.svg
-   :target: https://pypi.python.org/pypi/outrigger
+    :target: https://pypi.python.org/pypi/outrigger
 
-Outrigger_
-==========
+=============================================================================
+Large-scale detection and calculation of alternative splicing with Outrigger_
+=============================================================================
 
 Outrigger_ is a program which uses junction reads from RNA seq data, and
 a graph database to create a *de novo* alternative splicing annotation
@@ -27,7 +28,7 @@ events.
 -  Documentation is available here: http://yeolab.github.io/outrigger/
 
 Features
---------
+========
 
 -  Finds novel splicing events, including novel exons!
    (``outrigger index``) from ``.bam`` files
@@ -37,8 +38,13 @@ Features
    given the validated events (or the original events if you opted not
    to validate) via ``outrigger psi``
 
+|OutriggerOverview|
+
+.. |OutriggerOverview| image:: https://raw.githubusercontent.com/YeoLab/outrigger/master/docs/_static/outrigger_overview-300ppi.png
+    :target: https://raw.githubusercontent.com/YeoLab/outrigger/master/docs/_static/outrigger_overview-300ppi.png
+
 Installation
-------------
+============
 
 To install ``outrigger``, we recommend using the `Anaconda Python
 Distribution <http://anaconda.org/>`__ and creating an environment.
@@ -91,8 +97,9 @@ option (``-h``), ``outrigger -h``. The output should look like this:
     optional arguments:
       -h, --help            show this help message and exit
       --version             show program's version number and exit
+
 Bleeding edge code from Github (here)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------------------
 
 For advanced users, if you have `git <https://git-scm.com/>`__ and
 `Anaconda Python <https://www.continuum.io/downloads>`__ installed, you
@@ -114,7 +121,7 @@ These steps are shown in code below.
     source activate outrigger-env
 
 Quick start
------------
+===========
 
 If you just want to know how to run this on your data with the default
 parameters, start here. Let's say you performed your alignment in the
@@ -131,9 +138,24 @@ Then you need find all alternative splicing events, which you do by
 running ``outrigger index`` on the splice junction files and the gtf.
 Here is an example command:
 
+Input: ``.SJ.out.tab`` files
+----------------------------
+
 ::
 
     outrigger index --sj-out-tab *SJ.out.tab \
+        --gtf /projects/ps-yeolab/genomes/mm10/gencode/m10/gencode.vM10.annotation.gtf
+
+Input: ``.bam`` files
+---------------------
+
+If you're using ``.bam`` files instead of ``SJ.out.tab`` files, never despair!
+Below is an example command. Keep in mind that for this program to work, the
+events must be sorted and indexed.
+
+::
+
+    outrigger index --bam *sorted.bam \
         --gtf /projects/ps-yeolab/genomes/mm10/gencode/m10/gencode.vM10.annotation.gtf
 
 Next, you'll want to validate that the splicing events you found follow
@@ -158,7 +180,7 @@ It should be noted that ALL of these commands should be performed in the
 same directory, so no moving.
 
 Quick start summary
-~~~~~~~~~~~~~~~~~~~
+-------------------
 
 Here is a summary the commands in the order you would use them for
 outrigger!
@@ -173,48 +195,51 @@ outrigger!
     outrigger psi
 
 This will create a folder called ``outrigger_output``, which at the end
-should look like this:
+should look like the one below. Each file and folder is annotated with which command
+produced it.
 
 ::
 
     $ tree outrigger_output
-    outrigger_output
-    ├── index
-    │   ├── gtf
-    │   │   ├── gencode.vM10.annotation.subset.gtf
-    │   │   ├── gencode.vM10.annotation.subset.gtf.db
-    │   │   └── novel_exons.gtf
-    │   ├── junction_exon_direction_triples.csv
-    │   ├── mxe
-    │   │   ├── event.bed
-    │   │   ├── events.csv
-    │   │   ├── exon1.bed
-    │   │   ├── exon2.bed
-    │   │   ├── exon3.bed
-    │   │   ├── exon4.bed
-    │   │   ├── intron.bed
-    │   │   ├── splice_sites.csv
-    │   │   └── validated
-    │   │       └── events.csv
-    │   └── se
-    │       ├── event.bed
-    │       ├── events.csv
-    │       ├── exon1.bed
-    │       ├── exon2.bed
-    │       ├── exon3.bed
-    │       ├── intron.bed
-    │       ├── splice_sites.csv
-    │       └── validated
-    │           └── events.csv
-    ├── junctions
-    │   ├── metadata.csv
-    │   └── reads.csv
-    └── psi
-        ├── mxe
-        │   └── psi.csv
-        ├── outrigger_psi.csv
-        └── se
-            └── psi.csv
+    outrigger_output..........................................................index
+    ├── index.................................................................index
+    │   ├── gtf...............................................................index
+    │   │   ├── gencode.vM10.annotation.gtf...................................index
+    │   │   ├── gencode.vM10.annotation.gtf.db................................index
+    │   │   └── novel_exons.gtf...............................................index
+    │   ├── exon_direction_junction_triples.csv...............................index
+    │   ├── mxe...............................................................index
+    │   │   ├── event.bed.....................................................index
+    │   │   ├── events.csv....................................................index
+    │   │   ├── exon1.bed.....................................................index
+    │   │   ├── exon2.bed.....................................................index
+    │   │   ├── exon3.bed.....................................................index
+    │   │   ├── exon4.bed.....................................................index
+    │   │   ├── intron.bed....................................................index
+    │   │   ├── splice_sites.csv...........................................validate
+    │   │   └── validated..................................................validate
+    │   │       └── events.csv.............................................validate
+    │   └── se................................................................index
+    │       ├── event.bed.....................................................index
+    │       ├── events.csv....................................................index
+    │       ├── exon1.bed.....................................................index
+    │       ├── exon2.bed.....................................................index
+    │       ├── exon3.bed.....................................................index
+    │       ├── intron.bed....................................................index
+    │       ├── splice_sites.csv...........................................validate
+    │       └── validated..................................................validate
+    │           └── events.csv.............................................validate
+    ├── junctions.............................................................index
+    │   ├── metadata.csv......................................................index
+    │   └── reads.csv.........................................................index
+    └── psi.....................................................................psi
+        ├── mxe.................................................................psi
+        |   ├── psi.csv.........................................................psi
+        │   └── summary.csv.....................................................psi
+        ├── outrigger_psi.csv...................................................psi
+        └── se..................................................................psi
+            ├── psi.csv.........................................................psi
+            └── summary.csv.....................................................psi
 
     10 directories, 26 files
 

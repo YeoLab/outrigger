@@ -7,7 +7,7 @@ import pybedtools
 
 NT = 2
 
-MAMMALIAN_SPLICE_SITES = 'GT/AG,AT/AC'
+MAMMALIAN_SPLICE_SITES = 'GT/AG,GC/AG,AT/AC'
 
 
 def splice_site_str_to_tuple(splice_site):

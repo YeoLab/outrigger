@@ -8,10 +8,10 @@ import pandas as pd
 from graphlite import V
 
 from ..common import STRAND, ISOFORM_ORDER, ISOFORM_COMPONENTS, \
-    EVENT_ID_COLUMN, ILLEGAL_JUNCTIONS, SPLICE_ABBREVS, \
-    SPLICE_TYPE_ALL_EXONS, SPLICE_TYPE_ALL_JUNCTIONS, CHROM
+    EVENT_ID, INCOMPATIBLE_JUNCTIONS, SPLICE_ABBREVS, \
+    SPLICE_TYPE_ALL_EXONS, SPLICE_TYPE_ALL_JUNCTIONS, CHROM, UPSTREAM, \
+    DOWNSTREAM, DIRECTIONS
 from outrigger.region import Region
-from .adjacencies import UPSTREAM, DOWNSTREAM, DIRECTIONS
 from ..util import progress, done
 
 
@@ -31,11 +31,17 @@ def opposite(direction):
 class SpliceGraph(object):
 
     def __init__(self, junction_exon_triples, junction_col='junction',
-                 exon_col='exon'):
+                 exon_col='exon', splice_types=SPLICE_ABBREVS):
         self.junction_exon_triples = junction_exon_triples
         self.junction_col = junction_col
         self.exon_col = exon_col
         self.log = logging.getLogger('SpliceGraph')
+        self.splice_types = splice_types
+
+        self.event_finders = tuple((splice_type, finder)
+                                   for splice_type, finder
+                                   in self._all_event_finders
+                                   if splice_type in self.splice_types)
 
         self._make_graph(junction_exon_triples)
 
@@ -245,7 +251,7 @@ class SpliceGraph(object):
         return events
 
     @property
-    def event_finders(self):
+    def _all_event_finders(self):
         finders = (('se', self._skipped_exon),
                    ('mxe', self._mutually_exclusive_exon))
         return finders
@@ -315,17 +321,17 @@ class EventMaker(object):
 
     def add_event_id_col(self, events, splice_type):
         isoform_components = ISOFORM_COMPONENTS[splice_type]
-        events[EVENT_ID_COLUMN] = events.apply(
+        events[EVENT_ID] = events.apply(
             lambda x: '|'.join(
                 '{}={}'.format(isoform, '@'.join(
                     x[list(isoform_components[isoform])]))
                 for isoform in ISOFORM_ORDER), axis=1)
-        events = events.set_index(EVENT_ID_COLUMN)
+        events = events.set_index(EVENT_ID)
         return events
 
     @staticmethod
     def _get_junction14(row):
-        """Make illegal junction between exons1 and 4 for MXE
+        """Make incompatible junction between exons1 and 4 for MXE
 
         Parameters
         ----------
@@ -346,7 +352,7 @@ class EventMaker(object):
 
     @staticmethod
     def _get_junction23(row):
-        """Make illegal junction between exons2 and 3 for MXE
+        """Make incompatible junction between exons2 and 3 for MXE
 
         Parameters
         ----------
@@ -365,10 +371,10 @@ class EventMaker(object):
                           start=junction13.start, stop=junction24.stop,
                           strand=junction13.strand)
 
-    def add_illegal_junctions(self, events, splice_type):
+    def add_incompatible_junctions(self, events, splice_type):
         """Add junctions that are incompatible with splice type definition"""
         if splice_type == 'se':
-            events[ILLEGAL_JUNCTIONS] = np.nan
+            events[INCOMPATIBLE_JUNCTIONS] = np.nan
         elif splice_type == 'mxe':
             junction12s = events['junction12'].map(Region)
             junction13s = events['junction13'].map(Region)
@@ -382,18 +388,19 @@ class EventMaker(object):
 
             junction14 = junction14.apply(lambda x: x.name)
             junction23 = junction23.apply(lambda x: x.name)
-            illegal_junctions = junction14 + '|' + junction23
-            events[ILLEGAL_JUNCTIONS] = illegal_junctions
+            incompatible_junctions = junction14 + '|' + junction23
+            events[INCOMPATIBLE_JUNCTIONS] = incompatible_junctions
         return events
 
-    def find_events(self, n_jobs=-1):
+    def find_events(self, splice_types=SPLICE_ABBREVS, n_jobs=-1):
         """For each exon, test if it is part of an alternative event"""
 
-        events = {abbrev: {} for abbrev in SPLICE_ABBREVS}
+        events = {abbrev: {} for abbrev in splice_types}
 
         new_events = joblib.Parallel(n_jobs)(
             joblib.delayed(make_splice_graph_find_events)(
-                df, self.junction_col, self.exon_col)
+                df, self.junction_col, self.exon_col,
+                splice_types=splice_types)
             for chrom, df in self.junction_exon_triples.groupby(CHROM))
 
         for chrom_events in new_events:
@@ -411,12 +418,15 @@ class EventMaker(object):
                                               junction_names=junction_numbers)
             if not events_df.empty:
                 events_df = self.add_event_id_col(events_df, event_type)
-                events_df = self.add_illegal_junctions(events_df, event_type)
+                events_df = self.add_incompatible_junctions(events_df,
+                                                            event_type)
             events_dfs[event_type] = events_df
         done()
         return events_dfs
 
 
-def make_splice_graph_find_events(df, junction_col, exon_col):
-    splice_graph = SpliceGraph(df, junction_col, exon_col)
+def make_splice_graph_find_events(df, junction_col, exon_col,
+                                  splice_types=SPLICE_ABBREVS):
+    splice_graph = SpliceGraph(df, junction_col, exon_col,
+                               splice_types=splice_types)
     return splice_graph.alternative_events()

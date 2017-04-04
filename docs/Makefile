@@ -189,3 +189,6 @@ pseudoxml:
 	@echo "Build finished. The pseudo-XML files are in $(BUILDDIR)/pseudoxml."
 
 include sphinx_deployment.mk
+
+serve:
+	python -m http.server 8888 &

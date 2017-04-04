@@ -7,10 +7,11 @@ import itertools
 import os
 
 import gffutils
+from gffutils.helpers import merge_attributes
 import pandas as pd
 
-from ..common import SPLICE_TYPE_ISOFORM_EXONS
-from ..region import Region
+from ..common import SPLICE_TYPE_ISOFORM_EXONS, OUTRIGGER_DE_NOVO, NOVEL_EXON
+from ..region import Region, STRANDS
 
 # Annotations from:
 # ftp://ftp.sanger.ac.uk/pub/gencode/Gencode_human/release_19/gencode.v19.annotation.gtf.gz
@@ -65,6 +66,18 @@ class SplicingAnnotator(object):
     """Annotates basic features of splicing events: gene ids and names"""
 
     def __init__(self, db, events, splice_type):
+        """Annotate splicing events with their respective genes
+
+        Parameters
+        ----------
+        db : gffutils.FeatureDB
+            Database including all the exons found in the events
+        events : pandas.DataFrame
+            Table of events, with the event ids as the index
+        splice_type : 'se' | 'mxe'
+            The type of alternative splicing, which informs the exon
+            configurations for different isoforms
+        """
         self.db = db
         self.events = events
         self.splice_type = splice_type
@@ -101,6 +114,19 @@ class SplicingAnnotator(object):
         self.events = pd.concat([self.events, self.lengths, intron_names],
                                 axis=1)
 
+    def maybe_get_feature(self, feature_id):
+        try:
+            return self.db[feature_id]
+        except gffutils.FeatureNotFoundError:
+            r = Region(feature_id)
+            feature = location_to_feature(self.db, r.chrom, r.start, r.stop,
+                                          r.strand, source=OUTRIGGER_DE_NOVO,
+                                          featuretype=NOVEL_EXON)
+            self.db.update([feature], make_backup=False,
+                           id_spec={NOVEL_EXON: 'location_id'},
+                           transform=transform)
+            return feature
+
     def attributes(self):
         """Retrieve all GTF attributes for each isoform's event"""
 
@@ -118,10 +144,11 @@ class SplicingAnnotator(object):
                 n_exons = len(exons)
 
                 exon_ids = row[exons]
+                exon_features = [self.maybe_get_feature(exon_id) for
+                                 exon_id in exon_ids]
 
                 keys = set(itertools.chain(
-                    *[self.db[exon_id].attributes.keys()
-                      for exon_id in exon_ids]))
+                    *[exon.attributes.keys() for exon in exon_features]))
 
                 for key in keys:
                     # Skip the location IDs which is specific to the
@@ -207,3 +234,23 @@ class SplicingAnnotator(object):
         regions = pd.Series(dict(intron_region=intron, event_region=event))
 
         return regions
+
+
+def location_to_feature(db, chrom, start, stop, strand, source, featuretype):
+    if strand not in STRANDS:
+        strand = '.'
+    overlapping_genes = db.region(seqid=chrom, start=start, end=stop,
+                                  strand=strand, featuretype='gene')
+
+    exon_id = 'exon:{chrom}:{start}-{stop}:{strand}'.format(
+        chrom=chrom, start=start, stop=stop, strand=strand)
+
+    attributes = {}
+    for g in overlapping_genes:
+        attributes = merge_attributes(attributes, g.attributes)
+
+    exon = gffutils.Feature(chrom, source=source,
+                            featuretype=featuretype, start=start,
+                            end=stop, strand=strand, id=exon_id,
+                            attributes=attributes)
+    return exon

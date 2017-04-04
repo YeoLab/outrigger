@@ -34,8 +34,8 @@ class CommandLine(object):
     def __init__(self, input_options=None):
         self.parser = argparse.ArgumentParser(
             description='outrigger ({version}). Calculate "percent-spliced in"'
-                        ' (Psi) scores of alternative splicing on a *de novo*, '
-                        'custom-built splicing index -- '
+                        ' (Psi) scores of alternative splicing on a *de novo*,'
+                        ' custom-built splicing index -- '
                         'just for you!'.format(version=__version__))
         self.parser.add_argument(
             '--version', action='version',
@@ -64,14 +64,14 @@ class CommandLine(object):
                             'required if you specify '
                             '"--compiled-junction-reads"')
         index_junctions.add_argument(
-            '-c', '--compiled-junction-reads', required=False,
+            '-c', '--junction-reads-csv', required=False,
             help="Name of the splice junction files to detect novel exons and "
                  "build an index of alternative splicing events from. "
                  "Not required if you specify "
                  "SJ.out.tab file with '--sj-out-tab'".format(
                         sj_csv=JUNCTION_READS_PATH))
         index_junctions.add_argument(
-            '-b', '--bams', required=False, nargs='*',
+            '-b', '--bam', required=False, nargs='*',
             help="Location of bam files to use for finding events.")
         index_parser.add_argument('-m', '--min-reads', type=int,
                                   action='store',
@@ -95,12 +95,13 @@ class CommandLine(object):
                                        ' and all reads are used.')
         index_parser.add_argument(
             '-l', '--max-de-novo-exon-length',
-            default=adjacencies.MAX_DE_NOVO_EXON_LENGTH, action='store',
+            default=outrigger.common.MAX_DE_NOVO_EXON_LENGTH, action='store',
             help='Maximum length of an exon detected '
                  '*de novo* from the dataset. This is to'
                  ' prevent multiple kilobase long exons '
                  'from being accidentally created. '
-                 '(default={})'.format(adjacencies.MAX_DE_NOVO_EXON_LENGTH))
+                 '(default={})'.format(
+                    outrigger.common.MAX_DE_NOVO_EXON_LENGTH))
 
         gtf_parser = index_parser.add_mutually_exclusive_group(required=True)
         gtf_parser.add_argument('-g', '--gtf-filename', type=str,
@@ -142,6 +143,15 @@ class CommandLine(object):
                                   action='store_true',
                                   help='If set, then use a smaller memory '
                                        'footprint. By default, this is off.')
+        index_parser.add_argument('--splice-types', required=False,
+                                  default='all',
+                                  action='store',
+                                  help='Which splice types to find. By '
+                                       'default, "all" are used which at this '
+                                       'point is skipped exon (SE) and '
+                                       'mutually exclusive exon (MXE) events. '
+                                       'Can also specify only one, e.g. "se" '
+                                       'or both "se,mxe"')
         overwrite_parser = index_parser.add_mutually_exclusive_group(
             required=False)
         overwrite_parser.add_argument('--force', action='store_true',
@@ -245,7 +255,7 @@ class CommandLine(object):
         psi_junctions = psi_parser.add_mutually_exclusive_group(
             required=False)
         psi_junctions.add_argument(
-            '-c', '--compiled-junction-reads', required=False,
+            '-c', '--junction-reads-csv', required=False,
             help="Name of the compiled splice junction file to calculate psi "
                  "scores on. Default is the '--output' folder's "
                  "junctions/reads.csv file. Not required if you specify "
@@ -256,13 +266,25 @@ class CommandLine(object):
             help='SJ.out.tab files from STAR aligner output. Not required if '
                  'you specify a file with "--compiled-junction-reads"')
         psi_junctions.add_argument(
-            '-b', '--bams', required=False,
+            '-b', '--bam', required=False,
             type=str, action='store', nargs='*',
             help='Bam files to use to calculate psi on')
         psi_parser.add_argument('-m', '--min-reads', type=int, action='store',
                                 required=False, default=10,
                                 help='Minimum number of reads per junction for'
                                      ' calculating Psi (default=10)')
+        psi_parser.add_argument('-e', '--method', type=str, action='store',
+                                required=False, default='mean',
+                                help='How to deal with multiple junctions on '
+                                     'an event - take the mean (default) or '
+                                     'the min? (the other option)')
+        psi_parser.add_argument('-u', '--uneven-coverage-multiplier',
+                                type=int, action='store',
+                                required=False, default=10,
+                                help='If a junction one one side of an exon is'
+                                     ' bigger than the other side of the exon '
+                                     'by this amount, (default is 10, so 10x '
+                                     'bigger), then do not use this event')
         psi_parser.add_argument('--ignore-multimapping', action='store_true',
                                 help='Applies to STAR SJ.out.tab files only.'
                                      ' If this flag is used, then do not '
@@ -419,14 +441,14 @@ class Subcommand(object):
         return os.path.join(self.output_folder, 'junctions')
 
     @property
-    def junction_reads(self):
-        if self.compiled_junction_reads is not None:
-            return self.compiled_junction_reads
+    def junction_reads_filename(self):
+        if self.junction_reads_csv is not None:
+            return self.junction_reads_csv
         else:
             return os.path.join(self.junctions_folder, 'reads.csv')
 
     def make_junction_reads_file(self):
-        if self.bams is None:
+        if self.bam is None:
             util.progress(
                 'Reading SJ.out.files and creating a big splice junction'
                 ' table of reads spanning exon-exon junctions...')
@@ -438,44 +460,43 @@ class Subcommand(object):
                           'junction table of reads spanning exon-exon '
                           'junctions')
             splice_junctions = bam.read_multiple_bams(
-                self.bams, self.ignore_multimapping, self.n_jobs)
-        dirname = os.path.dirname(self.junction_reads)
+                self.bam, self.ignore_multimapping, self.n_jobs)
+        dirname = os.path.dirname(self.junction_reads_filename)
         if not os.path.exists(dirname):
             os.makedirs(dirname)
-        util.progress('Writing {} ...\n'.format(self.junction_reads))
-        splice_junctions.to_csv(self.junction_reads, index=False)
+        util.progress('Writing {} ...\n'.format(self.junction_reads_filename))
+        splice_junctions.to_csv(self.junction_reads_filename, index=False)
         util.done()
         return splice_junctions
 
     def csv(self):
         """Create a csv file of compiled splice junctions"""
-        if not os.path.exists(self.junction_reads):
+        if not os.path.exists(self.junction_reads_filename):
             splice_junctions = self.make_junction_reads_file()
         else:
             util.progress('Found compiled junction reads file in {} and '
-                          'reading it in ...'.format(self.junction_reads))
-            splice_junctions = pd.read_csv(self.junction_reads,
+                          'reading it in '
+                          '...'.format(self.junction_reads_filename))
+            splice_junctions = pd.read_csv(self.junction_reads_filename,
                                            low_memory=self.low_memory)
             util.done()
-        splice_junctions = self.filter_junctions_on_reads(splice_junctions)
 
-        metadata = self.junction_metadata(splice_junctions)
-        metadata_csv = os.path.join(self.junctions_folder, METADATA_CSV)
-        util.progress('Writing metadata of junctions to {csv}'
-                      ' ...'.format(csv=metadata_csv))
-        metadata.to_csv(metadata_csv, index=False)
-        util.done()
-
-        return splice_junctions, metadata
+        return splice_junctions
 
     @staticmethod
-    def junction_metadata(spliced_reads):
+    def junction_metadata(spliced_reads, csv):
         """Get just the junction info from the concatenated read files"""
         util.progress('Creating splice junction metadata of merely where '
                       'junctions start and stop')
 
         metadata = star.make_metadata(spliced_reads)
         util.done()
+
+        if not os.path.exists(csv):
+            util.progress('Writing metadata of junctions to {csv}'
+                          ' ...'.format(csv=csv))
+            metadata.to_csv(csv, index=False)
+
         return metadata
 
     def filter_junctions_on_reads(self, spliced_reads):
@@ -578,7 +599,13 @@ class Subcommand(object):
 
 class Index(Subcommand):
 
-    max_de_novo_exon_length = adjacencies.MAX_DE_NOVO_EXON_LENGTH
+    max_de_novo_exon_length = outrigger.common.MAX_DE_NOVO_EXON_LENGTH
+
+    @property
+    def splice_abbrevs(self):
+        if self.splice_types == 'all':
+            return common.SPLICE_ABBREVS
+        return self.splice_types.split(',')
 
     def make_exon_junction_adjacencies(self, metadata, db):
         """Get annotated exon_cols next to junctions in data"""
@@ -594,7 +621,7 @@ class Index(Subcommand):
 
         novel_exons_gtf = os.path.join(self.gtf_folder, 'novel_exons.gtf')
         novel_exons = exon_junction_adjacencies.db.features_of_type(
-            adjacencies.NOVEL_EXON)
+            outrigger.common.NOVEL_EXON)
         n_novel_exons = sum(1 for _ in novel_exons)
         util.progress('Writing {n} novel exons to {gtf} ...'.format(
             n=n_novel_exons, gtf=novel_exons_gtf))
@@ -602,7 +629,7 @@ class Index(Subcommand):
         util.done()
 
         csv = os.path.join(self.index_folder,
-                           'junction_exon_direction_triples.csv')
+                           'exon_direction_junction.csv')
         if not os.path.exists(csv) or self.force:
             util.progress('Getting junction-direction-exon triples for graph '
                           'database ...')
@@ -637,12 +664,14 @@ class Index(Subcommand):
         util.done()
         return event_maker
 
+    def _exists_event_csv(self, splice_abbrev):
+        return os.path.exists(
+                os.path.join(self.index_folder, splice_abbrev, EVENTS_CSV))
+
     def make_events_by_traversing_graph(self, event_maker, db):
         """Search the splice graph for alternative exons"""
-        existing_events = [os.path.exists(
-            os.path.join(self.index_folder, splice_abbrev.lower(),
-                         EVENTS_CSV)
-            ) for splice_abbrev in common.SPLICE_ABBREVS]
+        existing_events = [self._exists_event_csv(splice_abbrev)
+                           for splice_abbrev in self.splice_abbrevs]
         if all(existing_events) and not self.force:
             util.progress('Found existing splicing events files for all splice'
                           ' types, so not searching. To force'
@@ -650,7 +679,12 @@ class Index(Subcommand):
                           ' "--force".')
             return
 
-        event_dfs = event_maker.find_events()
+        undiscovered_splice_types = [
+            splice_abbrev for splice_abbrev in self.splice_abbrevs
+            if not self._exists_event_csv(splice_abbrev) or self.force]
+
+        event_dfs = event_maker.find_events(
+            n_jobs=self.n_jobs, splice_types=undiscovered_splice_types)
 
         for splice_abbrev, event_df in event_dfs.items():
             csv = os.path.join(self.index_folder, splice_abbrev.lower(),
@@ -690,7 +724,7 @@ class Index(Subcommand):
         util.progress('Writing {splice_type} events to {csv} '
                       '...'.format(splice_type=splice_type.upper(), csv=csv))
         attributes.to_csv(csv, index=True,
-                          index_label=outrigger.common.EVENT_ID_COLUMN)
+                          index_label=outrigger.common.EVENT_ID)
         util.done()
 
     def write_new_gtf(self, db):
@@ -709,7 +743,11 @@ class Index(Subcommand):
         if self.debug:
             logger.setLevel(10)
 
-        spliced_reads, metadata = self.csv()
+        spliced_reads = self.csv()
+
+        spliced_reads = self.filter_junctions_on_reads(spliced_reads)
+        metadata_csv = os.path.join(self.junctions_folder, METADATA_CSV)
+        metadata = self.junction_metadata(spliced_reads, metadata_csv)
 
         db = self.maybe_make_db()
 
@@ -879,12 +917,13 @@ class Psi(SubcommandAfterIndex):
                     "don't know how to define events :(".format(
                         splice_name, splice_folder))
 
-        if not os.path.exists(self.junction_reads) and self.bams is None:
+        if not os.path.exists(self.junction_reads_filename) and \
+                self.bam is None:
             raise OSError(
                 "The junction reads csv file ({}) doesn't exist! "
                 "Cowardly exiting because I don't have the junction "
                 "counts calcaulate psi on :(".format(
-                    self.junction_reads))
+                    self.junction_reads_filename))
 
         for folder in self.folders:
             self.maybe_make_folder(folder)
@@ -894,15 +933,16 @@ class Psi(SubcommandAfterIndex):
             dtype = {self.reads_col: np.float32}
             util.progress(
                 'Reading splice junction reads from {} ...'.format(
-                    self.junction_reads))
+                    self.junction_reads_filename))
             junction_reads = pd.read_csv(
-                self.junction_reads, dtype=dtype, low_memory=self.low_memory)
+                self.junction_reads_filename, dtype=dtype,
+                low_memory=self.low_memory)
             util.done()
         except OSError:
             raise IOError(
                 "There is no junction reads file at the expected location"
                 " ({csv}). Are you in the correct directory?".format(
-                    csv=self.junction_reads))
+                    csv=self.junction_reads_filename))
         return junction_reads
 
     def validate_junction_reads_data(self, junction_reads):
@@ -911,7 +951,7 @@ class Psi(SubcommandAfterIndex):
                 raise ValueError(
                     "The required column name {col} does not exist in {csv}. "
                     "You can change this with the command line flag, "
-                    "{flag}".format(col=col, csv=self.junction_reads,
+                    "{flag}".format(col=col, csv=self.junction_reads_filename,
                                     flag=flag))
 
     def maybe_get_validated_events(self, splice_abbrev):
@@ -930,15 +970,22 @@ class Psi(SubcommandAfterIndex):
         if self.debug:
             logger.setLevel(10)
 
-        junction_reads, metadata = self.csv()
+        junction_reads = self.csv()
 
-        junction_reads = junction_reads.set_index(
-            [self.junction_id_col, self.sample_id_col])
-        junction_reads.sort_index(inplace=True)
+        metadata_csv = os.path.join(self.junctions_folder, METADATA_CSV)
+        self.junction_metadata(junction_reads, metadata_csv)
+
+        junction_reads_2d = junction_reads.pivot(index=self.sample_id_col,
+                                                 columns=self.junction_id_col,
+                                                 values=self.reads_col)
+        junction_reads_2d.fillna(0, inplace=True)
+        junction_reads_2d = junction_reads_2d.astype(int)
+
         logger.debug('\n--- Splice Junction reads ---')
         logger.debug(repr(junction_reads.head()))
 
         psis = []
+        summaries = []
         for splice_name, splice_abbrev in outrigger.common.SPLICE_TYPES:
             filename = self.maybe_get_validated_events(splice_abbrev)
             if not os.path.exists(filename):
@@ -964,16 +1011,37 @@ class Psi(SubcommandAfterIndex):
                 'Calculating percent spliced-in (Psi) scores on '
                 '{name} ({abbrev}) events ...'.format(
                     name=splice_name, abbrev=splice_abbrev))
-            event_psi = compute.calculate_psi(
-                event_annotation, junction_reads,
-                min_reads=self.min_reads, debug=self.debug,
-                reads_col=self.reads_col, n_jobs=self.n_jobs,
+            # Splice type percent spliced-in (psi) and summary
+            type_psi, summary = compute.calculate_psi(
+                event_annotation, junction_reads_2d,
+                min_reads=self.min_reads, n_jobs=self.n_jobs,
+                method=self.method,
+                uneven_coverage_multiplier=self.uneven_coverage_multiplier,
                 **isoform_junctions)
+
+            # Write this event's percent spliced-in matrix
             csv = os.path.join(self.psi_folder, splice_abbrev,
                                'psi.csv'.format(splice_abbrev))
+            util.progress('Writing {name} ({abbrev}) Psi values to {filename}'
+                          ' ...'.format(name=splice_name, abbrev=splice_abbrev,
+                                        filename=csv))
             self.maybe_make_folder(os.path.dirname(csv))
-            event_psi.to_csv(csv)
-            psis.append(event_psi)
+            type_psi.to_csv(csv, na_rep='NA')
+
+            # Write this event's summary of events and why they weren't or were
+            # calculated Psi on
+            csv = os.path.join(self.psi_folder, splice_abbrev,
+                               'summary.csv'.format(splice_abbrev))
+            util.progress('Writing {name} ({abbrev}) event summaries (e.g. '
+                          'number of reads, why an event does not have a Psi '
+                          'score) to {filename} ...'
+                          ''.format(name=splice_name, abbrev=splice_abbrev,
+                                    filename=csv))
+            self.maybe_make_folder(os.path.dirname(csv))
+            summary.to_csv(csv, na_rep='NA', index=False)
+            psis.append(type_psi)
+            summary['splice_type'] = splice_abbrev
+            summaries.append(summary)
             util.done()
 
         util.progress('Concatenating all calculated psi scores '
@@ -984,7 +1052,17 @@ class Psi(SubcommandAfterIndex):
         csv = os.path.join(self.psi_folder, 'outrigger_psi.csv')
         util.progress('Writing a samples x features matrix of Psi '
                       'scores to {} ...'.format(csv))
-        splicing.to_csv(csv)
+        splicing.to_csv(csv, na_rep='NA')
+        util.done()
+
+        util.progress('Concatenating all summaries '
+                      'into one big matrix...')
+        summary = pd.concat(summaries, ignore_index=True)
+        util.done()
+        csv = os.path.join(self.psi_folder, 'outrigger_summary.csv')
+        util.progress('Writing summary table of Psi scores, junction reads, '
+                      'and cases to {} ...'.format(csv))
+        summary.to_csv(csv, na_rep='NA')
         util.done()
 
 

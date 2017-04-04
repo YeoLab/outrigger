@@ -73,13 +73,19 @@ def uniquely_summed_csv(bamfile, tasic2016_intermediate_bam):
     return csv
 
 
+@pytest.fixture(params=[None, 'multi', 'uniquely'])
+def empty(request):
+    return request.param
+
+
 @pytest.fixture
 def single_bam_combined_uniquely_multi_csv(tasic2016_intermediate_bam, bamfile,
-                                           ignore_multimapping):
+                                           ignore_multimapping, empty):
     basename = os.path.basename(bamfile)
+    empty_suffix = '' if empty is None else '_empty_' + empty
     basename = basename.replace(
-        '.bam', '.junction_reads_ignore-multimapping{}.csv')
-    basename = basename.format(ignore_multimapping)
+        '.bam', '.junction_reads_ignore-multimapping{}{}.csv')
+    basename = basename.format(ignore_multimapping, empty_suffix)
     return os.path.join(tasic2016_intermediate_bam, basename)
 
 
@@ -124,11 +130,18 @@ def test__choose_strand_and_sum(uniquely, uniquely_summed_csv):
     pdt.assert_series_equal(test, true)
 
 
-def test__combine_uniquely_multi(uniquely, multi, ignore_multimapping,
+def test__combine_uniquely_multi(uniquely, multi, ignore_multimapping, empty,
                                  single_bam_combined_uniquely_multi_csv):
     from outrigger.io.bam import _combine_uniquely_multi
 
-    test = _combine_uniquely_multi(uniquely, multi, ignore_multimapping)
+    u = uniquely
+    m = multi
+    if empty == 'uniquely':
+        u = {}
+    elif empty == 'multi':
+        m = {}
+
+    test = _combine_uniquely_multi(u, m, ignore_multimapping)
     true = pd.read_csv(single_bam_combined_uniquely_multi_csv)
 
     pdt.assert_frame_equal(test, true)
@@ -166,5 +179,12 @@ def test_read_multiple_bams(bam_filenames, multiple_bams_reads_table_csvs,
 
     dfs = [pd.read_csv(csv) for csv in multiple_bams_reads_table_csvs]
     true = pd.concat(dfs, ignore_index=True)
+
+    # Sort and change the index because it's the contents not the order that
+    # matters
+    test = test.sort_values(test.columns.tolist())
+    test.index = range(len(test.index))
+    true = true.sort_values(true.columns.tolist())
+    true.index = range(len(true.index))
 
     pdt.assert_frame_equal(test, true)
