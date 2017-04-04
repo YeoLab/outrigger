@@ -171,10 +171,10 @@ html_sidebars = {
     '**': [
         'about.html',
         'globaltoc.html',
-        'relations.html',
+        # 'relations.html',
         'navigation.html',
-        'links.html',
-        'sourcelink.html',
+        # 'links.html',
+        # 'sourcelink.html',
         'searchbox.html',
         # 'donate.html',
     ]

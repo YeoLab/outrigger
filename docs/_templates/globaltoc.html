@@ -1,0 +1,18 @@
+<h3><a href="{{ pathto(master_doc) }}">{{ _('Table Of Contents') }}</a></h3>
+
+<ul>
+  <li><a href="{{ pathto('index') }}">Home</a></li>
+  <li><a href="{{ pathto('contents') }}">Contents</a></li>
+  <li><a href="{{ pathto('installation') }}">Install</a></li>
+  <li><a href="{{ pathto('Usage') }}">Usage</a></li>
+  <li><a href="{{ pathto('subcommands/outrigger_index') }}">Detect exons (<pre>index</pre>)</a></li>
+  <li><a href="{{ pathto('subcommands/outrigger_validate') }}"> (<pre>validate<\pre>)</a></li>
+  <li><a href="{{ pathto('subcommands/outrigger_psi') }}">Quantify exon inclusion (<pre>psi</pre>)</a></li>
+  <li><a href="{{ pathto('history') }}">Changelog</a></li>
+  <li><a href="{{ pathto('license') }}">License</a></li>
+</ul>
+
+{%- if display_toc %}
+  <hr>
+  {{ toc }}
+{%- endif %}
