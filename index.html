@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Welcome to outrigger‘s documentation! &#8212; Outrigger 1.0.0 documentation</title>
+    <title>Welcome to outrigger’s documentation! &#8212; Outrigger 1.0.0 documentation</title>
     
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -24,15 +24,32 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="top" title="Outrigger 1.0.0 documentation" href="#" />
     <link rel="next" title="Installation" href="installation.html" />
-   
-  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-  
-  
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+    <link rel="apple-touch-icon" sizes="57x57" href="/apple-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/apple-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/apple-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/apple-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/apple-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/apple-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png">
+    <link rel="icon" type="image/png" sizes="192x192"  href="/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
+    <meta name="theme-color" content="#ffffff">
+    <!--[if IE]>
+      <script type="text/javascript" src="_static/excanvas.js"></script>
+
+    <![endif]-->
 
   </head>
   <body role="document">
@@ -44,12 +61,13 @@
           <div class="body" role="main">
             
   <div class="section" id="welcome-to-outrigger-s-documentation">
-<h1>Welcome to <code class="docutils literal"><span class="pre">outrigger</span></code>&#8216;s documentation!<a class="headerlink" href="#welcome-to-outrigger-s-documentation" title="Permalink to this headline">¶</a></h1>
-<p><img alt="OutriggerLogo" src="https://raw.githubusercontent.com/YeoLab/outrigger/master/logo/logo-300ppi.png" /></p>
+<h1>Welcome to outrigger&#8217;s documentation!<a class="headerlink" href="#welcome-to-outrigger-s-documentation" title="Permalink to this headline">¶</a></h1>
+<p><a class="reference external" href="https://github.com/YeoLab/outrigger"><img alt="OutriggerLogo" src="http://yeolab.github.io/outrigger/_static/logo-1x.png" /></a></p>
 <p><a class="reference external" href="https://travis-ci.org/YeoLab/outrigger"><img alt="BuildStatus" src="https://travis-ci.org/YeoLab/outrigger.svg?branch=master" /></a><a class="reference external" href="https://codecov.io/gh/YeoLab/outrigger"><img alt="codecov" src="https://codecov.io/gh/YeoLab/outrigger/branch/master/graph/badge.svg" /></a><a class="reference external" href="https://pypi.python.org/pypi/outrigger"><img alt="PyPIVersions" src="https://img.shields.io/pypi/v/outrigger.svg" /></a><a class="reference external" href="https://pypi.python.org/pypi/outrigger"><img alt="PythonVersionCompatibility" src="https://img.shields.io/pypi/pyversions/outrigger.svg" /></a></p>
-<div class="section" id="large-scale-detection-and-calculation-of-alternative-splicing-with-outrigger">
-<h2>Large-scale detection and calculation of alternative splicing with <a class="reference external" href="https://github.com/YeoLab/outrigger">Outrigger</a><a class="headerlink" href="#large-scale-detection-and-calculation-of-alternative-splicing-with-outrigger" title="Permalink to this headline">¶</a></h2>
-<p><a class="reference external" href="https://github.com/YeoLab/outrigger">Outrigger</a> is a program which uses junction reads from RNA seq data, and
+</div>
+<div class="section" id="fast-detection-and-accurate-calculation-of-alternative-splicing-with-outrigger">
+<h1>Fast detection and accurate calculation of alternative splicing with <code class="docutils literal"><span class="pre">outrigger</span></code><a class="headerlink" href="#fast-detection-and-accurate-calculation-of-alternative-splicing-with-outrigger" title="Permalink to this headline">¶</a></h1>
+<p><a class="reference external" href="https://github.com/YeoLab/outrigger">outrigger</a> is a program which uses junction reads from RNA seq data, and
 a graph database to create a <em>de novo</em> alternative splicing annotation
 with a graph database, and quantify percent spliced-in (Psi) of the
 events.</p>
@@ -57,10 +75,8 @@ events.</p>
 <li>Free software: BSD license</li>
 <li>Documentation is available here: <a class="reference external" href="http://yeolab.github.io/outrigger/">http://yeolab.github.io/outrigger/</a></li>
 </ul>
-</div>
-</div>
 <div class="section" id="features">
-<h1>Features<a class="headerlink" href="#features" title="Permalink to this headline">¶</a></h1>
+<h2>Features<a class="headerlink" href="#features" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li>Finds novel splicing events, including novel exons!
 (<code class="docutils literal"><span class="pre">outrigger</span> <span class="pre">index</span></code>) from <code class="docutils literal"><span class="pre">.bam</span></code> files</li>
@@ -70,23 +86,21 @@ and AT/AC for mammalian systems (<code class="docutils literal"><span class="pre
 given the validated events (or the original events if you opted not
 to validate) via <code class="docutils literal"><span class="pre">outrigger</span> <span class="pre">psi</span></code></li>
 </ul>
-<p><a class="reference external" href="https://raw.githubusercontent.com/YeoLab/outrigger/master/docs/_static/outrigger_overview-300ppi.png"><img alt="OutriggerOverview" src="https://raw.githubusercontent.com/YeoLab/outrigger/master/docs/_static/outrigger_overview-300ppi.png" /></a></p>
+<p><a class="reference external" href="http://yeolab.github.io/outrigger/_static/outrigger_overview-300ppi.png"><img alt="OutriggerOverview" src="http://yeolab.github.io/outrigger/_static/outrigger_overview-1x.png" /></a></p>
 </div>
 <div class="section" id="installation">
-<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
 <p>To install <code class="docutils literal"><span class="pre">outrigger</span></code>, we recommend using the <a class="reference external" href="http://anaconda.org/">Anaconda Python
 Distribution</a> and creating an environment.</p>
-<p>You&#8217;ll want to add the <a class="reference external" href="https://bioconda.github.io/">bioconda</a>
-channel to make installing <a class="reference external" href="bedtools.readthedocs.io">bedtools</a> and
-its Python wrapper, <a class="reference external" href="https://daler.github.io/pybedtools/">pybedtools</a>
-easy (these programs are necessary for both <code class="docutils literal"><span class="pre">outrigger</span> <span class="pre">index</span></code> and
-<code class="docutils literal"><span class="pre">outrigger</span> <span class="pre">validate</span></code>).</p>
+<p>You&#8217;ll want to add the <a class="reference external" href="https://bioconda.github.io/">bioconda</a> channel to make installing <a class="reference external" href="http://bedtools.readthedocs.io">bedtools</a> and its
+Python wrapper, <a class="reference external" href="https://daler.github.io/pybedtools/">pybedtools</a> easy, as these programs are necessary for both
+<code class="docutils literal"><span class="pre">outrigger</span> <span class="pre">index</span></code> and <code class="docutils literal"><span class="pre">outrigger</span> <span class="pre">validate</span></code>.</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">config</span> <span class="o">--</span><span class="n">add</span> <span class="n">channels</span> <span class="n">r</span>
 <span class="n">conda</span> <span class="n">config</span> <span class="o">--</span><span class="n">add</span> <span class="n">channels</span> <span class="n">bioconda</span>
 </pre></div>
 </div>
 <p>Create an environment called <code class="docutils literal"><span class="pre">outrigger-env</span></code>. Python 2.7, Python 3.4,
-and Python 3.5 are supported.</p>
+Python 3.5, and Python 3.6 are supported.</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">create</span> <span class="o">--</span><span class="n">name</span> <span class="n">outrigger</span><span class="o">-</span><span class="n">env</span> <span class="n">outrigger</span>
 </pre></div>
 </div>
@@ -117,7 +131,9 @@ optional arguments:
   --version             show program&#39;s version number and exit
 </pre></div>
 </div>
-<p>For advanced users, if you have <a class="reference external" href="https://git-scm.com/">git</a> and
+<div class="section" id="bleeding-edge-code-from-github-here">
+<h3>Bleeding edge code from Github (here)<a class="headerlink" href="#bleeding-edge-code-from-github-here" title="Permalink to this headline">¶</a></h3>
+<p>For advanced users, if you have <a class="reference external" href="https://git-scm.com">git</a> and
 <a class="reference external" href="https://www.continuum.io/downloads">Anaconda Python</a> installed, you
 can:</p>
 <ol class="arabic simple">
@@ -135,8 +151,9 @@ from Anaconda and the Python Package Index (PyPI).</li>
 </pre></div>
 </div>
 </div>
+</div>
 <div class="section" id="quick-start">
-<h1>Quick start<a class="headerlink" href="#quick-start" title="Permalink to this headline">¶</a></h1>
+<h2>Quick start<a class="headerlink" href="#quick-start" title="Permalink to this headline">¶</a></h2>
 <p>If you just want to know how to run this on your data with the default
 parameters, start here. Let&#8217;s say you performed your alignment in the
 folder called <code class="docutils literal"><span class="pre">~/projects/tasic2016/analysis/tasic2016_v1</span></code>, and that&#8217;s
@@ -149,10 +166,15 @@ change directories to that folder with <code class="docutils literal"><span clas
 <p>Then you need find all alternative splicing events, which you do by
 running <code class="docutils literal"><span class="pre">outrigger</span> <span class="pre">index</span></code> on the splice junction files and the gtf.
 Here is an example command:</p>
+<div class="section" id="input-sj-out-tab-files">
+<h3>Input: <code class="docutils literal"><span class="pre">.SJ.out.tab</span></code> files<a class="headerlink" href="#input-sj-out-tab-files" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">outrigger</span> <span class="n">index</span> <span class="o">--</span><span class="n">sj</span><span class="o">-</span><span class="n">out</span><span class="o">-</span><span class="n">tab</span> <span class="o">*</span><span class="n">SJ</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">tab</span> \
     <span class="o">--</span><span class="n">gtf</span> <span class="o">/</span><span class="n">projects</span><span class="o">/</span><span class="n">ps</span><span class="o">-</span><span class="n">yeolab</span><span class="o">/</span><span class="n">genomes</span><span class="o">/</span><span class="n">mm10</span><span class="o">/</span><span class="n">gencode</span><span class="o">/</span><span class="n">m10</span><span class="o">/</span><span class="n">gencode</span><span class="o">.</span><span class="n">vM10</span><span class="o">.</span><span class="n">annotation</span><span class="o">.</span><span class="n">gtf</span>
 </pre></div>
 </div>
+</div>
+<div class="section" id="input-bam-files">
+<h3>Input: <code class="docutils literal"><span class="pre">.bam</span></code> files<a class="headerlink" href="#input-bam-files" title="Permalink to this headline">¶</a></h3>
 <p>If you&#8217;re using <code class="docutils literal"><span class="pre">.bam</span></code> files instead of <code class="docutils literal"><span class="pre">SJ.out.tab</span></code> files, never despair!
 Below is an example command. Keep in mind that for this program to work, the
 events must be sorted and indexed.</p>
@@ -176,6 +198,9 @@ events! Thankfully this is very easy:</p>
 </div>
 <p>It should be noted that ALL of these commands should be performed in the
 same directory, so no moving.</p>
+</div>
+<div class="section" id="quick-start-summary">
+<h3>Quick start summary<a class="headerlink" href="#quick-start-summary" title="Permalink to this headline">¶</a></h3>
 <p>Here is a summary the commands in the order you would use them for
 outrigger!</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="o">~/</span><span class="n">projects</span><span class="o">/</span><span class="n">tasic2016</span><span class="o">/</span><span class="n">analysis</span><span class="o">/</span><span class="n">tasic2016_v1</span>
@@ -274,6 +299,8 @@ outrigger_output..........................................................index
 </ul>
 </div>
 </div>
+</div>
+</div>
 <div class="section" id="indices-and-tables">
 <h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
 <ul class="simple">
@@ -289,14 +316,13 @@ outrigger_output..........................................................index
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="#">Outrigger</a></h1>
-
-
-<a href="#">
-<img src="_static/logo-1x.png" width=80%>
-</a>
-
-<h3><a href="#">Table Of Contents</a></h3>
+            <p class="logo"><a href="#">
+              <img class="logo" src="_static/logo-300ppi.png" alt="Logo"/>
+            </a></p><h3>About outrigger</h3>
+<p>
+  outrigger is an RNA-seq analysis tool that helps
+    you be confident in your alternative exon inclusion calculations.
+</p><h3><a href="#">Table Of Contents</a></h3>
 
 <ul>
   <li><a href="#">Home</a></li>
@@ -311,13 +337,21 @@ outrigger_output..........................................................index
 </ul>
   <hr>
   <ul>
-<li><a class="reference internal" href="#">Welcome to <code class="docutils literal"><span class="pre">outrigger</span></code>&#8216;s documentation!</a><ul>
-<li><a class="reference internal" href="#large-scale-detection-and-calculation-of-alternative-splicing-with-outrigger">Large-scale detection and calculation of alternative splicing with Outrigger</a></li>
+<li><a class="reference internal" href="#">Welcome to outrigger&#8217;s documentation!</a></li>
+<li><a class="reference internal" href="#fast-detection-and-accurate-calculation-of-alternative-splicing-with-outrigger">Fast detection and accurate calculation of alternative splicing with <code class="docutils literal"><span class="pre">outrigger</span></code></a><ul>
+<li><a class="reference internal" href="#features">Features</a></li>
+<li><a class="reference internal" href="#installation">Installation</a><ul>
+<li><a class="reference internal" href="#bleeding-edge-code-from-github-here">Bleeding edge code from Github (here)</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#features">Features</a></li>
-<li><a class="reference internal" href="#installation">Installation</a></li>
-<li><a class="reference internal" href="#quick-start">Quick start</a></li>
+<li><a class="reference internal" href="#quick-start">Quick start</a><ul>
+<li><a class="reference internal" href="#input-sj-out-tab-files">Input: <code class="docutils literal"><span class="pre">.SJ.out.tab</span></code> files</a></li>
+<li><a class="reference internal" href="#input-bam-files">Input: <code class="docutils literal"><span class="pre">.bam</span></code> files</a></li>
+<li><a class="reference internal" href="#quick-start-summary">Quick start summary</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
 </ul>
 
