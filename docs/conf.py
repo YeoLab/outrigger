@@ -144,18 +144,18 @@ html_theme_options = {'note_bg': '#b0e4d3'}
 
 # The name of an image file (relative to this directory) to place at the
 # top of the sidebar.
-#html_logo = None
+html_logo = "logo-300ppi.png"
 
 # The name of an image file (within the static path) to use as favicon
 # of the docs.  This file should be a Windows icon file (.ico) being
 # 16x16 or 32x32 pixels large.
-#html_favicon = None
+html_favicon = "favicon.ico"
 
 # Add any paths that contain custom static files (such as style sheets)
 # here, relative to this directory. They are copied after the builtin
 # static files, so a file named "default.css" will overwrite the builtin
 # "default.css".
-html_static_path = ['_static', '../logo']
+html_static_path = ['_static', '../logo/v2', '../logo/favicon']
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page
 # bottom, using the given strftime format.
@@ -168,15 +168,16 @@ html_static_path = ['_static', '../logo']
 # Custom sidebar templates, maps document names to template names.
 # These exist because Alabaster makes it so
 html_sidebars = {
-    '**': [
-        'about.html',
+    'index': [
+        'sidebarintro.html',
+        # 'about.html',
         'globaltoc.html',
-        # 'relations.html',
-        # 'navigation.html',
-        # 'links.html',
-        # 'sourcelink.html',
         'searchbox.html',
-        # 'donate.html',
+    ],
+    '**': [
+        # 'about.html',
+        'globaltoc.html',
+        'searchbox.html',
     ]
 }
 
