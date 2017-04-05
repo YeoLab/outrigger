@@ -4,7 +4,7 @@
 
 |BuildStatus|\ |codecov|\ |PyPIVersions|\ |PythonVersionCompatibility|
 
-.. |OutriggerLogo| image:: http://yeolab.github.io/outrigger/_static/logo-300ppi.png
+.. |OutriggerLogo| image:: http://yeolab.github.io/outrigger/_static/logo-1x.png
     :target: https://github.com/YeoLab/outrigger
 .. |BuildStatus| image:: https://travis-ci.org/YeoLab/outrigger.svg?branch=master
     :target: https://travis-ci.org/YeoLab/outrigger
@@ -15,11 +15,11 @@
 .. |PythonVersionCompatibility| image:: https://img.shields.io/pypi/pyversions/outrigger.svg
     :target: https://pypi.python.org/pypi/outrigger
 
-=============================================================================
-Large-scale detection and calculation of alternative splicing with Outrigger_
-=============================================================================
+==================================================================================
+Fast detection and accurate calculation of alternative splicing with ``outrigger``
+==================================================================================
 
-Outrigger_ is a program which uses junction reads from RNA seq data, and
+outrigger_ is a program which uses junction reads from RNA seq data, and
 a graph database to create a *de novo* alternative splicing annotation
 with a graph database, and quantify percent spliced-in (Psi) of the
 events.
@@ -40,7 +40,7 @@ Features
 
 |OutriggerOverview|
 
-.. |OutriggerOverview| image:: https://raw.githubusercontent.com/YeoLab/outrigger/master/docs/_static/outrigger_overview-300ppi.png
+.. |OutriggerOverview| image:: http://yeolab.github.io/outrigger/_static/outrigger_overview-1x.png
     :target: http://yeolab.github.io/outrigger/_static/outrigger_overview-300ppi.png
 
 Installation
@@ -49,11 +49,9 @@ Installation
 To install ``outrigger``, we recommend using the `Anaconda Python
 Distribution <http://anaconda.org/>`__ and creating an environment.
 
-You'll want to add the `bioconda <https://bioconda.github.io/>`__
-channel to make installing `bedtools <bedtools.readthedocs.io>`__ and
-its Python wrapper, `pybedtools <https://daler.github.io/pybedtools/>`__
-easy (these programs are necessary for both ``outrigger index`` and
-``outrigger validate``).
+You'll want to add the bioconda_ channel to make installing bedtools_ and its
+Python wrapper, pybedtools_ easy, as these programs are necessary for both
+``outrigger index`` and ``outrigger validate``.
 
 ::
 
@@ -61,7 +59,7 @@ easy (these programs are necessary for both ``outrigger index`` and
     conda config --add channels bioconda
 
 Create an environment called ``outrigger-env``. Python 2.7, Python 3.4,
-and Python 3.5 are supported.
+Python 3.5, and Python 3.6 are supported.
 
 ::
 
@@ -101,7 +99,7 @@ option (``-h``), ``outrigger -h``. The output should look like this:
 Bleeding edge code from Github (here)
 -------------------------------------
 
-For advanced users, if you have `git <https://git-scm.com/>`__ and
+For advanced users, if you have git_ and
 `Anaconda Python <https://www.continuum.io/downloads>`__ installed, you
 can:
 
@@ -244,4 +242,8 @@ produced it.
     10 directories, 26 files
 
 
-.. _Outrigger: https://github.com/YeoLab/outrigger
+.. _outrigger: https://github.com/YeoLab/outrigger
+.. _bioconda: https://bioconda.github.io/
+.. _bedtools: http://bedtools.readthedocs.io
+.. _git: https://git-scm.com
+.. _pybedtools: https://daler.github.io/pybedtools/
