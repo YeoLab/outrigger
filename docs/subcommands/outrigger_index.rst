@@ -2,6 +2,14 @@
 ``index``: Build a *de novo* splicing annotation index of events custom to **your** data
 ========================================================================================
 
+.. note::
+
+    We highly recommend to use ``outrigger index`` on a supercomputer with
+    multiple processors (at least 4) as the indexing process takes a long time
+    -- over 24 hours, and by using multiple threads, the program will run much
+    faster.
+
+
 Overview
 --------
 The purpose of ``outrigger index`` is to create a custom splicing database
@@ -18,6 +26,8 @@ the same way.
 
 .. |OutriggerIndex| image:: ../_static/outrigger_index-300ppi.png
     :target: ../_static/outrigger_index-300ppi.png
+
+
 
 
 Inputs

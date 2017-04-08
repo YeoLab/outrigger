@@ -134,6 +134,14 @@ change directories to that folder with ``cd``.
 
 Then you need find all alternative splicing events, which you do by
 running ``outrigger index`` on the splice junction files and the gtf.
+
+.. note::
+
+    We highly recommend to use ``outrigger index`` on a supercomputer with
+    multiple processors (at least 4) as the indexing process takes a long time
+    -- over 24 hours, and by using multiple threads, the program will run much
+    faster.
+
 Here is an example command:
 
 Input: ``.SJ.out.tab`` files
@@ -240,6 +248,18 @@ produced it.
             └── summary.csv.....................................................psi
 
     10 directories, 26 files
+
+Approximate runtimes
+====================
+
+Here are the expected runtimes for the different steps of ``outrigger``. In all
+ cases, we **strongly recommend** using a supercomputer with at least 4 cores, ideally 8-16.
+
+
+- ``outrigger index``: This will run for 24-48 hours.
+- ``outrigger validate``: This will take 2-4 hours.
+- ``outrigger psi``: This will run for 4-8 hours.
+
 
 
 .. _outrigger: https://github.com/YeoLab/outrigger
