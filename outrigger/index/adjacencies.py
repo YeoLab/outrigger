@@ -166,6 +166,9 @@ class ExonJunctionAdjacencies(object):
         self.existing_exons = set(
             i['id'] for i in self.db.execute(
                 'select id from features where featuretype = "exon"'))
+        self.existing_exons.update(
+            i['id'] for i in self.db.execute(
+                'select id from features where featuretype = "noveL_exon"'))
         done(n_tabs=3)
         self.max_de_novo_exon_length = max_de_novo_exon_length
 
