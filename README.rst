@@ -4,7 +4,7 @@
 
 |BuildStatus|\ |codecov|\ |PyPIVersions|\ |PythonVersionCompatibility|
 
-.. |OutriggerLogo| image:: https://raw.githubusercontent.com/YeoLab/outrigger/master/logo/logo-1x.png
+.. |OutriggerLogo| image:: http://yeolab.github.io/outrigger/_static/logo-400px.png
     :target: https://github.com/YeoLab/outrigger
 .. |BuildStatus| image:: https://travis-ci.org/YeoLab/outrigger.svg?branch=master
     :target: https://travis-ci.org/YeoLab/outrigger
@@ -15,11 +15,11 @@
 .. |PythonVersionCompatibility| image:: https://img.shields.io/pypi/pyversions/outrigger.svg
     :target: https://pypi.python.org/pypi/outrigger
 
-=============================================================================
-Large-scale detection and calculation of alternative splicing with Outrigger_
-=============================================================================
+==================================================================================
+Fast detection and accurate calculation of alternative splicing with ``outrigger``
+==================================================================================
 
-Outrigger_ is a program which uses junction reads from RNA seq data, and
+outrigger_ is a program which uses junction reads from RNA seq data, and
 a graph database to create a *de novo* alternative splicing annotation
 with a graph database, and quantify percent spliced-in (Psi) of the
 events.
@@ -40,8 +40,8 @@ Features
 
 |OutriggerOverview|
 
-.. |OutriggerOverview| image:: https://raw.githubusercontent.com/YeoLab/outrigger/master/docs/_static/outrigger_overview-300ppi.png
-    :target: https://raw.githubusercontent.com/YeoLab/outrigger/master/docs/_static/outrigger_overview-300ppi.png
+.. |OutriggerOverview| image:: http://yeolab.github.io/outrigger/_static/outrigger_overview-1x.png
+    :target: http://yeolab.github.io/outrigger/_static/outrigger_overview-300ppi.png
 
 Installation
 ============
@@ -49,11 +49,9 @@ Installation
 To install ``outrigger``, we recommend using the `Anaconda Python
 Distribution <http://anaconda.org/>`__ and creating an environment.
 
-You'll want to add the `bioconda <https://bioconda.github.io/>`__
-channel to make installing `bedtools <bedtools.readthedocs.io>`__ and
-its Python wrapper, `pybedtools <https://daler.github.io/pybedtools/>`__
-easy (these programs are necessary for both ``outrigger index`` and
-``outrigger validate``).
+You'll want to add the bioconda_ channel to make installing bedtools_ and its
+Python wrapper, pybedtools_ easy, as these programs are necessary for both
+``outrigger index`` and ``outrigger validate``.
 
 ::
 
@@ -61,7 +59,7 @@ easy (these programs are necessary for both ``outrigger index`` and
     conda config --add channels bioconda
 
 Create an environment called ``outrigger-env``. Python 2.7, Python 3.4,
-and Python 3.5 are supported.
+Python 3.5, and Python 3.6 are supported.
 
 ::
 
@@ -101,7 +99,7 @@ option (``-h``), ``outrigger -h``. The output should look like this:
 Bleeding edge code from Github (here)
 -------------------------------------
 
-For advanced users, if you have `git <https://git-scm.com/>`__ and
+For advanced users, if you have git_ and
 `Anaconda Python <https://www.continuum.io/downloads>`__ installed, you
 can:
 
@@ -136,22 +134,35 @@ change directories to that folder with ``cd``.
 
 Then you need find all alternative splicing events, which you do by
 running ``outrigger index`` on the splice junction files and the gtf.
+
+.. note::
+
+    We highly recommend to use ``outrigger index`` on a supercomputer with
+    multiple processors (at least 4) as the indexing process takes a long time
+    -- over 24 hours, and by using multiple threads, the program will run much
+    faster.
+
 Here is an example command:
 
-Input: ``.SJ.out.tab`` files
-----------------------------
-
+Input: ``.SJ.out.tab`` files (faster)
+-------------------------------------
+This is faster than using ``.bam`` files because the junction counts are
+already aggregated.
 ::
 
     outrigger index --sj-out-tab *SJ.out.tab \
         --gtf /projects/ps-yeolab/genomes/mm10/gencode/m10/gencode.vM10.annotation.gtf
 
-Input: ``.bam`` files
----------------------
+Input: ``.bam`` files (slower)
+------------------------------
 
 If you're using ``.bam`` files instead of ``SJ.out.tab`` files, never despair!
+This will be slightly slower because ``outrigger`` needs to count every time a read
+spans an exon-exon junction.
+
+
 Below is an example command. Keep in mind that for this program to work, the
-events must be sorted and indexed.
+``bams`` must be sorted and indexed.
 
 ::
 
@@ -201,47 +212,63 @@ produced it.
 ::
 
     $ tree outrigger_output
-    outrigger_output..........................................................index
-    ├── index.................................................................index
-    │   ├── gtf...............................................................index
-    │   │   ├── gencode.vM10.annotation.gtf...................................index
-    │   │   ├── gencode.vM10.annotation.gtf.db................................index
-    │   │   └── novel_exons.gtf...............................................index
-    │   ├── exon_direction_junction_triples.csv...............................index
-    │   ├── mxe...............................................................index
-    │   │   ├── event.bed.....................................................index
-    │   │   ├── events.csv....................................................index
-    │   │   ├── exon1.bed.....................................................index
-    │   │   ├── exon2.bed.....................................................index
-    │   │   ├── exon3.bed.....................................................index
-    │   │   ├── exon4.bed.....................................................index
-    │   │   ├── intron.bed....................................................index
-    │   │   ├── splice_sites.csv...........................................validate
-    │   │   └── validated..................................................validate
-    │   │       └── events.csv.............................................validate
-    │   └── se................................................................index
-    │       ├── event.bed.....................................................index
-    │       ├── events.csv....................................................index
-    │       ├── exon1.bed.....................................................index
-    │       ├── exon2.bed.....................................................index
-    │       ├── exon3.bed.....................................................index
-    │       ├── intron.bed....................................................index
-    │       ├── splice_sites.csv...........................................validate
-    │       └── validated..................................................validate
-    │           └── events.csv.............................................validate
-    ├── junctions.............................................................index
-    │   ├── metadata.csv......................................................index
-    │   └── reads.csv.........................................................index
-    └── psi.....................................................................psi
-        ├── mxe.................................................................psi
-        |   ├── psi.csv.........................................................psi
-        │   └── summary.csv.....................................................psi
-        ├── outrigger_psi.csv...................................................psi
-        └── se..................................................................psi
-            ├── psi.csv.........................................................psi
-            └── summary.csv.....................................................psi
+    outrigger_output...................................................index
+    ├── index..........................................................index
+    │   ├── gtf........................................................index
+    │   │   ├── gencode.vM10.annotation.gtf............................index
+    │   │   ├── gencode.vM10.annotation.gtf.db.........................index
+    │   │   └── novel_exons.gtf........................................index
+    │   ├── exon_direction_junction_triples.csv........................index
+    │   ├── mxe........................................................index
+    │   │   ├── event.bed..............................................index
+    │   │   ├── events.csv.............................................index
+    │   │   ├── exon1.bed..............................................index
+    │   │   ├── exon2.bed..............................................index
+    │   │   ├── exon3.bed..............................................index
+    │   │   ├── exon4.bed..............................................index
+    │   │   ├── intron.bed.............................................index
+    │   │   ├── splice_sites.csv....................................validate
+    │   │   └── validated...........................................validate
+    │   │       └── events.csv......................................validate
+    │   └── se.........................................................index
+    │       ├── event.bed..............................................index
+    │       ├── events.csv.............................................index
+    │       ├── exon1.bed..............................................index
+    │       ├── exon2.bed..............................................index
+    │       ├── exon3.bed..............................................index
+    │       ├── intron.bed.............................................index
+    │       ├── splice_sites.csv....................................validate
+    │       └── validated...........................................validate
+    │           └── events.csv......................................validate
+    ├── junctions......................................................index
+    │   ├── metadata.csv...............................................index
+    │   └── reads.csv..................................................index
+    └── psi..............................................................psi
+        ├── mxe..........................................................psi
+        |   ├── psi.csv..................................................psi
+        │   └── summary.csv..............................................psi
+        ├── outrigger_psi.csv............................................psi
+        └── se...........................................................psi
+            ├── psi.csv..................................................psi
+            └── summary.csv..............................................psi
 
     10 directories, 26 files
 
+Approximate runtimes
+====================
 
-.. _Outrigger: https://github.com/YeoLab/outrigger
+Here are the expected runtimes for the different steps of ``outrigger``. In all
+ cases, we **strongly recommend** using a supercomputer with at least 4 cores, ideally 8-16.
+
+
+- ``outrigger index``: This will run for 24-48 hours.
+- ``outrigger validate``: This will take 2-4 hours.
+- ``outrigger psi``: This will run for 4-8 hours.
+
+
+
+.. _outrigger: https://github.com/YeoLab/outrigger
+.. _bioconda: https://bioconda.github.io/
+.. _bedtools: http://bedtools.readthedocs.io
+.. _git: https://git-scm.com
+.. _pybedtools: https://daler.github.io/pybedtools/
