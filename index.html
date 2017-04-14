@@ -164,20 +164,31 @@ change directories to that folder with <code class="docutils literal"><span clas
 </pre></div>
 </div>
 <p>Then you need find all alternative splicing events, which you do by
-running <code class="docutils literal"><span class="pre">outrigger</span> <span class="pre">index</span></code> on the splice junction files and the gtf.
-Here is an example command:</p>
-<div class="section" id="input-sj-out-tab-files">
-<h3>Input: <code class="docutils literal"><span class="pre">.SJ.out.tab</span></code> files<a class="headerlink" href="#input-sj-out-tab-files" title="Permalink to this headline">¶</a></h3>
+running <code class="docutils literal"><span class="pre">outrigger</span> <span class="pre">index</span></code> on the splice junction files and the gtf.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">We highly recommend to use <code class="docutils literal"><span class="pre">outrigger</span> <span class="pre">index</span></code> on a supercomputer with
+multiple processors (at least 4) as the indexing process takes a long time
+&#8211; over 24 hours, and by using multiple threads, the program will run much
+faster.</p>
+</div>
+<p>Here is an example command:</p>
+<div class="section" id="input-sj-out-tab-files-faster">
+<h3>Input: <code class="docutils literal"><span class="pre">.SJ.out.tab</span></code> files (faster)<a class="headerlink" href="#input-sj-out-tab-files-faster" title="Permalink to this headline">¶</a></h3>
+<p>This is faster than using <code class="docutils literal"><span class="pre">.bam</span></code> files because the junction counts are
+already aggregated.</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">outrigger</span> <span class="n">index</span> <span class="o">--</span><span class="n">sj</span><span class="o">-</span><span class="n">out</span><span class="o">-</span><span class="n">tab</span> <span class="o">*</span><span class="n">SJ</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">tab</span> \
     <span class="o">--</span><span class="n">gtf</span> <span class="o">/</span><span class="n">projects</span><span class="o">/</span><span class="n">ps</span><span class="o">-</span><span class="n">yeolab</span><span class="o">/</span><span class="n">genomes</span><span class="o">/</span><span class="n">mm10</span><span class="o">/</span><span class="n">gencode</span><span class="o">/</span><span class="n">m10</span><span class="o">/</span><span class="n">gencode</span><span class="o">.</span><span class="n">vM10</span><span class="o">.</span><span class="n">annotation</span><span class="o">.</span><span class="n">gtf</span>
 </pre></div>
 </div>
 </div>
-<div class="section" id="input-bam-files">
-<h3>Input: <code class="docutils literal"><span class="pre">.bam</span></code> files<a class="headerlink" href="#input-bam-files" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="input-bam-files-slower">
+<h3>Input: <code class="docutils literal"><span class="pre">.bam</span></code> files (slower)<a class="headerlink" href="#input-bam-files-slower" title="Permalink to this headline">¶</a></h3>
 <p>If you&#8217;re using <code class="docutils literal"><span class="pre">.bam</span></code> files instead of <code class="docutils literal"><span class="pre">SJ.out.tab</span></code> files, never despair!
-Below is an example command. Keep in mind that for this program to work, the
-events must be sorted and indexed.</p>
+This will be slightly slower because <code class="docutils literal"><span class="pre">outrigger</span></code> needs to count every time a read
+spans an exon-exon junction.</p>
+<p>Below is an example command. Keep in mind that for this program to work, the
+<code class="docutils literal"><span class="pre">bams</span></code> must be sorted and indexed.</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">outrigger</span> <span class="n">index</span> <span class="o">--</span><span class="n">bam</span> <span class="o">*</span><span class="nb">sorted</span><span class="o">.</span><span class="n">bam</span> \
     <span class="o">--</span><span class="n">gtf</span> <span class="o">/</span><span class="n">projects</span><span class="o">/</span><span class="n">ps</span><span class="o">-</span><span class="n">yeolab</span><span class="o">/</span><span class="n">genomes</span><span class="o">/</span><span class="n">mm10</span><span class="o">/</span><span class="n">gencode</span><span class="o">/</span><span class="n">m10</span><span class="o">/</span><span class="n">gencode</span><span class="o">.</span><span class="n">vM10</span><span class="o">.</span><span class="n">annotation</span><span class="o">.</span><span class="n">gtf</span>
 </pre></div>
@@ -215,49 +226,62 @@ outrigger!</p>
 should look like the one below. Each file and folder is annotated with which command
 produced it.</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span>$ tree outrigger_output
-outrigger_output..........................................................index
-├── index.................................................................index
-│   ├── gtf...............................................................index
-│   │   ├── gencode.vM10.annotation.gtf...................................index
-│   │   ├── gencode.vM10.annotation.gtf.db................................index
-│   │   └── novel_exons.gtf...............................................index
-│   ├── exon_direction_junction_triples.csv...............................index
-│   ├── mxe...............................................................index
-│   │   ├── event.bed.....................................................index
-│   │   ├── events.csv....................................................index
-│   │   ├── exon1.bed.....................................................index
-│   │   ├── exon2.bed.....................................................index
-│   │   ├── exon3.bed.....................................................index
-│   │   ├── exon4.bed.....................................................index
-│   │   ├── intron.bed....................................................index
-│   │   ├── splice_sites.csv...........................................validate
-│   │   └── validated..................................................validate
-│   │       └── events.csv.............................................validate
-│   └── se................................................................index
-│       ├── event.bed.....................................................index
-│       ├── events.csv....................................................index
-│       ├── exon1.bed.....................................................index
-│       ├── exon2.bed.....................................................index
-│       ├── exon3.bed.....................................................index
-│       ├── intron.bed....................................................index
-│       ├── splice_sites.csv...........................................validate
-│       └── validated..................................................validate
-│           └── events.csv.............................................validate
-├── junctions.............................................................index
-│   ├── metadata.csv......................................................index
-│   └── reads.csv.........................................................index
-└── psi.....................................................................psi
-    ├── mxe.................................................................psi
-    |   ├── psi.csv.........................................................psi
-    │   └── summary.csv.....................................................psi
-    ├── outrigger_psi.csv...................................................psi
-    └── se..................................................................psi
-        ├── psi.csv.........................................................psi
-        └── summary.csv.....................................................psi
+outrigger_output...................................................index
+├── index..........................................................index
+│   ├── gtf........................................................index
+│   │   ├── gencode.vM10.annotation.gtf............................index
+│   │   ├── gencode.vM10.annotation.gtf.db.........................index
+│   │   └── novel_exons.gtf........................................index
+│   ├── exon_direction_junction_triples.csv........................index
+│   ├── mxe........................................................index
+│   │   ├── event.bed..............................................index
+│   │   ├── events.csv.............................................index
+│   │   ├── exon1.bed..............................................index
+│   │   ├── exon2.bed..............................................index
+│   │   ├── exon3.bed..............................................index
+│   │   ├── exon4.bed..............................................index
+│   │   ├── intron.bed.............................................index
+│   │   ├── splice_sites.csv....................................validate
+│   │   └── validated...........................................validate
+│   │       └── events.csv......................................validate
+│   └── se.........................................................index
+│       ├── event.bed..............................................index
+│       ├── events.csv.............................................index
+│       ├── exon1.bed..............................................index
+│       ├── exon2.bed..............................................index
+│       ├── exon3.bed..............................................index
+│       ├── intron.bed.............................................index
+│       ├── splice_sites.csv....................................validate
+│       └── validated...........................................validate
+│           └── events.csv......................................validate
+├── junctions......................................................index
+│   ├── metadata.csv...............................................index
+│   └── reads.csv..................................................index
+└── psi..............................................................psi
+    ├── mxe..........................................................psi
+    |   ├── psi.csv..................................................psi
+    │   └── summary.csv..............................................psi
+    ├── outrigger_psi.csv............................................psi
+    └── se...........................................................psi
+        ├── psi.csv..................................................psi
+        └── summary.csv..............................................psi
 
 10 directories, 26 files
 </pre></div>
 </div>
+</div>
+</div>
+<div class="section" id="approximate-runtimes">
+<h2>Approximate runtimes<a class="headerlink" href="#approximate-runtimes" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt>Here are the expected runtimes for the different steps of <code class="docutils literal"><span class="pre">outrigger</span></code>. In all</dt>
+<dd>cases, we <strong>strongly recommend</strong> using a supercomputer with at least 4 cores, ideally 8-16.</dd>
+</dl>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">outrigger</span> <span class="pre">index</span></code>: This will run for 24-48 hours.</li>
+<li><code class="docutils literal"><span class="pre">outrigger</span> <span class="pre">validate</span></code>: This will take 2-4 hours.</li>
+<li><code class="docutils literal"><span class="pre">outrigger</span> <span class="pre">psi</span></code>: This will run for 4-8 hours.</li>
+</ul>
 <p>Contents:</p>
 <div class="toctree-wrapper compound">
 <ul>
@@ -297,7 +321,6 @@ outrigger_output..........................................................index
 </ul>
 </li>
 </ul>
-</div>
 </div>
 </div>
 </div>
@@ -345,11 +368,12 @@ outrigger_output..........................................................index
 </ul>
 </li>
 <li><a class="reference internal" href="#quick-start">Quick start</a><ul>
-<li><a class="reference internal" href="#input-sj-out-tab-files">Input: <code class="docutils literal"><span class="pre">.SJ.out.tab</span></code> files</a></li>
-<li><a class="reference internal" href="#input-bam-files">Input: <code class="docutils literal"><span class="pre">.bam</span></code> files</a></li>
+<li><a class="reference internal" href="#input-sj-out-tab-files-faster">Input: <code class="docutils literal"><span class="pre">.SJ.out.tab</span></code> files (faster)</a></li>
+<li><a class="reference internal" href="#input-bam-files-slower">Input: <code class="docutils literal"><span class="pre">.bam</span></code> files (slower)</a></li>
 <li><a class="reference internal" href="#quick-start-summary">Quick start summary</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#approximate-runtimes">Approximate runtimes</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
