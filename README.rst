@@ -144,20 +144,25 @@ running ``outrigger index`` on the splice junction files and the gtf.
 
 Here is an example command:
 
-Input: ``.SJ.out.tab`` files
-----------------------------
-
+Input: ``.SJ.out.tab`` files (faster)
+-------------------------------------
+This is faster than using ``.bam`` files because the junction counts are
+already aggregated.
 ::
 
     outrigger index --sj-out-tab *SJ.out.tab \
         --gtf /projects/ps-yeolab/genomes/mm10/gencode/m10/gencode.vM10.annotation.gtf
 
-Input: ``.bam`` files
----------------------
+Input: ``.bam`` files (slower)
+------------------------------
 
 If you're using ``.bam`` files instead of ``SJ.out.tab`` files, never despair!
+This will be slightly slower because ``outrigger`` needs to count every time a read
+spans an exon-exon junction.
+
+
 Below is an example command. Keep in mind that for this program to work, the
-events must be sorted and indexed.
+``bams`` must be sorted and indexed.
 
 ::
 
