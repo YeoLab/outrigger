@@ -18,7 +18,7 @@ before_install:
 - which -a curl
 
 install:
-- conda env create --file testing/environment_no_python.yml python=2.7
+- conda env create --file testing/environment_no_python.yml python=$TRAVIS_PYTHON_VERSION
 - source activate outrigger-env
 - pip install .
 
