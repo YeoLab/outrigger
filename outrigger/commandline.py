@@ -8,6 +8,7 @@ import shutil
 import sys
 import traceback
 
+import click
 import gffutils
 import numpy as np
 import pandas as pd
@@ -28,6 +29,130 @@ JUNCTION_METADATA_PATH = os.path.join(JUNCTION_PATH, 'metadata.csv')
 INDEX = os.path.join(OUTPUT, 'index')
 EVENTS_CSV = 'events.csv'
 METADATA_CSV = 'metadata.csv'
+
+
+class Output(object):
+    def __init__(self, ):
+        pass
+
+@click.group()
+@click.option('--n-jobs', default=-1, type=int)
+@click.option('--debug', default=False, is_flag=True)
+@click.pass_context
+def cli(ctx, n_jobs, debug):
+    ctx.n_jobs = n_jobs
+    ctx.debug = debug
+    # ctx.obj = Repo(repo_home, debug)
+
+
+@cli.command()
+@click.argument('bam', nargs=-1, type=click.Path(exists=True))
+@click.option('--ignore-multimapping', is_flag=True)
+def count(bam, ignore_multimapping):
+    """Get number of junction reads from an alignment file
+    
+    help="Location of bam files to use for finding events."
+    
+    Applies to STAR SJ.out.tab files only. If this flag is used, then do not '
+                                       'include reads that mapped to multiple '
+                                       'locations in the genome, not uniquely '
+                                       'to a locus, in the read count for a '
+                                       'junction. If inputting "bam" files, '
+                                       'then this means that reads with a '
+                                       'mapping quality (MAPQ) of less than '
+                                       '255 are considered "multimapped." This'
+                                       ' is the same thing as what the STAR '
+                                       'aligner does. By default, this is off,'
+                                       ' and all reads are used.'
+    """
+    pass
+
+
+@cli.command()
+@click.argument('junction_reads')
+@click.option('--min-reads', type=int, default=10)
+@click.option('--max-de-novo-exon-length', '-l',
+              default=common.MAX_DE_NOVO_EXON_LENGTH)
+@click.option('--gtf-filename', type=click.Path(exists=True))
+@click.option('--gffutils-db', type=click.Path(exists=True))
+def detect(junction_reads, min_reads):
+    """Find novel exons that exist between junctions
+
+    help='Minimum number of reads per junction '
+       'for that junction to count in creating'
+       ' the index of splicing events '
+       '(default=10)'
+       
+    help='Maximum length of an exon detected '
+                 '*de novo* from the dataset. This is to'
+                 ' prevent multiple kilobase long exons '
+                 'from being accidentally created. '
+                 '(default={})'.format(
+                    outrigger.common.MAX_DE_NOVO_EXON_LENGTH)
+                    
+    help="Name of the gtf file you want to use. If"
+                                     " a gffutils feature database doesn't "
+                                     "already exist at this location plus "
+                                     "'.db' (e.g. if your gtf is gencode.v19."
+                                     "annotation.gtf, then the database is "
+                                     "inferred to be gencode.v19.annotation."
+                                     "gtf.db), then a database will be auto-"
+                                     "created. Not required if you provide a "
+                                     "pre-built database with "
+                                     "'--gffutils-db'"
+    help="Name of the gffutils database file you "
+                                     "want to use. The exon IDs defined here "
+                                     "will be used in the function when "
+                                     "creating splicing event names. Not "
+                                     "required if you provide a gtf file with"
+                                     " '--gtf-filename'"
+    """
+    pass
+
+@cli.command()
+@click.argument('junction_reads')
+@click.option('--min-reads', default=10)
+def adjacencies(junction_reads, min_reads):
+    """Make adjacency list of showing relationships of exons to junctions
+
+    help='Minimum number of reads per junction '
+         'for that junction to count in creating'
+         ' the index of splicing events '
+         '(default=10)'
+    """
+    pass
+
+@cli.command()
+@click.argument('adjacencies')
+@click.option('--se', type=click.Path(exists=False))
+@click.option('--mxe', type=click.Path(exists=False))
+def events(adjacencies, se, mxe):
+    """Create a graph of exon connectivity and traverse the graph to find alternative exons
+    \b
+    Parameters
+    ----------
+    --se
+    """
+    pass
+
+
+@cli.command()
+def index():
+    count()
+    detect()
+    adjacencies()
+    events()
+
+
+@cli.command()
+def validate():
+    pass
+
+@cli.command()
+def psi():
+    pass
+
+
 
 
 class CommandLine(object):
@@ -80,19 +205,6 @@ class CommandLine(object):
                                        'for that junction to count in creating'
                                        ' the index of splicing events '
                                        '(default=10)')
-        index_parser.add_argument('--ignore-multimapping', action='store_true',
-                                  help='Applies to STAR SJ.out.tab files only.'
-                                       ' If this flag is used, then do not '
-                                       'include reads that mapped to multiple '
-                                       'locations in the genome, not uniquely '
-                                       'to a locus, in the read count for a '
-                                       'junction. If inputting "bam" files, '
-                                       'then this means that reads with a '
-                                       'mapping quality (MAPQ) of less than '
-                                       '255 are considered "multimapped." This'
-                                       ' is the same thing as what the STAR '
-                                       'aligner does. By default, this is off,'
-                                       ' and all reads are used.')
         index_parser.add_argument(
             '-l', '--max-de-novo-exon-length',
             default=outrigger.common.MAX_DE_NOVO_EXON_LENGTH, action='store',
@@ -1066,12 +1178,13 @@ class Psi(SubcommandAfterIndex):
         util.done()
 
 
-def main():
-    try:
-        cl = CommandLine(sys.argv[1:])
-    except Usage:
-        cl.do_usage_and_die()
+# def main():
+#     try:
+#         cl = CommandLine(sys.argv[1:])
+#     except Usage:
+#         cl.do_usage_and_die()
 
 
 if __name__ == '__main__':
-    main()
+    # main()
+    cli()
