@@ -37,7 +37,6 @@ class Output(object):
 
 @click.group()
 @click.option('--n-jobs', default=-1, type=int)
-@click.option('--debug', default=False, is_flag=True)
 @click.pass_context
 def cli(ctx, n_jobs, debug):
     ctx.n_jobs = n_jobs
@@ -45,10 +44,21 @@ def cli(ctx, n_jobs, debug):
     # ctx.obj = Repo(repo_home, debug)
 
 
+def write_junctions_csv(splice_junctions, csv):
+    dirname = os.path.dirname(csv)
+    if not os.path.exists(dirname):
+        os.makedirs(dirname)
+    util.progress('Writing {} ...\n'.format(csv))
+    splice_junctions.to_csv(csv, index=False)
+    util.done()
+
+
 @cli.command()
 @click.argument('bam', nargs=-1, type=click.Path(exists=True))
 @click.option('--ignore-multimapping', is_flag=True)
-def count(bam, ignore_multimapping):
+@click.option('--output', type=click.Path(), default='junction_reads.csv')
+@click.pass_n_jobs
+def count(bam, ignore_multimapping, output, n_jobs):
     """Get number of junction reads from an alignment file
     
     help="Location of bam files to use for finding events."
@@ -65,7 +75,42 @@ def count(bam, ignore_multimapping):
                                        'aligner does. By default, this is off,'
                                        ' and all reads are used.'
     """
-    pass
+    util.progress('Reading bam files and creating a big splice '
+                  'junction table of reads spanning exon-exon '
+                  'junctions')
+    splice_junctions = bam.read_multiple_bams(
+        bam, ignore_multimapping, n_jobs)
+    write_junctions_csv(splice_junctions, output)
+
+
+@cli.command()
+@click.argument('sj_out_tab', nargs=-1, type=click.Path(exists=True))
+@click.option('--ignore-multimapping', is_flag=True)
+@click.option('--output', type=click.Path(), default='junction_reads.csv')
+@click.pass_n_jobs
+def aggregate(sj_out_tab, ignore_multimapping, output, n_jobs):
+    """Combine multiple junction read files (*SJ.out.tab) across samples
+    
+    help="Location of bam files to use for finding events."
+    
+    Applies to STAR SJ.out.tab files only. If this flag is used, then do not '
+                                       'include reads that mapped to multiple '
+                                       'locations in the genome, not uniquely '
+                                       'to a locus, in the read count for a '
+                                       'junction. If inputting "bam" files, '
+                                       'then this means that reads with a '
+                                       'mapping quality (MAPQ) of less than '
+                                       '255 are considered "multimapped." This'
+                                       ' is the same thing as what the STAR '
+                                       'aligner does. By default, this is off,'
+                                       ' and all reads are used.'
+    """
+    util.progress(
+        'Reading SJ.out.files and creating a big splice junction'
+        ' table of reads spanning exon-exon junctions...')
+    splice_junctions = star.read_multiple_sj_out_tab(
+        sj_out_tab, ignore_multimapping=ignore_multimapping, n_jobs)
+    write_junctions_csv(splice_junctions, output)
 
 
 @cli.command()
@@ -75,6 +120,8 @@ def count(bam, ignore_multimapping):
               default=common.MAX_DE_NOVO_EXON_LENGTH)
 @click.option('--gtf-filename', type=click.Path(exists=True))
 @click.option('--gffutils-db', type=click.Path(exists=True))
+@click.pass_debug
+@click.pass_n_jobs
 def detect(junction_reads, min_reads):
     """Find novel exons that exist between junctions
 
@@ -112,6 +159,8 @@ def detect(junction_reads, min_reads):
 @cli.command()
 @click.argument('junction_reads')
 @click.option('--min-reads', default=10)
+@click.pass_debug
+@click.pass_n_jobs
 def adjacencies(junction_reads, min_reads):
     """Make adjacency list of showing relationships of exons to junctions
 
@@ -126,6 +175,8 @@ def adjacencies(junction_reads, min_reads):
 @click.argument('adjacencies')
 @click.option('--se', type=click.Path(exists=False))
 @click.option('--mxe', type=click.Path(exists=False))
+@click.pass_debug
+@click.pass_n_jobs
 def events(adjacencies, se, mxe):
     """Create a graph of exon connectivity and traverse the graph to find alternative exons
     \b
@@ -137,6 +188,8 @@ def events(adjacencies, se, mxe):
 
 
 @cli.command()
+@click.pass_debug
+@click.pass_n_jobs
 def index():
     count()
     detect()
@@ -145,10 +198,14 @@ def index():
 
 
 @cli.command()
+@click.pass_debug
+@click.pass_n_jobs
 def validate():
     pass
 
 @cli.command()
+@click.pass_debug
+@click.pass_n_jobs
 def psi():
     pass
 
