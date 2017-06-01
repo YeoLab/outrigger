@@ -90,19 +90,21 @@ def count(context, bam, ignore_multimapping, output):
 def aggregate(context, sj_out_tab, ignore_multimapping, output):
     """Combine multiple junction read files (*SJ.out.tab) across samples
     
-    help="Location of bam files to use for finding events."
-    
-    Applies to STAR SJ.out.tab files only. If this flag is used, then do not '
-                                       'include reads that mapped to multiple '
-                                       'locations in the genome, not uniquely '
-                                       'to a locus, in the read count for a '
-                                       'junction. If inputting "bam" files, '
-                                       'then this means that reads with a '
-                                       'mapping quality (MAPQ) of less than '
-                                       '255 are considered "multimapped." This'
-                                       ' is the same thing as what the STAR '
-                                       'aligner does. By default, this is off,'
-                                       ' and all reads are used.'
+    \b
+    Parameters
+    ----------
+    sj_out_tab : str
+        Location of SJ.out.tab files to use for finding events.
+    ignore_multimapping : bool
+        If this flag is used, then do not include reads that mapped to multiple
+        locations in the genome, not uniquely to a locus, in the read count for
+        a junction. If inputting "bam" files, then this means that reads with 
+        a mapping quality (MAPQ) of less than 255 are considered "multimapped."
+        This is the same thing as what the STAR aligner does. By default, this 
+        is off, and all reads are used.
+    output : str
+        Where to write the junction reads to. By default, creates a file 
+        "junction_reads.csv" in the current directory.
     """
     util.progress(
         'Reading SJ.out.files and creating a big splice junction'
@@ -154,6 +156,7 @@ def detect(junction_reads, min_reads):
                                      " '--gtf-filename'"
     """
     pass
+
 
 @cli.command()
 @click.argument('junction_reads')
