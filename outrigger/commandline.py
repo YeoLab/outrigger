@@ -31,24 +31,23 @@ EVENTS_CSV = 'events.csv'
 METADATA_CSV = 'metadata.csv'
 
 
-class Output(object):
-    def __init__(self, ):
-        pass
+class Parallelizer(object):
+    def __init__(self, n_jobs):
+        self.n_jobs = n_jobs
+
 
 @click.group()
 @click.option('--n-jobs', default=-1, type=int)
 @click.pass_context
-def cli(ctx, n_jobs, debug):
-    ctx.n_jobs = n_jobs
-    ctx.debug = debug
-    # ctx.obj = Repo(repo_home, debug)
+def cli(ctx, n_jobs):
+    ctx.obj = Parallelizer(n_jobs)
 
 
 def write_junctions_csv(splice_junctions, csv):
-    dirname = os.path.dirname(csv)
+    dirname = os.path.dirname(csv) if os.path.sep in csv else os.path.sep
     if not os.path.exists(dirname):
         os.makedirs(dirname)
-    util.progress('Writing {} ...\n'.format(csv))
+    util.progress('\tWriting splice junction counts to {} ...'.format(csv))
     splice_junctions.to_csv(csv, index=False)
     util.done()
 
@@ -57,8 +56,8 @@ def write_junctions_csv(splice_junctions, csv):
 @click.argument('bam', nargs=-1, type=click.Path(exists=True))
 @click.option('--ignore-multimapping', is_flag=True)
 @click.option('--output', type=click.Path(), default='junction_reads.csv')
-@click.pass_n_jobs
-def count(bam, ignore_multimapping, output, n_jobs):
+@click.pass_obj
+def count(context, bam, ignore_multimapping, output):
     """Get number of junction reads from an alignment file
     
     help="Location of bam files to use for finding events."
@@ -78,8 +77,8 @@ def count(bam, ignore_multimapping, output, n_jobs):
     util.progress('Reading bam files and creating a big splice '
                   'junction table of reads spanning exon-exon '
                   'junctions')
-    splice_junctions = bam.read_multiple_bams(
-        bam, ignore_multimapping, n_jobs)
+    splice_junctions = bam.read_multiple_bams(bam, ignore_multimapping,
+                                              context.n_jobs)
     write_junctions_csv(splice_junctions, output)
 
 
@@ -87,8 +86,8 @@ def count(bam, ignore_multimapping, output, n_jobs):
 @click.argument('sj_out_tab', nargs=-1, type=click.Path(exists=True))
 @click.option('--ignore-multimapping', is_flag=True)
 @click.option('--output', type=click.Path(), default='junction_reads.csv')
-@click.pass_n_jobs
-def aggregate(sj_out_tab, ignore_multimapping, output, n_jobs):
+@click.pass_obj
+def aggregate(context, sj_out_tab, ignore_multimapping, output):
     """Combine multiple junction read files (*SJ.out.tab) across samples
     
     help="Location of bam files to use for finding events."
@@ -108,8 +107,9 @@ def aggregate(sj_out_tab, ignore_multimapping, output, n_jobs):
     util.progress(
         'Reading SJ.out.files and creating a big splice junction'
         ' table of reads spanning exon-exon junctions...')
-    splice_junctions = star.read_multiple_sj_out_tab(
-        sj_out_tab, ignore_multimapping=ignore_multimapping, n_jobs)
+    splice_junctions = star.read_multiple_sj_out_tab(sj_out_tab,
+                                                     ignore_multimapping,
+                                                     n_jobs=context.n_jobs)
     write_junctions_csv(splice_junctions, output)
 
 
@@ -120,8 +120,7 @@ def aggregate(sj_out_tab, ignore_multimapping, output, n_jobs):
               default=common.MAX_DE_NOVO_EXON_LENGTH)
 @click.option('--gtf-filename', type=click.Path(exists=True))
 @click.option('--gffutils-db', type=click.Path(exists=True))
-@click.pass_debug
-@click.pass_n_jobs
+@click.pass_context
 def detect(junction_reads, min_reads):
     """Find novel exons that exist between junctions
 
@@ -159,8 +158,7 @@ def detect(junction_reads, min_reads):
 @cli.command()
 @click.argument('junction_reads')
 @click.option('--min-reads', default=10)
-@click.pass_debug
-@click.pass_n_jobs
+@click.pass_context
 def adjacencies(junction_reads, min_reads):
     """Make adjacency list of showing relationships of exons to junctions
 
@@ -175,8 +173,7 @@ def adjacencies(junction_reads, min_reads):
 @click.argument('adjacencies')
 @click.option('--se', type=click.Path(exists=False))
 @click.option('--mxe', type=click.Path(exists=False))
-@click.pass_debug
-@click.pass_n_jobs
+@click.pass_context
 def events(adjacencies, se, mxe):
     """Create a graph of exon connectivity and traverse the graph to find alternative exons
     \b
@@ -188,8 +185,7 @@ def events(adjacencies, se, mxe):
 
 
 @cli.command()
-@click.pass_debug
-@click.pass_n_jobs
+@click.pass_context
 def index():
     count()
     detect()
@@ -198,14 +194,12 @@ def index():
 
 
 @cli.command()
-@click.pass_debug
-@click.pass_n_jobs
+@click.pass_context
 def validate():
     pass
 
 @cli.command()
-@click.pass_debug
-@click.pass_n_jobs
+@click.pass_context
 def psi():
     pass
 

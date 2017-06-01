@@ -10,6 +10,7 @@ import pandas as pd
 from ..common import JUNCTION_ID, JUNCTION_START, JUNCTION_STOP, READS, \
     JUNCTION_MOTIF, EXON_START, EXON_STOP, CHROM, STRAND, ANNOTATED, \
     SAMPLE_ID, UNIQUE_READS, MULTIMAP_READS, MAX_OVERHANG
+from ..util import progress, done
 
 from .core import add_exons_and_junction_ids
 
@@ -115,10 +116,13 @@ def read_multiple_sj_out_tab(filenames, ignore_multimapping=False,
     metadata : pandas.DataFrame
         A tidy dataframe, where each row has the observed reads for a sample
     """
+    progress("Parallelizing the reading and junction counting "
+             "of {} .bam files".format(len(filenames)))
     dfs = joblib.Parallel(n_jobs=n_jobs)(
         joblib.delayed(_read_single_filename)(
             filename, sample_id_func, ignore_multimapping)
         for filename in filenames)
+    done(n_tabs=2)
     splice_junctions = pd.concat(dfs, ignore_index=True)
 
     splice_junctions[CHROM] = splice_junctions[CHROM].astype(str)
