@@ -43,7 +43,7 @@ def cli(ctx, n_jobs):
     ctx.obj = Parallelizer(n_jobs)
 
 
-def write_junctions_csv(splice_junctions, csv):
+def write_junction_reads_csv(splice_junctions, csv):
     dirname = os.path.dirname(csv) if os.path.sep in csv else os.path.sep
     if not os.path.exists(dirname):
         os.makedirs(dirname)
@@ -79,7 +79,7 @@ def count(context, bam, ignore_multimapping, output):
                   'junctions')
     splice_junctions = bam.read_multiple_bams(bam, ignore_multimapping,
                                               context.n_jobs)
-    write_junctions_csv(splice_junctions, output)
+    write_junction_reads_csv(splice_junctions, output)
 
 
 @cli.command()
@@ -112,12 +112,55 @@ def aggregate(context, sj_out_tab, ignore_multimapping, output):
     splice_junctions = star.read_multiple_sj_out_tab(sj_out_tab,
                                                      ignore_multimapping,
                                                      n_jobs=context.n_jobs)
-    write_junctions_csv(splice_junctions, output)
+    write_junction_reads_csv(splice_junctions, output)
+
+
+def filter_junctions_on_reads(spliced_reads, min_reads):
+    # Filter junction metadata to only get junctions with minimum reads
+    util.progress('Filtering for only junctions with minimum of {} reads '
+                  '...'.format(min_reads))
+    original = len(spliced_reads.groupby(common.JUNCTION_ID))
+    enough_reads_rows = spliced_reads[common.READS] >= min_reads
+    spliced_reads = spliced_reads.loc[enough_reads_rows]
+    enough_reads = len(spliced_reads.groupby(common.JUNCTION_ID))
+    removed = original - enough_reads
+    util.progress('\t{enough}/{original} junctions remain after '
+                  'removing {removed} junctions with < '
+                  '{min_reads} '
+                  'reads.'.format(removed=removed, enough=enough_reads,
+                                  original=original,
+                                  min_reads=min_reads))
+    util.done(2)
+    return spliced_reads
+
+@cli.command()
+@click.argument('junction_reads', nargs=1, type=click.Path(exists=True))
+@click.option('--output', type=click.Path(), default='junctions.csv')
+@click.option('--min-reads', type=int, default=10)
+@click.option('--force', is_flag=True, default=False)
+def collapse(junction_reads, output, force, min_reads):
+    """'De-idenitfy' the junction read data to only starts and stops"""
+    junction_reads = pd.read_csv(junction_reads)
+    junction_reads = filter_junctions_on_reads(junction_reads, min_reads)
+
+    util.progress('Creating splice junction metadata of merely where '
+                  'junctions start and stop')
+    metadata = star.make_metadata(junction_reads)
+    util.done()
+
+    if os.path.exists(output) and not force:
+        util.progress("Found existing junctions file at {csv}, cowardly not "
+                      "overwriting. To overwrite, use the flag "
+                      "--force".format(csv=output))
+    if not os.path.exists(output) or force:
+        util.progress('Writing metadata of junctions to {csv}'
+                      ' ...'.format(csv=output))
+        metadata.to_csv(output, index=False)
+    util.done()
 
 
 @cli.command()
-@click.argument('junction_reads')
-@click.option('--min-reads', type=int, default=10)
+@click.argument('junctions')
 @click.option('--max-de-novo-exon-length', '-l',
               default=common.MAX_DE_NOVO_EXON_LENGTH)
 @click.option('--gtf-filename', type=click.Path(exists=True))
