@@ -8,7 +8,7 @@ import joblib
 from ..common import JUNCTION_ID, EXON_START, EXON_STOP, CHROM, STRAND, \
     ORDER_BY, UPSTREAM, DOWNSTREAM, NOVEL_EXON, \
     OUTRIGGER_DE_NOVO, MAX_DE_NOVO_EXON_LENGTH
-from ..io.gtf import transform, maybe_analyze, location_to_feature
+from ..io.gtf import _db_kwargs, maybe_analyze, location_to_feature
 from ..region import Region
 from ..util import done, progress
 
@@ -216,9 +216,7 @@ class ExonJunctionAdjacencies(object):
                                                      n=len(novel_exons)))
             try:
                 self.db.update(exon_features,
-                               make_backup=False,
-                               id_spec={NOVEL_EXON: 'location_id'},
-                               transform=transform)
+                               make_backup=False, **_db_kwargs)
             except ValueError:
                 progress('\tNo novel exons found on chromosome '
                          '{chrom}'.format(chrom=chrom))

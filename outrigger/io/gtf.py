@@ -41,23 +41,26 @@ def transform(f):
         return f
 
 
-def create_db(gtf_filename, db_filename=None):
-    db_filename = ':memory:' if db_filename is None else db_filename
-
-    db = gffutils.create_db(
-        gtf_filename,
-        db_filename,
-        merge_strategy='merge',
+_db_kwargs = dict(merge_strategy='merge',
         id_spec={'gene': 'gene_id', 'transcript': 'transcript_id',
                  'exon': 'location_id', 'CDS': 'location_id',
                  'start_codon': 'location_id',
-                 'stop_codon': 'location_id', 'UTR': 'location_id'},
+                 'stop_codon': 'location_id', 'UTR': 'location_id',
+                 NOVEL_EXON: 'location_id'},
         transform=transform,
         force=True,
         verbose=True,
         disable_infer_genes=True,
         disable_infer_transcripts=True,
         force_merge_fields=['source'])
+
+
+def create_db(gtf_filename, db_filename=None):
+    db_filename = ':memory:' if db_filename is None else db_filename
+
+    db = gffutils.create_db(
+        gtf_filename,
+        db_filename, **_db_kwargs)
     maybe_analyze(db)
     return db
 
