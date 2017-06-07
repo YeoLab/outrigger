@@ -9,6 +9,7 @@ import pysam
 from ..common import UNIQUE_READS, MULTIMAP_READS, READS, CHROM, \
     JUNCTION_START, JUNCTION_STOP, STRAND
 from .core import add_exons_and_junction_ids
+from ..util import progress, done
 
 
 def _report_read_positions(read, counter):
@@ -143,9 +144,12 @@ def bam_to_junction_reads_table(bam_filename, ignore_multimapping=False):
 
 
 def read_multiple_bams(bam_filenames, ignore_multimapping=False, n_jobs=-1):
+    progress("Parallelizing the reading and junction counting "
+             "of {} .bam files".format(len(bam_filenames)))
     dfs = joblib.Parallel(n_jobs=n_jobs)(
         joblib.delayed(
             bam_to_junction_reads_table)(filename, ignore_multimapping)
         for filename in bam_filenames)
+    done(n_tabs=2)
     reads = pd.concat(dfs, ignore_index=True)
     return reads
