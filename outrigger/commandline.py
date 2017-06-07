@@ -158,6 +158,12 @@ def collapse(junction_reads, output, force, min_reads):
         metadata.to_csv(output, index=False)
     util.done()
 
+@cli.command()
+@click.argument('gtf')
+def db(gtf):
+    """Create a database of genes and exons from a GTF file"""
+    pass
+
 
 @cli.command()
 @click.argument('junctions')
