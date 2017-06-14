@@ -262,4 +262,4 @@ def location_to_feature(db, chrom, start, stop, strand, source, featuretype):
                             featuretype=featuretype, start=start,
                             end=stop, strand=strand, id=exon_id,
                             attributes=attributes)
-    return exon, gene_counter, transcript_counter
+    return exon, #gene_counter, transcript_counter
