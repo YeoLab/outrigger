@@ -216,7 +216,7 @@ class ExonJunctionAdjacencies(object):
                                                      n=len(novel_exons)))
             try:
                 self.db.update(exon_features,
-                               make_backup=False, **_db_kwargs)
+                               make_backup=True, **_db_kwargs)
             except ValueError:
                 progress('\tNo novel exons found on chromosome '
                          '{chrom}'.format(chrom=chrom))
