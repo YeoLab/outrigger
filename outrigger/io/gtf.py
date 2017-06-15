@@ -251,15 +251,9 @@ def location_to_feature(db, chrom, start, stop, strand, source, featuretype):
     attributes = {}
     for g in overlapping_genes:
         attributes = merge_attributes(attributes, g.attributes)
-    if len(attributes) == 0:
-        import pdb; pdb.set_trace()
-        # gene_counter += 1
-        # transcript_counter += 1
-        # attributes['gene_id'] = 'gene_{}'.format(gene_counter)
-        # attributes['transcript_id'] = 'gene_{}'.format(transcript_counter)
 
     exon = gffutils.Feature(chrom, source=source,
                             featuretype=featuretype, start=start,
                             end=stop, strand=strand, id=exon_id,
                             attributes=attributes)
-    return exon, #gene_counter, transcript_counter
+    return exon
