@@ -134,12 +134,16 @@ change directories to that folder with ``cd``.
 
     cd ~/projects/tasic2016/analysis/tasic2016_v1
 
+
+Here
+
 Then you need find all alternative splicing events, which you do by
 running ``outrigger index`` on the splice junction files and the gtf.
 Here is an example command:
 
 Input: ``.SJ.out.tab`` files
 ----------------------------
+
 
 ::
 
