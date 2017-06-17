@@ -159,7 +159,7 @@ def collapse(junction_reads, output, force, min_reads):
     util.done()
 
 @cli.command()
-@click.argument('gtf')
+@click.argument('db')
 def db(gtf):
     """Create a database of genes and exons from a GTF file"""
     pass
