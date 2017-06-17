@@ -135,7 +135,14 @@ change directories to that folder with ``cd``.
     cd ~/projects/tasic2016/analysis/tasic2016_v1
 
 
-Here
+Here are the steps ``outrigger index`` takes:
+
+1. ``outrigger aggregate`` to combine all your ``.bam`` alignment files or ``SJ.out.tab`` junction files. Creates --> ``junction_reads.csv``
+2. ``outrigger collapse`` to de-identify your junctions so you only have their start and stop information. Creates --> ``juntions.csv``
+3. ``outrigger db`` to create a database of genes, transcripts, and exons. Creates --> ``outrigger.db``
+4. ``outrigger detect`` to detect novel exons from your data. Creates --> ``exons.gtf``
+5. ``outrigger adjacencies`` to find exon-junction adjacencies in your data. Creates ``exon-direction-junctions.csv``
+6. ``outrigger events`` to find skipped exon (SE) and mutually exclusive exon (MXE) events in your data
 
 Then you need find all alternative splicing events, which you do by
 running ``outrigger index`` on the splice junction files and the gtf.
