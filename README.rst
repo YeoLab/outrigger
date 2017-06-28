@@ -60,8 +60,7 @@ easy (these programs are necessary for both ``outrigger index`` and
     conda config --add channels r
     conda config --add channels bioconda
 
-Create an environment called ``outrigger-env``. Python 2.7, Python 3.4,
-and Python 3.5 are supported.
+Create an environment called ``outrigger-env``. Python 2.7, Python 3.4, Python 3.5, and Python 3.6 are supported.
 
 ::
 
