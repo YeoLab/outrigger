@@ -165,7 +165,7 @@ def assert_graph_items_equal(graph1, items1, graph2, items2):
             test.sort()
             true.sort()
 
-            pdt.assert_equal(test, true)
+            assert test == true
 
     for number2, item2 in enumerate(items2):
         for direction in DIRECTIONS:
@@ -179,7 +179,7 @@ def assert_graph_items_equal(graph1, items1, graph2, items2):
             test.sort()
             true.sort()
 
-            pdt.assert_equal(test, true)
+            assert test == true
 
 
 class TestEventMaker(object):
@@ -352,9 +352,9 @@ class TestSpliceGraph(object):
         exons = tuple(junction_exon_triples.exon.unique())
         junctions = tuple(junction_exon_triples.junction.unique())
 
-        pdt.assert_equal(test.exons, exons)
-        pdt.assert_equal(test.junctions, junctions)
-        pdt.assert_equal(sorted(test.items), sorted(items))
+        assert test.exons == exons
+        assert test.junctions == junctions
+        assert sorted(test.items) == sorted(items)
 
         assert_graph_items_equal(test.graph, test.items, graph, items)
 
