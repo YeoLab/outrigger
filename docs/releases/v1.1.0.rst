@@ -1,23 +1,12 @@
-v1.0.1 (April 3rd, 2017)
+v1.1.0 (June 28th, 2017)
 ------------------------
 
-This is a patch release to ```outrigger``.
-
-
-New features
-~~~~~~~~~~~~
-
-
-Plotting functions
-~~~~~~~~~~~~~~~~~~
-
-
-API changes
-~~~~~~~~~~~
-
+This is a minor release to ```outrigger``.
 
 Bug fixes
 ~~~~~~~~~
+
+- Fixed `UNIQUE ID` error that happened somewhat stochastically when adding new exons to the database
 
 
 Miscellaneous
