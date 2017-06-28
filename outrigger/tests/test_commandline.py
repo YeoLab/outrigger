@@ -72,8 +72,10 @@ def assert_directories_equal(dir1, dir2, ignore=None,
             # Otherwise, just use the file sizes
             size1 = os.stat(filename1).st_size
             size2 = os.stat(filename2).st_size
-            pdt.assert_equal(size1, size2,
-                             msg='{f1} ({size1}) and {f2} ({size2}) have '
+            try:
+                assert size1 == size2
+            except AssertionError:
+                raise AssertionError('{f1} ({size1}) and {f2} ({size2}) have '
                                  'different sizes'.format(f1=filename1,
                                                           f2=filename2,
                                                           size1=size1,
