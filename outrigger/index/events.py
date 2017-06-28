@@ -65,11 +65,6 @@ class SpliceGraph(object):
                 junction_i = self.items.index(junction)
                 exon_i = self.items.index(exon)
 
-                self.log.debug('\n{} is {} of {}\n'.format(
-                    exon, row.direction, junction))
-                self.log.debug('{} is {} of {}\n'.format(
-                    junction, opposite(row.direction), exon))
-
                 tr.store(getattr(V(exon_i), row.direction)(junction_i))
                 tr.store(getattr(V(junction_i),
                                  opposite(row.direction))(exon_i))

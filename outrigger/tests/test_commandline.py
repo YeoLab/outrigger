@@ -43,9 +43,9 @@ def assert_directories_equal(dir1, dir2, ignore=None,
             filename1 = os.path.join(subdir.left, filename)
             filename2 = os.path.join(subdir.right, filename)
 
-            # If the files are csv or bed tables, check that they're equal
             df1, df2 = None, None
 
+            # If the files are csv or bed tables, check that they're equal
             if filename.endswith('.csv'):
                 df1 = pd.read_csv(filename1)
                 df2 = pd.read_csv(filename2)
