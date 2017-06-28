@@ -3,6 +3,25 @@
 History
 =======
 
+v1.1.0 (June 28th, 2017)
+------------------------
+
+This is a minor release to ```outrigger``.
+
+Bug fixes
+~~~~~~~~~
+
+- Fixed `UNIQUE ID` error that happened somewhat stochastically when adding new exons to the database
+
+
+Miscellaneous
+~~~~~~~~~~~~~
+
+- Explicitly added Python 3.6 compatibility
+- Change logo location to `logo/` instead of `logo/v1` since there's only one
+  version anyway...
+
+
 v1.0.0 (April 3rd, 2017)
 ------------------------
 
