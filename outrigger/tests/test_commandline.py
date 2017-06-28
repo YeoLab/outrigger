@@ -76,10 +76,10 @@ def assert_directories_equal(dir1, dir2, ignore=None,
                 assert size1 == size2
             except AssertionError:
                 raise AssertionError('{f1} ({size1}) and {f2} ({size2}) have '
-                                 'different sizes'.format(f1=filename1,
-                                                          f2=filename2,
-                                                          size1=size1,
-                                                          size2=size2))
+                                     'different sizes'.format(f1=filename1,
+                                                              f2=filename2,
+                                                              size1=size1,
+                                                              size2=size2))
 
 
 class TestCommandLine(object):
