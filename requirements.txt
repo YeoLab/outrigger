@@ -7,3 +7,4 @@ biopython
 joblib
 pysam
 graphlite
+pytest-cov

@@ -43,9 +43,5 @@ after_script:
   - if [[ ${TRAVIS_PYTHON_VERSION:0:1} == "2" ]] || [[ $TRAVIS_BRANCH == v*.*.* ]] || [[ $TRAVIS_BRANCH == "$MASTER" ]] ; then sudo apt-get install pandoc; pip install -r doc/requirements.txt; cd docs ; make setup_gh_pages ; make generate ; make deploy ; fi
 
 after_success:
-  - which -a curl
-  - set -o pipefail
-  - /usr/bin/curl --progress-bar https://codecov.io/bash | bash
-  - echo $?
-  - set +o pipefail
-#  - bash <(curl -s https://codecov.io/bash)
+- pip install codecov
+- codecov

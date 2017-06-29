@@ -47,8 +47,7 @@ test: clean-pyc
 	py.test outrigger
 
 coverage: clean-pyc
-	coverage run --source outrigger --omit="*/test*" --module py.test
-	coverage report --show-missing
+	py.test --cov=./ --omit="*/test*"
 
 docs:
 	rm -f docs/outrigger.rst
