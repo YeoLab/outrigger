@@ -47,7 +47,7 @@ test: clean-pyc
 	py.test outrigger
 
 coverage: clean-pyc
-	py.test --cov=./ --omit="*/test*"
+	py.test --cov=./
 
 docs:
 	rm -f docs/outrigger.rst
