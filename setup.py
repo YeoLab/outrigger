@@ -23,13 +23,13 @@ test_requirements = [
 
 setup(
     name='outrigger',
-    version='1.1.0',
+    version='1.1.1',
     description="Outrigger detects *de novo* exons and quantifies their "
                 "percent spliced-in",
     long_description=readme + '\n\n' + history,
     author="Olga Botvinnik",
     author_email='olga.botvinnik@gmail.com',
-    url='https://github.com/yeolab/outrigger',
+    url='https://yeolab.github.io/outrigger',
     packages=[
         'outrigger', 'outrigger.index',
         'outrigger.psi', 'outrigger.io',
@@ -41,10 +41,8 @@ setup(
     install_requires=requirements,
     license="BSD",
     zip_safe=False,
-    keywords='outrigger',
+    keywords='outrigger,bioinformatics,splicing',
     classifiers=[
-        'Development Status :: 2 - Pre-Alpha',
-        'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
         'Natural Language :: English',
         "Programming Language :: Python :: 2",
