@@ -18,9 +18,7 @@ before_install:
 - which -a curl
 
 install:
-- conda env create --file testing/environment_no_python.yml python=2.7
-- source activate outrigger-env
-- pip install .
+- make install
 
 before_script:
 - git config --global user.email "olga.botvinnik@gmail.com"

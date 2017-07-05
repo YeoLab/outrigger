@@ -49,6 +49,26 @@ Installation
 To install ``outrigger``, we recommend using the `Anaconda Python
 Distribution <http://anaconda.org/>`__ and creating an environment.
 
+Quick install
+-------------
+
+(Requires anaconda)
+
+::
+
+    make install
+
+Then, activate the anaconda environment to put outrigger commands in your $PATH
+
+::
+
+    source activate outrigger-env
+
+
+Manual Install
+--------------
+
+
 You'll want to add the `bioconda <https://bioconda.github.io/>`__
 channel to make installing `bedtools <bedtools.readthedocs.io>`__ and
 its Python wrapper, `pybedtools <https://daler.github.io/pybedtools/>`__
@@ -71,6 +91,17 @@ Now activate that environment:
 ::
 
     source activate outrigger-env
+
+
+And run the installation:
+
+::
+
+    pip install .
+
+
+Validate Installation
+---------------------
 
 To check that it installed properly, try the command with the help
 option (``-h``), ``outrigger -h``. The output should look like this:
