@@ -15,9 +15,9 @@ def _report_read_positions(read, counter):
     chrom = read.reference_name
     strand = '-' if read.is_reverse else '+'
 
-    last_read_pos = False
+    last_read_pos = None
     for read_loc, genome_loc in read.get_aligned_pairs():
-        if read_loc is None and last_read_pos:
+        if read_loc is None and last_read_pos is not None:
             # Add one to be compatible with STAR output and show the
             # start of the intron (not the end of the exon)
             start = genome_loc + 1
